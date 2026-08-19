@@ -1,0 +1,308 @@
+{
+  "timespan": "2026-08-10T00:00:00Z/2026-08-10T06:00:00Z",
+  "interval": "PT5M",
+  "namespace": "Microsoft.Compute/virtualMachines",
+  "resourceregion": "Central India",
+  "value": [
+    {
+      "name": {
+        "value": "Percentage CPU",
+        "localizedValue": "Percentage CPU"
+      },
+      "unit": "Percent",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 34.2, "minimum": 25.1, "maximum": 42.8, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 41.7, "minimum": 30.4, "maximum": 53.6, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 46.3, "minimum": 34.2, "maximum": 61.7, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 82.6, "minimum": 61.3, "maximum": 96.4, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 91.4, "minimum": 79.2, "maximum": 99.1, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 68.2, "minimum": 51.7, "maximum": 82.5, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Memory Usage",
+        "localizedValue": "Memory Usage"
+      },
+      "unit": "Percent",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 52.4, "minimum": 49.8, "maximum": 55.1, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 55.7, "minimum": 51.9, "maximum": 59.3, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 61.2, "minimum": 57.4, "maximum": 65.8, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 74.8, "minimum": 69.2, "maximum": 79.7, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 89.3, "minimum": 83.1, "maximum": 94.6, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 82.7, "minimum": 76.4, "maximum": 88.9, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Disk Read Bytes/sec",
+        "localizedValue": "Disk Read Bytes/sec"
+      },
+      "unit": "BytesPerSecond",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 5242880, "minimum": 3145728, "maximum": 8388608, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 7340032, "minimum": 4194304, "maximum": 10485760, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 9437184, "minimum": 5242880, "maximum": 12582912, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 52428800, "minimum": 33554432, "maximum": 67108864, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 45000000, "minimum": 20000000, "maximum": 60000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 12000000, "minimum": 8000000, "maximum": 15000000, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Disk Write Bytes/sec",
+        "localizedValue": "Disk Write Bytes/sec"
+      },
+      "unit": "BytesPerSecond",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 3145728, "minimum": 2097152, "maximum": 5242880, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 4194304, "minimum": 2621440, "maximum": 6291456, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 8388608, "minimum": 5242880, "maximum": 12582912, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 18388608, "minimum": 15242880, "maximum": 22582912, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 15000000, "minimum": 10000000, "maximum": 20000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 5000000, "minimum": 3000000, "maximum": 8000000, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Disk Queue Length",
+        "localizedValue": "Disk Queue Length"
+      },
+      "unit": "Count",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 1.4, "minimum": 0, "maximum": 3, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 2.1, "minimum": 1, "maximum": 4, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 7.8, "minimum": 3, "maximum": 14, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 14.5, "minimum": 8, "maximum": 21, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 12.2, "minimum": 6, "maximum": 18, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 3.1, "minimum": 1, "maximum": 5, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Network In Total",
+        "localizedValue": "Network In Total"
+      },
+      "unit": "Bytes",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 18453210, "minimum": 12000000, "maximum": 25000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 21384200, "minimum": 15000000, "maximum": 29000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 45673100, "minimum": 31000000, "maximum": 62000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 85673100, "minimum": 61000000, "maximum": 102000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 75000000, "minimum": 50000000, "maximum": 90000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 25000000, "minimum": 15000000, "maximum": 35000000, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Network Out Total",
+        "localizedValue": "Network Out Total"
+      },
+      "unit": "Bytes",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 9324100, "minimum": 6000000, "maximum": 13000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 11324100, "minimum": 8000000, "maximum": 16000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 28734000, "minimum": 19000000, "maximum": 39000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 58734000, "minimum": 39000000, "maximum": 79000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 48000000, "minimum": 29000000, "maximum": 69000000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 15000000, "minimum": 10000000, "maximum": 20000000, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Network In Packets",
+        "localizedValue": "Network In Packets"
+      },
+      "unit": "Count",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 18420, "minimum": 15120, "maximum": 22410, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 21380, "minimum": 18210, "maximum": 26740, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 47280, "minimum": 39120, "maximum": 58340, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 87280, "minimum": 69120, "maximum": 98340, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 77000, "minimum": 59000, "maximum": 88000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 25000, "minimum": 18000, "maximum": 32000, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Network Out Packets",
+        "localizedValue": "Network Out Packets"
+      },
+      "unit": "Count",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 9210, "minimum": 7210, "maximum": 12400, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 11280, "minimum": 9210, "maximum": 14820, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 28340, "minimum": 21420, "maximum": 36720, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 58340, "minimum": 41420, "maximum": 76720, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 48000, "minimum": 31000, "maximum": 66000, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 14000, "minimum": 9000, "maximum": 20000, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Available Memory",
+        "localizedValue": "Available Memory"
+      },
+      "unit": "Bytes",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 8589934592, "minimum": 8053063680, "maximum": 9126805504, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 7516192768, "minimum": 6979321856, "maximum": 8053063680, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 6442450944, "minimum": 5905580032, "maximum": 6979321856, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 3442450944, "minimum": 2905580032, "maximum": 4979321856, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 1442450944, "minimum": 905580032, "maximum": 1979321856, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 3042450944, "minimum": 2505580032, "maximum": 4079321856, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Active Connections",
+        "localizedValue": "Active Connections"
+      },
+      "unit": "Count",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 428, "minimum": 390, "maximum": 467, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 512, "minimum": 470, "maximum": 568, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 847, "minimum": 721, "maximum": 932, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 1428, "minimum": 1180, "maximum": 1592, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 1828, "minimum": 1580, "maximum": 2092, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 628, "minimum": 480, "maximum": 792, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Requests Per Second",
+        "localizedValue": "Requests Per Second"
+      },
+      "unit": "Count",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 182, "minimum": 151, "maximum": 214, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 214, "minimum": 178, "maximum": 267, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 386, "minimum": 302, "maximum": 491, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 712, "minimum": 581, "maximum": 894, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 912, "minimum": 781, "maximum": 1094, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 250, "minimum": 180, "maximum": 320, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "HTTP 5xx Errors",
+        "localizedValue": "HTTP 5xx Errors"
+      },
+      "unit": "Count",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 2, "minimum": 0, "maximum": 4, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 4, "minimum": 1, "maximum": 8, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 17, "minimum": 8, "maximum": 29, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 48, "minimum": 21, "maximum": 73, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 85, "minimum": 60, "maximum": 120, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 12, "minimum": 5, "maximum": 20, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Response Time",
+        "localizedValue": "Response Time"
+      },
+      "unit": "Milliseconds",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 182, "minimum": 92, "maximum": 421, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 214, "minimum": 103, "maximum": 517, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 386, "minimum": 121, "maximum": 821, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 712, "minimum": 184, "maximum": 1421, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 1200, "minimum": 800, "maximum": 1900, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 280, "minimum": 150, "maximum": 450, "count": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "value": "Availability",
+        "localizedValue": "Availability"
+      },
+      "unit": "Percent",
+      "timeseries": [
+        {
+          "metadatavalues": [],
+          "data": [
+            { "timeStamp": "2026-08-10T00:00:00Z", "average": 99.98, "minimum": 99.95, "maximum": 100, "count": 1 },
+            { "timeStamp": "2026-08-10T00:05:00Z", "average": 99.96, "minimum": 99.91, "maximum": 100, "count": 1 },
+            { "timeStamp": "2026-08-10T00:10:00Z", "average": 99.71, "minimum": 99.4, "maximum": 99.95, "count": 1 },
+            { "timeStamp": "2026-08-10T00:15:00Z", "average": 98.82, "minimum": 97.9, "maximum": 99.4, "count": 1 },
+            { "timeStamp": "2026-08-10T00:20:00Z", "average": 94.20, "minimum": 90.1, "maximum": 96.5, "count": 1 },
+            { "timeStamp": "2026-08-10T00:25:00Z", "average": 99.10, "minimum": 98.0, "maximum": 99.8, "count": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

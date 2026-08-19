@@ -1,0 +1,21 @@
+# Results directory outputs (ignore generated logs, json, and html reports)
+Results/*
+!Results/.gitkeep
+
+# Python bytecode and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+venv/
+.venv/
+
+# Environment configuration
+config/.env
+
+# OS & IDE metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

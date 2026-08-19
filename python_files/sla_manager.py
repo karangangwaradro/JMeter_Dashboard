@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+"""
+sla_manager.py — SLA Threshold & Hierarchy Manager for JmeterAI.
+
+Manages SLA target files (.csv & .xlsx), extracts Transaction Controllers
+and their child HTTP Samplers from .jmx files, and checks SLA breaches (Target RT & 90th Percentile).
+"""
+
+import os
+import csv
+import json
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+_ROOT_DIR = Path(__file__).parent.parent.resolve()
+_CONFIG_DIR = _ROOT_DIR / "config"
+_TESTS_DIR = _ROOT_DIR / "Tests"
+
+
+def get_sla_file_path(jmx_name: str = "") -> Path:
+    """Get paired CSV path for a JMX file, or fallback to default config/sla_targets.csv."""
+    _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    if jmx_name:
+        clean_name = Path(jmx_name).stem
+        paired_csv = _TESTS_DIR / f"{clean_name}_sla.csv"
+        if paired_csv.exists():
+            return paired_csv
+    
+    # Check default config SLA files
+    default_csv = _CONFIG_DIR / "sla_targets.csv"
+    if default_csv.exists():
+        return default_csv
+        
+    return _CONFIG_DIR / "sla_targets.xlsx"
+
+
+def load_sla_targets(jmx_name: str = "") -> Tuple[Dict[str, dict], float, float]:
+    """
+    Load SLA targets from config/sla_targets.csv / .xlsx and paired {jmx}_sla.csv files.
+    Supports single JMX name or comma-separated JMX list.
+    Returns: (targets_map, default_rt, default_err)
+    """
+    targets = {}
+    default_rt = 500.0
+    default_err = 1.0
+
+    def parse_sla_row(row: dict):
+        label = row.get("Transaction Label", row.get("label", "")).strip()
+        if not label: return None, None
+        try:
+            rt = float(row.get("Target RT (ms)", row.get("rt", 500)))
+        except ValueError:
+            rt = 500.0
+        try:
+            err = float(row.get("Target Error Rate (%)", row.get("err", 1.0)))
+        except ValueError:
+            err = 1.0
+        try:
+            minor_pct = float(row.get("Minor Breach (%)", row.get("minor_pct", 100))) # 100% = 1.0x (Target RT)
+        except ValueError:
+            minor_pct = 100.0
+        try:
+            mod_pct = float(row.get("Moderate Breach (%)", row.get("mod_pct", 200))) # 200% = 2.0x Target RT
+        except ValueError:
+            mod_pct = 200.0
+        try:
+            crit_pct = float(row.get("Critical Breach (%)", row.get("crit_pct", 300))) # 300% = 3.0x Target RT
+        except ValueError:
+            crit_pct = 300.0
+
+        is_critical_raw = str(row.get("Is Critical Transaction", row.get("is_critical", "0"))).strip().lower()
+        is_critical = 1 if is_critical_raw in ("1", "true", "yes", "y", "critical") else 0
+
+        item = {
+            "rt": rt,
+            "err": err,
+            "minor_pct": minor_pct,
+            "mod_pct": mod_pct,
+            "crit_pct": crit_pct,
+            "is_critical": is_critical
+        }
+        return label, item
+
+    # 1. Load global defaults first
+    global_csv = _CONFIG_DIR / "sla_targets.csv"
+    if global_csv.exists():
+        try:
+            with open(global_csv, mode="r", encoding="utf-8", errors="replace") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    label, item = parse_sla_row(row)
+                    if not label: continue
+                    if label.lower() == "default":
+                        default_rt = item["rt"]
+                        default_err = item["err"]
+                    else:
+                        targets[label] = item
+        except Exception as e:
+            print(f"[SLA] Error reading global CSV SLA file: {e}", flush=True)
+
+    # Fallback/supplement with XLSX if present
+    xlsx_path = _CONFIG_DIR / "sla_targets.xlsx"
+    if xlsx_path.exists():
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(xlsx_path, read_only=True)
+            if "SLA Thresholds" in wb.sheetnames:
+                ws = wb["SLA Thresholds"]
+                headers = [str(cell).strip() if cell else "" for cell in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))]
+                for row_vals in ws.iter_rows(min_row=2, values_only=True):
+                    if not row_vals or not row_vals[0]: continue
+                    row_dict = dict(zip(headers, row_vals))
+                    label, item = parse_sla_row(row_dict)
+                    if not label: continue
+                    if label.lower() == "default":
+                        if default_rt == 500.0: default_rt = item["rt"]
+                        if default_err == 1.0: default_err = item["err"]
+                    elif label not in targets:
+                        targets[label] = item
+        except Exception as e:
+            print(f"[SLA] Error reading XLSX SLA file: {e}", flush=True)
+
+    # 2. Merge scenario-specific paired CSVs if jmx_name is provided
+    if jmx_name:
+        jmx_items = [j.strip() for j in str(jmx_name).split(",") if j.strip()]
+        for item in jmx_items:
+            clean_name = Path(item).stem
+            paired_csv = _TESTS_DIR / f"{clean_name}_sla.csv"
+            if paired_csv.exists():
+                try:
+                    with open(paired_csv, mode="r", encoding="utf-8", errors="replace") as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            label, item_data = parse_sla_row(row)
+                            if not label: continue
+                            if label.lower() == "default":
+                                default_rt = item_data["rt"]
+                                default_err = item_data["err"]
+                            else:
+                                targets[label] = item_data
+                except Exception as e:
+                    print(f"[SLA] Error reading paired CSV SLA file {paired_csv}: {e}", flush=True)
+
+    return targets, default_rt, default_err
+
+
+def save_sla_targets(slas_list: List[dict], jmx_name: str = "") -> str:
+    """
+    Save SLA targets to paired {jmx_name}_sla.csv or config/sla_targets.csv.
+    Also syncs to config/sla_targets.xlsx for backward compatibility.
+    """
+    if jmx_name:
+        clean_name = Path(jmx_name).stem
+        target_csv = _TESTS_DIR / f"{clean_name}_sla.csv"
+    else:
+        target_csv = _CONFIG_DIR / "sla_targets.csv"
+
+    target_csv.parent.mkdir(parents=True, exist_ok=True)
+
+    # Save to CSV with SLA severity columns and Is Critical flag
+    with open(target_csv, mode="w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Transaction Label", "Target RT (ms)", "Target Error Rate (%)", "Minor Breach (%)", "Moderate Breach (%)", "Critical Breach (%)", "Is Critical Transaction"])
+        for item in slas_list:
+            lbl = item.get("label", "").strip()
+            if not lbl: continue
+            rt = item.get("rt", 500)
+            err = item.get("err", 1.0)
+            minor = item.get("minor_pct", 100.0)
+            mod = item.get("mod_pct", 200.0)
+            crit = item.get("crit_pct", 300.0)
+            is_crit = 1 if item.get("is_critical") in (1, True, "1", "true") else 0
+            writer.writerow([lbl, rt, err, minor, mod, crit, is_crit])
+
+    # Also update Excel file in config/
+    try:
+        from openpyxl import Workbook
+        xlsx_path = _CONFIG_DIR / "sla_targets.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "SLA Thresholds"
+        ws.append(["Transaction Label", "Target RT (ms)", "Target Error Rate (%)", "Minor Breach (%)", "Moderate Breach (%)", "Critical Breach (%)", "Is Critical Transaction"])
+        for item in slas_list:
+            lbl = item.get("label", "").strip()
+            if not lbl: continue
+            rt = item.get("rt", 500)
+            err = item.get("err", 1.0)
+            minor = item.get("minor_pct", 100.0)
+            mod = item.get("mod_pct", 200.0)
+            crit = item.get("crit_pct", 300.0)
+            is_crit = 1 if item.get("is_critical") in (1, True, "1", "true") else 0
+            ws.append([lbl, rt, err, minor, mod, crit, is_crit])
+        wb.save(xlsx_path)
+    except Exception as e:
+        print(f"[SLA] Warning sync to XLSX: {e}", flush=True)
+
+    return str(target_csv)
+
+
+def parse_jmx_hierarchy(jmx_input) -> Tuple[List[str], Dict[str, List[str]]]:
+    """
+    Parse JMX (or comma-separated list of JMX files) to extract:
+      1. Transaction Controllers (especially main TCs starting with TC / T / T01 etc.)
+      2. Mapping of Transaction Controller -> List of child HTTP Samplers
+    """
+    tc_list = []
+    tc_to_samplers = {}
+
+    if not jmx_input:
+        return tc_list, tc_to_samplers
+
+    jmx_paths = []
+    if isinstance(jmx_input, (list, tuple)):
+        jmx_paths = [Path(p) for p in jmx_input]
+    elif isinstance(jmx_input, Path):
+        jmx_paths = [jmx_input]
+    elif isinstance(jmx_input, str):
+        for name in jmx_input.split(","):
+            name = name.strip()
+            if not name: continue
+            p = Path(name)
+            if not p.is_absolute():
+                p = _TESTS_DIR / name
+            jmx_paths.append(p)
+
+    for jmx_path in jmx_paths:
+        if not jmx_path.exists():
+            continue
+
+        try:
+            tree = ET.parse(jmx_path)
+            root = tree.getroot()
+
+            all_tcs = []
+            for tc_elem in root.iter("TransactionController"):
+                tc_name = tc_elem.attrib.get("testname", "").strip()
+                if not tc_name:
+                    continue
+
+                u_name = tc_name.upper()
+                is_main_tc = u_name.startswith("TC")
+
+                if is_main_tc:
+                    if tc_name not in tc_list:
+                        tc_list.append(tc_name)
+                else:
+                    all_tcs.append(tc_name)
+
+                if tc_name not in tc_to_samplers:
+                    tc_to_samplers[tc_name] = []
+
+                # Traverse all sub-elements (ParallelControllers, child TransactionControllers, HTTP Samplers)
+                for child in tc_elem.iter():
+                    c_name = child.attrib.get("testname", "").strip()
+                    if not c_name or c_name == tc_name:
+                        continue
+                    # Match HTTP Samplers, TransactionControllers, and Parallel Controllers
+                    if "HTTPSampler" in child.tag or "TransactionController" in child.tag or "Parallel" in child.tag:
+                        if c_name not in tc_to_samplers[tc_name]:
+                            tc_to_samplers[tc_name].append(c_name)
+
+            if not tc_list and all_tcs:
+                for tc_n in all_tcs:
+                    if tc_n not in tc_list:
+                        tc_list.append(tc_n)
+
+        except Exception as e:
+            print(f"[SLA] Error parsing JMX hierarchy from {jmx_path.name}: {e}", flush=True)
+
+    def tc_sort_key(name: str):
+        u = name.upper()
+        if u.startswith("TC"): return (0, name)
+        if u.startswith("T01") or u.startswith("T1"): return (1, name)
+        if u.startswith("T_"): return (2, name)
+        return (3, name)
+
+    tc_list.sort(key=tc_sort_key)
+    return tc_list, tc_to_samplers

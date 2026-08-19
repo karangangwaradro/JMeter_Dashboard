@@ -1,0 +1,6 @@
+python-dotenv
+requests
+openpyxl
+google-genai
+azure-identity
+azure-monitor-query

@@ -1,0 +1,9 @@
+Transaction Label,Target RT (ms),Target Error Rate (%),Minor Breach (%),Moderate Breach (%),Critical Breach (%),Is Critical Transaction
+default,500,1,100.0,200.0,300.0,0
+TC00_InitialLoading,500,1,100.0,200.0,300.0,1
+TC01_T01_LaunchOutllok,500,1,100.0,200.0,300.0,1
+TC01_T02_ValidateEmail,500,1,100.0,200.0,300.0,1
+TC01_T03_validatepassword_and_signin_outlook,500,1,100.0,200.0,300.0,1
+TC01_T04_SelectAEmail_,500,1,100.0,200.0,300.0,0
+TC01_T05_ClickOnShowTaskpane,500,1,100.0,200.0,300.0,1
+TC01_T06_SignIN _KM,500,1,100.0,200.0,300.0,0

@@ -1,0 +1,13 @@
+Transaction Label,Target RT (ms),Target Error Rate (%),Minor Breach (%),Moderate Breach (%),Critical Breach (%),Is Critical Transaction
+default,500,1,100.0,200.0,300.0,0
+T01 Launch The JpetStore,500,1,100.0,200.0,300.0,0
+T10 Add payment and bill details,200,1,100.0,200.0,300.0,1
+T11 click on confirm,500,7,100.0,200.0,300.0,0
+T02 Sign to the application,200,1,100.0,200.0,300.0,0
+T03 Select any animal,500,1,100.0,200.0,300.0,1
+T04 Select any animal,500,1,100.0,200.0,300.0,0
+T05 click on category,500,1,100.0,200.0,300.0,0
+T06 Select any animal and add to cart,182,1,100.0,200.0,300.0,1
+T07 click on category,500,1,100.0,200.0,300.0,0
+T08 select any animal and add to cart,500,1,100.0,200.0,300.0,1
+T09 proceed to checkout,500,1,100.0,200.0,300.0,0
