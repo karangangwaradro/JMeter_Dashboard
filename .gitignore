@@ -1,6 +1,14 @@
 # Results directory outputs (ignore generated logs, json, and html reports)
 Results/*
 !Results/.gitkeep
+!Results/html/
+!Results/html/.gitkeep
+!Results/json/
+!Results/json/.gitkeep
+!Results/jtl/
+!Results/jtl/.gitkeep
+!Results/Published/
+!Results/Published/.gitkeep
 
 # Python bytecode and virtual environments
 __pycache__/
@@ -19,3 +27,11 @@ config/.env
 Thumbs.db
 .vscode/
 .idea/
+
+# AI Assistant Skills & Configurations
+.claude/
+.gemini/
+.impeccable/
+.agents/
+skills/
+

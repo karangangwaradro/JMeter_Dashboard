@@ -760,7 +760,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     key_findings_html = ""
     for f in all_findings:
         sev_icon, sev_color = SEVERITY_BADGES.get(f["severity"], ("⚪", "var(--muted)"))
-        dev_label = "Critical Deviation" if f["severity"] == SEV_CRITICAL else "Slight Deviation" if f["severity"] == SEV_HIGH else "Minor Deviation"
+        sev_str = str(f.get("severity", "")).lower()
+        dev_label = "Critical Deviation" if "critical" in sev_str else "Slight Deviation" if "high" in sev_str else "Minor Deviation"
         title_clean = f["title"].replace(" shows significant latency deviation", "").replace(" SLA deviation", "")
         obs_clean = f.get("observation", "")
         
@@ -874,6 +875,13 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     if not display_label_names:
         display_label_names = sorted(labels.keys())
 
+    # Build map of per-transaction target SLA values for JS chart rendering
+    tx_sla_map = {k: v.get("rt", default_rt) for k, v in sla_targets.items()}
+    for k in display_labels.keys():
+        if k not in tx_sla_map:
+            tx_sla_map[k] = default_rt
+    tx_sla_json = json.dumps(tx_sla_map)
+
     # Build sub-map only for displayed labels, keyed by numeric index
     display_ts_map = {}
     for idx_i, l_name in enumerate(display_label_names):
@@ -896,17 +904,214 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     tx_chart_labels = json.dumps([l[0][:30] for l in top_labels])
     tx_chart_values = json.dumps([l[1].get("avg_rt", 0) for l in top_labels])
 
-    # -- Conditional Pass & Hero Variables --
-    if status == "PASSED" and tx_breached_count > 0:
-        status = "CONDITIONAL PASS"
-    
-    status_icon = "🟢" if status == "PASSED" else "🟠" if status == "CONDITIONAL PASS" else "🔴"
-    status_color = "#10b981" if status == "PASSED" else "#f59e0b" if status == "CONDITIONAL PASS" else "#ef4444"
+    # Calculate scorecard metrics for Executive Summary (Wireframe Tab 1)
+    apdex_below_50_count = 0
+    apdex_below_25_count = 0
+    sla_breach_100_count = 0
+    sla_breach_50_count  = 0
+    sla_breach_20_count  = 0
 
-    rt_status = "🟢 Within Target" if overall_apdex >= 0.85 else "🟠 Attention" if overall_apdex >= 0.70 else "🔴 Failed"
-    sla_status = "🟢 100% Passed" if tx_breached_count == 0 else f"🔴 {tx_breached_count} SLA Breaches"
-    infra_status = "🟢 No bottlenecks" if not infra_findings_html else "🟠 Pressure detected"
-    cap_status = "⚪ Not determined" if not cap else "⚪ " + cap.get("analysis", "Capacity evaluated")
+    for tx_name, metrics in display_labels.items():
+        tx_apdex = metrics.get("apdex", 1.0)
+        if tx_apdex < 0.25:
+            apdex_below_25_count += 1
+            apdex_below_50_count += 1
+        elif tx_apdex < 0.50:
+            apdex_below_50_count += 1
+
+        target_rt_val = sla_targets.get(tx_name, {}).get("rt", default_rt)
+        p90_val = metrics.get("p90", metrics.get("avg_rt", 0))
+        
+        if target_rt_val > 0:
+            dev_pct = ((p90_val - target_rt_val) / target_rt_val) * 100.0
+            if dev_pct > 100.0:
+                sla_breach_100_count += 1
+                sla_breach_50_count += 1
+                sla_breach_20_count += 1
+            elif dev_pct > 50.0:
+                sla_breach_50_count += 1
+                sla_breach_20_count += 1
+            elif dev_pct > 20.0:
+                sla_breach_20_count += 1
+
+    # Calculate SLA Deviation Data for Diverging Horizontal Bar Chart (Sorted by worst SLA deviation %)
+    dev_items = []
+    tx_dev_map = {}
+    for tx_name, metrics in display_labels.items():
+        target_rt_val = sla_targets.get(tx_name, {}).get("rt", default_rt)
+        p90_val = metrics.get("p90", metrics.get("avg_rt", 0))
+        if target_rt_val > 0:
+            dev_pct = round(((p90_val - target_rt_val) / target_rt_val) * 100.0, 1)
+        else:
+            dev_pct = 0.0
+        item = {"label": tx_name, "dev_pct": dev_pct, "p90": p90_val, "target": target_rt_val}
+        dev_items.append(item)
+        tx_dev_map[tx_name] = item
+
+    # Sort by worst breach first (highest positive % to lowest negative %)
+    dev_items.sort(key=lambda x: x["dev_pct"], reverse=True)
+
+    deviation_chart_labels = [item["label"][:35] for item in dev_items]
+    deviation_chart_values = [item["dev_pct"] for item in dev_items]
+
+    deviation_chart_labels_json = json.dumps(deviation_chart_labels)
+    deviation_chart_values_json = json.dumps(deviation_chart_values)
+    tx_dev_map_json = json.dumps(tx_dev_map)
+
+    # Build Transaction Statistics Table & Chart Data for Iteration Statistics Section (Thread Group Level)
+    # Each row = one Thread Group (user story). Child TCs are aggregated into a single row.
+    tx_stat_rows_html = ""
+    total_duration_min = round(summary.get("duration_sec", 0) / 60.0, 1) if summary.get("duration_sec") else 0
+    if total_duration_min == 0:
+        total_duration_min = round(parsed.get("duration", 0) / 60.0, 1)
+
+    overall_users = users
+    overall_samples = 0
+    overall_pass = 0
+    overall_fail = 0
+
+    tx_chart_labels = []
+    tx_chart_pass = []
+    tx_chart_fail = []
+
+    # Try to get Thread Group → TC mapping from JMX
+    tg_configs = []
+    try:
+        from python_files.sla_manager import parse_jmx_thread_groups
+        tg_configs = parse_jmx_thread_groups(jmx_name)
+    except Exception as _tg_err:
+        print(f"[Report] Thread group parse warning: {_tg_err}", flush=True)
+
+    if tg_configs:
+        # Thread Group level: use wrapper_tc as the unique JTL match key
+        # The wrapper TC (e.g. "T-1_Overall Iteration") is the first TC inside each
+        # ThreadGroup's hashTree — it's unique across TGs and appears directly in JTL.
+        # Display label = Thread Group name (human readable).
+        all_labels = {**labels}  # full label map (unfiltered) to resolve wrapper TCs
+
+        for tg in tg_configs:
+            tg_name_str  = tg["name"]
+            tg_enabled   = tg.get("enabled", True)
+            tg_users     = tg.get("users", users)
+            wrapper_tc   = tg.get("wrapper_tc")    # Primary JTL match key
+            child_tcs    = tg.get("child_tcs", []) # Step-level TCs (for fallback)
+
+            tg_total = 0
+            tg_fail  = 0
+            matched_any = False
+
+            # Strategy 1: match by wrapper TC (e.g. "T-1_Overall Iteration")
+            # This is the most reliable — unique per TG, direct JTL label
+            if wrapper_tc and wrapper_tc in all_labels:
+                tg_total = all_labels[wrapper_tc].get("count", 0)
+                tg_fail  = all_labels[wrapper_tc].get("errors", 0)
+                matched_any = True
+
+            # Strategy 2: if no wrapper TC in JTL, aggregate named child step TCs
+            # (Only works if child TC names are unique across TGs)
+            if not matched_any and child_tcs:
+                for tc_name in child_tcs:
+                    if tc_name in all_labels:
+                        tg_total += all_labels[tc_name].get("count", 0)
+                        tg_fail  += all_labels[tc_name].get("errors", 0)
+                        matched_any = True
+
+            # Strategy 3: fallback — TG name itself appears as JTL label
+            if not matched_any and tg_name_str in all_labels:
+                tg_total = all_labels[tg_name_str].get("count", 0)
+                tg_fail  = all_labels[tg_name_str].get("errors", 0)
+                matched_any = True
+
+            if not matched_any:
+                continue  # No JTL data for this TG — skip row
+
+            tg_pass = max(0, tg_total - tg_fail)
+            err_pct = (tg_fail / tg_total * 100.0) if tg_total > 0 else 0.0
+
+            overall_samples += tg_total
+            overall_pass    += tg_pass
+            overall_fail    += tg_fail
+
+            tx_chart_labels.append(tg_name_str[:35])
+            tx_chart_pass.append(tg_pass)
+            tx_chart_fail.append(tg_fail)
+
+            tx_stat_rows_html += f'''
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">{tg_name_str}</td>
+            <td style="text-align:center; padding:0.5rem;">{total_duration_min}</td>
+            <td style="text-align:center; padding:0.5rem;">{tg_users}</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">{tg_total:,}</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">{tg_pass:,}</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">{tg_fail:,}</td>
+            <td style="text-align:center; font-weight:700; color:{'var(--red)' if err_pct > 1.0 else 'var(--green)'}; padding:0.5rem;">{err_pct:.2f}%</td>
+        </tr>
+        '''
+
+
+    else:
+        # Fallback: no JMX available — use display_labels (TC level) as-is
+        for lname, ldata in sorted(display_labels.items(), key=lambda x: x[0]):
+            sample_tot = ldata.get("count", 0)
+            sample_fail = ldata.get("errors", 0)
+            sample_pass = max(0, sample_tot - sample_fail)
+            err_pct = (sample_fail / sample_tot * 100.0) if sample_tot > 0 else 0.0
+            script_users = ldata.get("users", users)
+
+            overall_samples += sample_tot
+            overall_pass += sample_pass
+            overall_fail += sample_fail
+            tx_chart_labels.append(lname[:35])
+            tx_chart_pass.append(sample_pass)
+            tx_chart_fail.append(sample_fail)
+
+            tx_stat_rows_html += f'''
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">{lname}</td>
+            <td style="text-align:center; padding:0.5rem;">{total_duration_min}</td>
+            <td style="text-align:center; padding:0.5rem;">{script_users}</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">{sample_tot:,}</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">{sample_pass:,}</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">{sample_fail:,}</td>
+            <td style="text-align:center; font-weight:700; color:{'var(--red)' if err_pct > 1.0 else 'var(--green)'}; padding:0.5rem;">{err_pct:.2f}%</td>
+        </tr>
+        '''
+
+    overall_err_pct = (overall_fail / overall_samples * 100.0) if overall_samples > 0 else 0.0
+    tx_stat_rows_html += f'''
+    <tr style="border-top:2px solid var(--accent); background:var(--surface2); font-weight:800;">
+        <td style="text-align:left; padding:0.6rem;">Overall</td>
+        <td style="text-align:center; padding:0.6rem;">{total_duration_min}</td>
+        <td style="text-align:center; padding:0.6rem;">{overall_users}</td>
+        <td style="text-align:center; padding:0.6rem;">{overall_samples:,}</td>
+        <td style="text-align:center; color:var(--green); padding:0.6rem;">{overall_pass:,}</td>
+        <td style="text-align:center; color:var(--red); padding:0.6rem;">{overall_fail:,}</td>
+        <td style="text-align:center; color:{'var(--red)' if overall_err_pct > 1.0 else 'var(--green)'}; padding:0.6rem;">{overall_err_pct:.2f}%</td>
+    </tr>
+    '''
+
+    tx_chart_labels_json = json.dumps(tx_chart_labels)
+    tx_chart_pass_json   = json.dumps(tx_chart_pass)
+    tx_chart_fail_json   = json.dumps(tx_chart_fail)
+
+    # Build Thread Group -> Child TCs JSON mapping for User Story dropdown filter
+    tg_to_tcs_map = {}
+    if tg_configs:
+        for tg in tg_configs:
+            name = tg["name"]
+            tcs = tg.get("child_tcs", [])
+            # Also include wrapper_tc if present
+            if tg.get("wrapper_tc") and tg["wrapper_tc"] not in tcs:
+                tcs = [tg["wrapper_tc"]] + tcs
+            tg_to_tcs_map[name] = tcs
+    tg_to_tcs_json = json.dumps(tg_to_tcs_map)
+
+    # Build User Story dropdown HTML options for Section 5
+    us_select_options_html = '<option value="ALL">All User Stories / Thread Groups</option>'
+    if tg_to_tcs_map:
+        for tg_name in tg_to_tcs_map.keys():
+            us_select_options_html += f'<option value="{tg_name}">{tg_name}</option>'
+
 
     # Serialize findings and recommendations for JS Findings Drawer
     findings_json = json.dumps(all_findings).replace("</script>", "<\\/script>")
@@ -1124,42 +1329,42 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 <div class="report-container">
 
     <!-- Header -->
-    <div class="report-header glass-panel">
-        <div class="header-left">
-            <div class="engine-badge">⚡ JmeterAI</div>
-            <div class="report-title">
-                <h1>{jmx_name}</h1>
-                <p>Executed: {execution_time} &nbsp;|&nbsp; Users: {users} &nbsp;|&nbsp; Duration: {summary.get('duration_sec', 0):.0f}s &nbsp;|&nbsp; Run: {run_id}</p>
+    <div class="report-header glass-panel" style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.5rem; margin-bottom:1rem;">
+        <div class="header-left" style="display:flex; align-items:center; gap:1.25rem;">
+            <div class="engine-badge" style="font-weight:800; font-size:1.2rem; color:var(--accent);">⚡ JMeter AI</div>
+            <div style="border-left:2px solid var(--border); padding-left:1.25rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Project Details &amp; Execution Time</div>
+                <div style="font-size:1rem; font-weight:700; color:var(--text); margin:0.1rem 0;">Application Name: {jmx_name} &nbsp;|&nbsp; Module Executed: <span contenteditable="true">Load Test Module</span></div>
+                <div style="font-size:0.78rem; color:var(--muted);">
+                    <strong>Start Time:</strong> {summary.get('start_time', execution_time)} &nbsp;|&nbsp; <strong>End Time:</strong> {summary.get('end_time', execution_time)} &nbsp;|&nbsp; <strong>Run ID:</strong> {run_id}
+                </div>
             </div>
         </div>
-        <div class="header-right">
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.8rem; border-radius:8px; text-align:center;" title="Average Apdex Score across all transactions">
-                <span style="font-size:0.65rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">OVERALL APDEX</span>
-                <span style="font-size:1.15rem; font-weight:800; color:{score_color}; line-height:1.1;">{apdex_score_str}</span>
-            </div>
+        <div class="header-right" style="display:flex; align-items:center; gap:0.6rem;">
             <span id="editModeBadge" class="status-pill" style="background:#8b5cf6; font-size:0.75rem; display:none;">✏️ EDIT MODE</span>
-            <button id="editBtn" class="theme-toggle" onclick="toggleEditMode()" style="background:var(--surface2); color:var(--text); border:1px solid var(--border);">✏️ Edit Report</button>
-            <button id="pdfBtn" class="theme-toggle" onclick="exportToPDF()" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; border: none; font-weight:700; padding:0.4rem 1rem; box-shadow: 0 4px 12px rgba(225,29,72,0.3);">📄 Export PDF</button>
-            <button id="publishBtn" class="theme-toggle" onclick="publishReport()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-weight:700; padding:0.4rem 1rem; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">🚀 Publish Report</button>
+            <button id="editBtn" class="theme-toggle" onclick="toggleEditMode()" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.45rem 1rem; cursor:pointer; font-weight:600;">✏️ Edit Report</button>
+            <button id="pdfBtn" class="theme-toggle" onclick="exportToPDF()" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; border: none; font-weight:700; padding:0.45rem 1rem; box-shadow: 0 4px 12px rgba(225,29,72,0.3); border-radius:6px; cursor:pointer;">📄 Export Report</button>
+            <button id="publishBtn" class="theme-toggle" onclick="publishReport()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-weight:700; padding:0.45rem 1rem; box-shadow: 0 4px 12px rgba(16,185,129,0.3); border-radius:6px; cursor:pointer;">🚀 Publish Report</button>
         </div>
     </div>
 
     <!-- Report Tab Navigation Header -->
     <nav class="report-nav glass-panel">
-        <button class="nav-btn active" onclick="switchReportTab('rpt-summary', this)">📊 Test Summary</button>
-        <button class="nav-btn" onclick="switchReportTab('rpt-load', this)">👥 Load & Capacity</button>
+        <button class="nav-btn active" onclick="switchReportTab('rpt-summary', this)">📊 Executive Summary</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-load', this)">👥 Load &amp; Capacity</button>
         <button class="nav-btn" onclick="switchReportTab('rpt-tx', this)">📋 Transaction Stats</button>
         <button class="nav-btn" onclick="switchReportTab('rpt-rt', this)">⏱️ Response Time Stats</button>
-        <button class="nav-btn" onclick="switchReportTab('rpt-error', this)">🔴 SLA & Errors</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-error', this)">🔴 SLA &amp; Errors</button>
         <button class="nav-btn" onclick="switchReportTab('rpt-infra', this)">🖥️ Infrastructure Monitoring</button>
     </nav>
 
-    <!-- TAB 1: Test Summary (Unified Dashboard) -->
+    <!-- TAB 1: Executive Summary -->
     <div id="rpt-summary" class="tab-pane">
-        <!-- Test Configuration & Executive Summary -->
+        
+        <!-- 1. Test Config / Details -->
         <div class="section glass-panel">
-            <h2>📋 Test Configuration</h2>
-            <table style="margin-bottom:1.5rem; font-size:0.85rem;">
+            <h2>📋 Test Config / Details</h2>
+            <table style="margin-bottom:1rem; font-size:0.85rem;">
                 <thead>
                     <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
                 </thead>
@@ -1171,67 +1376,137 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     <tr><td style="font-weight:700;">Ramp-up / Down</td><td contenteditable="true">Manual Input</td><td style="font-weight:700;">Environment</td><td contenteditable="true">Staging</td></tr>
                 </tbody>
             </table>
+        </div>
 
-            <h2>📈 Executive Summary</h2>
+        <!-- 2. Test Objective -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>🎯 Test Objective</h2>
+            <div style="font-size:0.88rem; line-height:1.6; padding:0.4rem 0;" contenteditable="true">
+                Validate system performance, throughput stability, response time SLA compliance, and error rates of {jmx_name} under peak load conditions.
+            </div>
+        </div>
+
+        <!-- 3. Performance Scorecard & SLA Violation Grid (Grouped 3x3 Layout) -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>📈 Performance Scorecard &amp; SLA Violation Summary</h2>
             
-            <div style="font-size:0.9rem; line-height:1.7; margin-bottom:1rem;" contenteditable="true">{exec_summary}</div>
-            {overall_rc_html}
+            <!-- Group 1: APDEX & User Experience Health (3 Cards) -->
+            <div style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:0.8rem 0 0.5rem 0;">APDEX &amp; User Experience Health</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem;">
+                
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">Overall APDEX Score</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:{score_color}; margin:0.3rem 0;">{apdex_score_str}</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Target &ge; 0.85</div>
+                </div>
 
-            <div class="kpi-grid" style="margin-top:1.25rem; margin-bottom:1.5rem;">
-                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border);">
-                    <div class="kpi-label">Total Transactions</div>
-                    <div class="kpi-value">{summary.get('total_tx_executions', total_tx_executions):,}</div>
-                    <div class="kpi-sub">{total_tx_count} transaction types</div>
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);"># Transactions (Apdex &lt; .50)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:{'var(--red)' if apdex_below_50_count > 0 else 'var(--green)'}; margin:0.3rem 0;">{apdex_below_50_count}</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Poor performance rating</div>
                 </div>
-                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border);">
-                    <div class="kpi-label">Avg Response Time</div>
-                    <div class="kpi-value {'pass' if avg_rt <= 500 else 'warn' if avg_rt <= 2000 else 'fail'}">{avg_rt:.0f}<span style="font-size:0.9rem"> ms</span></div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);"># Transactions (Apdex &lt; .25)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:{'var(--red)' if apdex_below_25_count > 0 else 'var(--green)'}; margin:0.3rem 0;">{apdex_below_25_count}</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Unacceptable rating</div>
                 </div>
-                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border);">
-                    <div class="kpi-label">P95 Response</div>
-                    <div class="kpi-value">{summary.get('p95', 0)}<span style="font-size:0.9rem"> ms</span></div>
-                </div>
-                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border);">
-                    <div class="kpi-label">P99 Response</div>
-                    <div class="kpi-value">{summary.get('p99', 0)}<span style="font-size:0.9rem"> ms</span></div>
-                </div>
-                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border);">
-                    <div class="kpi-label">Throughput</div>
-                    <div class="kpi-value">{summary.get('throughput', 0):.1f}<span style="font-size:0.9rem"> req/s</span></div>
-                </div>
-                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border);">
-                    <div class="kpi-label">Error Rate</div>
-                    <div class="kpi-value {'pass' if error_rate <= 1 else 'warn' if error_rate <= 5 else 'fail'}">{error_rate:.2f}<span style="font-size:0.9rem">%</span></div>
-                    <div class="kpi-sub">{summary.get('tc_errors', summary.get('errors', 0))} errors of {summary.get('total_tx_executions', total_tx_executions):,}</div>
-                </div>
+
             </div>
 
-            <table style="margin-bottom:0; font-size:0.85rem;">
-                <thead>
-                    <tr><th style="width: 25%">Category</th><th>Key Metrics & Outcome</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td style="font-weight:700;">Response Time</td><td>Avg: {avg_rt:.0f} ms | P95: {summary.get('p95', 0)} ms | P99: {summary.get('p99', 0)} ms</td></tr>
-                    <tr><td style="font-weight:700;">SLA Deviations</td><td><strong style="color:{'var(--red)' if tx_breached_count > 0 else 'var(--green)'};">{tx_breached_count}</strong> deviations detected.</td></tr>
-                    <tr><td style="font-weight:700;">Stability</td><td>Overall Error Rate: <strong class="{'fail' if error_rate > 1 else 'pass'}">{error_rate:.2f}%</strong></td></tr>
-                    <tr><td style="font-weight:700;">Infrastructure</td><td style="font-weight: 700;">{infra_status}</td></tr>
-                </tbody>
-            </table>
-        </div>
-        
-        {data_quality_html}
+            <!-- Group 2: Response Time SLA Violations (3 Cards) -->
+            <div style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:1.2rem 0 0.5rem 0;">Response Time SLA Breaches</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem;">
 
-        <!-- Key Performance Findings -->
-        <div class="section glass-panel" style="margin-top: 1.5rem;">
-            <h2>🔎 Key Performance Findings</h2>
-            <div style="margin-bottom:1.25rem;">
-                {key_findings_html}
-            </div>
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 100%)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:{'var(--red)' if sla_breach_100_count > 0 else 'var(--green)'}; margin:0.3rem 0;">{sla_breach_100_count}</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 2x SLA target</div>
+                </div>
 
-            <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.85rem 1rem; font-size:0.83rem; color:var(--text);">
-                <strong>Overall Observation:</strong> <span contenteditable="true">The test indicates elevated latency in selected transactions, with primary deviation observed in top transactions. Tail latency also indicates occasional high-response-time outliers.</span>
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 50%)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:{'var(--red)' if sla_breach_50_count > 0 else 'var(--green)'}; margin:0.3rem 0;">{sla_breach_50_count}</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.5x SLA target</div>
+                </div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 20%)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:{'var(--yellow)' if sla_breach_20_count > 0 else 'var(--green)'}; margin:0.3rem 0;">{sla_breach_20_count}</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.2x SLA target</div>
+                </div>
+
             </div>
         </div>
+
+        <!-- 4. Iteration Statistics & Transaction Statistics Table/Chart (Exact Wireframe Format) -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>📊 Transaction Statistics &amp; Iteration Summary</h2>
+            
+            <div style="overflow-x:auto; margin-bottom:1.5rem;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.83rem; border:1px solid var(--border);">
+                    <thead>
+                        <tr style="background:var(--surface2); border-bottom:1px solid var(--border);">
+                            <th rowspan="2" style="text-align:left; padding:0.6rem; border-right:1px solid var(--border);">Scripts Name</th>
+                            <th rowspan="2" style="text-align:center; padding:0.6rem; border-right:1px solid var(--border);">Duration of Run (Min)</th>
+                            <th rowspan="2" style="text-align:center; padding:0.6rem; border-right:1px solid var(--border);">Users</th>
+                            <th colspan="3" style="text-align:center; padding:0.4rem; border-bottom:1px solid var(--border); border-right:1px solid var(--border);">Samples</th>
+                            <th rowspan="2" style="text-align:center; padding:0.6rem;">Error Percentage (%)</th>
+                        </tr>
+                        <tr style="background:var(--surface2); border-bottom:2px solid var(--border);">
+                            <th style="text-align:center; padding:0.4rem; border-right:1px solid var(--border);">Total</th>
+                            <th style="text-align:center; padding:0.4rem; color:var(--green); border-right:1px solid var(--border);">Pass</th>
+                            <th style="text-align:center; padding:0.4rem; color:var(--red); border-right:1px solid var(--border);">Fail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tx_stat_rows_html}
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin:1.2rem 0 0.6rem 0; font-size:1.05rem; font-weight:700; text-align:center;">Transaction Summary</h3>
+            <div style="position:relative; height:340px; width:100%;">
+                <canvas id="chart-tx-summary-bar"></canvas>
+            </div>
+        </div>
+
+        <!-- 5. SLA Deviation by Transaction (Executive Diagnostic Diverging Chart) -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+                <div>
+                    <h2 style="margin:0;">🎯 SLA Deviation by Transaction (% from Target SLA)</h2>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Diverging diagnostic chart normalized as (P90 Response Time &divide; Target SLA - 1) &times; 100%. Sorted by worst breach.</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <label for="usDevFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
+                    <select id="usDevFilter" onchange="filterSlaDevByUs(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:600;">
+                        {us_select_options_html}
+                    </select>
+                </div>
+            </div>
+            <div style="position:relative; height:340px; width:100%; margin-top:0.5rem;">
+                <canvas id="chart-sla-deviation-exec"></canvas>
+            </div>
+        </div>
+
+        <!-- 6. Error Stats Graph -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>🔴 Error Stats Graph</h2>
+            <div style="position:relative; height:260px; width:100%; margin-top:0.75rem;">
+                <canvas id="chart-errors-exec"></canvas>
+            </div>
+        </div>
+
+        <!-- 7. Server Side Graphs -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>🖥️ Server Side Graphs</h2>
+            <div style="position:relative; height:260px; width:100%; margin-top:0.75rem;">
+                <canvas id="chart-infra-exec"></canvas>
+            </div>
+        </div>
+
+    </div>
 
 
         <!-- Recommendations -->
@@ -1839,6 +2114,31 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     const initialCriticals = {critical_tx_list_json};
     initialCriticals.forEach(t => criticalTxSet.add(t));
 
+    // Executive Summary Tab 1 Critical Transactions Response Time Chart
+    let critTxChartObj = null;
+    const critCanvas = document.getElementById('chart-rt-exec');
+    if (critCanvas) {{
+        critTxChartObj = new Chart(critCanvas, {{
+            type: 'line',
+            data: {{
+                labels: {ts_labels},
+                datasets: []
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{ position: 'bottom', labels: {{ font: {{ weight: '600' }} }} }},
+                    tooltip: {{ mode: 'index', intersect: false }}
+                }},
+                scales: {{
+                    x: {{ grid: {{ display: false }}, ticks: {{ color: textColor, maxTicksLimit: 10 }} }},
+                    y: {{ grid: {{ color: gridColor }}, ticks: {{ color: textColor }}, title: {{ display: true, text: 'Response Time (ms)', color: textColor }} }}
+                }}
+            }}
+        }});
+    }}
+
     const fixedColors = ['#2563eb', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#06b6d4', '#84cc16'];
     function getTxColor(name) {{
         let hash = 0;
@@ -1848,25 +2148,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
     const targetSlaVal = {target_sla_val};
 
-    // Critical Transactions Combined Line Chart
-    const critTxChartObj = new Chart(document.getElementById('critTxChart'), {{
-        type: 'line',
-        data: {{
-            labels: {ts_labels},
-            datasets: []
-        }},
-        options: {{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {{
-                legend: {{ display: false }}
-            }},
-            scales: {{
-                x: {{ grid: {{ display: false }}, ticks: {{ color: textColor, maxTicksLimit: 8 }} }},
-                y: {{ grid: {{ color: gridColor }}, ticks: {{ color: textColor }}, title: {{ display: true, text: 'ms', color: textColor }} }}
-            }}
-        }}
-    }});
+
 
     function renderCritTxChips() {{
         const container = document.getElementById('crit-tx-chip-container');
@@ -1911,21 +2193,47 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }});
     }}
 
+    const txSlaMap = {tx_sla_json};
+
     function updateCriticalTxChart() {{
+        if (!critTxChartObj) return;
         const datasets = [];
         
-        // 1. SLA Target Reference Line
-        const slaData = new Array({ts_labels}.length).fill(targetSlaVal);
-        datasets.push({{
-            label: 'SLA Target (' + targetSlaVal + ' ms)',
-            data: slaData,
-            borderColor: 'rgba(239, 68, 68, 0.85)',
-            backgroundColor: 'rgba(239, 68, 68, 0.05)',
-            borderWidth: 2,
-            borderDash: [6, 6],
-            pointRadius: 0,
-            fill: true
-        }});
+        // Render individual SLA target lines if single/few transactions are selected, or distinct targets exist
+        const selectedTxs = Array.from(criticalTxSet);
+        const uniqueSlaTargets = new Set(selectedTxs.map(t => txSlaMap[t] || {default_rt}));
+
+        if (uniqueSlaTargets.size === 1) {{
+            // All selected transactions share the same target value
+            const targetVal = Array.from(uniqueSlaTargets)[0];
+            const slaData = new Array({ts_labels}.length).fill(targetVal);
+            datasets.push({{
+                label: 'SLA Target (' + targetVal + ' ms)',
+                data: slaData,
+                borderColor: 'rgba(239, 68, 68, 0.85)',
+                backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                borderWidth: 2,
+                borderDash: [6, 6],
+                pointRadius: 0,
+                fill: true
+            }});
+        }} else {{
+            // Render individual dashed target line per distinct SLA threshold
+            uniqueSlaTargets.forEach(targetVal => {{
+                if (targetVal) {{
+                    const slaData = new Array({ts_labels}.length).fill(targetVal);
+                    datasets.push({{
+                        label: 'SLA Target (' + targetVal + ' ms)',
+                        data: slaData,
+                        borderColor: 'rgba(239, 68, 68, 0.75)',
+                        borderWidth: 1.8,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }});
+                }}
+            }});
+        }}
 
         // 2. Transaction Lines
         criticalTxSet.forEach(txName => {{
@@ -1935,7 +2243,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             }});
             if (tsData && tsData.length > 0) {{
                 const color = getTxColor(txName);
-                const shortLabel = txName.length > 25 ? txName.substring(0, 22) + '...' : txName;
+                const txSla = txSlaMap[txName] ? ' (SLA: ' + txSlaMap[txName] + 'ms)' : '';
+                const shortLabel = (txName.length > 25 ? txName.substring(0, 22) + '...' : txName) + txSla;
                 datasets.push({{
                     label: shortLabel,
                     data: [...tsData],
@@ -2019,14 +2328,151 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         tpChartObj.update('active');
     }}
 
-    // Transaction Chart
-    new Chart(document.getElementById('txChart'), {{
+    // SLA Deviation by Transaction Diverging Horizontal Bar Chart
+    const tgToTcsMap = {tg_to_tcs_json};
+    const txDevMap = {tx_dev_map_json};
+    const initialDevLabels = {deviation_chart_labels_json};
+    const initialDevVals = {deviation_chart_values_json};
+
+    const slaDevChartObj = new Chart(document.getElementById('chart-sla-deviation-exec'), {{
         type: 'bar',
         data: {{
-            labels: {tx_chart_labels},
-            datasets: [{{ label: 'Avg RT (ms)', data: {tx_chart_values}, backgroundColor: 'rgba(139,92,246,0.7)', borderRadius: 6 }}]
+            labels: initialDevLabels,
+            datasets: [
+                {{
+                    label: 'SLA Deviation (%)',
+                    data: initialDevVals,
+                    backgroundColor: initialDevVals.map(val => val > 0 ? '#ef4444' : '#10b981'),
+                    borderColor: initialDevVals.map(val => val > 0 ? '#dc2626' : '#059669'),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.65
+                }}
+            ]
         }},
-        options: {{ indexAxis: 'y', responsive: true, scales: {{ x: {{ grid: {{ color: gridColor }} }}, y: {{ grid: {{ 'display': false }} }} }} }}
+        options: {{
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {{
+                legend: {{ display: false }},
+                tooltip: {{
+                    callbacks: {{
+                        label: function(ctx) {{
+                            const val = ctx.parsed.x;
+                            return (val > 0 ? '+' : '') + val + '% deviation from SLA';
+                        }}
+                    }}
+                }}
+            }},
+            scales: {{
+                x: {{
+                    grid: {{ color: gridColor }},
+                    ticks: {{
+                        color: textColor,
+                        callback: function(val) {{ return (val > 0 ? '+' : '') + val + '%'; }}
+                    }},
+                    title: {{ display: true, text: 'Deviation from SLA Limit (%)', color: textColor }}
+                }},
+                y: {{
+                    grid: {{ display: false }},
+                    ticks: {{ color: textColor, font: {{ weight: '600', size: 11 }} }}
+                }}
+            }}
+        }}
+    }});
+
+    function filterSlaDevByUs(selectedUs) {{
+        if (!slaDevChartObj) return;
+
+        let filteredItems = [];
+
+        if (selectedUs === 'ALL' || !tgToTcsMap[selectedUs]) {{
+            // Show all transactions sorted by worst deviation %
+            filteredItems = Object.values(txDevMap);
+        }} else {{
+            // Filter to child transactions belonging to the selected User Story / Thread Group
+            const childTcs = tgToTcsMap[selectedUs] || [];
+            filteredItems = Object.values(txDevMap).filter(item => childTcs.includes(item.label));
+        }}
+
+        filteredItems.sort((a, b) => b.dev_pct - a.dev_pct);
+
+        const newLabels = filteredItems.map(item => item.label.length > 35 ? item.label.substring(0, 32) + '...' : item.label);
+        const newVals   = filteredItems.map(item => item.dev_pct);
+
+        slaDevChartObj.data.labels = newLabels;
+        slaDevChartObj.data.datasets[0].data = newVals;
+        slaDevChartObj.data.datasets[0].backgroundColor = newVals.map(v => v > 0 ? '#ef4444' : '#10b981');
+        slaDevChartObj.data.datasets[0].borderColor = newVals.map(v => v > 0 ? '#dc2626' : '#059669');
+        slaDevChartObj.update('active');
+    }}
+
+    // Transaction Summary Grouped Bar Chart (Pass vs Fail with Data Labels)
+    new Chart(document.getElementById('chart-tx-summary-bar'), {{
+        type: 'bar',
+        data: {{
+            labels: {tx_chart_labels_json},
+            datasets: [
+                {{
+                    label: 'Pass',
+                    data: {tx_chart_pass_json},
+                    backgroundColor: '#10b981',
+                    borderColor: '#059669',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.6
+                }},
+                {{
+                    label: 'Fail',
+                    data: {tx_chart_fail_json},
+                    backgroundColor: '#ef4444',
+                    borderColor: '#dc2626',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.6
+                }}
+            ]
+        }},
+        options: {{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {{
+                legend: {{ position: 'bottom', labels: {{ font: {{ weight: 'bold' }} }} }},
+                tooltip: {{ mode: 'index', intersect: false }}
+            }},
+            scales: {{
+                x: {{ grid: {{ display: false }}, ticks: {{ maxRotation: 25, font: {{ size: 10 }} }} }},
+                y: {{ grid: {{ color: gridColor }}, beginAtZero: true, title: {{ display: true, text: 'Sample Count' }} }}
+            }}
+        }}
+    }});
+
+
+
+    new Chart(document.getElementById('chart-errors-exec'), {{
+        type: 'bar',
+        data: {{
+            labels: {ts_labels},
+            datasets: [
+                {{ label: 'Error Count', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 4 }}
+            ]
+        }},
+        options: {{ responsive: true, maintainAspectRatio: false, scales: {{ y: {{ grid: {{ color: gridColor }} }}, x: {{ grid: {{ display: false }} }} }} }}
+    }});
+
+    new Chart(document.getElementById('chart-infra-exec'), {{
+        type: 'line',
+        data: {{
+            labels: {ts_labels},
+            datasets: [
+                {{ label: 'CPU %', data: {ts_cpu}, borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }},
+                {{ label: 'Memory %', data: {ts_memory}, borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }}
+            ]
+        }},
+        options: {{ responsive: true, maintainAspectRatio: false, scales: {{ y: {{ grid: {{ color: gridColor }}, min: 0, max: 100 }}, x: {{ grid: {{ display: false }} }} }} }}
     }});
 
     // ── Charts & Analytics Tab ─────────────────────────────────────────────────

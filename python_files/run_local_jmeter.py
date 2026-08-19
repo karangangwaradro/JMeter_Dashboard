@@ -21,9 +21,15 @@ from datetime import datetime, timezone
 _SCRIPT_DIR  = Path(__file__).parent.resolve()
 _ROOT_DIR    = _SCRIPT_DIR.parent.resolve()
 _TESTS_DIR   = _ROOT_DIR / "Tests"
-_RESULTS_DIR = _ROOT_DIR / "Results"
-_DATA_DIR    = _ROOT_DIR / "data"
-_LOGS_DIR    = _ROOT_DIR / "logs"
+_RESULTS_DIR      = _ROOT_DIR / "Results"
+_RESULTS_HTML_DIR = _RESULTS_DIR / "html"
+_RESULTS_JSON_DIR = _RESULTS_DIR / "json"
+_RESULTS_JTL_DIR  = _RESULTS_DIR / "jtl"
+_DATA_DIR         = _ROOT_DIR / "data"
+_LOGS_DIR         = _ROOT_DIR / "logs"
+
+for _d in (_RESULTS_DIR, _RESULTS_HTML_DIR, _RESULTS_JSON_DIR, _RESULTS_JTL_DIR, _DATA_DIR, _LOGS_DIR):
+    _d.mkdir(parents=True, exist_ok=True)
 
 # Force UTF-8
 if hasattr(sys.stdout, 'reconfigure'):
@@ -545,7 +551,7 @@ def run_local_jmeter(jmx_name: str = None, users: int = 1, duration: str = "0", 
         update_jmx_thread_groups(jmx_path, thread_groups)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    jtl_file = _RESULTS_DIR / f"run_{timestamp}.jtl"
+    jtl_file = _RESULTS_JTL_DIR / f"run_{timestamp}.jtl"
     log_file = _LOGS_DIR / f"run_{timestamp}.log"
 
     # Calculate total users for reporting
@@ -695,15 +701,15 @@ def run_local_jmeter(jmx_name: str = None, users: int = 1, duration: str = "0", 
     except Exception as ai_err:
         print(f"[JMeter] AI insights skipped: {ai_err}", flush=True)
 
-    result_json_path = _RESULTS_DIR / f"run_{timestamp}_result.json"
+    result_json_path = _RESULTS_JSON_DIR / f"run_{timestamp}_result.json"
     result_json_path.write_text(json.dumps(parsed, indent=2), encoding="utf-8")
     print(f"[JMeter] Result JSON: {result_json_path.name}", flush=True)
 
     if azure_data:
-        azure_json_path = _RESULTS_DIR / f"azure_{timestamp}.json"
+        azure_json_path = _RESULTS_JSON_DIR / f"azure_{timestamp}.json"
         azure_json_path.write_text(json.dumps(azure_data, indent=2), encoding="utf-8")
 
-    report_path = _RESULTS_DIR / f"run_{timestamp}_report.html"
+    report_path = _RESULTS_HTML_DIR / f"run_{timestamp}_report.html"
     try:
         import importlib
         import python_files.report_generator as rg_mod
@@ -765,7 +771,7 @@ def run_local_jmeter(jmx_name: str = None, users: int = 1, duration: str = "0", 
         "jtl_file":      str(jtl_file),
         "result_json":   str(result_json_path),
         "report_html":   str(report_path),
-        "report_url":    f"/Results/{report_path.name}",
+        "report_url":    f"/Results/html/{report_path.name}",
         "summary":       parsed.get("summary", {}),
         "execution_time": execution_time_str,
         "exit_code":     exit_code,

@@ -277,3 +277,128 @@ def parse_jmx_hierarchy(jmx_input) -> Tuple[List[str], Dict[str, List[str]]]:
 
     tc_list.sort(key=tc_sort_key)
     return tc_list, tc_to_samplers
+def parse_jmx_thread_groups(jmx_input) -> List[Dict]:
+    """
+    Parse JMX file(s) and return a list of ThreadGroup configs.
+
+    Each item:
+      {
+        name:         str   — ThreadGroup display name (e.g. "TC01_Services")
+        enabled:      bool  — Whether the TG was enabled in the JMX
+        wrapper_tc:   str   — First direct TC inside TG (e.g. "T-1_Overall Iteration")
+                             This is what actually appears in the JTL as a label.
+        users:        int   — Configured concurrent users
+        duration:     int   — Duration in seconds
+        child_tcs:    list  — Named TCs inside the wrapper (the user story steps)
+      }
+
+    IMPORTANT: JMeter XML structure note:
+      <ThreadGroup testname="TC01_Services">
+        <intProp name="ThreadGroup.num_threads">10</intProp>   ← properties only
+      </ThreadGroup>
+      <hashTree>                       ← SIBLING hashTree has the actual test elements
+        <TransactionController testname="T-1_Overall Iteration"/>
+        <hashTree>
+          <TransactionController testname="TC01Launch Home Page URL"/>
+          ...
+        </hashTree>
+      </hashTree>
+
+    The TCs are NOT children of the ThreadGroup element — they are in the
+    sibling hashTree that immediately follows it. We must traverse the parent's
+    children list to find the correct hashTree for each ThreadGroup.
+    """
+    result = []
+
+    if not jmx_input:
+        return result
+
+    jmx_paths = []
+    if isinstance(jmx_input, (list, tuple)):
+        jmx_paths = [Path(p) for p in jmx_input]
+    elif isinstance(jmx_input, Path):
+        jmx_paths = [jmx_input]
+    elif isinstance(jmx_input, str):
+        for name in jmx_input.split(","):
+            name = name.strip()
+            if not name: continue
+            p = Path(name)
+            if not p.is_absolute():
+                p = _TESTS_DIR / name
+            jmx_paths.append(p)
+
+    for jmx_path in jmx_paths:
+        if not jmx_path.exists():
+            continue
+        try:
+            tree = ET.parse(jmx_path)
+            root = tree.getroot()
+
+            def find_tg_pairs(parent_elem):
+                """Walk children of parent_elem and pair each ThreadGroup with its following hashTree."""
+                pairs = []
+                children = list(parent_elem)
+                for i, child in enumerate(children):
+                    if child.tag in ("ThreadGroup", "PostThreadGroup", "SetupThreadGroup"):
+                        # The next sibling is this TG's hashTree
+                        tg_hash = children[i + 1] if (i + 1 < len(children) and children[i + 1].tag == "hashTree") else None
+                        pairs.append((child, tg_hash))
+                    # Recurse into hashTrees to find nested TGs
+                    if child.tag == "hashTree":
+                        pairs.extend(find_tg_pairs(child))
+                return pairs
+
+            tg_pairs = find_tg_pairs(root)
+
+            for tg_elem, tg_hashtree in tg_pairs:
+                tg_name = tg_elem.attrib.get("testname", "").strip()
+                tg_enabled = tg_elem.attrib.get("enabled", "true").lower() == "true"
+
+                # Read users and duration from ThreadGroup properties
+                tg_users = 1
+                tg_duration = 0
+                for child in tg_elem:
+                    prop = child.attrib.get("name", "")
+                    if prop == "ThreadGroup.num_threads":
+                        try: tg_users = int(child.text or "1")
+                        except ValueError: pass
+                    elif prop == "ThreadGroup.duration":
+                        try: tg_duration = int(child.text or "0")
+                        except ValueError: pass
+
+                # Search for TCs in the SIBLING hashTree (not inside tg_elem!)
+                wrapper_tc = None
+                child_tcs = []
+
+                if tg_hashtree is not None:
+                    all_tcs_in_tg = []
+                    for tc_elem in tg_hashtree.iter("TransactionController"):
+                        tc_name = tc_elem.attrib.get("testname", "").strip()
+                        if tc_name:
+                            all_tcs_in_tg.append(tc_name)
+
+                    if all_tcs_in_tg:
+                        # First TC is the wrapper (e.g. "T-1_Overall Iteration")
+                        wrapper_tc = all_tcs_in_tg[0]
+                        # Rest are user story step TCs — filter out generic names
+                        child_tcs = [
+                            tc for tc in all_tcs_in_tg[1:]
+                            if not tc.lower().startswith("transaction controller")
+                            and not tc.lower().startswith("bzm")
+                            and tc != wrapper_tc
+                        ]
+
+                result.append({
+                    "name":       tg_name,
+                    "enabled":    tg_enabled,
+                    "wrapper_tc": wrapper_tc,
+                    "users":      tg_users,
+                    "duration":   tg_duration,
+                    "child_tcs":  child_tcs
+                })
+
+        except Exception as e:
+            print(f"[SLA] Error parsing thread groups from {jmx_path.name}: {e}", flush=True)
+
+    return result
+

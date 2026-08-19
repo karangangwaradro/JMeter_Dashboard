@@ -1,0 +1,16 @@
+Transaction Label,Target RT (ms),Target Error Rate (%),Minor Breach (%),Moderate Breach (%),Critical Breach (%),Is Critical Transaction
+default,500,1,100.0,200.0,300.0,0
+TC01Launch Home Page URL,500,1,100.0,200.0,300.0,0
+TC02Click on Services menu,500,1,100.0,200.0,300.0,0
+TC02ClickOnInsightsPage,500,1,100.0,200.0,300.0,1
+TC02Clickoncareerspage,500,1,100.0,200.0,300.0,0
+TC02ContactUs,500,1,100.0,200.0,300.0,0
+TC03Blog,500,1,100.0,200.0,300.0,0
+TC03Seeopenings,500,1,100.0,200.0,300.0,0
+TC03Select Sub-services option,500,1,100.0,200.0,300.0,1
+TC04CaseStudy,500,1,100.0,200.0,300.0,0
+TC04Submit,500,1,100.0,200.0,300.0,0
+TC04_casestudy,500,1,100.0,200.0,300.0,0
+TC05,500,1,100.0,200.0,300.0,0
+TC05Webinar,500,1,100.0,200.0,300.0,0
+TC05Webinarr,500,1,100.0,200.0,300.0,1

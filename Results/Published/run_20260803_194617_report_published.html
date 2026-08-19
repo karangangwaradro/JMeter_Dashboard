@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en" class="light published-mode"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jpet_01.jmx — Performance Report | JmeterAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0e1a; --surface: #111827; --surface2: #1e2536;
+            --border: #2a3348; --text: #e2e8f0; --muted: #8892a4;
+            --accent: #6366f1; --accent2: #8b5cf6;
+            --green: #10b981; --yellow: #f59e0b; --red: #ef4444; --blue: #3b82f6;
+            --green-bg: rgba(16,185,129,0.1); --yellow-bg: rgba(245,158,11,0.1);
+            --red-bg: rgba(239,68,68,0.1); --blue-bg: rgba(59,130,246,0.1);
+        }
+        html.light {
+            --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+            --border: #e2e8f0; --text: #0f172a; --muted: #64748b;
+            --accent: #4f46e5; --accent2: #7c3aed;
+            --green-bg: rgba(16,185,129,0.15); --yellow-bg: rgba(245,158,11,0.15);
+            --red-bg: rgba(239,68,68,0.15); --blue-bg: rgba(59,130,246,0.15);
+        }
+        /* Nav Tabs */
+        .report-nav { display: flex; gap: 0.5rem; background: var(--surface); padding: 0.5rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .nav-btn { flex: 1; padding: 0.7rem 1.2rem; text-align: center; border: none; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .nav-btn:hover { color: var(--text); background: var(--surface2); }
+        .nav-btn.active { color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent2)); font-weight: 700; box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+        .tab-pane { display: block; }
+        .tab-pane.hidden { display: none !important; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 2rem; line-height: 1.6; }
+        .report-container { max-width: 1400px; margin: 0 auto; }
+
+        /* Header */
+        .report-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background: linear-gradient(135deg, var(--surface), var(--surface2)); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 2rem; }
+        .header-left { display: flex; align-items: center; gap: 1.5rem; }
+        .engine-badge { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; padding: 0.5rem 1.2rem; border-radius: 10px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
+        .report-title h1 { font-size: 1.5rem; font-weight: 800; }
+        .report-title p { color: var(--muted); font-size: 0.82rem; margin-top: 0.3rem; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .score-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; border: 3px solid #10b981; color: #10b981; }
+        .status-pill { padding: 0.35rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #fff; background: #10b981; }
+        .theme-toggle { cursor: pointer; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.8rem; color: var(--text); font-size: 0.8rem; }
+
+        /* KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; transition: transform 0.2s, box-shadow 0.2s; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .kpi-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; font-weight: 600; }
+        .kpi-value { font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+        .kpi-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+        .pass { color: var(--green); } .warn { color: var(--yellow); } .fail { color: var(--red); }
+
+        /* Sections */
+        .section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; overflow: auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+        .section h2 { font-size: 1.05rem; font-weight: 700; }
+        .ai-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: #6b728020; color: #6b7280; border: 1px solid #6b728040; padding: 0.2rem 0.8rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th { background: var(--surface2); color: var(--muted); text-align: left; padding: 0.7rem 1rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); font-weight: 700; }
+        td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: var(--surface2); }
+        tr:last-child td { border-bottom: none; }
+
+        /* Charts */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+        .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+        .chart-box h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; }
+
+        /* AI Insights */
+        .insight-card { background: var(--surface2); border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; border-left: 4px solid var(--accent); }
+        .insight-card h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent); }
+        .insight-card p { font-size: 0.85rem; line-height: 1.7; }
+
+        /* Recommendations */
+        .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 900px) { .rec-grid { grid-template-columns: 1fr; } }
+        .rec-card { border-radius: 10px; padding: 1.2rem; border: 1px solid var(--border); }
+        .rec-card.critical { border-left: 4px solid var(--red); background: var(--red-bg); }
+        .rec-card.warning { border-left: 4px solid var(--yellow); background: var(--yellow-bg); }
+        .rec-card.info { border-left: 4px solid var(--blue); background: var(--blue-bg); }
+        .rec-header { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .rec-priority { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 4px; }
+        .rec-card.critical .rec-priority { background: var(--red); color: #fff; }
+        .rec-card.warning .rec-priority { background: var(--yellow); color: #000; }
+        .rec-card.info .rec-priority { background: var(--blue); color: #fff; }
+        .rec-category { font-size: 0.7rem; color: var(--muted); padding: 0.15rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; }
+        .rec-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.4rem; }
+        .rec-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+        .rec-impact { font-size: 0.75rem; color: var(--green); margin-top: 0.5rem; font-weight: 600; }
+
+        /* Correlation */
+        .corr-finding { padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 0.5rem; }
+        .corr-finding.critical { background: var(--red-bg); border-left: 3px solid var(--red); }
+        .corr-finding.warning { background: var(--yellow-bg); border-left: 3px solid var(--yellow); }
+        .corr-finding.info { background: var(--blue-bg); border-left: 3px solid var(--blue); }
+
+        /* Capacity */
+        .capacity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+        .cap-card { background: var(--surface2); border-radius: 10px; padding: 1rem; text-align: center; }
+        .cap-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+        .cap-value { font-size: 1.6rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+        .cap-analysis { font-size: 0.82rem; color: var(--muted); }
+
+        /* Roadmap */
+        .roadmap-step { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1rem; background: var(--surface2); border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.85rem; }
+        .step-num { background: var(--accent); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+
+        /* Editable elements */
+        [contenteditable="true"] {
+            outline: 2px dashed rgba(139, 92, 246, 0.4);
+            outline-offset: 3px;
+            border-radius: 4px;
+            transition: outline-color 0.2s;
+        }
+        [contenteditable="true"]:hover {
+            outline-color: var(--accent);
+        }
+        [contenteditable="true"]:focus {
+            outline: 2px solid var(--accent);
+            background: var(--surface2);
+        }
+        .published-mode [contenteditable="true"] {
+            outline: none !important;
+            background: transparent !important;
+        }
+
+        /* Footer */
+        .report-footer { text-align: center; color: var(--muted); font-size: 0.78rem; padding: 2rem 0; }
+    </style>
+</head>
+<body>
+<div class="report-container">
+
+    <!-- Header -->
+    <div class="report-header">
+        <div class="header-left">
+            <div class="engine-badge">⚡ JmeterAI</div>
+            <div class="report-title">
+                <h1>Jpet_01.jmx</h1>
+                <p>Executed: 2026-08-03 14:16:17 UTC &nbsp;|&nbsp; Users: 10 &nbsp;|&nbsp; Duration: 60s &nbsp;|&nbsp; Run: run_20260803_194617</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="score-circle">95</div>
+            <span class="status-pill">PASSED</span>
+            <span id="editModeBadge" class="status-pill" style="background: rgb(139, 92, 246); font-size: 0.75rem; display: none;">✏️ EDIT MODE</span>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+            <button id="publishBtn" class="theme-toggle" onclick="publishReport()" style="background: linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105)); color: rgb(255, 255, 255); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; font-weight: 700; padding: 0.4rem 1rem; box-shadow: rgba(16, 185, 129, 0.3) 0px 4px 12px; display: none;">🚀 Publish Report</button>
+        </div>
+    </div>
+
+    <!-- Report Tab Navigation Header -->
+    <nav class="report-nav">
+        <button class="nav-btn active" onclick="switchReportTab('rpt-summary', this)">📊 Executive Summary &amp; KPIs</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-charts', this)">📉 Charts &amp; Analytics</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-transactions', this)">📋 Transactions &amp; SLA Targets</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-ai', this)">🧠 AI Insights &amp; Recommendations</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-infra', this)">🖥️ Infrastructure &amp; Correlation</button>
+    </nav>
+
+    <!-- TAB 1: Executive Summary & KPIs -->
+    <div id="rpt-summary" class="tab-pane">
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-label">Total Requests</div><div class="kpi-value">5,921</div></div>
+            <div class="kpi-card"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">198<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card"><div class="kpi-label">P95 Response</div><div class="kpi-value">349<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card"><div class="kpi-label">Throughput</div><div class="kpi-value">98.7<span style="font-size:0.9rem"> req/s</span></div></div>
+            <div class="kpi-card"><div class="kpi-label">Error Rate</div><div class="kpi-value pass">0.07<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">4 errors of 5,921</div></div>
+            <div class="kpi-card"><div class="kpi-label">P99 Response</div><div class="kpi-value">517<span style="font-size:0.9rem"> ms</span></div></div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
+                    <h3 style="margin:0; white-space: nowrap;">📈 Response Time Over Time</h3>
+                    <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                        <option value="ALL">All Transactions (Overall)</option>
+                        <option value="0" title="T01 Launch The JpetStore">T01 Launch The JpetStore</option><option value="1" title="T02 Sign to the application">T02 Sign to the application</option><option value="2" title="T03 Select any animal">T03 Select any animal</option><option value="3" title="T04 Select any animal">T04 Select any animal</option><option value="4" title="T05 click on category">T05 click on category</option><option value="5" title="T06 Select any animal and add to cart">T06 Select any animal and add to cart</option><option value="6" title="T07 click on category">T07 click on category</option><option value="7" title="T08 select any animal and add to cart">T08 select any animal and add to cart</option><option value="8" title="T09 proceed to checkout">T09 proceed to checkout</option><option value="9" title="T10 Add payment and bill details">T10 Add payment and bill details</option><option value="10" title="T11 click on confirm">T11 click on confirm</option>
+                    </select>
+                </div>
+                <canvas id="rtChart" width="638" height="319" style="display: block; box-sizing: border-box; height: 319px; width: 638px;"></canvas>
+            </div>
+            <div class="chart-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
+                    <h3 style="margin:0; white-space: nowrap;">📊 Throughput &amp; Errors</h3>
+                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                        <option value="ALL">All Transactions (Overall)</option>
+                        <option value="0" title="T01 Launch The JpetStore">T01 Launch The JpetStore</option><option value="1" title="T02 Sign to the application">T02 Sign to the application</option><option value="2" title="T03 Select any animal">T03 Select any animal</option><option value="3" title="T04 Select any animal">T04 Select any animal</option><option value="4" title="T05 click on category">T05 click on category</option><option value="5" title="T06 Select any animal and add to cart">T06 Select any animal and add to cart</option><option value="6" title="T07 click on category">T07 click on category</option><option value="7" title="T08 select any animal and add to cart">T08 select any animal and add to cart</option><option value="8" title="T09 proceed to checkout">T09 proceed to checkout</option><option value="9" title="T10 Add payment and bill details">T10 Add payment and bill details</option><option value="10" title="T11 click on confirm">T11 click on confirm</option>
+                    </select>
+                </div>
+                <canvas id="tpChart" width="638" height="319" style="display: block; box-sizing: border-box; height: 319px; width: 638px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Charts & Analytics -->
+    <div id="rpt-charts" class="tab-pane hidden">
+
+        <!-- Row 1: Percentile Comparison + SLA Donut -->
+        <div class="chart-grid">
+            <div class="chart-box" style="position: relative; min-height: 320px;">
+                <h3>🎯 Percentile Comparison by Transaction (Top 8)</h3>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="pctChart" height="260" style="display: block; box-sizing: border-box; height: 260px; width: 520px;" width="520"></canvas>
+                </div>
+            </div>
+            <div class="chart-box" style="position: relative; min-height: 320px;">
+                <h3>✅ SLA Pass / Fail</h3>
+                <div style="position: relative; height: 220px; width: 100%; display: flex; justify-content: center;">
+                    <canvas id="slaDonut" height="220" style="display: block; box-sizing: border-box; height: 220px; width: 220px;" width="220"></canvas>
+                </div>
+                <div style="text-align:center; margin-top:0.8rem; font-size:0.9rem; color:var(--muted);">
+                    <span style="color:var(--green); font-weight:700;">27</span> Passed &nbsp;|&nbsp;
+                    <span style="color:var(--red); font-weight:700;">1</span> Breached
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Error Rate by Transaction + RT Histogram -->
+        <div class="chart-grid">
+            <div class="chart-box" style="position: relative; min-height: 280px;">
+                <h3>🔴 Error Rate by Transaction (%)</h3>
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="errChart" height="220" style="display: block; box-sizing: border-box; height: 220px; width: 440px;" width="440"></canvas>
+                </div>
+            </div>
+            <div class="chart-box" style="position: relative; min-height: 280px;">
+                <h3>📊 Response Time Distribution (by Request Count)</h3>
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="histChart" height="220" style="display: block; box-sizing: border-box; height: 220px; width: 440px;" width="440"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Concurrency Over Time (full width) -->
+        <div class="chart-box" style="position: relative; min-height: 280px; margin-bottom: 1.5rem;">
+            <h3>👥 Estimated Concurrent Users Over Time <small style="font-size:0.7rem; color:var(--muted); font-weight:400;">(Little's Law: N = Throughput x Avg RT)</small></h3>
+            <div style="position: relative; height: 220px; width: 100%;">
+                <canvas id="concChart" height="220" style="display: block; box-sizing: border-box; height: 220px; width: 440px;" width="440"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: Transactions & SLA Targets -->
+    <div id="rpt-transactions" class="tab-pane hidden">
+        <div class="section">
+            <h2>📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
+            <table>
+                <thead><tr>
+                    <th>Transaction / Request</th><th>Samples</th><th>Avg RT</th>
+                   <th>P90</th><th>P95</th><th>P99</th>
+                    <th>Min</th><th>Max</th><th>Error Rate</th><th>SLA Target</th><th>SLA Status</th>
+                </tr></thead>
+                <tbody>
+        <tr>
+            <td><strong>T02 Sign to the application</strong></td>
+            <td>207</td>
+            <td class="fail">510 ms</td>
+            <td class="fail"><strong>520 ms</strong></td>
+            <td>524 ms</td>
+            <td>537 ms</td>
+            <td>493 ms</td>
+            <td>613 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--red); font-weight:700;">BREACHED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T06 Select any animal and add to cart</strong></td>
+            <td>203</td>
+            <td class="pass">343 ms</td>
+            <td class="pass"><strong>350 ms</strong></td>
+            <td>354 ms</td>
+            <td>357 ms</td>
+            <td>331 ms</td>
+            <td>363 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T08 select any animal and add to cart</strong></td>
+            <td>202</td>
+            <td class="pass">342 ms</td>
+            <td class="pass"><strong>350 ms</strong></td>
+            <td>352 ms</td>
+            <td>357 ms</td>
+            <td>329 ms</td>
+            <td>362 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T02 Sign to the application-210</strong></td>
+            <td>207</td>
+            <td class="pass">340 ms</td>
+            <td class="pass"><strong>347 ms</strong></td>
+            <td>353 ms</td>
+            <td>360 ms</td>
+            <td>327 ms</td>
+            <td>431 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T01 Launch The JpetStore-199</strong></td>
+            <td>209</td>
+            <td class="pass">208 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>177 ms</td>
+            <td>724 ms</td>
+            <td>163 ms</td>
+            <td>2496 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T01 Launch The JpetStore</strong></td>
+            <td>209</td>
+            <td class="pass">208 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>177 ms</td>
+            <td>724 ms</td>
+            <td>163 ms</td>
+            <td>2496 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T11 click on confirm</strong></td>
+            <td>202</td>
+            <td class="pass">174 ms</td>
+            <td class="pass"><strong>178 ms</strong></td>
+            <td>180 ms</td>
+            <td>187 ms</td>
+            <td>165 ms</td>
+            <td>340 ms</td>
+            <td class="pass">0.99%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T11 click on confirm-269</strong></td>
+            <td>202</td>
+            <td class="pass">174 ms</td>
+            <td class="pass"><strong>178 ms</strong></td>
+            <td>180 ms</td>
+            <td>187 ms</td>
+            <td>165 ms</td>
+            <td>340 ms</td>
+            <td class="pass">0.99%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T08 select any animal and add to cart-236</strong></td>
+            <td>202</td>
+            <td class="pass">172 ms</td>
+            <td class="pass"><strong>176 ms</strong></td>
+            <td>178 ms</td>
+            <td>184 ms</td>
+            <td>164 ms</td>
+            <td>188 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T06 Select any animal and add to cart-233</strong></td>
+            <td>203</td>
+            <td class="pass">172 ms</td>
+            <td class="pass"><strong>176 ms</strong></td>
+            <td>177 ms</td>
+            <td>184 ms</td>
+            <td>166 ms</td>
+            <td>196 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T04 Select any animal-229</strong></td>
+            <td>203</td>
+            <td class="pass">171 ms</td>
+            <td class="pass"><strong>177 ms</strong></td>
+            <td>179 ms</td>
+            <td>183 ms</td>
+            <td>164 ms</td>
+            <td>187 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T04 Select any animal</strong></td>
+            <td>408</td>
+            <td class="pass">171 ms</td>
+            <td class="pass"><strong>175 ms</strong></td>
+            <td>178 ms</td>
+            <td>182 ms</td>
+            <td>163 ms</td>
+            <td>189 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T06 Select any animal and add to cart-232</strong></td>
+            <td>203</td>
+            <td class="pass">171 ms</td>
+            <td class="pass"><strong>175 ms</strong></td>
+            <td>177 ms</td>
+            <td>182 ms</td>
+            <td>163 ms</td>
+            <td>184 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T02 Sign to the application-210-0</strong></td>
+            <td>207</td>
+            <td class="pass">170 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>177 ms</td>
+            <td>187 ms</td>
+            <td>163 ms</td>
+            <td>250 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T04 Select any animal-228</strong></td>
+            <td>205</td>
+            <td class="pass">170 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>176 ms</td>
+            <td>181 ms</td>
+            <td>163 ms</td>
+            <td>189 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T02 Sign to the application-201</strong></td>
+            <td>207</td>
+            <td class="pass">170 ms</td>
+            <td class="pass"><strong>176 ms</strong></td>
+            <td>179 ms</td>
+            <td>183 ms</td>
+            <td>163 ms</td>
+            <td>185 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T09 proceed to checkout-237</strong></td>
+            <td>202</td>
+            <td class="pass">170 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>175 ms</td>
+            <td>178 ms</td>
+            <td>163 ms</td>
+            <td>200 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T09 proceed to checkout</strong></td>
+            <td>202</td>
+            <td class="pass">170 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>175 ms</td>
+            <td>178 ms</td>
+            <td>163 ms</td>
+            <td>200 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T08 select any animal and add to cart-235</strong></td>
+            <td>203</td>
+            <td class="pass">170 ms</td>
+            <td class="pass"><strong>173 ms</strong></td>
+            <td>175 ms</td>
+            <td>178 ms</td>
+            <td>164 ms</td>
+            <td>179 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T02 Sign to the application-210-1</strong></td>
+            <td>207</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>177 ms</td>
+            <td>179 ms</td>
+            <td>163 ms</td>
+            <td>188 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T03 Select any animal-226</strong></td>
+            <td>206</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>176 ms</td>
+            <td>181 ms</td>
+            <td>164 ms</td>
+            <td>190 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T03 Select any animal</strong></td>
+            <td>206</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>174 ms</strong></td>
+            <td>176 ms</td>
+            <td>181 ms</td>
+            <td>164 ms</td>
+            <td>190 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T05 click on category-231</strong></td>
+            <td>203</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>173 ms</strong></td>
+            <td>175 ms</td>
+            <td>180 ms</td>
+            <td>164 ms</td>
+            <td>187 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T05 click on category</strong></td>
+            <td>203</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>173 ms</strong></td>
+            <td>175 ms</td>
+            <td>180 ms</td>
+            <td>164 ms</td>
+            <td>187 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T07 click on category-234</strong></td>
+            <td>203</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>173 ms</strong></td>
+            <td>174 ms</td>
+            <td>177 ms</td>
+            <td>163 ms</td>
+            <td>185 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T07 click on category</strong></td>
+            <td>203</td>
+            <td class="pass">169 ms</td>
+            <td class="pass"><strong>173 ms</strong></td>
+            <td>174 ms</td>
+            <td>177 ms</td>
+            <td>163 ms</td>
+            <td>185 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T10 Add payment and bill details-242</strong></td>
+            <td>202</td>
+            <td class="pass">106 ms</td>
+            <td class="pass"><strong>111 ms</strong></td>
+            <td>200 ms</td>
+            <td>279 ms</td>
+            <td>89 ms</td>
+            <td>373 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+            <td><strong>T10 Add payment and bill details</strong></td>
+            <td>202</td>
+            <td class="pass">106 ms</td>
+            <td class="pass"><strong>111 ms</strong></td>
+            <td>200 ms</td>
+            <td>279 ms</td>
+            <td>89 ms</td>
+            <td>373 ms</td>
+            <td class="pass">0.00%</td>
+            <td>500 ms / 1.0%</td>
+            <td><span style="color: var(--green); font-weight:700;">PASSED</span></td>
+        </tr></tbody>
+            </table>
+        </div>
+
+        <div class="chart-box" style="margin-bottom: 1.5rem;">
+            <h3>🏷️ Top Transactions by Response Time</h3>
+            <canvas id="txChart" height="675" style="display: block; box-sizing: border-box; height: 675px; width: 1350px;" width="1350"></canvas>
+        </div>
+
+        <div class="section">
+            <h2>🚨 SLA Breach Analysis &amp; Corresponding HTTP Requests</h2>
+            
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ T02 Sign to the application</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>520 ms</strong> (Target: 500 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: AI Insights & Recommendations -->
+    <div id="rpt-ai" class="tab-pane hidden">
+        <div class="section">
+            <div class="section-header">
+                <h2>🧠 AI Performance Insights &amp; Manual Observations</h2>
+                <span class="ai-badge">📊 System Calculated</span>
+            </div>
+            <div class="insight-card" style="border-left-color: #10b981;">
+                <h4 style="color: #10b981;">✏️ Custom User Observations &amp; Engineer Notes</h4>
+                <p id="userObservations">Click here to add your custom performance observations, testing scope context, environment notes, or team recommendations before publishing...</p>
+            </div>
+            <div class="insight-card"><h4>Executive Summary</h4><p>Performance test 'Jpet_01.jmx' completed with healthy metrics. Average response time of 198ms and 0.07% error rate are within acceptable thresholds.</p></div>
+            <div class="insight-card"><h4>🔍 Root Cause Analysis</h4><p>No critical bottleneck detected.</p></div>
+            <div class="insight-card"><h4>⏱️ Bottleneck Analysis</h4><p>Average response time: 198ms. P95: 349ms. Throughput: 98.7 req/s. Error rate: 0.07%.</p></div>
+            <div class="insight-card"><h4>📊 Tail Latency Analysis</h4><p>P95/P99 ratio to average: 1.8x / 2.6x. Tail latency within acceptable bounds.</p></div>
+            <div class="insight-card"><h4>🖥️ Infrastructure Analysis</h4><p>Azure Monitor not configured — server-side analysis unavailable.</p></div>
+            <div class="insight-card"><h4>🔗 Correlation Insights</h4><p>Enable Azure Monitor integration for server-side correlation insights.</p></div>
+        </div>
+
+        <div class="section" style="display: block;">
+            <h2>📐 Capacity Planning</h2>
+            
+        <div class="capacity-grid">
+            <div class="cap-card"><div class="cap-label">Estimated Max Users</div><div class="cap-value">987</div></div>
+            <div class="cap-card"><div class="cap-label">Safe Concurrency</div><div class="cap-value">789</div></div>
+            <div class="cap-card"><div class="cap-label">Saturation Point</div><div class="cap-value">1184</div></div>
+        </div>
+        <p class="cap-analysis">Based on 98.7 req/s throughput and 198ms response time at current load.</p>
+        </div>
+
+        <div class="section">
+            <h2>💡 Actionable Recommendations</h2>
+            <div class="rec-grid">
+            <div class="rec-card info">
+                <div class="rec-header">
+                    <span class="rec-priority">Low</span>
+                    <span class="rec-category">Configuration</span>
+                </div>
+                <div class="rec-title">Maintain Current Performance</div>
+                <div class="rec-desc">All metrics are within healthy thresholds. Consider running longer duration tests or higher concurrency to find limits.</div>
+                <div class="rec-impact">Expected Impact: <span>Identify maximum safe throughput capacity</span></div>
+            </div></div>
+        </div>
+
+        <div class="section" style="display: block;">
+            <h2>🗺️ Optimization Roadmap</h2>
+            <div class="roadmap-step"><span class="step-num">1</span><span>Step 1: Profile slowest transactions</span></div><div class="roadmap-step"><span class="step-num">2</span><span>Step 2: Run sustained load tests at 2x concurrency</span></div><div class="roadmap-step"><span class="step-num">3</span><span>Step 3: Configure Azure Monitor for full-stack visibility</span></div>
+        </div>
+    </div>
+
+    <!-- TAB 4: Server Infrastructure & Correlation -->
+    <div id="rpt-infra" class="tab-pane hidden">
+        <div class="section">
+            <h2>🔗 Client ↔ Server Correlation Findings</h2>
+            <div class="corr-finding warning"><span>🟡</span> 'T02 Sign to the application' is the slowest transaction at 510ms (vs 198ms average).</div>
+        </div>
+
+        <div class="chart-box" style="display: none;">
+            <h3>🖥️ Azure Server Metrics (CPU &amp; Memory)</h3>
+            <canvas id="azChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="report-footer">
+        ⚡ Generated by <strong>JmeterAI</strong> &nbsp;|&nbsp; 2026-08-03 14:16:17 UTC &nbsp;|&nbsp; Run ID: run_20260803_194617
+    </div>
+</div>
+
+<script>
+    function switchReportTab(tabId, btn) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        const pane = document.getElementById(tabId);
+        if (pane) pane.classList.remove('hidden');
+        if (btn) btn.classList.add('active');
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    function toggleTheme() {
+        const isLight = document.documentElement.classList.toggle('light');
+        localStorage.setItem('jmeter_ai_theme', isLight ? 'light' : 'dark');
+    }
+
+    async function publishReport() {
+        if (!confirm("Are you sure you want to publish this report?\n\nThis will remove edit mode and save a permanent, clean, non-editable published report file.")) return;
+
+        const editBadge = document.getElementById('editModeBadge');
+        const publishBtn = document.getElementById('publishBtn');
+        if (editBadge) editBadge.style.display = 'none';
+        if (publishBtn) publishBtn.style.display = 'none';
+
+        // Strip contenteditable attributes for clean non-editable HTML
+        document.querySelectorAll('[contenteditable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+        });
+
+        // Mark document container as published
+        document.documentElement.classList.add('published-mode');
+
+        const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const currentPath = window.location.pathname;
+        const fileName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'report.html';
+        const pubFileName = fileName.replace('.html', '_published.html');
+
+        try {
+            const res = await fetch('/api/save-published-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report_name: pubFileName, html_content: fullHtml })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("🎉 Report Published Successfully!\n\nSaved to: Results/Published/" + data.file + "\n\nYou will now be redirected to the published non-editable report.");
+                window.location.href = data.url || ('/Results/Published/' + data.file);
+            } else {
+                alert("Error publishing report: " + data.message);
+                if (editBadge) editBadge.style.display = 'inline-block';
+                if (publishBtn) publishBtn.style.display = 'inline-block';
+            }
+        } catch (err) {
+            alert("Failed to reach server: " + err.message);
+            if (editBadge) editBadge.style.display = 'inline-block';
+            if (publishBtn) publishBtn.style.display = 'inline-block';
+        }
+    }
+
+    if (localStorage.getItem('jmeter_ai_theme') === 'light') {
+        document.documentElement.classList.add('light');
+    }
+
+    const chartFont = { family: "'Inter', sans-serif", size: 11 };
+    const gridColor = 'rgba(255,255,255,0.06)';
+    const textColor = '#8892a4';
+    Chart.defaults.color = textColor;
+    Chart.defaults.font = chartFont;
+
+    const overallTs = {
+        avg_rt: [261.98, 195.04, 195.25, 193.72, 194.6, 194.25],
+        p95_rt: [699, 344, 345, 342, 344, 343],
+        p99_rt: [1768, 349, 354, 352, 348, 349],
+        throughput: [24.4, 50.9, 53.9, 52.9, 51.4, 52.7],
+        errors: [0, 0, 0, 0, 0, 0]
+    };
+
+    const labelTsMap = {"0": {"ts_avg_rt": [544.14, 168.22, 168.57, 169.26, 168.28, 167.86], "ts_p95_rt": [760, 173, 174, 174, 172, 172], "ts_p99_rt": [1768, 173, 175, 175, 172, 172], "ts_throughput": [2.2, 3.6, 3.7, 3.8, 4.0, 3.6], "ts_errors": [0, 0, 0, 0, 0, 0]}, "1": {"ts_avg_rt": [528.52, 508.05, 509.37, 507.98, 506.49, 505.71], "ts_p95_rt": [609, 519, 523, 521, 518, 519], "ts_p99_rt": [613, 520, 523, 525, 525, 524], "ts_throughput": [2.1, 3.7, 3.5, 4.0, 3.9, 3.5], "ts_errors": [0, 0, 0, 0, 0, 0]}, "2": {"ts_avg_rt": [170.95, 168.89, 169.58, 170.07, 168.86, 168.78], "ts_p95_rt": [174, 174, 176, 177, 174, 173], "ts_p99_rt": [174, 174, 181, 182, 177, 174], "ts_throughput": [1.9, 3.6, 3.8, 4.0, 3.6, 3.7], "ts_errors": [0, 0, 0, 0, 0, 0]}, "3": {"ts_avg_rt": [173.61, 170.49, 171.15, 170.13, 170.47, 169.84], "ts_p95_rt": [185, 176, 179, 177, 177, 174], "ts_p99_rt": [187, 180, 181, 180, 182, 176], "ts_throughput": [3.6, 7.0, 8.0, 7.7, 7.0, 7.5], "ts_errors": [0, 0, 0, 0, 0, 0]}, "4": {"ts_avg_rt": [171.67, 168.74, 170.28, 169.27, 168.92, 168.41], "ts_p95_rt": [176, 175, 178, 175, 172, 171], "ts_p99_rt": [176, 176, 181, 175, 178, 173], "ts_throughput": [1.8, 3.5, 4.0, 3.7, 3.6, 3.7], "ts_errors": [0, 0, 0, 0, 0, 0]}, "5": {"ts_avg_rt": [346.17, 342.17, 344.15, 341.62, 341.32, 341.65], "ts_p95_rt": [352, 348, 357, 353, 348, 351], "ts_p99_rt": [352, 350, 359, 354, 356, 354], "ts_throughput": [1.8, 3.5, 3.9, 3.7, 3.7, 3.7], "ts_errors": [0, 0, 0, 0, 0, 0]}, "6": {"ts_avg_rt": [172.31, 169.25, 168.89, 168.34, 168.51, 169.05], "ts_p95_rt": [176, 175, 173, 172, 173, 173], "ts_p99_rt": [176, 175, 173, 172, 176, 174], "ts_throughput": [1.3, 4.0, 3.8, 3.5, 3.7, 4.0], "ts_errors": [0, 0, 0, 0, 0, 0]}, "7": {"ts_avg_rt": [347.77, 341.85, 342.08, 340.58, 341.54, 340.1], "ts_p95_rt": [358, 352, 349, 352, 352, 349], "ts_p99_rt": [358, 353, 353, 352, 354, 350], "ts_throughput": [1.3, 3.9, 3.8, 3.6, 3.7, 3.9], "ts_errors": [0, 0, 0, 0, 0, 0]}, "8": {"ts_avg_rt": [170.77, 170.24, 170.62, 169.97, 168.88, 168.97], "ts_p95_rt": [175, 174, 175, 175, 174, 174], "ts_p99_rt": [175, 175, 179, 175, 174, 174], "ts_throughput": [1.3, 3.8, 3.7, 3.5, 4.0, 3.9], "ts_errors": [0, 0, 0, 0, 0, 0]}, "9": {"ts_avg_rt": [188.62, 113.5, 98.16, 98.97, 95.4, 94.92], "ts_p95_rt": [282, 219, 105, 112, 103, 99], "ts_p99_rt": [282, 228, 114, 123, 105, 99], "ts_throughput": [1.3, 3.8, 3.7, 3.5, 4.0, 3.9], "ts_errors": [0, 0, 0, 0, 0, 0]}, "10": {"ts_avg_rt": [175.92, 173.59, 172.77, 173.65, 178.15, 172.72], "ts_p95_rt": [183, 180, 178, 178, 183, 178], "ts_p99_rt": [183, 180, 178, 178, 187, 187], "ts_throughput": [1.2, 3.9, 3.5, 3.7, 4.0, 3.9], "ts_errors": [0, 0, 0, 1, 1, 0]}};
+
+    // Response Time Chart Instance
+    const rtChartObj = new Chart(document.getElementById('rtChart'), {
+        type: 'line',
+        data: {
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+            datasets: [
+                { label: 'Avg RT', data: overallTs.avg_rt, borderColor: '#6366f1', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'P95 RT', data: overallTs.p95_rt, borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'P99 RT', data: overallTs.p99_rt, borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1 }
+            ]
+        },
+        options: { responsive: true, scales: { y: { grid: { color: gridColor }, title: { 'display': true, text: 'ms' } }, x: { grid: { 'display': false } } } }
+    });
+
+    function updateRtChart(val) {
+        let d = overallTs;
+        if (val !== 'ALL') {
+            const idx = parseInt(val, 10);
+            const entry = labelTsMap[idx];
+            if (entry) d = { avg_rt: entry.ts_avg_rt, p95_rt: entry.ts_p95_rt, p99_rt: entry.ts_p99_rt };
+        }
+        rtChartObj.data.datasets[0].data = [...d.avg_rt];
+        rtChartObj.data.datasets[1].data = [...d.p95_rt];
+        rtChartObj.data.datasets[2].data = [...d.p99_rt];
+        rtChartObj.update('active');
+    }
+
+    // Throughput Chart Instance
+    const tpChartObj = new Chart(document.getElementById('tpChart'), {
+        type: 'bar',
+        data: {
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+            datasets: [
+                { label: 'Throughput (req/s)', data: overallTs.throughput, backgroundColor: 'rgba(99,102,241,0.6)', borderRadius: 4 },
+                { label: 'Errors', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 4 }
+            ]
+        },
+        options: { responsive: true, scales: { y: { grid: { color: gridColor } }, x: { grid: { 'display': false } } } }
+    });
+
+    function updateTpChart(val) {
+        let d = overallTs;
+        if (val !== 'ALL') {
+            const idx = parseInt(val, 10);
+            const entry = labelTsMap[idx];
+            if (entry) d = { throughput: entry.ts_throughput, errors: entry.ts_errors };
+        }
+        tpChartObj.data.datasets[0].data = [...d.throughput];
+        tpChartObj.data.datasets[1].data = [...d.errors];
+        tpChartObj.update('active');
+    }
+
+    // Transaction Chart
+    new Chart(document.getElementById('txChart'), {
+        type: 'bar',
+        data: {
+            labels: ["T02 Sign to the application", "T06 Select any animal and add ", "T08 select any animal and add ", "T02 Sign to the application-21", "T01 Launch The JpetStore-199", "T01 Launch The JpetStore", "T11 click on confirm", "T11 click on confirm-269"],
+            datasets: [{ label: 'Avg RT (ms)', data: [509.65, 342.56, 341.65, 339.85, 207.99, 207.99, 174.33, 174.32], backgroundColor: 'rgba(139,92,246,0.7)', borderRadius: 6 }]
+        },
+        options: { indexAxis: 'y', responsive: true, scales: { x: { grid: { color: gridColor } }, y: { grid: { 'display': false } } } }
+    });
+
+    // ── Charts & Analytics Tab ─────────────────────────────────────────────────
+    // 1. Percentile Comparison Chart (grouped bar)
+    new Chart(document.getElementById('pctChart'), {
+        type: 'bar',
+        data: {
+            labels: ["T02 Sign to the application", "T06 Select any animal and ad", "T08 select any animal and ad", "T02 Sign to the application-", "T01 Launch The JpetStore-199", "T01 Launch The JpetStore", "T11 click on confirm", "T11 click on confirm-269"],
+            datasets: [
+                { label: 'P50', data: [507, 342, 341, 337, 168, 168, 173, 173], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 4 },
+                { label: 'P90', data: [520, 350, 350, 347, 174, 174, 178, 178], backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 4 },
+                { label: 'P95', data: [524, 354, 352, 353, 177, 177, 180, 180], backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 4 },
+                { label: 'P99', data: [537, 357, 357, 360, 724, 724, 187, 187], backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: textColor } } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: textColor, maxRotation: 30, font: { size: 10 } } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'ms', color: textColor } }
+            }
+        }
+    });
+
+    // 2. SLA Pass/Fail Donut
+    new Chart(document.getElementById('slaDonut'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Passed', 'Breached'],
+            datasets: [{
+                data: [27, 1],
+                backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(239,68,68,0.85)'],
+                borderColor: ['#10b981', '#ef4444'],
+                borderWidth: 2,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: textColor, padding: 16 } }
+            }
+        }
+    });
+
+    // 3. Error Rate by Transaction (horizontal bar)
+    if (["T11 click on confirm-269", "T11 click on confirm"].length > 0) {
+        new Chart(document.getElementById('errChart'), {
+            type: 'bar',
+            data: {
+                labels: ["T11 click on confirm-269", "T11 click on confirm"],
+                datasets: [{
+                    label: 'Error Rate (%)',
+                    data: [0.99, 0.99],
+                    backgroundColor: 'rgba(239,68,68,0.75)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: '%', color: textColor } },
+                    y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
+                }
+            }
+        });
+    } else {
+        const errEl = document.getElementById('errChart');
+        if (errEl) { errEl.parentElement.innerHTML += '<p style="color:var(--green);text-align:center;margin-top:2rem;">✅ No transactions with errors</p>'; errEl.style.display='none'; }
+    }
+
+    // 4. Response Time Histogram
+    new Chart(document.getElementById('histChart'), {
+        type: 'bar',
+        data: {
+            labels: ["<100ms", "100-250ms", "250-500ms", "500ms-1s", "1s-2s", "2s-5s", ">5s"],
+            datasets: [{
+                label: 'Requests',
+                data: [0, 5102, 612, 207, 0, 0, 0],
+                backgroundColor: [
+                    'rgba(16,185,129,0.75)','rgba(59,130,246,0.75)','rgba(139,92,246,0.75)',
+                    'rgba(245,158,11,0.75)','rgba(249,115,22,0.75)','rgba(239,68,68,0.75)','rgba(127,29,29,0.75)'
+                ],
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: textColor } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Request Count', color: textColor } }
+            }
+        }
+    });
+
+    // 5. Concurrency Estimate Over Time (Little's Law)
+    const concData = [6.4, 9.9, 10.5, 10.2, 10.0, 10.2];
+    if (concData.some(v => v > 0)) {
+        new Chart(document.getElementById('concChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+                datasets: [{
+                    label: 'Est. Concurrent Users',
+                    data: concData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139,92,246,0.12)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#8b5cf6'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: textColor } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Users', color: textColor }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // Azure Chart
+    const azCpu = [];
+    const azMem = [];
+    if (azCpu.length > 0) {
+        new Chart(document.getElementById('azChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"].slice(0, azCpu.length),
+                datasets: [
+                    { label: 'CPU %', data: azCpu, borderColor: '#f59e0b', borderWidth: 2, fill: true, backgroundColor: 'rgba(245,158,11,0.1)', tension: 0.3, pointRadius: 2 },
+                    { label: 'Memory %', data: azMem, borderColor: '#6366f1', borderWidth: 2, fill: true, backgroundColor: 'rgba(99,102,241,0.1)', tension: 0.3, pointRadius: 2 }
+                ]
+            },
+            options: { responsive: true, scales: { y: { min: 0, max: 100, grid: { color: gridColor }, title: { 'display': true, text: '%' } }, x: { grid: { 'display': false } } } }
+        });
+    }
+</script>
+
+</body></html>

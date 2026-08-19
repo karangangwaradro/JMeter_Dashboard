@@ -40,10 +40,14 @@ _ROOT_DIR      = _SERVICES_DIR.parent.resolve()
 _WEB_DIR       = _ROOT_DIR / "web"
 _TESTS_DIR     = _ROOT_DIR / "Tests"
 _RESULTS_DIR   = _ROOT_DIR / "Results"
+_RESULTS_HTML_DIR = _RESULTS_DIR / "html"
+_RESULTS_JSON_DIR = _RESULTS_DIR / "json"
+_RESULTS_JTL_DIR  = _RESULTS_DIR / "jtl"
 _PUBLISHED_DIR = _RESULTS_DIR / "Published"
 _DATA_DIR      = _ROOT_DIR / "data"
 
-_PUBLISHED_DIR.mkdir(parents=True, exist_ok=True)
+for d in (_RESULTS_HTML_DIR, _RESULTS_JSON_DIR, _RESULTS_JTL_DIR, _PUBLISHED_DIR):
+    d.mkdir(parents=True, exist_ok=True)
 
 if str(_ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(_ROOT_DIR))
@@ -66,6 +70,12 @@ def _load_env():
 
 
 _load_env()
+
+try:
+    from python_files.organize_results import organize
+    organize()
+except Exception:
+    pass
 
 # Auto-recompile all HTML reports with updated template on server start
 try:
@@ -134,7 +144,22 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         # Serve files outside web/ (/Results/*)
         if path.startswith("/Results/"):
             rel_file = path.replace("/Results/", "")
-            self._serve_file(_RESULTS_DIR / rel_file)
+            target_path = _RESULTS_DIR / rel_file
+            if not target_path.exists() or not target_path.is_file():
+                ext = target_path.suffix.lower()
+                if ext == ".html":
+                    alt = _RESULTS_HTML_DIR / target_path.name
+                    if not alt.exists():
+                        alt = _PUBLISHED_DIR / target_path.name
+                elif ext == ".json":
+                    alt = _RESULTS_JSON_DIR / target_path.name
+                elif ext == ".jtl":
+                    alt = _RESULTS_JTL_DIR / target_path.name
+                else:
+                    alt = target_path
+                if alt.exists():
+                    target_path = alt
+            self._serve_file(target_path)
             return
 
         # ── /api/status ──
@@ -205,19 +230,24 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             draft_reports = []
             published_reports = []
 
-            # Draft reports in Results/
+            # Draft reports in Results/html/ (and fallback Results/)
+            report_files = set()
+            if _RESULTS_HTML_DIR.exists():
+                report_files.update([f for f in _RESULTS_HTML_DIR.glob("*.html") if f.is_file()])
             if _RESULTS_DIR.exists():
-                for f in sorted(_RESULTS_DIR.glob("*.html"), key=lambda x: x.stat().st_mtime, reverse=True):
-                    draft_reports.append({
-                        "name": f.name,
-                        "created_at": f.stat().st_mtime,
-                        "size": f.stat().st_size,
-                        "url": f"/Results/{f.name}"
-                    })
+                report_files.update([f for f in _RESULTS_DIR.glob("*.html") if f.is_file()])
+
+            for f in sorted(list(report_files), key=lambda x: x.stat().st_mtime, reverse=True):
+                draft_reports.append({
+                    "name": f.name,
+                    "created_at": f.stat().st_mtime,
+                    "size": f.stat().st_size,
+                    "url": f"/Results/html/{f.name}"
+                })
 
             # Published reports in Results/Published/
             if _PUBLISHED_DIR.exists():
-                for f in sorted(_PUBLISHED_DIR.glob("*.html"), key=lambda x: x.stat().st_mtime, reverse=True):
+                for f in sorted([f for f in _PUBLISHED_DIR.glob("*.html") if f.is_file()], key=lambda x: x.stat().st_mtime, reverse=True):
                     published_reports.append({
                         "name": f.name,
                         "created_at": f.stat().st_mtime,
@@ -238,7 +268,9 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 query = urllib.parse.parse_qs(parsed.query)
                 target_run = query.get("run_id", [""])[0].strip()
 
-                result_files = sorted(_RESULTS_DIR.glob("*_result.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+                res_set = set(_RESULTS_JSON_DIR.glob("*_result.json"))
+                res_set.update(_RESULTS_DIR.glob("*_result.json"))
+                result_files = sorted([f for f in res_set if f.is_file()], key=lambda p: p.stat().st_mtime, reverse=True)
                 if target_run:
                     result_files = [f for f in result_files if target_run in f.name]
 
@@ -261,18 +293,22 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                         parsed_res = json.load(f)
 
                     timestamp = target_file.name.replace("run_", "").replace("_result.json", "")
-                    azure_file = _RESULTS_DIR / f"azure_{timestamp}.json"
+                    azure_file = _RESULTS_JSON_DIR / f"azure_{timestamp}.json"
+                    if not azure_file.exists():
+                        azure_file = _RESULTS_DIR / f"azure_{timestamp}.json"
                     azure_data = {}
                     if azure_file.exists():
                         with open(azure_file, "r", encoding="utf-8") as f:
                             azure_data = json.load(f)
 
                     ai_insights = parsed_res.get("ai_insights", {})
-                    report_path = _RESULTS_DIR / f"run_{timestamp}_report.html"
+                    report_path = _RESULTS_HTML_DIR / f"run_{timestamp}_report.html"
                     jmx_name = parsed_res.get("jmx_name", "Scenario")
                     users = parsed_res.get("users", 1)
 
-                    jtl_file = _RESULTS_DIR / f"run_{timestamp}.jtl"
+                    jtl_file = _RESULTS_JTL_DIR / f"run_{timestamp}.jtl"
+                    if not jtl_file.exists():
+                        jtl_file = _RESULTS_DIR / f"run_{timestamp}.jtl"
                     if jtl_file.exists():
                         try:
                             from python_files.run_local_jmeter import parse_jtl

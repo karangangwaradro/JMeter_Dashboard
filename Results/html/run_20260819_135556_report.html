@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdroWebsite - Copy (7).jmx — Performance Report | JmeterAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-grad: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #dbeafe 100%);
+            --surface: rgba(255, 255, 255, 0.65);
+            --surface2: rgba(255, 255, 255, 0.4);
+            --border: rgba(255, 255, 255, 0.6);
+            --text: #1f2328; --muted: #4b5563;
+            --accent: #2563eb; --accent2: #1d4ed8;
+            --green: #059669; --yellow: #d97706; --red: #dc2626; --blue: #2563eb;
+            --green-bg: rgba(16, 185, 129, 0.15); --yellow-bg: rgba(245, 158, 11, 0.15);
+            --red-bg: rgba(239, 68, 68, 0.15); --blue-bg: rgba(59, 130, 246, 0.15);
+            --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        html.dark {
+            --bg-grad: linear-gradient(135deg, #0f172a 0%, #020617 50%, #1e1b4b 100%);
+            --surface: rgba(30, 41, 59, 0.65);
+            --surface2: rgba(30, 41, 59, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f1f5f9; --muted: #94a3b8;
+            --accent: #3b82f6; --accent2: #60a5fa;
+            --green: #10b981; --yellow: #f59e0b; --red: #ef4444; --blue: #3b82f6;
+            --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-grad); background-attachment: fixed; color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 2rem; line-height: 1.5; }
+        .report-container { max-width: 1300px; margin: 0 auto; }
+
+        /* Glassmorphism Base for Containers */
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Header */
+        .report-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.75rem; border-radius: 12px; margin-bottom: 1.5rem; transition: box-shadow 0.2s; }
+        .report-header:hover { box-shadow: var(--shadow-md); }
+        .header-left { display: flex; align-items: center; gap: 1.25rem; }
+        .engine-badge { background: var(--surface2); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0; }
+        .report-title h1 { font-size: 1.35rem; font-weight: 700; color: var(--text); }
+        .report-title p { color: var(--muted); font-size: 0.82rem; margin-top: 0.25rem; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .score-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; border: 2px solid #ef4444; color: #ef4444; background: var(--surface2); }
+        .status-pill { padding: 0.35rem 0.85rem; border-radius: 12px; font-size: 0.78rem; font-weight: 700; color: #fff; background: #ef4444; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .theme-toggle { cursor: pointer; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.8rem; color: var(--text); font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+        .theme-toggle:hover { background: var(--border); }
+
+        /* Nav Tabs */
+        .report-nav { display: flex; gap: 0.35rem; padding: 0.4rem; border-radius: 10px; margin-bottom: 1.5rem; }
+        .nav-btn { flex: 1; padding: 0.6rem 1rem; text-align: center; border: none; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .nav-btn:hover { color: var(--text); background: var(--surface2); }
+        .nav-btn.active { color: #ffffff; background: var(--accent); font-weight: 700; box-shadow: var(--shadow-sm); }
+        .tab-pane { display: block; animation: fadeIn 0.3s ease-in-out; }
+        .tab-pane.hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .kpi-card { border-radius: 12px; padding: 1.25rem 1.5rem; transition: all 0.2s; }
+        .kpi-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .kpi-label { color: var(--muted); font-size: 0.78rem; margin-bottom: 0.4rem; font-weight: 600; }
+        .kpi-value { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+        .kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+        .pass { color: var(--green); } .warn { color: var(--yellow); } .fail { color: var(--red); }
+
+        /* Sections */
+        .section { border-radius: 12px; padding: 1.75rem; margin-bottom: 1.5rem; overflow: auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+        .section h2 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+        .ai-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--surface2); color: var(--text); border: 1px solid var(--border); padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        th { background: var(--surface2); color: var(--muted); text-align: left; padding: 0.75rem 1rem; font-size: 0.78rem; border-bottom: 1px solid var(--border); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); background: rgba(255, 255, 255, 0.1); }
+        tr:hover td { background: var(--surface2); }
+        tr:last-child td { border-bottom: none; }
+
+        /* Charts */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+        .chart-box { border-radius: 12px; padding: 1.5rem; }
+        .chart-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; color: var(--text); }
+
+        /* AI Insights & Recs */
+        .insight-card { background: var(--surface2); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; border-left: 4px solid var(--accent); }
+        .insight-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent); }
+        .insight-card p { font-size: 0.88rem; line-height: 1.7; }
+        .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        @media (max-width: 900px) { .rec-grid { grid-template-columns: 1fr; } }
+        .rec-card { border-radius: 10px; padding: 1.25rem; border: 1px solid var(--border); background: var(--surface2); }
+        .rec-card.critical { border-left: 4px solid var(--red); }
+        .rec-card.warning { border-left: 4px solid var(--yellow); }
+        .rec-card.info { border-left: 4px solid var(--blue); }
+        .rec-header { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .rec-priority { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 6px; }
+        .rec-card.critical .rec-priority { background: var(--red); color: #fff; }
+        .rec-card.warning .rec-priority { background: var(--yellow); color: #000; }
+        .rec-card.info .rec-priority { background: var(--blue); color: #fff; }
+        .rec-category { font-size: 0.72rem; color: var(--muted); padding: 0.2rem 0.6rem; border: 1px solid var(--border); border-radius: 6px; }
+        .rec-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .rec-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+        .rec-impact { font-size: 0.78rem; color: var(--green); margin-top: 0.75rem; font-weight: 600; }
+
+        /* Capacity */
+        .capacity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 1.25rem; }
+        .cap-card { background: var(--surface2); border-radius: 10px; padding: 1.25rem; text-align: center; border: 1px solid var(--border); }
+        .cap-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; font-weight: 600; }
+        .cap-value { font-size: 1.75rem; font-weight: 800; color: var(--accent); }
+        .cap-analysis { font-size: 0.85rem; color: var(--muted); }
+
+        /* Editable */
+        [contenteditable="true"] { outline: 2px dashed rgba(139, 92, 246, 0.4); outline-offset: 3px; border-radius: 4px; transition: outline-color 0.2s; }
+        [contenteditable="true"]:hover { outline-color: var(--accent); }
+        [contenteditable="true"]:focus { outline: 2px solid var(--accent); background: var(--surface2); }
+        .published-mode [contenteditable="true"] { outline: none !important; background: transparent !important; }
+
+        /* AI Observation Panels — inline below charts */
+        .ai-observation-panel { background: var(--surface2); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; border-left: 4px solid var(--accent); border: 1px solid var(--border); border-left: 4px solid var(--accent); }
+        .ai-observation-panel h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent); }
+        .ai-interpretation { font-size: 0.82rem; color: var(--muted); border-left: 3px solid var(--accent); padding: 0.4rem 0.8rem; margin: 0.5rem 0 0 0; background: rgba(37, 99, 235, 0.04); border-radius: 0 6px 6px 0; font-style: italic; }
+        .evidence-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+        .evidence-chip { background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 5px; font-weight: 600; font-size: 0.78rem; }
+
+        /* Finding Badges — used in tables and inline references */
+        .finding-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; border: 1.5px solid; background: transparent; white-space: nowrap; }
+        .finding-badge-inline { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.15rem 0.45rem; border-radius: 5px; font-size: 0.7rem; font-weight: 700; background: var(--surface); border: 1px solid var(--border); color: var(--accent); }
+
+        /* Finding Detail Cards — in AI Summary tab */
+        .finding-detail { background: var(--surface2); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; border: 1px solid var(--border); border-left: 4px solid var(--accent); scroll-margin-top: 2rem; }
+
+        /* Evidence Source References */
+        .evidence-ref { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 5px; font-size: 0.72rem; font-weight: 600; background: var(--surface); border: 1px solid var(--border); color: var(--accent); margin: 0.1rem 0; }
+
+        /* Confidence Badges */
+        .confidence-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 5px; font-size: 0.7rem; font-weight: 600; margin-right: 0.4rem; }
+        .confidence-badge.confidence-high { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+        .confidence-badge.confidence-medium { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .confidence-badge.confidence-low { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+        .report-footer { text-align: center; color: var(--muted); font-size: 0.82rem; padding: 2.5rem 0; font-weight: 500; }
+
+        /* --- Edit Mode Styles --- */
+        [contenteditable="true"] { outline: none !important; background: transparent !important; border: none !important; transition: all 0.2s; }
+        body.edit-mode-active [contenteditable="true"] { outline: 1px dashed var(--accent) !important; background: rgba(99, 102, 241, 0.05) !important; cursor: text; }
+        .delete-rec-btn { display: none; position: absolute; right: 0.5rem; top: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; color: #ef4444; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; font-weight: 700; transition: all 0.2s; z-index: 10; }
+        .delete-rec-btn:hover { background: #ef4444; color: #fff; }
+        body.edit-mode-active .delete-rec-btn { display: block !important; }
+
+        /* Print & PDF Export Styles */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; font-size: 10pt !important; }
+            * { overflow: visible !important; }
+            .report-container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .glass-panel { background: #ffffff !important; box-shadow: none !important; border: 1px solid #ddd !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-radius: 6px !important; padding: 1rem !important; margin-bottom: 1.5rem !important; }
+            .report-nav, .theme-toggle, #publishBtn, #pdfBtn, #editModeBadge, .delete-rec-btn { display: none !important; }
+            .tab-pane, .tab-pane.hidden { display: block !important; opacity: 1 !important; visibility: visible !important; height: auto !important; position: static !important; margin-bottom: 1rem !important; animation: none !important; }
+            .chart-box, .section, .kpi-card, .rec-card, table, tr, img { page-break-inside: avoid !important; }
+            .report-header { border: none !important; box-shadow: none !important; padding: 0 0 1rem 0 !important; margin-bottom: 1.5rem !important; border-bottom: 2px solid #e1e4e8 !important; border-radius: 0 !important; }
+            
+            /* Fixes for specific elements to fit PDF A4 perfectly */
+            .chart-box { width: 100% !important; padding: 0.5rem !important; page-break-inside: avoid !important; }
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 9pt !important; page-break-inside: auto !important; }
+            tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+            th, td { border: 1px solid #e1e4e8 !important; padding: 0.4rem !important; background: none !important; }
+            
+            /* Typography scaling for print */
+            h1 { font-size: 16pt !important; }
+            h2 { font-size: 13pt !important; margin-bottom: 0.75rem !important; margin-top: 0 !important; }
+            h3 { font-size: 11pt !important; margin-bottom: 0.5rem !important; }
+            p, span, div { font-size: 9.5pt !important; line-height: 1.4 !important; }
+            .kpi-value { font-size: 18pt !important; }
+            .kpi-label { font-size: 8pt !important; }
+            .kpi-card { padding: 0.75rem !important; }
+            .rec-card { padding: 0.75rem !important; border-width: 1px !important; border-left-width: 4px !important; margin-bottom: 0.5rem !important; }
+            .rec-desc { font-size: 9pt !important; }
+            .insight-card p {  font-size: 9.5pt !important; }
+            .insight-card { border-width: 1px !important; border-left-width: 4px !important; padding: 1rem !important; }
+        }
+
+        /* --- Drawer Overlay & Panel --- */
+        #findingDrawerOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9998; backdrop-filter: blur(2px);
+        }
+        #findingDrawer {
+            display: none; position: fixed; top: 0; right: -450px; width: 450px; height: 100%; background: var(--surface); box-shadow: -4px 0 15px rgba(0,0,0,0.15); z-index: 9999; border-left: 1px solid var(--border); overflow-y: auto; transition: right 0.3s ease; padding: 1.5rem;
+        }
+        #findingDrawer.open { right: 0; }
+        .drawer-close { font-size: 1.5rem; cursor: pointer; color: var(--muted); background: transparent; border: none; outline: none; }
+        .drawer-section { margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        .drawer-section:last-child { border-bottom: none; }
+        .drawer-h { font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+<div class="report-container">
+
+    <!-- Header -->
+    <div class="report-header glass-panel" style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.5rem; margin-bottom:1rem;">
+        <div class="header-left" style="display:flex; align-items:center; gap:1.25rem;">
+            <div class="engine-badge" style="font-weight:800; font-size:1.2rem; color:var(--accent);">⚡ JMeter AI</div>
+            <div style="border-left:2px solid var(--border); padding-left:1.25rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Project Details &amp; Execution Time</div>
+                <div style="font-size:1rem; font-weight:700; color:var(--text); margin:0.1rem 0;">Application Name: AdroWebsite - Copy (7).jmx &nbsp;|&nbsp; Module Executed: <span contenteditable="true">Load Test Module</span></div>
+                <div style="font-size:0.78rem; color:var(--muted);">
+                    <strong>Start Time:</strong> 2026-08-19 08:25:56 UTC &nbsp;|&nbsp; <strong>End Time:</strong> 2026-08-19 08:25:56 UTC &nbsp;|&nbsp; <strong>Run ID:</strong> run_20260819_135556
+                </div>
+            </div>
+        </div>
+        <div class="header-right" style="display:flex; align-items:center; gap:0.6rem;">
+            <span id="editModeBadge" class="status-pill" style="background:#8b5cf6; font-size:0.75rem; display:none;">✏️ EDIT MODE</span>
+            <button id="editBtn" class="theme-toggle" onclick="toggleEditMode()" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.45rem 1rem; cursor:pointer; font-weight:600;">✏️ Edit Report</button>
+            <button id="pdfBtn" class="theme-toggle" onclick="exportToPDF()" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; border: none; font-weight:700; padding:0.45rem 1rem; box-shadow: 0 4px 12px rgba(225,29,72,0.3); border-radius:6px; cursor:pointer;">📄 Export Report</button>
+            <button id="publishBtn" class="theme-toggle" onclick="publishReport()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-weight:700; padding:0.45rem 1rem; box-shadow: 0 4px 12px rgba(16,185,129,0.3); border-radius:6px; cursor:pointer;">🚀 Publish Report</button>
+        </div>
+    </div>
+
+    <!-- Report Tab Navigation Header -->
+    <nav class="report-nav glass-panel">
+        <button class="nav-btn active" onclick="switchReportTab('rpt-summary', this)">📊 Executive Summary</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-load', this)">👥 Load &amp; Capacity</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-tx', this)">📋 Transaction Stats</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-rt', this)">⏱️ Response Time Stats</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-error', this)">🔴 SLA &amp; Errors</button>
+        <button class="nav-btn" onclick="switchReportTab('rpt-infra', this)">🖥️ Infrastructure Monitoring</button>
+    </nav>
+
+    <!-- TAB 1: Executive Summary -->
+    <div id="rpt-summary" class="tab-pane">
+        
+        <!-- 1. Test Config / Details -->
+        <div class="section glass-panel">
+            <h2>📋 Test Config / Details</h2>
+            <table style="margin-bottom:1rem; font-size:0.85rem;">
+                <thead>
+                    <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td style="font-weight:700;">Test Name</td><td>AdroWebsite - Copy (7).jmx</td><td style="font-weight:700;">Total Iterations</td><td>1,328</td></tr>
+                    <tr><td style="font-weight:700;">Test Type</td><td contenteditable="true">Load Test</td><td style="font-weight:700;">Total Requests</td><td>5,908</td></tr>
+                    <tr><td style="font-weight:700;">Duration</td><td>60 seconds</td><td style="font-weight:700;">Total Transactions</td><td>5</td></tr>
+                    <tr><td style="font-weight:700;">Peak Users</td><td>21 users</td><td style="font-weight:700;">Failed Transactions</td><td>1,334</td></tr>
+                    <tr><td style="font-weight:700;">Ramp-up / Down</td><td contenteditable="true">Manual Input</td><td style="font-weight:700;">Environment</td><td contenteditable="true">Staging</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. Test Objective -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>🎯 Test Objective</h2>
+            <div style="font-size:0.88rem; line-height:1.6; padding:0.4rem 0;" contenteditable="true">
+                Validate system performance, throughput stability, response time SLA compliance, and error rates of AdroWebsite - Copy (7).jmx under peak load conditions.
+            </div>
+        </div>
+
+        <!-- 3. Performance Scorecard & SLA Violation Grid (Exact Wireframe Fields) -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>📈 Performance Scorecard &amp; SLA Violation Summary</h2>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:0.75rem;">
+                
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">Overall APDEX Score</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#ef4444; margin:0.3rem 0;">0.00</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Target &ge; 0.85</div>
+                </div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);"># Transactions (Apdex &lt; .50)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--green); margin:0.3rem 0;">0</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Poor performance rating</div>
+                </div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);"># Transactions (Apdex &lt; .25)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--green); margin:0.3rem 0;">0</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Unacceptable rating</div>
+                </div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 100%)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">3</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 2x SLA target</div>
+                </div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 50%)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">4</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.5x SLA target</div>
+                </div>
+
+                <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
+                    <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 20%)</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">4</div>
+                    <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.2x SLA target</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4. Iteration Statistics & Transaction Statistics Table/Chart (Exact Wireframe Format) -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>📊 Transaction Statistics &amp; Iteration Summary</h2>
+            
+            <div style="overflow-x:auto; margin-bottom:1.5rem;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.83rem; border:1px solid var(--border);">
+                    <thead>
+                        <tr style="background:var(--surface2); border-bottom:1px solid var(--border);">
+                            <th rowspan="2" style="text-align:left; padding:0.6rem; border-right:1px solid var(--border);">Scripts Name</th>
+                            <th rowspan="2" style="text-align:center; padding:0.6rem; border-right:1px solid var(--border);">Duration of Run (Min)</th>
+                            <th rowspan="2" style="text-align:center; padding:0.6rem; border-right:1px solid var(--border);">Users</th>
+                            <th colspan="3" style="text-align:center; padding:0.4rem; border-bottom:1px solid var(--border); border-right:1px solid var(--border);">Samples</th>
+                            <th rowspan="2" style="text-align:center; padding:0.6rem;">Error Percentage (%)</th>
+                        </tr>
+                        <tr style="background:var(--surface2); border-bottom:2px solid var(--border);">
+                            <th style="text-align:center; padding:0.4rem; border-right:1px solid var(--border);">Total</th>
+                            <th style="text-align:center; padding:0.4rem; color:var(--green); border-right:1px solid var(--border);">Pass</th>
+                            <th style="text-align:center; padding:0.4rem; color:var(--red); border-right:1px solid var(--border);">Fail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">TC01_Services</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">1</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">1,311</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">0</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">1,311</td>
+            <td style="text-align:center; font-weight:700; color:var(--red); padding:0.5rem;">100.00%</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">TC02_Group Insights</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">10</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">8</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">3</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">5</td>
+            <td style="text-align:center; font-weight:700; color:var(--red); padding:0.5rem;">62.50%</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">Thread Group Contact Us</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">10</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">15</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">5</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">10</td>
+            <td style="text-align:center; font-weight:700; color:var(--red); padding:0.5rem;">66.67%</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">Thread Group Careers</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">10</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">3</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">1</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">2</td>
+            <td style="text-align:center; font-weight:700; color:var(--red); padding:0.5rem;">66.67%</td>
+        </tr>
+        
+    <tr style="border-top:2px solid var(--accent); background:var(--surface2); font-weight:800;">
+        <td style="text-align:left; padding:0.6rem;">Overall</td>
+        <td style="text-align:center; padding:0.6rem;">1.0</td>
+        <td style="text-align:center; padding:0.6rem;">21</td>
+        <td style="text-align:center; padding:0.6rem;">1,337</td>
+        <td style="text-align:center; color:var(--green); padding:0.6rem;">9</td>
+        <td style="text-align:center; color:var(--red); padding:0.6rem;">1,328</td>
+        <td style="text-align:center; color:var(--red); padding:0.6rem;">99.33%</td>
+    </tr>
+    
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin:1.2rem 0 0.6rem 0; font-size:1.05rem; font-weight:700; text-align:center;">Transaction Summary</h3>
+            <div style="position:relative; height:340px; width:100%;">
+                <canvas id="chart-tx-summary-bar"></canvas>
+            </div>
+        </div>
+
+        <!-- 5. Response Time Stats Graph (Critical Transactions Focus) -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+                <div>
+                    <h2 style="margin:0;">⏱️ Critical Transactions Response Time Graph</h2>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Time-series response times for key business-critical transactions against SLA target</div>
+                </div>
+                <div id="crit-tx-chip-container" style="display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center;"></div>
+            </div>
+            <div style="position:relative; height:320px; width:100%; margin-top:0.5rem;">
+                <canvas id="chart-rt-exec"></canvas>
+            </div>
+        </div>
+
+        <!-- 6. Error Stats Graph -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>🔴 Error Stats Graph</h2>
+            <div style="position:relative; height:260px; width:100%; margin-top:0.75rem;">
+                <canvas id="chart-errors-exec"></canvas>
+            </div>
+        </div>
+
+        <!-- 7. Server Side Graphs -->
+        <div class="section glass-panel" style="margin-top:1.25rem;">
+            <h2>🖥️ Server Side Graphs</h2>
+            <div style="position:relative; height:260px; width:100%; margin-top:0.75rem;">
+                <canvas id="chart-infra-exec"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+
+        <!-- Recommendations -->
+        <div class="section glass-panel" style="margin-top: 1.5rem; border-left: 4px solid var(--green);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="margin:0;" contenteditable="true">💡 Recommendations</h2>
+                <button class="delete-rec-btn" onclick="if(confirm('Delete Recommendations section?')) this.closest('.section').remove();" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:0.25rem 0.6rem; font-size:0.75rem; cursor:pointer; font-weight:600;">🗑️ Delete Section</button>
+            </div>
+            <div class="rec-grid" contenteditable="true">
+        <div class="rec-card critical" style="margin-bottom: 1rem; position: relative;">
+            <button class="delete-rec-btn" onclick="if(confirm('Remove this recommendation?')) this.closest('.rec-card').remove();" title="Delete Recommendation" style="position:absolute; top:0.8rem; right:0.8rem; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.7rem; cursor:pointer;">🗑️ Delete</button>
+            <div class="rec-header">
+                <span class="rec-priority" contenteditable="true">Critical</span>
+                <span class="rec-category" contenteditable="true">Backend</span>
+            </div>
+            <div class="rec-title" contenteditable="true">Reduce Error Rate</div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Why:</strong> <span style="font-size:0.82rem;" contenteditable="true">Error rate of 99.44% indicates server-side failures.</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Action:</strong><ul style='margin:0.3rem 0 0 1rem; font-size:0.82rem;'><li contenteditable='true'>Check connection pool sizes</li><li contenteditable='true'>Review timeout configurations</li><li contenteditable='true'>Check memory allocation</li></ul></div>
+            <div class="rec-impact">Expected Impact: <span contenteditable="true">Reduce error rate to <0.1%</span></div>
+            <div style="margin-top:0.4rem; font-size:0.78rem; color:var(--muted);"><strong>Validation:</strong> <span contenteditable="true">Run load test and verify 0% 5xx errors</span></div>
+        </div>
+        </div>
+        </div>
+        
+        <!-- Limitations Disclaimer -->
+        <div style="font-size:0.75rem; color:var(--muted); margin-top: 1.5rem; text-align:center;">
+            <strong>Test Limitations:</strong> Capacity estimates and performance thresholds are extrapolated from a single load profile. They represent observed pressure points, not certified maximums. Validated root-cause analysis requires infrastructure telemetry alignment.
+        </div>
+    </div>
+
+    <!-- TAB 2: User Load Distribution -->
+    <div id="rpt-load" class="tab-pane hidden">
+        <div class="section glass-panel" style="margin-bottom: 1.5rem;">
+            <h2>📐 Capacity Planning</h2>
+            <table style="font-size: 0.85rem;">
+                <thead>
+                    <tr><th>Metric</th><th>Status</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Observed Concurrency</strong></td><td>21 users</td><td>Tested concurrency level.</td></tr>
+                    <tr><td><strong>Safe Concurrency</strong></td><td>Not determined</td><td>Cannot be established without stepped load testing.</td></tr>
+                    <tr><td><strong>Saturation Point</strong></td><td>Not determined</td><td>System saturation was not strictly observed.</td></tr>
+                </tbody>
+            </table>
+            <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;">Capacity boundaries require incremental stress testing.</p>
+        </div>
+        <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
+            <h3>👥 Estimated Concurrent Users Over Time <small style="font-size:0.7rem; color:var(--muted); font-weight:400;">(Little's Law)</small></h3>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="concChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: Transaction Stats -->
+    <div id="rpt-tx" class="tab-pane hidden">
+        <div class="kpi-grid">
+            <div class="kpi-card glass-panel"><div class="kpi-label">Total Iterations</div><div class="kpi-value">1,328</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">Total Transactions</div><div class="kpi-value">5</div></div>
+        </div>
+        
+        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
+                <h3 style="margin:0; white-space: nowrap;">📊 Throughput & Errors</h3>
+                <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                    <option value="ALL">All Transactions (Overall)</option>
+                    <option value="0" title="T-1_Overall Iteration">T-1_Overall Iteration</option><option value="1" title="T-2_Overall Iteration">T-2_Overall Iteration</option><option value="2" title="T-3_Overall Iteration">T-3_Overall Iteration</option><option value="3" title="T-4_Overall Iteration">T-4_Overall Iteration</option><option value="4" title="TC01Launch Home Page URL">TC01Launch Home Page URL</option><option value="5" title="TC03Blog">TC03Blog</option><option value="6" title="TC04CaseStudy">TC04CaseStudy</option><option value="7" title="TC04_casestudy">TC04_casestudy</option><option value="8" title="TC05">TC05</option><option value="9" title="Transaction Controller1">Transaction Controller1</option><option value="10" title="Transaction Controller11">Transaction Controller11</option><option value="11" title="Transaction Controller12">Transaction Controller12</option><option value="12" title="Transaction Controller14">Transaction Controller14</option><option value="13" title="Transaction Controller16">Transaction Controller16</option><option value="14" title="Transaction Controller17">Transaction Controller17</option><option value="15" title="Transaction Controller18">Transaction Controller18</option><option value="16" title="Transaction Controller19">Transaction Controller19</option><option value="17" title="Transaction Controller20">Transaction Controller20</option><option value="18" title="Transaction Controller21">Transaction Controller21</option><option value="19" title="Transaction Controller5">Transaction Controller5</option><option value="20" title="Transaction Controller6">Transaction Controller6</option><option value="21" title="Transaction Controller9">Transaction Controller9</option>
+                </select>
+            </div>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="tpChart"></canvas>
+            </div>
+            
+        <div class="ai-observation-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
+                
+            </div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">Throughput shows increasing behavior as execution progresses.</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Interpretation:</strong> <span style="font-size:0.82rem;">Throughput increasing detected.</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">AI Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Throughput increased over the test, indicating the system is handling ramp-up successfully.</span></div>
+            <div><strong style="font-size:0.82rem;">Next Validation:</strong> <span style="font-size:0.82rem; color:var(--muted);">Validate sustained throughput at peak concurrency for a longer duration.</span></div>
+            <div class="evidence-grid" style="margin-top:0.5rem;"><span class="evidence-chip">Avg Throughput: 98.6 req/s</span> &middot; <span class="evidence-chip">Error Rate: 100.00%</span></div>
+        </div>
+        
+        </div>
+
+        <div class="section glass-panel">
+            <h2>📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
+            <table>
+                <thead><tr>
+                    <th>Transaction / Request</th><th>Samples</th><th>Apdex</th><th>Avg RT</th>
+                   <th>P90</th><th>P95</th><th>P99</th>
+                    <th>Min</th><th>Max</th><th>Error Rate</th><th>RT SLA</th><th>Deviation %</th><th>SLA Status</th>
+                </tr></thead>
+                <tbody>
+        <tr>
+            <td><strong>TC04_casestudy</strong> </td>
+            <td>2</td>
+            <td class="fail"><strong>0.00</strong></td>
+            <td class="fail">5726 ms</td>
+            <td class="fail"><strong>4752 ms</strong></td>
+            <td>4752 ms</td>
+            <td>4752 ms</td>
+            <td>4752 ms</td>
+            <td>6700 ms</td>
+            <td class="fail">100.00%</td>
+            <td>500 ms</td>
+            <td><span style="color:var(--red); font-weight:600;">+850.4%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC03Blog</strong> </td>
+            <td>2</td>
+            <td class="fail"><strong>0.00</strong></td>
+            <td class="fail">3862 ms</td>
+            <td class="fail"><strong>3733 ms</strong></td>
+            <td>3733 ms</td>
+            <td>3733 ms</td>
+            <td>3733 ms</td>
+            <td>3991 ms</td>
+            <td class="fail">100.00%</td>
+            <td>500 ms</td>
+            <td><span style="color:var(--red); font-weight:600;">+646.6%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC04CaseStudy</strong> </td>
+            <td>1</td>
+            <td class="fail"><strong>0.00</strong></td>
+            <td class="fail">1603 ms</td>
+            <td class="fail"><strong>1603 ms</strong></td>
+            <td>1603 ms</td>
+            <td>1603 ms</td>
+            <td>1603 ms</td>
+            <td>1603 ms</td>
+            <td class="fail">100.00%</td>
+            <td>500 ms</td>
+            <td><span style="color:var(--red); font-weight:600;">+220.6%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC05</strong> </td>
+            <td>1</td>
+            <td class="fail"><strong>0.00</strong></td>
+            <td class="fail">784 ms</td>
+            <td class="fail"><strong>784 ms</strong></td>
+            <td>784 ms</td>
+            <td>784 ms</td>
+            <td>784 ms</td>
+            <td>784 ms</td>
+            <td class="fail">100.00%</td>
+            <td>500 ms</td>
+            <td><span style="color:var(--yellow); font-weight:600;">+56.8%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC01Launch Home Page URL</strong> </td>
+            <td>1,328</td>
+            <td class="fail"><strong>0.00</strong></td>
+            <td class="pass">438 ms</td>
+            <td class="pass"><strong>486 ms</strong></td>
+            <td>620 ms</td>
+            <td>1853 ms</td>
+            <td>293 ms</td>
+            <td>7629 ms</td>
+            <td class="fail">100.00%</td>
+            <td>500 ms</td>
+            <td><span style="color:var(--green); font-weight:600;">-2.8%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 4: Response Time Stats -->
+    <div id="rpt-rt" class="tab-pane hidden">
+        <div class="kpi-grid">
+            <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">489<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">1046<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">P99 Response</div><div class="kpi-value">2070<span style="font-size:0.9rem"> ms</span></div></div>
+        </div>
+
+        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
+                <h3 style="margin:0; white-space: nowrap;">📈 Response Time Over Time</h3>
+                <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                    <option value="ALL">All Transactions (Overall)</option>
+                    <option value="0" title="T-1_Overall Iteration">T-1_Overall Iteration</option><option value="1" title="T-2_Overall Iteration">T-2_Overall Iteration</option><option value="2" title="T-3_Overall Iteration">T-3_Overall Iteration</option><option value="3" title="T-4_Overall Iteration">T-4_Overall Iteration</option><option value="4" title="TC01Launch Home Page URL">TC01Launch Home Page URL</option><option value="5" title="TC03Blog">TC03Blog</option><option value="6" title="TC04CaseStudy">TC04CaseStudy</option><option value="7" title="TC04_casestudy">TC04_casestudy</option><option value="8" title="TC05">TC05</option><option value="9" title="Transaction Controller1">Transaction Controller1</option><option value="10" title="Transaction Controller11">Transaction Controller11</option><option value="11" title="Transaction Controller12">Transaction Controller12</option><option value="12" title="Transaction Controller14">Transaction Controller14</option><option value="13" title="Transaction Controller16">Transaction Controller16</option><option value="14" title="Transaction Controller17">Transaction Controller17</option><option value="15" title="Transaction Controller18">Transaction Controller18</option><option value="16" title="Transaction Controller19">Transaction Controller19</option><option value="17" title="Transaction Controller20">Transaction Controller20</option><option value="18" title="Transaction Controller21">Transaction Controller21</option><option value="19" title="Transaction Controller5">Transaction Controller5</option><option value="20" title="Transaction Controller6">Transaction Controller6</option><option value="21" title="Transaction Controller9">Transaction Controller9</option>
+                </select>
+            </div>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="rtChart"></canvas>
+            </div>
+            
+        <div class="ai-observation-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
+                <span class="finding-badge-inline" onclick="showFinding('F-006');" style="cursor:pointer;">🔍 F-006</span>
+            </div>
+            <p style="font-weight:600; font-size:0.85rem; margin-bottom:0.6rem; color:var(--text);">Latency remains broadly variable with periodic spikes during sustained execution, but periodic P99 spikes indicate intermittent high-latency requests.</p>
+            <div class="evidence-grid"><span class="evidence-chip">Avg RT: 489 ms</span> &middot; <span class="evidence-chip">P95: 1046 ms</span> &middot; <span class="evidence-chip">P99: 2070 ms</span> &middot; <span class="evidence-chip">Maximum observed: 58,216 ms</span></div>
+            <blockquote class="ai-interpretation">The average latency is showing significant variance. Tail latency requires investigation because a small subset of requests experiences substantially higher response times.</blockquote>
+        </div>
+        
+        </div>
+
+        <!-- Critical Transaction Response Time Card -->
+        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; border-left: 4px solid var(--red); padding: 1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🔥 Critical Transaction Response Time</h3>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Response time trend for transactions marked as critical</p>
+                </div>
+                <div>
+                    <a href="#" onclick="switchReportTab('rpt-tx', document.querySelectorAll('.nav-btn')[2]); return false;" style="font-size:0.78rem; font-weight:600; color:var(--accent); text-decoration:none;">Manage Critical Transactions →</a>
+                </div>
+            </div>
+
+            <!-- Mini Summary KPIs -->
+            <div style="display:flex; gap:1.25rem; flex-wrap:wrap; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.6rem 1rem; margin-bottom:0.85rem; font-size:0.8rem;">
+                <div><span style="color:var(--muted);">Critical:</span> <strong>3</strong></div>
+                <div><span style="color:var(--muted);">Avg Response:</span> <strong>3730 ms</strong></div>
+                <div><span style="color:var(--muted);">P95 Response:</span> <strong>4752 ms</strong></div>
+                <div><span style="color:var(--muted);">SLA Breaches:</span> <strong style="color:var(--red);">3</strong></div>
+                <div><span style="color:var(--muted);">Max Response:</span> <strong>6700 ms</strong></div>
+            </div>
+
+            <!-- Interactive Transaction Toggle Chips -->
+            <div id="crit-tx-chip-container" style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.85rem;"></div>
+
+            <!-- Substantially Wider Canvas Area -->
+            <div style="position: relative; height: 320px; width: 100%;">
+                <canvas id="critTxChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
+                <h3>📊 Response Time Distribution</h3>
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="histChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
+                <h3>🏷️ Top Transactions by Response Time</h3>
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="txChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section glass-panel" style="margin-top: 1.5rem;">
+            <h2>🚨 Critical Transactions & Deviations</h2>
+            <p style="font-size:0.8rem; color:var(--muted); margin:-0.5rem 0 1rem 0;"><i>Criteria: Transactions with SLA deviations > 30% or Error SLA breaches.</i></p>
+            
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <thead>
+            <tr style="text-align: left; background: var(--surface2);">
+                <th style="padding: 0.5rem;">Transaction</th><th>Avg RT</th><th>P95 RT</th><th>Error %</th><th>SLA Target (P90)</th><th>Deviation %</th><th>Severity</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC04_casestudy</strong></td>
+            <td>5726 ms</td>
+            <td>4752 ms</td>
+            <td style="color: var(--red);">100.00%</td>
+            <td>500 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+850.4%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC03Blog</strong></td>
+            <td>3862 ms</td>
+            <td>3733 ms</td>
+            <td style="color: var(--red);">100.00%</td>
+            <td>500 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+646.6%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC04CaseStudy</strong></td>
+            <td>1603 ms</td>
+            <td>1603 ms</td>
+            <td style="color: var(--red);">100.00%</td>
+            <td>500 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+220.6%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC05</strong></td>
+            <td>784 ms</td>
+            <td>784 ms</td>
+            <td style="color: var(--red);">100.00%</td>
+            <td>500 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+56.8%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC01Launch Home Page URL</strong></td>
+            <td>438 ms</td>
+            <td>620 ms</td>
+            <td style="color: var(--red);">100.00%</td>
+            <td>500 ms</td>
+            <td style="color: var(--red); font-weight: 600;">-2.8%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        </tbody>
+    </table>
+    
+        </div>
+    </div>
+
+    <!-- TAB 5: Error Statistics -->
+    <div id="rpt-error" class="tab-pane hidden">
+        <div class="kpi-grid">
+            <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value fail">100.00<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">1334 transaction failures</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">5</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
+        </div>
+
+        <!-- SLA Deviation & Breach Severity Card -->
+        <div class="chart-box glass-panel" style="position: relative; min-height: 300px; margin-bottom: 1.5rem; padding: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.25rem;">
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700;">SLA Deviation &amp; Breach Severity</h3>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Distribution of transactions by SLA utilization</p>
+                </div>
+                <span style="font-size:0.78rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">5 Transactions</span>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-bottom: 1rem;">
+                <!-- Left Donut with Center Percentage Overlay -->
+                <div style="position: relative; width: 160px; height: 160px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="slaDonut" width="160" height="160"></canvas>
+                    <div style="position: absolute; text-align: center; pointer-events: none; width: 100%;">
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #ef4444; line-height: 1;">0.0%</div>
+                        <div style="font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; margin-top: 0.25rem;">SLA COMPLIANCE</div>
+                    </div>
+                </div>
+
+                <!-- Right Metric Cards Grid -->
+                <div style="flex: 1; min-width: 280px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.85rem;">
+                    <!-- Passed Card -->
+                    <div style="background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
+                        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#10b981; margin-bottom:0.3rem;">● PASSED</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">0</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">0.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">Under SLA</div>
+                    </div>
+
+                    <!-- Minor Card -->
+                    <div style="background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
+                        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#f59e0b; margin-bottom:0.3rem;">● MINOR</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">0</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#f59e0b; margin-top:0.1rem;">0.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">0 breaches</div>
+                    </div>
+
+                    <!-- Moderate Card -->
+                    <div style="background: rgba(249,115,22,0.07); border: 1px solid rgba(249,115,22,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
+                        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#f97316; margin-bottom:0.3rem;">● MODERATE</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">0</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#f97316; margin-top:0.1rem;">0.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">0 breaches</div>
+                    </div>
+
+                    <!-- Critical Card -->
+                    <div style="background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
+                        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#ef4444; margin-bottom:0.3rem;">● CRITICAL</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">5</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">100.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">5 breaches</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Threshold Legend -->
+            <div style="display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; font-size:0.75rem; color:var(--muted); border-top:1px solid var(--border); padding-top:0.8rem;">
+                <span><strong style="color:#10b981;">●</strong> Under SLA</span>
+                <span><strong style="color:#f59e0b;">●</strong> &gt;100% SLA</span>
+                <span><strong style="color:#f97316;">●</strong> &gt;200% SLA</span>
+                <span><strong style="color:#ef4444;">●</strong> &gt;300% SLA</span>
+            </div>
+        </div>
+
+        <div class="chart-box glass-panel" style="position: relative; min-height: 280px; margin-bottom: 1.5rem;">
+            <h3>🔴 Error Rate by Transaction (%)</h3>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="errChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Row 3: Error Analysis Donut (Interactive Drill-Down) -->
+        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; border-left: 4px solid #ef4444;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Error Distribution &amp; Analysis</h3>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Global Acceptable Error Rate Threshold: <strong style="color:var(--text);">1.0%</strong>. Click any error type in the donut to drill into affected transactions.</p>
+                </div>
+                <span style="font-size:0.78rem; font-weight:700; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#ef4444;">5841 Total Errors</span>
+            </div>
+
+            <div style="display:flex; gap:1.5rem; align-items:flex-start; flex-wrap:wrap;">
+                <!-- Left: Donut Chart -->
+                <div style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:0.6rem;">
+                    <div style="position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center;">
+                        <canvas id="errorDonutChart" width="200" height="200"></canvas>
+                        <div id="errorDonutCenter" style="position:absolute; text-align:center; pointer-events:none; width:100%;">
+                            <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1;">5841</div>
+                            <div style="font-size:0.65rem; font-weight:700; color:var(--muted); letter-spacing:0.04em; margin-top:0.2rem;">ERRORS</div>
+                        </div>
+                    </div>
+                    <!-- Legend below donut -->
+                    <div id="errorDonutLegend" style="font-size:0.75rem; display:flex; flex-direction:column; gap:0.3rem; max-width:220px;"></div>
+                </div>
+
+                <!-- Right: Drill-Down Detail Panel -->
+                <div id="errorDrillPanel" style="flex:1; min-width:300px; min-height:200px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:1rem; display:flex; align-items:center; justify-content:center;">
+                    <div style="text-align:center; color:var(--muted); font-size:0.85rem;">
+                        <div style="font-size:2rem; margin-bottom:0.5rem; opacity:0.4;">🔍</div>
+                        <div style="font-weight:600;">Click an error slice to view details</div>
+                        <div style="font-size:0.75rem; margin-top:0.3rem;">Shows affected transactions, timing, and response data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section glass-panel">
+            <h2>🚨 SLA Breach Analysis &amp; Corresponding HTTP Requests</h2>
+            
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC04_casestudy</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>4752 ms</strong> (Target: 500 ms) | Error Rate: <strong>100.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC03Blog</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>3733 ms</strong> (Target: 500 ms) | Error Rate: <strong>100.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC04CaseStudy</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>1603 ms</strong> (Target: 500 ms) | Error Rate: <strong>100.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC05</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>784 ms</strong> (Target: 500 ms) | Error Rate: <strong>100.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC01Launch Home Page URL</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>486 ms</strong> (Target: 500 ms) | Error Rate: <strong>100.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: Infrastructure Monitoring -->
+    <div id="rpt-infra" class="tab-pane hidden">
+        
+        <!-- 1. Top Health KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK CPU UTILIZATION</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">91.4%</div>
+                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High CPU Pressure</div>
+            </div>
+
+            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK MEMORY UTILIZATION</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">89.3%</div>
+                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High Memory Pressure</div>
+            </div>
+
+            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK DISK QUEUE DEPTH</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0</div>
+                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Optimal I/O</div>
+            </div>
+
+            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #10b981;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">SYSTEM AVAILABILITY</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">100.0%</div>
+                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Operational SLA</div>
+            </div>
+        </div>
+
+        <!-- 2. Main Resource Utilization (CPU & Memory) - Full Width -->
+        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: block;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🖥️ Azure Resource Utilization (CPU &amp; Memory)</h3>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Dual-line time series tracking host resource pressure thresholds</p>
+                </div>
+                <span style="font-size:0.75rem; font-weight:600; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:0.25rem 0.6rem; border-radius:12px;">Threshold Bands: 80% / 90%</span>
+            </div>
+            
+            <div style="position: relative; height: 310px; width: 100%;">
+                <canvas id="azChart"></canvas>
+            </div>
+            
+            <p style="margin-top:0.8rem; font-size:0.78rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.8rem; border-radius:6px; border-left:3px solid var(--accent);">
+                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 91.4% and memory reaching 89.3%, indicating elevated host-level contention.
+            </p>
+            
+        <div class="ai-observation-panel" style="margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 Infrastructure Observation</h4>
+                <span class="finding-badge-inline" onclick="showFinding('F-007');" style="cursor:pointer;">🔍 F-007</span>
+            </div>
+            <div style="margin-bottom:0.4rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">CPU averaged 60.7% and peaked at 91%. Memory averaged 69.3% and peaked at 89%.</span></div>
+            <div><strong style="font-size:0.82rem;">Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Resource contention was observed — scaling or optimization is recommended.</span></div>
+        </div>
+        
+        </div>
+
+        <!-- 3. Dual Charts Grid: Workload vs Resource & Performance Impact -->
+        <div class="chart-grid" style="margin-bottom: 1.5rem;">
+            <!-- Workload vs Resource (Throughput vs CPU) -->
+            <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
+                <h3 style="margin:0; font-size:1rem; font-weight:700;">📈 Workload vs CPU Utilization</h3>
+                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Aligning JMeter request throughput against Azure host CPU %</p>
+                <div style="position: relative; height: 240px; width: 100%;">
+                    <canvas id="workloadCpuChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance Impact (Throughput vs Response Time) -->
+            <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
+                <h3 style="margin:0; font-size:1rem; font-weight:700;">⚡ Throughput vs Response Time</h3>
+                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Analyzing capacity limits as request load increases</p>
+                <div style="position: relative; height: 240px; width: 100%;">
+                    <canvas id="tpRtChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Storage & Network Subsystem Grid -->
+        <div class="chart-grid" style="margin-bottom: 1.5rem;">
+            <!-- Storage I/O & Queue Depth -->
+            <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
+                <h3 style="margin:0; font-size:1rem; font-weight:700;">💾 Disk I/O &amp; Queue Contention</h3>
+                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Disk Read/Write throughput (MB/s) vs Disk Queue Depth</p>
+                <div style="position: relative; height: 240px; width: 100%;">
+                    <canvas id="diskChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Network Throughput -->
+            <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
+                <h3 style="margin:0; font-size:1rem; font-weight:700;">🌐 Network Throughput (In/Out)</h3>
+                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Inbound and Outbound network data transfer rate</p>
+                <div style="position: relative; height: 240px; width: 100%;">
+                    <canvas id="netChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Correlation Matrix & Event Timeline Grid -->
+        <div class="chart-grid" style="margin-bottom: 1.5rem;">
+            <!-- Correlation Matrix Table -->
+            <div class="chart-box glass-panel" style="padding: 1.2rem;">
+                <h3 style="margin:0; font-size:1rem; font-weight:700; margin-bottom: 0.3rem;">📊 Infrastructure Correlation Matrix</h3>
+                <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.8rem;">Pearson correlation coefficients (r) dynamically calculated from run telemetry</p>
+                
+                <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:center;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border); background:var(--surface2);">
+                            <th style="padding:0.4rem; text-align:left;">Signal</th>
+                            <th style="padding:0.4rem;">CPU</th>
+                            <th style="padding:0.4rem;">Memory</th>
+                            <th style="padding:0.4rem;">Throughput</th>
+                            <th style="padding:0.4rem;">Resp Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.4rem; font-weight:600; text-align:left;">CPU %</td>
+                            <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.61</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.28</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.4rem; font-weight:600; text-align:left;">Memory %</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.63</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.23</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.4rem; font-weight:600; text-align:left;">Throughput</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.61</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.63</td>
+                            <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text); background:rgba(16,185,129,0.15);">0.32</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.4rem; font-weight:600; text-align:left;">Resp Time</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.28</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.23</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text); background:rgba(16,185,129,0.15);">0.32</td>
+                            <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="font-size:0.7rem; color:var(--muted); margin-top:0.6rem;">💡 <em>Calculated correlation between request volume and response latency: <strong>r = 0.32</strong>.</em></p>
+            </div>
+
+            <!-- Chronological Event Progression Timeline -->
+            <div class="chart-box glass-panel" style="padding: 1.2rem;">
+                <h3 style="margin:0; font-size:1rem; font-weight:700; margin-bottom: 0.3rem;">⏱️ Performance Incident Timeline</h3>
+                <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.8rem;">Sequential degradation events during test execution</p>
+                
+                <div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.78rem;">
+                    
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #3b82f6;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#3b82f6;">[</span>
+            <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 28 req/s</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #ef4444;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#ef4444;">1</span>
+            <span>🔴 <strong>Latency Spike:</strong> Average response time reached 934 ms</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #f59e0b;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#f59e0b;">0</span>
+            <span>⚠️ <strong>CPU Saturation:</strong> Host CPU utilization reached 83%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #8b5cf6;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#8b5cf6;">s</span>
+            <span>⚠️ <strong>Memory Pressure:</strong> Host memory utilization climbed to 89%</span>
+        </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. AI Infrastructure Diagnostic Summary Card -->
+        <div class="chart-box glass-panel" style="padding: 1.25rem; border-left: 4px solid var(--accent); margin-bottom: 1.5rem;">
+            <h3 style="margin:0; font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
+                🧠 Infrastructure Diagnostic Analysis
+            </h3>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:0.85rem; font-size:0.78rem;">
+                <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:#ef4444; margin-bottom:0.2rem;">🔴 Primary Signal</div>
+                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>91.4%</strong> peak pressure during high-throughput interval.</p>
+                </div>
+                <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:#f59e0b; margin-bottom:0.2rem;">Associated Signals</div>
+                    <p style="margin:0; color:var(--text);">Memory reached <strong>89.3%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
+                </div>
+                <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:#3b82f6; margin-bottom:0.2rem;">🔍 Likely Root Cause</div>
+                    <p style="margin:0; color:var(--text);">Workload-driven host CPU &amp; memory contention under concurrent user load.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correlation Findings List -->
+        <div class="section glass-panel">
+            <h2>🔗 Client ↔ Server Correlation Findings</h2>
+            <div class="corr-finding critical"><span>🔴</span> CPU peaked at 91.4% — server is CPU-saturated. Response times will degrade under further load.</div><div class="corr-finding critical"><span>🔴</span> Error rate at 99.44% — exceeds acceptable threshold. Check server logs for connection timeouts or application exceptions.</div><div class="corr-finding warning"><span>🟡</span> Transaction 'T-2_Overall Iteration' is 33.76x slower than average (16495ms vs 489ms). Priority optimization target.</div><div class="corr-finding critical"><span>🔴</span> Azure App Service returned 168 5xx errors during the test window. Server-side failures detected.</div>
+        </div>
+    </div>
+
+    <!-- Methodology -->
+    <div class="section glass-panel" style="margin-bottom: 2rem;">
+        <h2>📐 Calculation Methodology</h2>
+        <div style="font-size: 0.85rem; color: var(--text); display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div>
+                <h4 style="margin-bottom:0.3rem;">SLA Deviation %</h4>
+                <p style="margin-top:0; color:var(--muted);">Calculates how far actual P90 exceeds target P90. <br/><code>Deviation = ((Actual P90 - Target P90) / Target P90) * 100</code></p>
+                
+                <h4 style="margin-bottom:0.3rem;">Apdex (Application Performance Index)</h4>
+                <p style="margin-top:0; color:var(--muted);">Measures user satisfaction. Evaluates response times against target T and 4T boundaries, deducting for errors. <br/><code>Score = (Satisfied + (Tolerating / 2)) / Total</code></p>
+            </div>
+            <div>
+                <h4 style="margin-bottom:0.3rem;">Response Time Percentiles (P90/P95/P99)</h4>
+                <p style="margin-top:0; color:var(--muted);">The time within which N% of requests were completed. Used instead of averages to highlight tail latency and true user experience.</p>
+                
+                <h4 style="margin-bottom:0.3rem;">Error Rate</h4>
+                <p style="margin-top:0; color:var(--muted);">Percentage of total transactions that failed application or HTTP validation assertions.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="report-footer">
+        ⚡ Generated by <strong>JmeterAI</strong> &nbsp;|&nbsp; 2026-08-19 08:25:56 UTC &nbsp;|&nbsp; Run ID: run_20260819_135556
+    </div>
+    <!-- Finding Drawer -->
+    <div id="findingDrawerOverlay" onclick="closeFinding()"></div>
+    <div id="findingDrawer">
+        <button class="drawer-close" onclick="closeFinding()" style="position:absolute; top:1rem; right:1rem;">&times;</button>
+        <div id="drawerContent"></div>
+    </div>
+</div>
+
+<script>
+    function switchReportTab(tabId, btn) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        const pane = document.getElementById(tabId);
+        if (pane) pane.classList.remove('hidden');
+        if (btn) btn.classList.add('active');
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    function toggleTheme() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('jmeter_ai_theme', isDark ? 'dark' : 'light');
+    }
+
+    let activeTabBeforePrint = 'rpt-summary';
+
+    function exportToPDF() {
+        // Remember current tab
+        const activeNav = document.querySelector('.nav-btn.active');
+        if (activeNav) {
+            const match = activeNav.getAttribute('onclick').match(/'([^']+)'/);
+            if (match) activeTabBeforePrint = match[1];
+        }
+
+        // Reveal all tabs so Chart.js canvases get real dimensions instead of 0x0
+        document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('hidden'));
+        
+        // Force Chart.js to immediately resize and redraw on the screen
+        for (let id in Chart.instances) {
+            Chart.instances[id].resize();
+        }
+
+        // Wait for rendering frame to complete before launching print dialog
+        setTimeout(() => {
+            window.print();
+        }, 400);
+    }
+
+    // Restore original tab state after print dialog closes
+    window.addEventListener('afterprint', () => {
+        document.querySelectorAll('.tab-pane').forEach(t => {
+            if (t.id !== activeTabBeforePrint) t.classList.add('hidden');
+        });
+    });
+
+    async function publishReport() {
+        if (!confirm("Are you sure you want to publish this report?\n\nThis will remove edit mode and save a permanent, clean, non-editable published report file.")) return;
+
+        const editBadge = document.getElementById('editModeBadge');
+        const publishBtn = document.getElementById('publishBtn');
+        if (editBadge) editBadge.style.display = 'none';
+        if (publishBtn) publishBtn.style.display = 'none';
+
+        // Strip contenteditable attributes for clean non-editable HTML
+        document.querySelectorAll('[contenteditable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+        });
+
+        // Clean canvases to prevent Chart.js sizing glitches on reload
+        document.querySelectorAll('canvas').forEach(c => {
+            c.removeAttribute('style');
+            c.removeAttribute('width');
+            c.removeAttribute('height');
+            c.className = '';
+        });
+
+        // Mark document container as published
+        document.documentElement.classList.add('published-mode');
+
+        const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const currentPath = window.location.pathname;
+        const fileName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'report.html';
+        const pubFileName = fileName.replace('.html', '_published.html');
+
+        try {
+            const res = await fetch('/api/save-published-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report_name: pubFileName, html_content: fullHtml })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("🎉 Report Published Successfully!\n\nSaved to: Results/Published/" + data.file + "\n\nYou will now be redirected to the published non-editable report.");
+                window.location.href = data.url || ('/Results/Published/' + data.file);
+            } else {
+                alert("Error publishing report: " + data.message);
+                if (editBadge) editBadge.style.display = 'inline-block';
+                if (publishBtn) publishBtn.style.display = 'inline-block';
+            }
+        } catch (err) {
+            alert("Failed to reach server: " + err.message);
+            if (editBadge) editBadge.style.display = 'inline-block';
+            if (publishBtn) publishBtn.style.display = 'inline-block';
+        }
+    }
+
+    if (localStorage.getItem('jmeter_ai_theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+
+    const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
+    const gridColor = '#e1e4e8';
+    const textColor = '#656d76';
+    Chart.defaults.color = textColor;
+    Chart.defaults.font = chartFont;
+
+    const overallTs = {
+        avg_rt: [400.74, 372.51, 933.65, 412.59, 384.26, 425.3],
+        p95_rt: [488, 444, 2297, 518, 464, 497],
+        p99_rt: [1229, 529, 3131, 732, 506, 1603],
+        throughput: [28.0, 53.6, 61.5, 55.7, 62.4, 57.5],
+        errors: [280, 536, 605, 557, 624, 567]
+    };
+
+    const labelTsMap = {"0": {"ts_avg_rt": [403.53, 374.0, 719.48, 410.1, 374.58, 383.24], "ts_p95_rt": [490, 443, 1854, 520, 463, 491], "ts_p99_rt": [546, 533, 2348, 713, 506, 520], "ts_throughput": [14.0, 26.8, 14.5, 23.8, 26.0, 26.0], "ts_errors": [140, 268, 145, 238, 260, 260], "label": "T-1_Overall Iteration"}, "1": {"ts_avg_rt": [26392.2, 0, 0, 0, 0.0, 0.0], "ts_p95_rt": [52426, 0, 0, 0, 0, 0], "ts_p99_rt": [52426, 0, 0, 0, 0, 0], "ts_throughput": [0.5, 0, 0, 0, 0.1, 0.2], "ts_errors": [5, 0, 0, 0, 0, 0], "label": "T-2_Overall Iteration"}, "2": {"ts_avg_rt": [906.6, 0, 392.6, 0, 0.0, 0], "ts_p95_rt": [907, 0, 399, 0, 0, 0], "ts_p99_rt": [907, 0, 399, 0, 0, 0], "ts_throughput": [0.5, 0, 0.5, 0, 0.5, 0], "ts_errors": [5, 0, 5, 0, 0, 0], "label": "T-3_Overall Iteration"}, "3": {"ts_avg_rt": [375.0, 0, 466.0, 0, 0.0, 0], "ts_p95_rt": [375, 0, 466, 0, 0, 0], "ts_p99_rt": [375, 0, 466, 0, 0, 0], "ts_throughput": [0.1, 0, 0.1, 0, 0.1, 0], "ts_errors": [1, 0, 1, 0, 0, 0], "label": "T-4_Overall Iteration"}, "4": {"ts_avg_rt": [400.74, 372.51, 829.4, 409.16, 374.31, 382.36], "ts_p95_rt": [488, 442, 2326, 518, 464, 490], "ts_p99_rt": [543, 529, 3320, 712, 505, 519], "ts_throughput": [14.0, 26.8, 15.6, 23.8, 26.6, 26.0], "ts_errors": [140, 268, 156, 238, 266, 260], "label": "TC01Launch Home Page URL"}, "5": {"ts_avg_rt": [0, 0, 0, 0, 3733.0, 3991.0], "ts_p95_rt": [0, 0, 0, 0, 3733, 3991], "ts_p99_rt": [0, 0, 0, 0, 3733, 3991], "ts_throughput": [0, 0, 0, 0, 0.1, 0.1], "ts_errors": [0, 0, 0, 0, 1, 1], "label": "TC03Blog"}, "6": {"ts_avg_rt": [0, 0, 0, 0, 0, 1603.0], "ts_p95_rt": [0, 0, 0, 0, 0, 1603], "ts_p99_rt": [0, 0, 0, 0, 0, 1603], "ts_throughput": [0, 0, 0, 0, 0, 0.1], "ts_errors": [0, 0, 0, 0, 0, 1], "label": "TC04CaseStudy"}, "7": {"ts_avg_rt": [0, 0, 0, 0, 0, 5726.0], "ts_p95_rt": [0, 0, 0, 0, 0, 4752], "ts_p99_rt": [0, 0, 0, 0, 0, 4752], "ts_throughput": [0, 0, 0, 0, 0, 0.2], "ts_errors": [0, 0, 0, 0, 0, 2], "label": "TC04_casestudy"}, "8": {"ts_avg_rt": [0, 0, 0, 0, 0, 784.0], "ts_p95_rt": [0, 0, 0, 0, 0, 784], "ts_p99_rt": [0, 0, 0, 0, 0, 784], "ts_throughput": [0, 0, 0, 0, 0, 0.1], "ts_errors": [0, 0, 0, 0, 0, 1], "label": "TC05"}, "9": {"ts_avg_rt": [403.33, 373.83, 700.04, 409.98, 375.09, 383.11], "ts_p95_rt": [489, 443, 1931, 520, 464, 491], "ts_p99_rt": [546, 533, 2348, 713, 506, 520], "ts_throughput": [14.0, 26.8, 15.6, 23.8, 26.6, 26.0], "ts_errors": [140, 268, 151, 238, 266, 260], "label": "Transaction Controller1"}, "10": {"ts_avg_rt": [0, 0, 0, 371.0, 683.0, 0], "ts_p95_rt": [0, 0, 0, 359, 344, 0], "ts_p99_rt": [0, 0, 0, 359, 344, 0], "ts_throughput": [0, 0, 0, 0.2, 0.3, 0], "ts_errors": [0, 0, 0, 2, 3, 0], "label": "Transaction Controller11"}, "11": {"ts_avg_rt": [0, 0, 0, 1618.5, 1491.67, 0], "ts_p95_rt": [0, 0, 0, 1448, 1497, 0], "ts_p99_rt": [0, 0, 0, 1448, 1497, 0], "ts_throughput": [0, 0, 0, 0.2, 0.3, 0], "ts_errors": [0, 0, 0, 2, 3, 0], "label": "Transaction Controller12"}, "12": {"ts_avg_rt": [0, 0, 0, 0, 0.0, 0.0], "ts_p95_rt": [0, 0, 0, 0, 0, 0], "ts_p99_rt": [0, 0, 0, 0, 0, 0], "ts_throughput": [0, 0, 0, 0, 0.1, 0.1], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller14"}, "13": {"ts_avg_rt": [0, 0, 0, 0, 0.0, 0.0], "ts_p95_rt": [0, 0, 0, 0, 0, 0], "ts_p99_rt": [0, 0, 0, 0, 0, 0], "ts_throughput": [0, 0, 0, 0, 0.1, 0.1], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller16"}, "14": {"ts_avg_rt": [0, 0, 0, 0, 0, 0.0], "ts_p95_rt": [0, 0, 0, 0, 0, 0], "ts_p99_rt": [0, 0, 0, 0, 0, 0], "ts_throughput": [0, 0, 0, 0, 0, 0.2], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller17"}, "15": {"ts_avg_rt": [0, 0, 0, 0, 0, 0.0], "ts_p95_rt": [0, 0, 0, 0, 0, 0], "ts_p99_rt": [0, 0, 0, 0, 0, 0], "ts_throughput": [0, 0, 0, 0, 0, 0.2], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller18"}, "16": {"ts_avg_rt": [0, 0, 0, 0, 0, 341.0], "ts_p95_rt": [0, 0, 0, 0, 0, 304], "ts_p99_rt": [0, 0, 0, 0, 0, 304], "ts_throughput": [0, 0, 0, 0, 0, 0.2], "ts_errors": [0, 0, 0, 0, 0, 2], "label": "Transaction Controller19"}, "17": {"ts_avg_rt": [0, 0, 0, 0, 0, 2183.0], "ts_p95_rt": [0, 0, 0, 0, 0, 2004], "ts_p99_rt": [0, 0, 0, 0, 0, 2004], "ts_throughput": [0, 0, 0, 0, 0, 0.2], "ts_errors": [0, 0, 0, 0, 0, 2], "label": "Transaction Controller20"}, "18": {"ts_avg_rt": [0, 0, 0, 0, 0, 398.5], "ts_p95_rt": [0, 0, 0, 0, 0, 383], "ts_p99_rt": [0, 0, 0, 0, 0, 383], "ts_throughput": [0, 0, 0, 0, 0, 0.2], "ts_errors": [0, 0, 0, 0, 0, 2], "label": "Transaction Controller21"}, "19": {"ts_avg_rt": [0, 0, 0.0, 0.0, 0, 0], "ts_p95_rt": [0, 0, 0, 0, 0, 0], "ts_p99_rt": [0, 0, 0, 0, 0, 0], "ts_throughput": [0, 0, 0.2, 0.3, 0, 0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller5"}, "20": {"ts_avg_rt": [0, 0, 0.0, 0.0, 0, 0], "ts_p95_rt": [0, 0, 0, 0, 0, 0], "ts_p99_rt": [0, 0, 0, 0, 0, 0], "ts_throughput": [0, 0, 0.2, 0.3, 0, 0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller6"}, "21": {"ts_avg_rt": [0, 0, 0, 429.0, 372.67, 0], "ts_p95_rt": [0, 0, 0, 397, 366, 0], "ts_p99_rt": [0, 0, 0, 397, 366, 0], "ts_throughput": [0, 0, 0, 0.2, 0.3, 0], "ts_errors": [0, 0, 0, 2, 3, 0], "label": "Transaction Controller9"}};
+    
+    // Critical Transactions Tracking & Deterministic Colors
+    const criticalTxSet = new Set();
+    const initialCriticals = ["TC04_casestudy", "TC03Blog", "TC04CaseStudy"];
+    initialCriticals.forEach(t => criticalTxSet.add(t));
+
+    // Executive Summary Tab 1 Critical Transactions Response Time Chart
+    let critTxChartObj = null;
+    const critCanvas = document.getElementById('chart-rt-exec');
+    if (critCanvas) {
+        critTxChartObj = new Chart(critCanvas, {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+                datasets: []
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { weight: '600' } } },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 10 } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Response Time (ms)', color: textColor } }
+                }
+            }
+        });
+    }
+
+    const fixedColors = ['#2563eb', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#06b6d4', '#84cc16'];
+    function getTxColor(name) {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        return fixedColors[Math.abs(hash) % fixedColors.length];
+    }
+
+    const targetSlaVal = 500;
+
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 8 } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'ms', color: textColor } }
+            }
+        }
+    });
+
+    function renderCritTxChips() {
+        const container = document.getElementById('crit-tx-chip-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (!initialCriticals || initialCriticals.length === 0) return;
+
+        const allBtn = document.createElement('button');
+        allBtn.type = 'button';
+        allBtn.style.cssText = 'padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:12px; border:1px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; font-weight:600;';
+        allBtn.innerText = 'Show All';
+        allBtn.onclick = (e) => {
+            e.preventDefault();
+            initialCriticals.forEach(t => criticalTxSet.add(t));
+            renderCritTxChips();
+            updateCriticalTxChart();
+        };
+        container.appendChild(allBtn);
+
+        initialCriticals.forEach(txName => {
+            const isSelected = criticalTxSet.has(txName);
+            const color = getTxColor(txName);
+            const shortName = txName.length > 25 ? txName.substring(0, 22) + '...' : txName;
+
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.title = txName;
+            chip.style.cssText = `padding:0.25rem 0.65rem; font-size:0.75rem; border-radius:12px; border:1px solid ${isSelected ? color : 'var(--border)'}; background:${isSelected ? color + '22' : 'transparent'}; color:${isSelected ? color : 'var(--muted)'}; cursor:pointer; font-weight:${isSelected ? '700' : '500'}; transition:all 0.15s;`;
+            chip.innerText = (isSelected ? '● ' : '○ ') + shortName;
+            chip.onclick = (e) => {
+                e.preventDefault();
+                if (criticalTxSet.has(txName)) {
+                    criticalTxSet.delete(txName);
+                } else {
+                    criticalTxSet.add(txName);
+                }
+                renderCritTxChips();
+                updateCriticalTxChart();
+            };
+            container.appendChild(chip);
+        });
+    }
+
+    function updateCriticalTxChart() {
+        if (!critTxChartObj) return;
+        const datasets = [];
+        
+        // 1. SLA Target Reference Line
+        const slaData = new Array(["10s", "20s", "30s", "40s", "50s", "1m"].length).fill(targetSlaVal);
+        datasets.push({
+            label: 'SLA Target (' + targetSlaVal + ' ms)',
+            data: slaData,
+            borderColor: 'rgba(239, 68, 68, 0.85)',
+            backgroundColor: 'rgba(239, 68, 68, 0.05)',
+            borderWidth: 2,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            fill: true
+        });
+
+        // 2. Transaction Lines
+        criticalTxSet.forEach(txName => {
+            let tsData = null;
+            Object.values(labelTsMap).forEach(entry => {
+                if (entry.label === txName) tsData = entry.ts_avg_rt;
+            });
+            if (tsData && tsData.length > 0) {
+                const color = getTxColor(txName);
+                const shortLabel = txName.length > 25 ? txName.substring(0, 22) + '...' : txName;
+                datasets.push({
+                    label: shortLabel,
+                    data: [...tsData],
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 2.5
+                });
+            }
+        });
+
+        critTxChartObj.data.datasets = datasets;
+        critTxChartObj.update('active');
+    }
+
+    renderCritTxChips();
+
+    function toggleCriticalTx(txName, isChecked) {
+        if (isChecked) {
+            criticalTxSet.add(txName);
+        } else {
+            criticalTxSet.delete(txName);
+        }
+        updateCriticalTxChart();
+    }
+
+    // Initial render of critical transactions chart
+    updateCriticalTxChart();
+
+    // Response Time Chart Instance
+    const rtChartObj = new Chart(document.getElementById('rtChart'), {
+        type: 'line',
+        data: {
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+            datasets: [
+                { label: 'Avg RT', data: overallTs.avg_rt, borderColor: '#6366f1', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'P95 RT', data: overallTs.p95_rt, borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'P99 RT', data: overallTs.p99_rt, borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1 }
+            ]
+        },
+        options: { responsive: true, scales: { y: { grid: { color: gridColor }, title: { 'display': true, text: 'ms' } }, x: { grid: { 'display': false } } } }
+    });
+
+    function updateRtChart(val) {
+        let d = overallTs;
+        if (val !== 'ALL') {
+            const idx = parseInt(val, 10);
+            const entry = labelTsMap[idx];
+            if (entry) d = { avg_rt: entry.ts_avg_rt, p95_rt: entry.ts_p95_rt, p99_rt: entry.ts_p99_rt };
+        }
+        rtChartObj.data.datasets[0].data = [...d.avg_rt];
+        rtChartObj.data.datasets[1].data = [...d.p95_rt];
+        rtChartObj.data.datasets[2].data = [...d.p99_rt];
+        rtChartObj.update('active');
+    }
+
+    // Throughput Chart Instance
+    const tpChartObj = new Chart(document.getElementById('tpChart'), {
+        type: 'bar',
+        data: {
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+            datasets: [
+                { label: 'Throughput (req/s)', data: overallTs.throughput, backgroundColor: 'rgba(99,102,241,0.6)', borderRadius: 4 },
+                { label: 'Errors', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 4 }
+            ]
+        },
+        options: { responsive: true, scales: { y: { grid: { color: gridColor } }, x: { grid: { 'display': false } } } }
+    });
+
+    function updateTpChart(val) {
+        let d = overallTs;
+        if (val !== 'ALL') {
+            const idx = parseInt(val, 10);
+            const entry = labelTsMap[idx];
+            if (entry) d = { throughput: entry.ts_throughput, errors: entry.ts_errors };
+        }
+        tpChartObj.data.datasets[0].data = [...d.throughput];
+        tpChartObj.data.datasets[1].data = [...d.errors];
+        tpChartObj.update('active');
+    }
+
+    // Transaction Summary Grouped Bar Chart (Pass vs Fail with Data Labels)
+    new Chart(document.getElementById('chart-tx-summary-bar'), {
+        type: 'bar',
+        data: {
+            labels: ["TC01_Services", "TC02_Group Insights", "Thread Group Contact Us", "Thread Group Careers"],
+            datasets: [
+                {
+                    label: 'Pass',
+                    data: [0, 3, 5, 1],
+                    backgroundColor: '#10b981',
+                    borderColor: '#059669',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.6
+                },
+                {
+                    label: 'Fail',
+                    data: [1311, 5, 10, 2],
+                    backgroundColor: '#ef4444',
+                    borderColor: '#dc2626',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { weight: 'bold' } } },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxRotation: 25, font: { size: 10 } } },
+                y: { grid: { color: gridColor }, beginAtZero: true, title: { display: true, text: 'Sample Count' } }
+            }
+        }
+    });
+
+
+
+    new Chart(document.getElementById('chart-errors-exec'), {
+        type: 'bar',
+        data: {
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+            datasets: [
+                { label: 'Error Count', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 4 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+    });
+
+    new Chart(document.getElementById('chart-infra-exec'), {
+        type: 'line',
+        data: {
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+            datasets: [
+                { label: 'CPU %', data: [34.2, 41.7, 46.3, 82.6, 91.4, 68.2], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'Memory %', data: [52.4, 55.7, 61.2, 74.8, 89.3, 82.7], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gridColor }, min: 0, max: 100 }, x: { grid: { display: false } } } }
+    });
+
+    // ── Charts & Analytics Tab ─────────────────────────────────────────────────
+    // 1. SLA Deviation & Severity Donut Chart
+    new Chart(document.getElementById('slaDonut'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Passed', 'Minor Breach', 'Moderate Breach', 'Critical Breach'],
+            datasets: [{
+                data: [0, 0, 0, 5],
+                backgroundColor: [
+                    '#10b981',  // Passed - Emerald Green
+                    '#f59e0b',  // Minor - Amber
+                    '#f97316',  // Moderate - Orange
+                    '#ef4444'   // Critical - Red
+                ],
+                borderColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'],
+                borderWidth: 1,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '76%',
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 3. Error Rate by Transaction (horizontal bar)
+    if (["TC01Launch Home Page URL", "TC03Blog", "TC04_casestudy", "TC04CaseStudy", "TC05"].length > 0) {
+        new Chart(document.getElementById('errChart'), {
+            type: 'bar',
+            data: {
+                labels: ["TC01Launch Home Page URL", "TC03Blog", "TC04_casestudy", "TC04CaseStudy", "TC05"],
+                datasets: [{
+                    label: 'Error Rate (%)',
+                    data: [100.0, 100.0, 100.0, 100.0, 100.0],
+                    backgroundColor: 'rgba(239,68,68,0.75)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: '%', color: textColor } },
+                    y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
+                }
+            }
+        });
+    } else {
+        const errEl = document.getElementById('errChart');
+        if (errEl) { errEl.parentElement.innerHTML += '<p style="color:var(--green);text-align:center;margin-top:2rem;">✅ No transactions with errors</p>'; errEl.style.display='none'; }
+    }
+
+    // 4. Response Time Histogram
+    new Chart(document.getElementById('histChart'), {
+        type: 'bar',
+        data: {
+            labels: ["<100ms", "100-250ms", "250-500ms", "500ms-1s", "1s-2s", "2s-5s", ">5s"],
+            datasets: [{
+                label: 'Requests',
+                data: [0, 0, 1328, 1, 1, 2, 2],
+                backgroundColor: [
+                    'rgba(16,185,129,0.75)','rgba(59,130,246,0.75)','rgba(139,92,246,0.75)',
+                    'rgba(245,158,11,0.75)','rgba(249,115,22,0.75)','rgba(239,68,68,0.75)','rgba(127,29,29,0.75)'
+                ],
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: textColor } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Request Count', color: textColor } }
+            }
+        }
+    });
+
+    // ── Error Distribution Donut Chart with Interactive Drill-Down ──
+    const errDonutLabels = ["Number of samples in transaction : 1, number of fa", "404 Number of samples in transaction : 1, number o", "Test failed: text expected to contain /Driven by C", "404 Not Found", "Number of samples in transaction : 1, number of fa", "Test failed: text expected to contain /From idea t", "OK", "404", "Test failed: text expected to contain /Our Must Re", "404 Number of samples in transaction : 4, number o"];
+    const errDonutCounts = [2614, 1339, 1311, 493, 20, 17, 17, 14, 10, 6];
+    const errDrillData = {"Number of samples in transaction : 1, number of fa": {"total": 20, "code": "", "message": "Number of samples in transaction : 1, number of failing samples : 1", "failure_message": "", "transactions": {"Transaction Controller1": {"count": 10, "avg_rt": 369.6, "min_rt": 337, "max_rt": 419, "first_ts": 1787128018494, "last_ts": 1787128018790}, "T-1_Overall Iteration": {"count": 10, "avg_rt": 369.7, "min_rt": 337, "max_rt": 419, "first_ts": 1787128018494, "last_ts": 1787128018790}}}, "404 Number of samples in transaction : 1, number o": {"total": 1339, "code": "404", "message": "Number of samples in transaction : 1, number of failing samples : 1", "failure_message": "", "transactions": {"TC01Launch Home Page URL": {"count": 50, "avg_rt": 393.7, "min_rt": 314, "max_rt": 1229, "first_ts": 1787127958881, "last_ts": 1787127964442}}}, "Test failed: text expected to contain /Driven by C": {"total": 1311, "code": "404", "message": "Not Found", "failure_message": "Test failed: text expected to contain /Driven by Care, Defined by Innovation/", "transactions": {"TC01Launch Home Page URL/-31": {"count": 50, "avg_rt": 393.7, "min_rt": 314, "max_rt": 1229, "first_ts": 1787127959006, "last_ts": 1787127964443}}}, "404 Not Found": {"total": 493, "code": "404", "message": "Not Found", "failure_message": "", "transactions": {"TC01Launch Home Page URL/wp-includes/js/jquery/jquery.min.js-53": {"count": 1, "avg_rt": 489.0, "min_rt": 489, "max_rt": 489, "first_ts": 1787127979332, "last_ts": 1787127979332}, "TC01Launch Home Page URL/wp-content/themes/astra-child/css/header.css-51": {"count": 1, "avg_rt": 486.0, "min_rt": 486, "max_rt": 486, "first_ts": 1787127979336, "last_ts": 1787127979336}, "TC01Launch Home Page URL/wp-content/plugins/quadmenu/assets/frontend/css/quadmenu-normalize.css-41": {"count": 1, "avg_rt": 496.0, "min_rt": 496, "max_rt": 496, "first_ts": 1787127979327, "last_ts": 1787127979327}, "TC01Launch Home Page URL/wp-includes/js/jquery/jquery-migrate.min.js-54": {"count": 1, "avg_rt": 498.0, "min_rt": 498, "max_rt": 498, "first_ts": 1787127979327, "last_ts": 1787127979327}, "TC01Launch Home Page URL/wp-content/themes/astra-child/css/homepage.css-39": {"count": 1, "avg_rt": 503.0, "min_rt": 503, "max_rt": 503, "first_ts": 1787127979324, "last_ts": 1787127979324}, "TC01Launch Home Page URL/wp-includes/css/dashicons.min.css-47": {"count": 1, "avg_rt": 497.0, "min_rt": 497, "max_rt": 497, "first_ts": 1787127979331, "last_ts": 1787127979331}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/custom-live-search.js-66": {"count": 1, "avg_rt": 484.0, "min_rt": 484, "max_rt": 484, "first_ts": 1787127979344, "last_ts": 1787127979344}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/languageswitcher.js-62": {"count": 1, "avg_rt": 490.0, "min_rt": 490, "max_rt": 490, "first_ts": 1787127979338, "last_ts": 1787127979338}, "TC01Launch Home Page URL/wp-content/themes/astra-child/owl-carousel/owl.carousel.min.css-33": {"count": 1, "avg_rt": 502.0, "min_rt": 502, "max_rt": 502, "first_ts": 1787127979325, "last_ts": 1787127979325}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/custom_navigation.js-58": {"count": 1, "avg_rt": 492.0, "min_rt": 492, "max_rt": 492, "first_ts": 1787127979335, "last_ts": 1787127979335}, "TC01Launch Home Page URL/wp-content/uploads/astra-child/quadmenu-widgets.css-43": {"count": 1, "avg_rt": 504.0, "min_rt": 504, "max_rt": 504, "first_ts": 1787127979326, "last_ts": 1787127979326}, "TC01Launch Home Page URL/wp-content/themes/astra/assets/js/minified/sticky-sidebar.min.js-59": {"count": 1, "avg_rt": 493.0, "min_rt": 493, "max_rt": 493, "first_ts": 1787127979337, "last_ts": 1787127979337}, "TC01Launch Home Page URL/wp-content/themes/astra-child/css/cookie.css-48": {"count": 1, "avg_rt": 501.0, "min_rt": 501, "max_rt": 501, "first_ts": 1787127979328, "last_ts": 1787127979328}, "TC01Launch Home Page URL/wp-content/themes/astra-child/style.css-46": {"count": 1, "avg_rt": 500.0, "min_rt": 500, "max_rt": 500, "first_ts": 1787127979330, "last_ts": 1787127979330}, "TC01Launch Home Page URL/wp-content/themes/astra-child/css/global-settings.css-50": {"count": 1, "avg_rt": 504.0, "min_rt": 504, "max_rt": 504, "first_ts": 1787127979328, "last_ts": 1787127979328}, "TC01Launch Home Page URL/wp-content/plugins/SquareCardsV2/assets/css/style.css-56": {"count": 1, "avg_rt": 501.0, "min_rt": 501, "max_rt": 501, "first_ts": 1787127979331, "last_ts": 1787127979331}, "TC01Launch Home Page URL/wp-content/plugins/quadmenu/assets/frontend/pscrollbar/perfect-scrollbar.jquery.min.js-70": {"count": 1, "avg_rt": 501.0, "min_rt": 501, "max_rt": 501, "first_ts": 1787127979331, "last_ts": 1787127979331}, "TC01Launch Home Page URL/wp-content/uploads/astra-child/quadmenu-locations.css-45": {"count": 1, "avg_rt": 505.0, "min_rt": 505, "max_rt": 505, "first_ts": 1787127979327, "last_ts": 1787127979327}, "TC01Launch Home Page URL/wp-content/uploads/2025/04/Home-Page-Banner-2-Aventum-snippet-Thumb-nail-1.webp-81": {"count": 1, "avg_rt": 497.0, "min_rt": 497, "max_rt": 497, "first_ts": 1787127979335, "last_ts": 1787127979335}, "TC01Launch Home Page URL/wp-content/plugins/quadmenu/build/frontend/index.js-72": {"count": 1, "avg_rt": 489.0, "min_rt": 489, "max_rt": 489, "first_ts": 1787127979344, "last_ts": 1787127979344}, "TC01Launch Home Page URL/wp-content/themes/astra/assets/css/minified/menu-animation.min.css-34": {"count": 1, "avg_rt": 507.0, "min_rt": 507, "max_rt": 507, "first_ts": 1787127979325, "last_ts": 1787127979325}, "TC01Launch Home Page URL/wp-content/themes/astra/assets/js/minified/frontend.min.js-57": {"count": 1, "avg_rt": 500.0, "min_rt": 500, "max_rt": 500, "first_ts": 1787127979333, "last_ts": 1787127979333}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/PR_Posts.js-68": {"count": 1, "avg_rt": 498.0, "min_rt": 498, "max_rt": 498, "first_ts": 1787127979335, "last_ts": 1787127979335}, "TC01Launch Home Page URL/wp-content/themes/astra/assets/css/minified/main.min.css-32": {"count": 1, "avg_rt": 508.0, "min_rt": 508, "max_rt": 508, "first_ts": 1787127979325, "last_ts": 1787127979325}, "TC01Launch Home Page URL/wp-content/themes/astra-child/css/footer.css-49": {"count": 1, "avg_rt": 505.0, "min_rt": 505, "max_rt": 505, "first_ts": 1787127979329, "last_ts": 1787127979329}, "TC01Launch Home Page URL/wp-content/plugins/featured-insights/vendor/owlslider/owlSlider.css-55": {"count": 1, "avg_rt": 506.0, "min_rt": 506, "max_rt": 506, "first_ts": 1787127979328, "last_ts": 1787127979328}, "TC01Launch Home Page URL/wp-content/themes/astra-child/owl-carousel/owl.theme.default.min.css-36": {"count": 1, "avg_rt": 511.0, "min_rt": 511, "max_rt": 511, "first_ts": 1787127979324, "last_ts": 1787127979324}, "TC01Launch Home Page URL/wp-content/plugins/quadmenu/build/frontend/style.css-42": {"count": 1, "avg_rt": 508.0, "min_rt": 508, "max_rt": 508, "first_ts": 1787127979328, "last_ts": 1787127979328}, "TC01Launch Home Page URL/wp-content/plugins/quadmenu/assets/frontend/pscrollbar/perfect-scrollbar.min.css-37": {"count": 1, "avg_rt": 512.0, "min_rt": 512, "max_rt": 512, "first_ts": 1787127979324, "last_ts": 1787127979324}, "TC01Launch Home Page URL/wp-content/themes/astra/assets/js/minified/flexibility.min.js-52": {"count": 1, "avg_rt": 505.0, "min_rt": 505, "max_rt": 505, "first_ts": 1787127979332, "last_ts": 1787127979332}, "TC01Launch Home Page URL/wp-content/uploads/2025/05/Innovation-page-Banner-2-Agentic-AI.webp-86": {"count": 1, "avg_rt": 501.0, "min_rt": 501, "max_rt": 501, "first_ts": 1787127979348, "last_ts": 1787127979348}, "TC01Launch Home Page URL/wp-content/uploads/2025/01/2.png-90": {"count": 1, "avg_rt": 511.0, "min_rt": 511, "max_rt": 511, "first_ts": 1787127979348, "last_ts": 1787127979348}, "TC01Launch Home Page URL/wp-content/themes/astra-child/owl-carousel/owl.carousel.min.js-63": {"count": 1, "avg_rt": 520.0, "min_rt": 520, "max_rt": 520, "first_ts": 1787127979339, "last_ts": 1787127979339}, "TC01Launch Home Page URL/wp-content/uploads/2026/02/AdobeStock_993106206_Video_HD_Preview-1-1.png-80": {"count": 1, "avg_rt": 515.0, "min_rt": 515, "max_rt": 515, "first_ts": 1787127979346, "last_ts": 1787127979346}, "TC01Launch Home Page URL/wp-content/plugins/featured-insights/vendor/owlslider/owlslider.js-73": {"count": 1, "avg_rt": 519.0, "min_rt": 519, "max_rt": 519, "first_ts": 1787127979342, "last_ts": 1787127979342}, "TC01Launch Home Page URL/wp-content/uploads/2025/04/Home-Page-Banner-1-Video-Snippet-Bulb-Thumb-nail.webp-79": {"count": 1, "avg_rt": 559.0, "min_rt": 559, "max_rt": 559, "first_ts": 1787127979342, "last_ts": 1787127979342}, "TC01Launch Home Page URL/wp-content/uploads/2025/04/Home-Page-ADRO-Innovation-Right.png-85": {"count": 1, "avg_rt": 555.0, "min_rt": 555, "max_rt": 555, "first_ts": 1787127979347, "last_ts": 1787127979347}, "TC01Launch Home Page URL/wp-includes/js/hoverIntent.min.js-71": {"count": 1, "avg_rt": 561.0, "min_rt": 561, "max_rt": 561, "first_ts": 1787127979341, "last_ts": 1787127979341}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/homepage.js-67": {"count": 1, "avg_rt": 564.0, "min_rt": 564, "max_rt": 564, "first_ts": 1787127979339, "last_ts": 1787127979339}, "TC01Launch Home Page URL/wp-content/uploads/2025/01/Property-1Icon-Property-2DT-LT-menu-Property-3Electric-blue.png-78": {"count": 1, "avg_rt": 562.0, "min_rt": 562, "max_rt": 562, "first_ts": 1787127979341, "last_ts": 1787127979341}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/gdpr-cookie-consent.js-75": {"count": 1, "avg_rt": 561.0, "min_rt": 561, "max_rt": 561, "first_ts": 1787127979341, "last_ts": 1787127979341}, "TC01Launch Home Page URL/wp-content/uploads/2025/11/Stacked-Logo-Header-Mobile-and-Tab.png-76": {"count": 1, "avg_rt": 561.0, "min_rt": 561, "max_rt": 561, "first_ts": 1787127979342, "last_ts": 1787127979342}, "TC01Launch Home Page URL/wp-includes/js/wp-emoji-release.min.js-87": {"count": 1, "avg_rt": 557.0, "min_rt": 557, "max_rt": 557, "first_ts": 1787127979347, "last_ts": 1787127979347}, "TC01Launch Home Page URL/wp-content/uploads/2025/04/Home-Page-ADRO-Innovation-Left.webp-84": {"count": 1, "avg_rt": 557.0, "min_rt": 557, "max_rt": 557, "first_ts": 1787127979347, "last_ts": 1787127979347}, "TC01Launch Home Page URL/wp-content/plugins/SquareCardsV2/assets/js/scripts.js-74": {"count": 1, "avg_rt": 564.0, "min_rt": 564, "max_rt": 564, "first_ts": 1787127979340, "last_ts": 1787127979340}, "TC01Launch Home Page URL/wp-content/uploads/2025/11/Home-page-Pune-banner--scaled.webp-83": {"count": 1, "avg_rt": 558.0, "min_rt": 558, "max_rt": 558, "first_ts": 1787127979346, "last_ts": 1787127979346}, "TC01Launch Home Page URL/wp-content/uploads/2025/11/Linear-Logo-HeaderDesktop-scaled-768x154.png-77": {"count": 1, "avg_rt": 563.0, "min_rt": 563, "max_rt": 563, "first_ts": 1787127979341, "last_ts": 1787127979341}, "TC01Launch Home Page URL/wp-content/uploads/2025/04/Home-Page-Banner-3-Shipowners-snippet-Thumb-nail-1.webp-82": {"count": 1, "avg_rt": 561.0, "min_rt": 561, "max_rt": 561, "first_ts": 1787127979343, "last_ts": 1787127979343}, "TC01Launch Home Page URL/wp-content/themes/astra-child/js/lazy-load.js-64": {"count": 1, "avg_rt": 567.0, "min_rt": 567, "max_rt": 567, "first_ts": 1787127979338, "last_ts": 1787127979338}, "TC01Launch Home Page URL/wp-content/uploads/2025/06/Home-Page-Banner-1-Video-Snippet-Bulb-compressed-3.mp4-89": {"count": 1, "avg_rt": 650.0, "min_rt": 650, "max_rt": 650, "first_ts": 1787127979348, "last_ts": 1787127979348}}}, "Test failed: text expected to contain /From idea t": {"total": 17, "code": "404", "message": "Not Found", "failure_message": "Test failed: text expected to contain /From idea to outcome, we help you transform with purpose-driven digital solutions/", "transactions": {"TC01Launch Home Page URL/-31": {"count": 17, "avg_rt": 602.6, "min_rt": 329, "max_rt": 2324, "first_ts": 1787127978967, "last_ts": 1787128007588}}}, "OK": {"total": 17, "code": "200", "message": "OK", "failure_message": "", "transactions": {"bzm - Parallel Controller8": {"count": 5, "avg_rt": 436.4, "min_rt": 368, "max_rt": 482, "first_ts": 1787127993617, "last_ts": 1787128001004}, "bzm - Parallel Controller10": {"count": 5, "avg_rt": 428.0, "min_rt": 348, "max_rt": 479, "first_ts": 1787127994490, "last_ts": 1787128001801}, "bzm - Parallel Controller13": {"count": 5, "avg_rt": 411.4, "min_rt": 366, "max_rt": 459, "first_ts": 1787127996770, "last_ts": 1787128005019}, "bzm - Parallel Controller21": {"count": 2, "avg_rt": 1999.5, "min_rt": 1974, "max_rt": 2025, "first_ts": 1787128014811, "last_ts": 1787128017344}}}, "404": {"total": 14, "code": "404", "message": "", "failure_message": "", "transactions": {"TC01Launch Home Page URL": {"count": 10, "avg_rt": 368.6, "min_rt": 336, "max_rt": 418, "first_ts": 1787128018494, "last_ts": 1787128018790}, "T-2_Overall Iteration": {"count": 2, "avg_rt": 55321.0, "min_rt": 52426, "max_rt": 58216, "first_ts": 1787127960961, "last_ts": 1787127966944}, "TC05": {"count": 1, "avg_rt": 784.0, "min_rt": 784, "max_rt": 784, "first_ts": 1787128018394, "last_ts": 1787128018394}, "TC04_casestudy": {"count": 1, "avg_rt": 4752.0, "min_rt": 4752, "max_rt": 4752, "first_ts": 1787128014617, "last_ts": 1787128014617}}}, "Test failed: text expected to contain /Our Must Re": {"total": 10, "code": "404", "message": "Not Found", "failure_message": "Test failed: text expected to contain /Our Must Read/", "transactions": {"TC02ClickOnInsightsPage/insights/-280": {"count": 5, "avg_rt": 395.2, "min_rt": 358, "max_rt": 461, "first_ts": 1787127994092, "last_ts": 1787128001442}, "TC02ClickOnInsightsPage/insights/-290": {"count": 5, "avg_rt": 419.2, "min_rt": 340, "max_rt": 475, "first_ts": 1787127994492, "last_ts": 1787128001805}}}, "404 Number of samples in transaction : 4, number o": {"total": 6, "code": "404", "message": "Number of samples in transaction : 4, number of failing samples : 4", "failure_message": "", "transactions": {"Transaction Controller12": {"count": 5, "avg_rt": 1542.4, "min_rt": 1448, "max_rt": 1789, "first_ts": 1787127995319, "last_ts": 1787128003520}, "TC04CaseStudy": {"count": 1, "avg_rt": 1603.0, "min_rt": 1603, "max_rt": 1603, "first_ts": 1787128016788, "last_ts": 1787128016788}}}};
+    const errDonutColors = ['#ef4444','#f97316','#f59e0b','#8b5cf6','#3b82f6','#06b6d4','#10b981','#ec4899','#84cc16','#64748b'];
+    const startEpochMs = 1787127958000;
+    const displayTotalErrors = 5841;
+
+    if (errDonutLabels.length > 0) {
+        const errorDonutCtx = document.getElementById('errorDonutChart');
+        const errorDonutObj = new Chart(errorDonutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: errDonutLabels,
+                datasets: [{
+                    data: errDonutCounts,
+                    backgroundColor: errDonutColors.slice(0, errDonutLabels.length),
+                    borderColor: errDonutColors.slice(0, errDonutLabels.length).map(c => c + '88'),
+                    borderWidth: 2,
+                    hoverOffset: 8,
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : '0';
+                                return ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                },
+                onClick: function(evt, elements) {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        const errorKey = errDonutLabels[idx];
+                        showErrorDrillDown(errorKey, errDonutColors[idx % errDonutColors.length]);
+                    }
+                }
+            }
+        });
+
+        // Build custom legend
+        const legendEl = document.getElementById('errorDonutLegend');
+        if (legendEl) {
+            const totalAll = errDonutCounts.reduce((a, b) => a + b, 0);
+            errDonutLabels.forEach((label, i) => {
+                const pct = totalAll > 0 ? ((errDonutCounts[i] / totalAll) * 100).toFixed(1) : '0';
+                const color = errDonutColors[i % errDonutColors.length];
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex; align-items:center; gap:0.4rem; cursor:pointer; padding:0.15rem 0; transition:opacity 0.15s;';
+                item.innerHTML = `<span style="width:10px; height:10px; border-radius:50%; background:${color}; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${label}">${label.length > 28 ? label.substring(0,25)+'...' : label}</span><span style="margin-left:auto; font-weight:700; color:${color}; flex-shrink:0;">${errDonutCounts[i]}</span>`;
+                item.onclick = () => showErrorDrillDown(label, color);
+                item.onmouseenter = () => { item.style.opacity = '0.7'; };
+                item.onmouseleave = () => { item.style.opacity = '1'; };
+                legendEl.appendChild(item);
+            });
+        }
+    } else if (displayTotalErrors > 0) {
+        // Legacy fallback - we have errors, but no granular details
+        const errorDonutEl = document.getElementById('errorDonutChart');
+        if (errorDonutEl) {
+            errorDonutEl.parentElement.parentElement.parentElement.parentElement.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
+                    <div>
+                        <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Error Distribution &amp; Analysis</h3>
+                        <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Granular error data unavailable (legacy run)</p>
+                    </div>
+                    <span style="font-size:0.78rem; font-weight:700; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#f59e0b;">${displayTotalErrors} Total Errors</span>
+                </div>
+                <div style="text-align:center; padding:2.5rem 1rem; color:var(--muted);">
+                    <div style="font-size:3rem; margin-bottom:0.5rem; opacity:0.7;">⚠️</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--text);">${displayTotalErrors} Errors Detected</div>
+                    <div style="font-size:0.82rem; margin-top:0.3rem;">Granular error distribution is not available for this run.<br>Please re-execute the test to capture detailed error analytics.</div>
+                </div>`;
+        }
+    } else {
+        // No errors - show success state
+        const errorDonutEl = document.getElementById('errorDonutChart');
+        if (errorDonutEl) {
+            errorDonutEl.parentElement.parentElement.parentElement.parentElement.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
+                    <div>
+                        <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Error Distribution &amp; Analysis</h3>
+                        <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">No errors detected during test execution</p>
+                    </div>
+                    <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Errors</span>
+                </div>
+                <div style="text-align:center; padding:2.5rem 1rem; color:var(--muted);">
+                    <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:#10b981;">Zero Errors Detected</div>
+                    <div style="font-size:0.82rem; margin-top:0.3rem;">All requests completed successfully during this test execution.</div>
+                </div>`;
+        }
+    }
+
+    function showErrorDrillDown(errorKey, accentColor) {
+        const panel = document.getElementById('errorDrillPanel');
+        if (!panel) return;
+        const data = errDrillData[errorKey];
+        if (!data) { panel.innerHTML = '<p style="color:var(--muted); text-align:center;">No drill-down data available for this error.</p>'; return; }
+
+        const txEntries = Object.entries(data.transactions || {});
+        const failureNote = data.failure_message ? `<div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:0.5rem 0.75rem; margin-bottom:0.75rem; font-size:0.78rem; color:#ef4444; word-break:break-word;">⚠️ <strong>Assertion/Failure:</strong> ${data.failure_message}</div>` : '';
+
+        let txTableRows = '';
+        txEntries.forEach(([txName, info]) => {
+            const firstTime = info.first_ts && startEpochMs ? new Date(info.first_ts).toLocaleTimeString() : '-';
+            const lastTime = info.last_ts && startEpochMs ? new Date(info.last_ts).toLocaleTimeString() : '-';
+            txTableRows += `
+                <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:0.4rem 0.5rem; font-weight:600; font-size:0.78rem; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${txName}">${txName.length > 35 ? txName.substring(0,32)+'...' : txName}</td>
+                    <td style="padding:0.4rem; text-align:center; font-weight:700; color:${accentColor};">${info.count}</td>
+                    <td style="padding:0.4rem; text-align:center;">${info.avg_rt} ms</td>
+                    <td style="padding:0.4rem; text-align:center;">${info.min_rt} ms</td>
+                    <td style="padding:0.4rem; text-align:center;">${info.max_rt} ms</td>
+                    <td style="padding:0.4rem; text-align:center; font-size:0.75rem; color:var(--muted);">${firstTime}</td>
+                    <td style="padding:0.4rem; text-align:center; font-size:0.75rem; color:var(--muted);">${lastTime}</td>
+                </tr>`;
+        });
+
+        panel.style.display = 'block';
+        panel.style.alignItems = 'stretch';
+        panel.style.justifyContent = 'flex-start';
+        panel.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
+                    <span style="width:12px; height:12px; border-radius:50%; background:${accentColor}; flex-shrink:0;"></span>
+                    <strong style="font-size:0.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${errorKey}">${errorKey}</strong>
+                </div>
+                <span style="font-size:0.78rem; font-weight:700; background:${accentColor}18; border:1px solid ${accentColor}44; padding:0.2rem 0.6rem; border-radius:10px; color:${accentColor}; flex-shrink:0;">${data.total} occurrences</span>
+            </div>
+            ${failureNote}
+            <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem;">
+                ${data.code ? '<strong>HTTP Code:</strong> ' + data.code + ' &nbsp;|&nbsp; ' : ''}<strong>Affected Transactions:</strong> ${txEntries.length}
+            </div>
+            <div style="overflow-x:auto; border-radius:6px; border:1px solid var(--border);">
+                <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                    <thead>
+                        <tr style="background:var(--bg); border-bottom:2px solid var(--border);">
+                            <th style="padding:0.45rem 0.5rem; text-align:left; font-weight:700; font-size:0.75rem; color:var(--muted);">Transaction</th>
+                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Errors</th>
+                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Avg RT</th>
+                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Min RT</th>
+                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Max RT</th>
+                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">First</th>
+                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Last</th>
+                        </tr>
+                    </thead>
+                    <tbody>${txTableRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // 5. Concurrency Estimate Over Time (Little's Law)
+    const concData = [11.2, 20.0, 57.4, 23.0, 24.0, 24.5];
+    if (concData.some(v => v > 0)) {
+        new Chart(document.getElementById('concChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
+                datasets: [{
+                    label: 'Est. Concurrent Users',
+                    data: concData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139,92,246,0.12)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#8b5cf6'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: textColor } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Users', color: textColor }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // Azure Infrastructure Diagnostic Suite Charts
+    const azCpu = [34.2, 41.7, 46.3, 82.6, 91.4, 68.2];
+    const azMem = [52.4, 55.7, 61.2, 74.8, 89.3, 82.7];
+    const azDiskQ = [];
+    const azDiskRead = [];
+    const azDiskWrite = [];
+    const azNetIn = [];
+    const azNetOut = [];
+
+    if (azCpu.length > 0) {
+        // 1. CPU & Memory Utilization (Full Width)
+        new Chart(document.getElementById('azChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"].slice(0, azCpu.length),
+                datasets: [
+                    { label: 'CPU %', data: azCpu, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.12)', borderWidth: 2.5, fill: true, tension: 0.3, pointRadius: 3 },
+                    { label: 'Memory %', data: azMem, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.12)', borderWidth: 2.5, fill: true, tension: 0.3, pointRadius: 3 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, grid: { color: gridColor }, title: { display: true, text: '%' } }, x: { grid: { display: false } } } }
+        });
+
+        // 2. Workload vs CPU Utilization
+        new Chart(document.getElementById('workloadCpuChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"].slice(0, azCpu.length),
+                datasets: [
+                    { label: 'Throughput (req/s)', data: overallTs.throughput.slice(0, azCpu.length), borderColor: '#6366f1', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y' },
+                    { label: 'CPU %', data: azCpu, borderColor: '#ef4444', borderWidth: 2, borderDash: [4,4], fill: false, tension: 0.3, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'req/s' }, grid: { color: gridColor } },
+                    y1: { type: 'linear', position: 'right', min: 0, max: 100, title: { display: true, text: 'CPU %' }, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 3. Throughput vs Response Time
+        new Chart(document.getElementById('tpRtChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"].slice(0, azCpu.length),
+                datasets: [
+                    { label: 'Throughput (req/s)', data: overallTs.throughput.slice(0, azCpu.length), borderColor: '#10b981', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y' },
+                    { label: 'Avg RT (ms)', data: overallTs.avg_rt.slice(0, azCpu.length), borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'req/s' }, grid: { color: gridColor } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Avg RT (ms)' }, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 4. Disk I/O & Queue Depth
+        new Chart(document.getElementById('diskChart'), {
+            type: 'bar',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"].slice(0, azCpu.length),
+                datasets: [
+                    { type: 'bar', label: 'Disk Read (MB/s)', data: azDiskRead, backgroundColor: 'rgba(59,130,246,0.6)', yAxisID: 'y' },
+                    { type: 'bar', label: 'Disk Write (MB/s)', data: azDiskWrite, backgroundColor: 'rgba(16,185,129,0.6)', yAxisID: 'y' },
+                    { type: 'line', label: 'Queue Depth', data: azDiskQ, borderColor: '#ef4444', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'MB/s' }, grid: { color: gridColor } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Queue Depth' }, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 5. Network Throughput
+        new Chart(document.getElementById('netChart'), {
+            type: 'line',
+            data: {
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m"].slice(0, azCpu.length),
+                datasets: [
+                    { label: 'Network In (MB)', data: azNetIn, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.12)', borderWidth: 2, fill: true, tension: 0.3 },
+                    { label: 'Network Out (MB)', data: azNetOut, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.12)', borderWidth: 2, fill: true, tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    y: { grid: { color: gridColor }, title: { display: true, text: 'MB' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+    
+    // ── Edit Mode Logic ──
+    let editMode = false;
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.body.classList.toggle('edit-mode-active', editMode);
+        const editBtn = document.getElementById('editBtn');
+        if (editBtn) editBtn.innerText = editMode ? '💾 Save Edits' : '✏️ Edit Report';
+        const badge = document.getElementById('editModeBadge');
+        if (badge) badge.style.display = editMode ? 'inline-block' : 'none';
+        
+        document.querySelectorAll('[data-editable]').forEach(el => {
+            el.setAttribute('contenteditable', editMode ? 'true' : 'false');
+        });
+    }
+    
+    // Disable contenteditable on load, mark elements
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+            el.setAttribute('data-editable', 'true');
+            el.setAttribute('contenteditable', 'false');
+        });
+    });
+
+    // ── Finding Drawer Logic ──
+    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "severity": "Critical Deviation", "title": "TC04_casestudy shows significant latency deviation", "observation": "TC04_casestudy response time was significantly higher than the overall test baseline.", "evidence": [{"metric": "P90 Response Time", "value": "4752 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+850.4%", "baseline": "", "source": "Calculated"}], "interpretation": "TC04_casestudy is the dominant transaction-level latency contributor in this execution.", "why_it_matters": "TC04_casestudy is the slowest transaction at 5726 ms and significantly exceeds its 500 ms SLA target, making it a priority candidate for optimization.", "root_cause_assessment": "Server-side telemetry is required to determine whether the latency originates from database execution, application processing, authentication logic, or an external dependency.", "confidence": {"bottleneck_identification": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time", "Top Transactions by Response Time"]}, {"id": "F-002", "category": "sla_breach", "severity": "Critical Deviation", "title": "TC03Blog SLA deviation", "observation": "TC03Blog P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "3733 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "647%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC03Blog exceeds its P90 SLA target by 647%.", "why_it_matters": "TC03Blog is not meeting its 500 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC03Blog execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "severity": "Critical Deviation", "title": "TC04CaseStudy SLA deviation", "observation": "TC04CaseStudy P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "1603 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "221%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC04CaseStudy exceeds its P90 SLA target by 221%.", "why_it_matters": "TC04CaseStudy is not meeting its 500 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC04CaseStudy execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC05 SLA deviation", "observation": "TC05 P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "784 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "57%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC05 exceeds its P90 SLA target by 57%.", "why_it_matters": "TC05 is not meeting its 500 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC05 execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-005", "category": "error_anomaly", "severity": "Slightly Deviated", "title": "TC01Launch Home Page URL error anomaly", "observation": "TC01Launch Home Page URL recorded a 100.00% error rate (target: 1.0%).", "evidence": [{"metric": "Error Rate", "value": "100.00%", "baseline": "1.0% target", "source": "Transaction Breakdown"}], "interpretation": "TC01Launch Home Page URL has a higher-than-acceptable error rate under this workload.", "why_it_matters": "Errors in TC01Launch Home Page URL indicate reliability issues that could impact user experience.", "root_cause_assessment": "Investigate error responses for TC01Launch Home Page URL \u2014 check HTTP status codes, assertion failures, and server-side exception logs.", "confidence": {"error_occurrence": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "Error Distribution & Analysis"]}, {"id": "F-006", "category": "tail_latency", "severity": "Slightly Deviated", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "530 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+290.6%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 4.2\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-007", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-008", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
+    const recsData = [{"id": "R-2", "triggered_by": [], "priority": "Critical", "category": "Backend", "title": "Reduce Error Rate", "why": "Error rate of 99.44% indicates server-side failures.", "action": ["Check connection pool sizes", "Review timeout configurations", "Check memory allocation"], "expected_impact": "Reduce error rate to <0.1%", "validation": "Run load test and verify 0% 5xx errors", "confidence": "High"}];
+
+    function showFinding(fid) {
+        const finding = findingsData.find(f => f.id === fid);
+        if (!finding) return;
+        
+        let html = `<h2 style="margin-top:0; color:var(--text); font-size:1.4rem;">${finding.id}</h2>`;
+        html += `<p style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem; color:var(--text);">${finding.title}</p>`;
+        
+        html += `<div class="drawer-section"><div class="drawer-h">Observation</div><p style="font-size:0.9rem; margin:0;">${finding.observation}</p></div>`;
+        
+        if (finding.evidence && finding.evidence.length > 0) {
+            html += `<div class="drawer-section"><div class="drawer-h">Evidence</div>`;
+            finding.evidence.forEach(e => {
+                html += `<div style="background:var(--surface2); padding:0.5rem; border-radius:6px; margin-bottom:0.4rem; font-size:0.85rem;"><strong>${e.metric}:</strong> ${e.value} <span style="color:var(--muted); font-size:0.8rem; float:right;">${e.source}</span></div>`;
+            });
+            html += `</div>`;
+        }
+
+        if (finding.interpretation) {
+            html += `<div class="drawer-section"><div class="drawer-h">Interpretation</div><p style="font-size:0.9rem; margin:0;">${finding.interpretation}</p></div>`;
+        }
+        
+        if (finding.root_cause_assessment) {
+            html += `<div class="drawer-section"><div class="drawer-h">Root Cause Assessment</div><p style="font-size:0.9rem; margin:0;">${finding.root_cause_assessment}</p>`;
+            if (finding.confidence && finding.confidence.specific_root_cause) {
+                html += `<div style="font-size:0.8rem; margin-top:0.3rem; color:var(--muted);"><strong>Confidence:</strong> ${finding.confidence.specific_root_cause}</div>`;
+            }
+            html += `</div>`;
+        }
+
+        if (finding.impact) {
+            html += `<div class="drawer-section"><div class="drawer-h">Impact</div><p style="font-size:0.9rem; margin:0;">${finding.impact}</p></div>`;
+        }
+
+        // Find linked recommendation
+        const rec = recsData.find(r => r.triggered_by && r.triggered_by.includes(fid));
+        if (rec) {
+            html += `<div class="drawer-section" style="background:rgba(16,185,129,0.1); padding:1rem; border-radius:8px; border-left:4px solid #10b981;">
+                <div class="drawer-h" style="color:#10b981;">Recommendation: ${rec.id}</div>
+                <p style="font-weight:700; margin:0 0 0.5rem 0; font-size:0.9rem;">${rec.title}</p>
+                <p style="font-size:0.85rem; margin:0 0 0.5rem 0;">${rec.why}</p>`;
+            if (rec.action && rec.action.length > 0) {
+                html += `<ul style="font-size:0.85rem; padding-left:1.2rem; margin-bottom:0.5rem;">`;
+                rec.action.forEach(a => html += `<li>${a}</li>`);
+                html += `</ul>`;
+            }
+            if (rec.validation) {
+                html += `<div style="font-size:0.85rem; margin-top:0.5rem;"><strong>Validation:</strong> ${rec.validation}</div>`;
+            }
+            html += `</div>`;
+        }
+
+        document.getElementById('drawerContent').innerHTML = html;
+        document.getElementById('findingDrawerOverlay').style.display = 'block';
+        setTimeout(() => document.getElementById('findingDrawer').classList.add('open'), 10);
+    }
+
+    function closeFinding() {
+        document.getElementById('findingDrawer').classList.remove('open');
+        setTimeout(() => document.getElementById('findingDrawerOverlay').style.display = 'none', 300);
+    }
+</script>
+</body>
+</html>

@@ -6,8 +6,15 @@ from pathlib import Path
 from python_files.ai_insights import _generate_gemini_insights
 
 results_dir = Path(r"D:\BlazemeterMCPZIP\JmeterAI\Results")
-latest = results_dir / "run_20260814_110019_result.json"
-az_file = results_dir / "azure_20260814_110019.json"
+json_dir = results_dir / "json"
+
+latest = json_dir / "run_20260814_110019_result.json"
+if not latest.exists():
+    latest = results_dir / "run_20260814_110019_result.json"
+
+az_file = json_dir / "azure_20260814_110019.json"
+if not az_file.exists():
+    az_file = results_dir / "azure_20260814_110019.json"
 
 with open(latest, "r", encoding="utf-8") as f:
     parsed = json.load(f)

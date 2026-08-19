@@ -4,23 +4,34 @@ from pathlib import Path
 from python_files.report_generator import generate_report
 
 results_dir = Path("D:/BlazemeterMCPZIP/JmeterAI/Results")
-result_files = sorted(results_dir.glob("*_result.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+json_dir    = results_dir / "json"
+html_dir    = results_dir / "html"
 
-if result_files:
-    latest_result = result_files[0]
+html_dir.mkdir(parents=True, exist_ok=True)
+json_dir.mkdir(parents=True, exist_ok=True)
+
+result_files = set(json_dir.glob("*_result.json"))
+result_files.update(results_dir.glob("*_result.json"))
+sorted_results = sorted([f for f in result_files if f.is_file()], key=lambda p: p.stat().st_mtime, reverse=True)
+
+if sorted_results:
+    latest_result = sorted_results[0]
     print(f"Loading latest result JSON: {latest_result.name}")
     with open(latest_result, "r", encoding="utf-8") as f:
         parsed = json.load(f)
 
     timestamp = latest_result.name.replace("run_", "").replace("_result.json", "")
-    azure_file = results_dir / f"azure_{timestamp}.json"
+    azure_file = json_dir / f"azure_{timestamp}.json"
+    if not azure_file.exists():
+        azure_file = results_dir / f"azure_{timestamp}.json"
+
     azure_data = {}
     if azure_file.exists():
         with open(azure_file, "r", encoding="utf-8") as f:
             azure_data = json.load(f)
 
     ai_insights = parsed.get("ai_insights", {})
-    report_path = results_dir / f"run_{timestamp}_report.html"
+    report_path = html_dir / f"run_{timestamp}_report.html"
     jmx_name = parsed.get("jmx_name", "Scenario")
     users = parsed.get("users", 1)
 

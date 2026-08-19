@@ -6,8 +6,22 @@ sys.path.insert(0, r"D:\BlazemeterMCPZIP\JmeterAI")
 import json
 from pathlib import Path
 
+try:
+    from python_files.organize_results import organize
+    organize()
+except Exception:
+    pass
+
 results_dir = Path(r"D:\BlazemeterMCPZIP\JmeterAI\Results")
-result_files = sorted(results_dir.glob("*_result.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+json_dir = results_dir / "json"
+html_dir = results_dir / "html"
+
+html_dir.mkdir(parents=True, exist_ok=True)
+json_dir.mkdir(parents=True, exist_ok=True)
+
+res_set = set(json_dir.glob("*_result.json"))
+res_set.update(results_dir.glob("*_result.json"))
+result_files = sorted([f for f in res_set if f.is_file()], key=lambda p: p.stat().st_mtime, reverse=True)
 
 if not result_files:
     print("No result JSON files found.")
@@ -20,7 +34,9 @@ with open(latest, "r", encoding="utf-8") as f:
     parsed = json.load(f)
 
 timestamp = latest.name.replace("run_", "").replace("_result.json", "")
-az_file = results_dir / f"azure_{timestamp}.json"
+az_file = json_dir / f"azure_{timestamp}.json"
+if not az_file.exists():
+    az_file = results_dir / f"azure_{timestamp}.json"
 
 azure_data = {}
 if az_file.exists():
@@ -28,7 +44,7 @@ if az_file.exists():
         azure_data = json.load(f)
 
 ai_insights = parsed.get("ai_insights", {})
-report_path = results_dir / f"run_{timestamp}_report.html"
+report_path = html_dir / f"run_{timestamp}_report.html"
 jmx_name = parsed.get("jmx_name", "Scenario")
 users = parsed.get("users", 1)
 
