@@ -7,6 +7,7 @@ An automated performance testing, telemetry correlation, AI diagnostics, and int
 ## 🌟 Key Features
 
 - **Local JMeter Execution & Live Monitoring:** Run `.jmx` test scripts with real-time response time and throughput tracking.
+- **Dedicated JTL Parser Engine:** Robust parsing of raw JMeter CSV logs for statistical percentiles, error breakdowns, and dynamic time series.
 - **Hierarchical Transaction & Thread Group Support:** Configure per-thread-group user loads, ramp-ups, and durations.
 - **SLA & Apdex Management:** Define custom SLA thresholds per transaction and calculate user satisfaction indices.
 - **Infrastructure Telemetry Correlation:** Correlate client performance against Azure App Service/VM server metrics (CPU, Memory, Disk, Network).
@@ -21,7 +22,8 @@ An automated performance testing, telemetry correlation, AI diagnostics, and int
 ```
 JmeterAI/
 ├── python_files/           # Backend modules & analytics engines (see python_files/README.md)
-│   ├── run_local_jmeter.py # Test orchestrator & JTL parser
+│   ├── run_local_jmeter.py # Test runner & process orchestrator
+│   ├── jtl_parser.py       # Dedicated JTL / CSV parser engine
 │   ├── report_generator.py # HTML report generation
 │   ├── ai_insights.py      # LLM & rule-based diagnostics
 │   ├── findings_engine.py  # Performance findings & rules

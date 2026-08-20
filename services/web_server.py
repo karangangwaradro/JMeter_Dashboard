@@ -311,7 +311,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                         jtl_file = _RESULTS_DIR / f"run_{timestamp}.jtl"
                     if jtl_file.exists():
                         try:
-                            from python_files.run_local_jmeter import parse_jtl
+                            from python_files.jtl_parser import parse_jtl
                             re_p = parse_jtl(jtl_file)
                             if re_p.get("labels"):
                                 parsed_res["labels"] = re_p["labels"]

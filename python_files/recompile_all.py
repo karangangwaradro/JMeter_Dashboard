@@ -62,7 +62,7 @@ def run():
             jtl_file = results_dir / f"run_{timestamp}.jtl"
         if jtl_file.exists():
             try:
-                from python_files.run_local_jmeter import parse_jtl
+                from python_files.jtl_parser import parse_jtl
                 re_parsed = parse_jtl(jtl_file)
                 ts = re_parsed.get("time_series", {})
                 if re_parsed.get("labels"):
