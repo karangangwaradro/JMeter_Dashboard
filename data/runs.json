@@ -1,6 +1,26 @@
 {
   "runs": [
     {
+      "id": "run_20260820_130630",
+      "jmx_name": "JPetStore_MultiUserStories.jmx",
+      "timestamp": "2026-08-20 07:36:30 UTC",
+      "epoch": 1787211390,
+      "users": 63,
+      "duration": "60s",
+      "rampup": "5s",
+      "total_samples": 46512,
+      "avg_rt": 233.35,
+      "p95_rt": 543,
+      "error_rate": 0.0,
+      "throughput": 774.64,
+      "duration_sec": 60.0,
+      "has_azure": true,
+      "has_ai_insights": true,
+      "report_file": "run_20260820_130630_report.html",
+      "result_file": "run_20260820_130630_result.json",
+      "status": "passed"
+    },
+    {
       "id": "run_20260819_151017",
       "jmx_name": "JPetStore_MultiUserStories.jmx",
       "timestamp": "2026-08-19 09:40:17 UTC",

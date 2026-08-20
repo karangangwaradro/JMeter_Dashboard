@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="trend.css">
 </head>
 
 <body>
@@ -100,6 +101,21 @@
                             <circle cx="12" cy="12" r="2"></circle>
                         </svg>
                         SLA Validation
+                    </a>
+                    <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                        Trend Analysis
+                    </a>
+                    <a href="#" data-tab="tab-compare" onclick="switchTab('tab-compare')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        Compare Runs
                     </a>
                     <a href="#" data-tab="tab-reports" onclick="switchTab('tab-reports')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -403,10 +419,163 @@
                 </div>
             </section>
 
+            <!-- 5. TREND ANALYSIS VIEW -->
+            <section id="tab-trend" class="tab-content hidden trend-container">
+                <div class="glass-container" style="padding: 1.5rem;">
+                    <h2>📈 Performance Trend Analysis</h2>
+                    <p style="color:#94a3b8; font-size:0.9rem; margin-top:0.2rem;">Historical performance intelligence across projects, user stories, and transactions.</p>
+                    
+                    <!-- Hierarchical Filters -->
+                    <div class="filter-bar" style="margin-top: 1.25rem;">
+                        <div class="filter-group">
+                            <label>Project</label>
+                            <select id="trend-project-select" class="filter-select"></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>User Story</label>
+                            <select id="trend-story-select" class="filter-select"></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Transaction</label>
+                            <select id="trend-tx-select" class="filter-select"></select>
+                        </div>
+                        <div class="filter-group" style="max-width: 140px;">
+                            <label>Time Range / Runs</label>
+                            <select id="trend-limit-select" class="filter-select" onchange="fetchAndRenderTrendData()">
+                                <option value="5">Last 5 Tests</option>
+                                <option value="10" selected>Last 10 Tests</option>
+                                <option value="20">Last 20 Tests</option>
+                                <option value="50">Last 50 Tests</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Health Score Banner -->
+                    <div class="health-score-card" style="margin-top: 1.5rem;">
+                        <div class="score-display">
+                            <div class="score-circle" id="health-score-circle">
+                                <div class="score-circle-inner">
+                                    <div class="score-num" id="health-score-num">--</div>
+                                    <div class="score-label">HEALTH</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="margin:0; font-size:1.2rem; color:#f8fafc;">Performance Health Index</h3>
+                                <p style="margin:0.2rem 0 0 0; font-size:0.82rem; color:#94a3b8;">Weighted composite across RT, P95, Throughput, Error Rate & SLA</p>
+                            </div>
+                        </div>
+
+                        <div class="health-breakdown-grid">
+                            <div class="breakdown-item">
+                                <div class="breakdown-title">Response Time</div>
+                                <div class="breakdown-val" id="hb-rt">--</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-title">P95 Latency</div>
+                                <div class="breakdown-val" id="hb-p95">--</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-title">Throughput</div>
+                                <div class="breakdown-val" id="hb-tp">--</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-title">Error Rate</div>
+                                <div class="breakdown-val" id="hb-err">--</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-title">SLA Pass</div>
+                                <div class="breakdown-val" id="hb-sla">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Metric Trend Charts Grid -->
+                    <div class="trend-charts-grid" style="margin-top: 1.5rem;">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <span class="chart-title">Avg Response Time (ms)</span>
+                                <span class="chart-delta-badge badge-improved">↓ Lower is Better</span>
+                            </div>
+                            <svg id="chart-svg-rt" class="sparkline-svg"></svg>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <span class="chart-title">P95 Response Time (ms)</span>
+                                <span class="chart-delta-badge badge-degraded">↓ SLA Target: &lt;2s</span>
+                            </div>
+                            <svg id="chart-svg-p95" class="sparkline-svg"></svg>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <span class="chart-title">Throughput (Req/sec)</span>
+                                <span class="chart-delta-badge badge-improved">↑ Higher is Better</span>
+                            </div>
+                            <svg id="chart-svg-tp" class="sparkline-svg"></svg>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <span class="chart-title">Error Rate (%)</span>
+                                <span class="chart-delta-badge badge-improved">↓ Target: 0%</span>
+                            </div>
+                            <svg id="chart-svg-err" class="sparkline-svg"></svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. COMPARE RUNS VIEW -->
+            <section id="tab-compare" class="tab-content hidden trend-container">
+                <div class="glass-container" style="padding: 1.5rem;">
+                    <h2>📊 Multi-Run Comparative Analysis</h2>
+                    <p style="color:#94a3b8; font-size:0.9rem; margin-top:0.2rem;">Select arbitrary performance runs to generate comparative regression matrix.</p>
+
+                    <!-- Run Selector Grid -->
+                    <div style="margin-top: 1.25rem;">
+                        <h3 style="font-size: 0.95rem; color: #f8fafc;">Select Test Runs to Compare</h3>
+                        <div class="run-selector-grid" id="compare-runs-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                            <button class="primary-btn" onclick="executeRunComparison()">
+                                ⚡ Compare Selected Runs
+                            </button>
+                            <button class="secondary-btn" onclick="generateComparisonReportFile()">
+                                📄 Generate Comparison Report HTML
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Side-by-Side Matrix Table -->
+                    <div style="margin-top: 2rem;">
+                        <h3 style="font-size: 1.1rem; color: #38bdf8;">Comparative Performance Matrix</h3>
+                        <div class="table-container">
+                            <table class="compare-matrix-table">
+                                <thead>
+                                    <tr id="compare-table-header">
+                                        <th>Metric</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="compare-table-body">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Select runs above and click "Compare Selected Runs"</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Load Normalization Callout -->
+                        <div class="insight-callout" id="compare-insight-callout">
+                            Select test runs above to analyze contextual load vs performance changes.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
     <script src="app.js"></script>
+    <script src="trend.js"></script>
 </body>
 
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jpet_01.jmx — Performance Report | JmeterAI</title>
+    <title>JPetStore_MultiUserStories.jmx — Performance Report | JmeterAI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,6 +15,7 @@
             --border: rgba(255, 255, 255, 0.6);
             --text: #1f2328; --muted: #4b5563;
             --accent: #2563eb; --accent2: #1d4ed8;
+            --accent-bg: rgba(37, 99, 235, 0.06);
             --green: #059669; --yellow: #d97706; --red: #dc2626; --blue: #2563eb;
             --green-bg: rgba(16, 185, 129, 0.15); --yellow-bg: rgba(245, 158, 11, 0.15);
             --red-bg: rgba(239, 68, 68, 0.15); --blue-bg: rgba(59, 130, 246, 0.15);
@@ -28,6 +29,7 @@
             --border: rgba(255, 255, 255, 0.08);
             --text: #f1f5f9; --muted: #94a3b8;
             --accent: #3b82f6; --accent2: #60a5fa;
+            --accent-bg: rgba(59, 130, 246, 0.08);
             --green: #10b981; --yellow: #f59e0b; --red: #ef4444; --blue: #3b82f6;
             --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
             --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -45,6 +47,12 @@
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
         }
+
+        /* Tree hierarchy styles */
+        .tg-header-row td { border-bottom: 1px solid var(--accent) !important; }
+        .tree-row[data-type="request"] td { padding-top: 0.3rem; padding-bottom: 0.3rem; }
+        .tree-toggle-btn { transition: all 0.2s ease; }
+        .tree-toggle-btn:hover { background: var(--accent-bg) !important; border-color: var(--accent) !important; }
 
         /* Header */
         .report-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.75rem; border-radius: 12px; margin-bottom: 1.5rem; transition: box-shadow 0.2s; }
@@ -215,9 +223,9 @@
             <div class="engine-badge" style="font-weight:800; font-size:1.2rem; color:var(--accent);">⚡ JMeter AI</div>
             <div style="border-left:2px solid var(--border); padding-left:1.25rem;">
                 <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Project Details &amp; Execution Time</div>
-                <div style="font-size:1rem; font-weight:700; color:var(--text); margin:0.1rem 0;">Application Name: Jpet_01.jmx &nbsp;|&nbsp; Module Executed: <span contenteditable="true">Load Test Module</span></div>
+                <div style="font-size:1rem; font-weight:700; color:var(--text); margin:0.1rem 0;">Application Name: JPetStore_MultiUserStories.jmx &nbsp;|&nbsp; Module Executed: <span contenteditable="true">Load Test Module</span></div>
                 <div style="font-size:0.78rem; color:var(--muted);">
-                    <strong>Start Time:</strong> 2026-08-10 09:19:31 UTC &nbsp;|&nbsp; <strong>End Time:</strong> 2026-08-10 09:19:31 UTC &nbsp;|&nbsp; <strong>Run ID:</strong> run_20260810_144931
+                    <strong>Start Time:</strong> 2026-08-20 07:36:30 UTC &nbsp;|&nbsp; <strong>End Time:</strong> 2026-08-20 07:36:30 UTC &nbsp;|&nbsp; <strong>Run ID:</strong> run_20260820_130630
                 </div>
             </div>
         </div>
@@ -250,10 +258,10 @@
                     <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td style="font-weight:700;">Test Name</td><td>Jpet_01.jmx</td><td style="font-weight:700;">Total Iterations</td><td>1,628</td></tr>
-                    <tr><td style="font-weight:700;">Test Type</td><td contenteditable="true">Load Test</td><td style="font-weight:700;">Total Requests</td><td>23,565</td></tr>
-                    <tr><td style="font-weight:700;">Duration</td><td>240 seconds</td><td style="font-weight:700;">Total Transactions</td><td>11</td></tr>
-                    <tr><td style="font-weight:700;">Peak Users</td><td>10 users</td><td style="font-weight:700;">Failed Transactions</td><td>0</td></tr>
+                    <tr><td style="font-weight:700;">Test Name</td><td>JPetStore_MultiUserStories.jmx</td><td style="font-weight:700;">Total Iterations</td><td>3,098</td></tr>
+                    <tr><td style="font-weight:700;">Test Type</td><td contenteditable="true">Load Test</td><td style="font-weight:700;">Total Requests</td><td>46,512</td></tr>
+                    <tr><td style="font-weight:700;">Duration</td><td>60 seconds</td><td style="font-weight:700;">Total Transactions</td><td>10</td></tr>
+                    <tr><td style="font-weight:700;">Peak Users</td><td>63 users</td><td style="font-weight:700;">Failed Transactions</td><td>0</td></tr>
                     <tr><td style="font-weight:700;">Ramp-up / Down</td><td contenteditable="true">Manual Input</td><td style="font-weight:700;">Environment</td><td contenteditable="true">Staging</td></tr>
                 </tbody>
             </table>
@@ -263,18 +271,21 @@
         <div class="section glass-panel" style="margin-top:1.25rem;">
             <h2>🎯 Test Objective</h2>
             <div style="font-size:0.88rem; line-height:1.6; padding:0.4rem 0;" contenteditable="true">
-                Validate system performance, throughput stability, response time SLA compliance, and error rates of Jpet_01.jmx under peak load conditions.
+                Validate system performance, throughput stability, response time SLA compliance, and error rates of JPetStore_MultiUserStories.jmx under peak load conditions.
             </div>
         </div>
 
-        <!-- 3. Performance Scorecard & SLA Violation Grid (Exact Wireframe Fields) -->
+        <!-- 3. Performance Scorecard & SLA Violation Grid (Grouped 3x3 Layout) -->
         <div class="section glass-panel" style="margin-top:1.25rem;">
             <h2>📈 Performance Scorecard &amp; SLA Violation Summary</h2>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:0.75rem;">
+            
+            <!-- Group 1: APDEX & User Experience Health (3 Cards) -->
+            <div style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:0.8rem 0 0.5rem 0;">APDEX &amp; User Experience Health</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem;">
                 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">Overall APDEX Score</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#10b981; margin:0.3rem 0;">0.90</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#10b981; margin:0.3rem 0;">0.95</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Target &ge; 0.85</div>
                 </div>
 
@@ -290,21 +301,27 @@
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Unacceptable rating</div>
                 </div>
 
+            </div>
+
+            <!-- Group 2: Response Time SLA Violations (3 Cards) -->
+            <div style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:1.2rem 0 0.5rem 0;">Response Time SLA Breaches</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem;">
+
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 100%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">2</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">1</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 2x SLA target</div>
                 </div>
 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 50%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">2</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">1</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.5x SLA target</div>
                 </div>
 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 20%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">2</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">1</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.2x SLA target</div>
                 </div>
 
@@ -334,21 +351,51 @@
                     <tbody>
                         
         <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">Thread Group</td>
-            <td style="text-align:center; padding:0.5rem;">4.0</td>
-            <td style="text-align:center; padding:0.5rem;">3</td>
-            <td style="text-align:center; font-weight:700; padding:0.5rem;">818</td>
-            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">818</td>
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US01_Browse_Catalog</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">15</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">1,555</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">1,555</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
+            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US02_Add_To_Cart</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">30</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">3,076</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">3,076</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
+            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US03_Search_Products</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">6</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">931</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">931</td>
+            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
+            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US04_User_Sign_In</td>
+            <td style="text-align:center; padding:0.5rem;">1.0</td>
+            <td style="text-align:center; padding:0.5rem;">12</td>
+            <td style="text-align:center; font-weight:700; padding:0.5rem;">1,864</td>
+            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">1,864</td>
             <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
             <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
         </tr>
         
     <tr style="border-top:2px solid var(--accent); background:var(--surface2); font-weight:800;">
         <td style="text-align:left; padding:0.6rem;">Overall</td>
-        <td style="text-align:center; padding:0.6rem;">4.0</td>
-        <td style="text-align:center; padding:0.6rem;">10</td>
-        <td style="text-align:center; padding:0.6rem;">818</td>
-        <td style="text-align:center; color:var(--green); padding:0.6rem;">818</td>
+        <td style="text-align:center; padding:0.6rem;">1.0</td>
+        <td style="text-align:center; padding:0.6rem;">63</td>
+        <td style="text-align:center; padding:0.6rem;">7,426</td>
+        <td style="text-align:center; color:var(--green); padding:0.6rem;">7,426</td>
         <td style="text-align:center; color:var(--red); padding:0.6rem;">0</td>
         <td style="text-align:center; color:var(--green); padding:0.6rem;">0.00%</td>
     </tr>
@@ -363,17 +410,22 @@
             </div>
         </div>
 
-        <!-- 5. Response Time Stats Graph (Critical Transactions Focus) -->
+        <!-- 5. SLA Deviation by Transaction (Executive Diagnostic Diverging Chart) -->
         <div class="section glass-panel" style="margin-top:1.25rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
                 <div>
-                    <h2 style="margin:0;">⏱️ Critical Transactions Response Time Graph</h2>
-                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Time-series response times for key business-critical transactions against SLA target</div>
+                    <h2 style="margin:0;">🎯 SLA Deviation by Transaction (% from Target SLA)</h2>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Diverging diagnostic chart normalized as (P90 Response Time &divide; Target SLA - 1) &times; 100%. Sorted by worst breach.</div>
                 </div>
-                <div id="crit-tx-chip-container" style="display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center;"></div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <label for="usDevFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
+                    <select id="usDevFilter" onchange="filterSlaDevByUs(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:600;">
+                        <option value="ALL">All User Stories / Thread Groups</option><option value="US01_Browse_Catalog">US01_Browse_Catalog</option><option value="US02_Add_To_Cart">US02_Add_To_Cart</option><option value="US03_Search_Products">US03_Search_Products</option><option value="US04_User_Sign_In">US04_User_Sign_In</option>
+                    </select>
+                </div>
             </div>
-            <div style="position:relative; height:320px; width:100%; margin-top:0.5rem;">
-                <canvas id="chart-rt-exec"></canvas>
+            <div style="position:relative; height:340px; width:100%; margin-top:0.5rem;">
+                <canvas id="chart-sla-deviation-exec"></canvas>
             </div>
         </div>
 
@@ -410,10 +462,10 @@
                 <span class="rec-category" contenteditable="true">Configuration</span>
             </div>
             <div class="rec-title" contenteditable="true">Maintain Current Performance</div>
-            
-            
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Why:</strong> <span style="font-size:0.82rem;" contenteditable="true">All metrics are within healthy thresholds.</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Action:</strong><ul style='margin:0.3rem 0 0 1rem; font-size:0.82rem;'><li contenteditable='true'>Consider running longer duration tests</li><li contenteditable='true'>Test at higher concurrency to find limits</li></ul></div>
             <div class="rec-impact">Expected Impact: <span contenteditable="true">Identify maximum safe throughput capacity</span></div>
-            
+            <div style="margin-top:0.4rem; font-size:0.78rem; color:var(--muted);"><strong>Validation:</strong> <span contenteditable="true">N/A</span></div>
         </div>
         </div>
         </div>
@@ -433,7 +485,7 @@
                     <tr><th>Metric</th><th>Status</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td><strong>Observed Concurrency</strong></td><td>10 users</td><td>Tested concurrency level.</td></tr>
+                    <tr><td><strong>Observed Concurrency</strong></td><td>63 users</td><td>Tested concurrency level.</td></tr>
                     <tr><td><strong>Safe Concurrency</strong></td><td>Not determined</td><td>Cannot be established without stepped load testing.</td></tr>
                     <tr><td><strong>Saturation Point</strong></td><td>Not determined</td><td>System saturation was not strictly observed.</td></tr>
                 </tbody>
@@ -451,8 +503,8 @@
     <!-- TAB 3: Transaction Stats -->
     <div id="rpt-tx" class="tab-pane hidden">
         <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Total Iterations</div><div class="kpi-value">1,628</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">Total Transactions</div><div class="kpi-value">11</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">Total Iterations</div><div class="kpi-value">3,098</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">Total Transactions</div><div class="kpi-value">10</div></div>
         </div>
         
         <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
@@ -460,7 +512,7 @@
                 <h3 style="margin:0; white-space: nowrap;">📊 Throughput & Errors</h3>
                 <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
                     <option value="ALL">All Transactions (Overall)</option>
-                    <option value="0" title="T01 Launch The JpetStore">T01 Launch The JpetStore</option><option value="1" title="T02 Sign to the application">T02 Sign to the application</option><option value="2" title="T03 Select any animal">T03 Select any animal</option><option value="3" title="T04 Select any animal">T04 Select any animal</option><option value="4" title="T05 click on category">T05 click on category</option><option value="5" title="T06 Select any animal and add to cart">T06 Select any animal and add to cart</option><option value="6" title="T07 click on category">T07 click on category</option><option value="7" title="T08 select any animal and add to cart">T08 select any animal and add to cart</option><option value="8" title="T09 proceed to checkout">T09 proceed to checkout</option><option value="9" title="T10 Add payment and bill details">T10 Add payment and bill details</option><option value="10" title="T11 click on confirm">T11 click on confirm</option>
+                    <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
                 </select>
             </div>
             <div style="position: relative; height: 260px; width: 100%;">
@@ -472,1395 +524,506 @@
                 <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
                 
             </div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">Throughput remains relatively stable throughout the sustained test period and does not show an obvious collapse as execution progresses.</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Interpretation:</strong> <span style="font-size:0.82rem;">No direct evidence of throughput degradation is observed under this workload.</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">AI Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Capacity saturation was not demonstrated by this execution.</span></div>
-            <div><strong style="font-size:0.82rem;">Next Validation:</strong> <span style="font-size:0.82rem; color:var(--muted);">Repeat with progressively higher concurrency to determine whether throughput continues scaling or reaches a saturation point.</span></div>
-            <div class="evidence-grid" style="margin-top:0.5rem;"><span class="evidence-chip">Avg Throughput: 98.1 req/s</span> &middot; <span class="evidence-chip">Error Rate: 0.00%</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">Throughput shows declining behavior as execution progresses.</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Interpretation:</strong> <span style="font-size:0.82rem;">Throughput declining detected.</span></div>
+            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">AI Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Throughput degradation suggests the system is approaching or has reached its capacity limit.</span></div>
+            <div><strong style="font-size:0.82rem;">Next Validation:</strong> <span style="font-size:0.82rem; color:var(--muted);">Investigate server resource utilization and connection pool settings.</span></div>
+            <div class="evidence-grid" style="margin-top:0.5rem;"><span class="evidence-chip">Avg Throughput: 774.6 req/s</span> &middot; <span class="evidence-chip">Error Rate: 0.00%</span></div>
         </div>
         
         </div>
 
         <div class="section glass-panel">
-            <h2>📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
-            <table>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; margin-bottom:0.8rem;">
+                <h2 style="margin:0;">📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
+                
+            </div>
+            <table id="txBreakdownTable">
                 <thead><tr>
                     <th>Transaction / Request</th><th>Samples</th><th>Apdex</th><th>Avg RT</th>
                    <th>P90</th><th>P95</th><th>P99</th>
                     <th>Min</th><th>Max</th><th>Error Rate</th><th>RT SLA</th><th>Deviation %</th><th>SLA Status</th>
                 </tr></thead>
                 <tbody>
-        <tr>
-            <td><strong>T02 Sign to the application</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-145363338'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (6)':'▼ Requests (6)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (6)</button></td>
-            <td>817</td>
-            <td class="fail"><strong>0.49</strong></td>
-            <td class="fail">545 ms</td>
-            <td class="fail"><strong>560 ms</strong></td>
-            <td>570 ms</td>
-            <td>749 ms</td>
-            <td>509 ms</td>
-            <td>1011 ms</td>
-            <td class="pass">0.00%</td>
-            <td>200 ms</td>
-            <td><span style="color:var(--red); font-weight:600;">+180.0%</span></td>
-            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
-        </tr>
-        
-                <tr class="child-row-group-145363338" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T01 Launch The JpetStore-199</code></td>
-                    <td>818</td>
-                    <td>-</td>
-                    <td>189 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>737 ms</td>
-                    <td>170 ms</td>
-                    <td>1665 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-145363338" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T01 Launch The JpetStore</code></td>
-                    <td>818</td>
-                    <td>-</td>
-                    <td>189 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>737 ms</td>
-                    <td>170 ms</td>
-                    <td>1665 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-145363338" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-201</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>209 ms</td>
-                    <td>169 ms</td>
-                    <td>645 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-145363338" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-210</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>363 ms</td>
-                    <td><strong>372 ms</strong></td>
-                    <td>380 ms</td>
-                    <td>494 ms</td>
-                    <td>338 ms</td>
-                    <td>755 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-145363338" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-210-0</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>185 ms</strong></td>
-                    <td>189 ms</td>
-                    <td>219 ms</td>
-                    <td>169 ms</td>
-                    <td>569 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-145363338" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-210-1</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>217 ms</td>
-                    <td>169 ms</td>
-                    <td>570 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T08 select any animal and add to cart</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-1020227300'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (12)':'▼ Requests (12)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (12)</button></td>
-            <td>809</td>
-            <td class="pass"><strong>0.99</strong></td>
-            <td class="pass">373 ms</td>
-            <td class="pass"><strong>378 ms</strong></td>
-            <td>383 ms</td>
-            <td>735 ms</td>
-            <td>341 ms</td>
-            <td>1344 ms</td>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
+            <td>3,098</td>
+            <td><span class="pass"><strong>0.99</strong></span></td>
+            <td class="pass">194 ms</td>
+            <td class="pass"><strong>190 ms</strong></td>
+            <td>194 ms</td>
+            <td>225 ms</td>
+            <td>169 ms</td>
+            <td>3249 ms</td>
             <td class="pass">0.00%</td>
             <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-24.4%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-62.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal-226</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-228</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>207 ms</td>
-                    <td>170 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal</code></td>
-                    <td>1,628</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-229</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>189 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>754 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-232</code></td>
-                    <td>813</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>222 ms</td>
-                    <td>171 ms</td>
-                    <td>1138 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-233</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>238 ms</td>
-                    <td>170 ms</td>
-                    <td>573 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>369 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>384 ms</td>
-                    <td>489 ms</td>
-                    <td>341 ms</td>
-                    <td>1320 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-235</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>211 ms</td>
-                    <td>169 ms</td>
-                    <td>890 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-236</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>188 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>241 ms</td>
-                    <td>169 ms</td>
-                    <td>1133 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T10 Add payment and bill details-242</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>133 ms</td>
-                    <td><strong>160 ms</strong></td>
-                    <td>204 ms</td>
-                    <td>295 ms</td>
-                    <td>81 ms</td>
-                    <td>1804 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1020227300" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T10 Add payment and bill details</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>133 ms</td>
-                    <td><strong>160 ms</strong></td>
-                    <td>204 ms</td>
-                    <td>295 ms</td>
-                    <td>81 ms</td>
-                    <td>1804 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T06 Select any animal and add to cart</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-2983902359'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (12)':'▼ Requests (12)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (12)</button></td>
-            <td>810</td>
-            <td class="fail"><strong>0.50</strong></td>
-            <td class="fail">369 ms</td>
-            <td class="fail"><strong>378 ms</strong></td>
-            <td>384 ms</td>
-            <td>489 ms</td>
-            <td>341 ms</td>
-            <td>1320 ms</td>
+                    <tr class="child-row-group-1865385847" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Catalog</code></td>
+                        <td>6,532</td>
+                        <td>-</td>
+                        <td>192 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>192 ms</td>
+                        <td>223 ms</td>
+                        <td>166 ms</td>
+                        <td>3249 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-1865385847" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Homepage</code></td>
+                        <td>934</td>
+                        <td>-</td>
+                        <td>190 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>190 ms</td>
+                        <td>204 ms</td>
+                        <td>171 ms</td>
+                        <td>3266 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
+            <td>1,567</td>
+            <td><span class="pass"><strong>0.99</strong></span></td>
+            <td class="pass">193 ms</td>
+            <td class="pass"><strong>187 ms</strong></td>
+            <td>190 ms</td>
+            <td>226 ms</td>
+            <td>166 ms</td>
+            <td>3208 ms</td>
             <td class="pass">0.00%</td>
-            <td>182 ms</td>
-            <td><span style="color:var(--red); font-weight:600;">+107.7%</span></td>
-            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+            <td>500 ms</td>
+            <td><span style="color:var(--green); font-weight:600;">-62.6%</span></td>
+            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal-226</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-228</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>207 ms</td>
-                    <td>170 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal</code></td>
-                    <td>1,628</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-229</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>189 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>754 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-232</code></td>
-                    <td>813</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>222 ms</td>
-                    <td>171 ms</td>
-                    <td>1138 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-233</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>238 ms</td>
-                    <td>170 ms</td>
-                    <td>573 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-235</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>211 ms</td>
-                    <td>169 ms</td>
-                    <td>890 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-236</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>188 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>241 ms</td>
-                    <td>169 ms</td>
-                    <td>1133 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>373 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>383 ms</td>
-                    <td>735 ms</td>
-                    <td>341 ms</td>
-                    <td>1344 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T10 Add payment and bill details-242</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>133 ms</td>
-                    <td><strong>160 ms</strong></td>
-                    <td>204 ms</td>
-                    <td>295 ms</td>
-                    <td>81 ms</td>
-                    <td>1804 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2983902359" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T10 Add payment and bill details</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>133 ms</td>
-                    <td><strong>160 ms</strong></td>
-                    <td>204 ms</td>
-                    <td>295 ms</td>
-                    <td>81 ms</td>
-                    <td>1804 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T01 Launch The JpetStore</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-2313457911'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (6)':'▼ Requests (6)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (6)</button></td>
-            <td>818</td>
-            <td class="pass"><strong>0.99</strong></td>
+                    <tr class="child-row-group-2722819807" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Catalog</code></td>
+                        <td>6,532</td>
+                        <td>-</td>
+                        <td>192 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>192 ms</td>
+                        <td>223 ms</td>
+                        <td>166 ms</td>
+                        <td>3249 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-2722819807" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Homepage</code></td>
+                        <td>934</td>
+                        <td>-</td>
+                        <td>190 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>190 ms</td>
+                        <td>204 ms</td>
+                        <td>171 ms</td>
+                        <td>3266 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
+            <td>934</td>
+            <td><span class="pass"><strong>0.99</strong></span></td>
+            <td class="pass">190 ms</td>
+            <td class="pass"><strong>188 ms</strong></td>
+            <td>190 ms</td>
+            <td>204 ms</td>
+            <td>171 ms</td>
+            <td>3266 ms</td>
+            <td class="pass">0.00%</td>
+            <td>200 ms</td>
+            <td><span style="color:var(--green); font-weight:600;">-6.0%</span></td>
+            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
+        </tr>
+                    <tr class="child-row-group-1990925227" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Catalog</code></td>
+                        <td>6,532</td>
+                        <td>-</td>
+                        <td>192 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>192 ms</td>
+                        <td>223 ms</td>
+                        <td>166 ms</td>
+                        <td>3249 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-1990925227" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Homepage</code></td>
+                        <td>934</td>
+                        <td>-</td>
+                        <td>190 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>190 ms</td>
+                        <td>204 ms</td>
+                        <td>171 ms</td>
+                        <td>3266 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
+            <td>1,867</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass">189 ms</td>
             <td class="pass"><strong>187 ms</strong></td>
-            <td>191 ms</td>
-            <td>737 ms</td>
+            <td>190 ms</td>
+            <td>213 ms</td>
             <td>170 ms</td>
-            <td>1665 ms</td>
+            <td>3159 ms</td>
             <td class="pass">0.00%</td>
             <td>500 ms</td>
             <td><span style="color:var(--green); font-weight:600;">-62.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-2313457911" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T01 Launch The JpetStore-199</code></td>
-                    <td>818</td>
-                    <td>-</td>
-                    <td>189 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>737 ms</td>
-                    <td>170 ms</td>
-                    <td>1665 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2313457911" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-201</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>209 ms</td>
-                    <td>169 ms</td>
-                    <td>645 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2313457911" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-210</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>363 ms</td>
-                    <td><strong>372 ms</strong></td>
-                    <td>380 ms</td>
-                    <td>494 ms</td>
-                    <td>338 ms</td>
-                    <td>755 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2313457911" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-210-0</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>185 ms</strong></td>
-                    <td>189 ms</td>
-                    <td>219 ms</td>
-                    <td>169 ms</td>
-                    <td>569 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2313457911" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application-210-1</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>217 ms</td>
-                    <td>169 ms</td>
-                    <td>570 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2313457911" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T02 Sign to the application</code></td>
-                    <td>817</td>
-                    <td>-</td>
-                    <td>545 ms</td>
-                    <td><strong>560 ms</strong></td>
-                    <td>570 ms</td>
-                    <td>749 ms</td>
-                    <td>509 ms</td>
-                    <td>1011 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T11 click on confirm</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-2853488615'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (5)':'▼ Requests (5)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (5)</button></td>
-            <td>808</td>
-            <td class="pass"><strong>1.00</strong></td>
-            <td class="pass">185 ms</td>
+                    <tr class="child-row-group-2435027219" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Catalog</code></td>
+                        <td>6,532</td>
+                        <td>-</td>
+                        <td>192 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>192 ms</td>
+                        <td>223 ms</td>
+                        <td>166 ms</td>
+                        <td>3249 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-2435027219" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Homepage</code></td>
+                        <td>934</td>
+                        <td>-</td>
+                        <td>190 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>190 ms</td>
+                        <td>204 ms</td>
+                        <td>171 ms</td>
+                        <td>3266 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
+            <td>3,076</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass">183 ms</td>
             <td class="pass"><strong>191 ms</strong></td>
             <td>195 ms</td>
-            <td>207 ms</td>
-            <td>172 ms</td>
-            <td>540 ms</td>
+            <td>201 ms</td>
+            <td>170 ms</td>
+            <td>273 ms</td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-61.8%</span></td>
+            <td>1517 ms</td>
+            <td><span style="color:var(--green); font-weight:600;">-87.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-2853488615" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T05 click on category-231</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>233 ms</td>
-                    <td>169 ms</td>
-                    <td>561 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2853488615" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T05 click on category</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>233 ms</td>
-                    <td>169 ms</td>
-                    <td>561 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2853488615" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T07 click on category-234</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>208 ms</td>
-                    <td>168 ms</td>
-                    <td>336 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2853488615" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T07 click on category</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>208 ms</td>
-                    <td>168 ms</td>
-                    <td>336 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2853488615" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T11 click on confirm-269</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>191 ms</strong></td>
-                    <td>195 ms</td>
-                    <td>207 ms</td>
-                    <td>172 ms</td>
-                    <td>540 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T09 proceed to checkout</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-3701081929'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (1)':'▼ Requests (1)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (1)</button></td>
-            <td>809</td>
-            <td class="pass"><strong>1.00</strong></td>
-            <td class="pass">184 ms</td>
-            <td class="pass"><strong>188 ms</strong></td>
-            <td>194 ms</td>
-            <td>231 ms</td>
-            <td>169 ms</td>
-            <td>738 ms</td>
-            <td class="pass">0.00%</td>
-            <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-62.4%</span></td>
-            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
-        </tr>
-        
-                <tr class="child-row-group-3701081929" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T09 proceed to checkout-237</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>231 ms</td>
-                    <td>169 ms</td>
-                    <td>738 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T04 Select any animal</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-16536440'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (10)':'▼ Requests (10)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (10)</button></td>
-            <td>1,628</td>
-            <td class="pass"><strong>1.00</strong></td>
-            <td class="pass">183 ms</td>
-            <td class="pass"><strong>188 ms</strong></td>
-            <td>192 ms</td>
-            <td>213 ms</td>
-            <td>169 ms</td>
-            <td>982 ms</td>
-            <td class="pass">0.00%</td>
-            <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-62.4%</span></td>
-            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
-        </tr>
-        
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal-226</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-228</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>207 ms</td>
-                    <td>170 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-229</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>189 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>754 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-232</code></td>
-                    <td>813</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>222 ms</td>
-                    <td>171 ms</td>
-                    <td>1138 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-233</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>238 ms</td>
-                    <td>170 ms</td>
-                    <td>573 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>369 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>384 ms</td>
-                    <td>489 ms</td>
-                    <td>341 ms</td>
-                    <td>1320 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-235</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>211 ms</td>
-                    <td>169 ms</td>
-                    <td>890 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-236</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>188 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>241 ms</td>
-                    <td>169 ms</td>
-                    <td>1133 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-16536440" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>373 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>383 ms</td>
-                    <td>735 ms</td>
-                    <td>341 ms</td>
-                    <td>1344 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T03 Select any animal</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-624945418'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (10)':'▼ Requests (10)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (10)</button></td>
-            <td>815</td>
-            <td class="pass"><strong>1.00</strong></td>
-            <td class="pass">183 ms</td>
-            <td class="pass"><strong>187 ms</strong></td>
+                    <tr class="child-row-group-2539724210" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Add_Item_EST-26</code></td>
+                        <td>3,076</td>
+                        <td>-</td>
+                        <td>183 ms</td>
+                        <td><strong>191 ms</strong></td>
+                        <td>195 ms</td>
+                        <td>201 ms</td>
+                        <td>170 ms</td>
+                        <td>273 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
+            <td>3,090</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass">181 ms</td>
+            <td class="pass"><strong>189 ms</strong></td>
             <td>193 ms</td>
-            <td>214 ms</td>
+            <td>201 ms</td>
             <td>169 ms</td>
-            <td>1054 ms</td>
+            <td>485 ms</td>
             <td class="pass">0.00%</td>
             <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-62.6%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-62.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T03 Select any animal-226</code></td>
-                    <td>815</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>214 ms</td>
-                    <td>169 ms</td>
-                    <td>1054 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-228</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>207 ms</td>
-                    <td>170 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal</code></td>
-                    <td>1,628</td>
-                    <td>-</td>
-                    <td>183 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>982 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T04 Select any animal-229</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>189 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>213 ms</td>
-                    <td>169 ms</td>
-                    <td>754 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-232</code></td>
-                    <td>813</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>222 ms</td>
-                    <td>171 ms</td>
-                    <td>1138 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-233</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>238 ms</td>
-                    <td>170 ms</td>
-                    <td>573 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>369 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>384 ms</td>
-                    <td>489 ms</td>
-                    <td>341 ms</td>
-                    <td>1320 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-235</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>211 ms</td>
-                    <td>169 ms</td>
-                    <td>890 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-236</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>188 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>241 ms</td>
-                    <td>169 ms</td>
-                    <td>1133 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-624945418" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>373 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>383 ms</td>
-                    <td>735 ms</td>
-                    <td>341 ms</td>
-                    <td>1344 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T05 click on category</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-25104173'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (5)':'▼ Requests (5)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (5)</button></td>
-            <td>814</td>
-            <td class="pass"><strong>1.00</strong></td>
-            <td class="pass">182 ms</td>
-            <td class="pass"><strong>187 ms</strong></td>
+                    <tr class="child-row-group-2624680840" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Select_Category_Dogs</code></td>
+                        <td>3,090</td>
+                        <td>-</td>
+                        <td>181 ms</td>
+                        <td><strong>189 ms</strong></td>
+                        <td>193 ms</td>
+                        <td>201 ms</td>
+                        <td>169 ms</td>
+                        <td>485 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-2624680840" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Select_Category_Fish</code></td>
+                        <td>1,561</td>
+                        <td>-</td>
+                        <td>179 ms</td>
+                        <td><strong>187 ms</strong></td>
+                        <td>189 ms</td>
+                        <td>195 ms</td>
+                        <td>166 ms</td>
+                        <td>227 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
+            <td>931</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass">181 ms</td>
+            <td class="pass"><strong>189 ms</strong></td>
             <td>191 ms</td>
-            <td>233 ms</td>
-            <td>169 ms</td>
-            <td>561 ms</td>
+            <td>203 ms</td>
+            <td>171 ms</td>
+            <td>227 ms</td>
             <td class="pass">0.00%</td>
             <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-62.6%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-62.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-25104173" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T05 click on category-231</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>233 ms</td>
-                    <td>169 ms</td>
-                    <td>561 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-25104173" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T07 click on category-234</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>208 ms</td>
-                    <td>168 ms</td>
-                    <td>336 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-25104173" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T07 click on category</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>208 ms</td>
-                    <td>168 ms</td>
-                    <td>336 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-25104173" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T11 click on confirm-269</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>191 ms</strong></td>
-                    <td>195 ms</td>
-                    <td>207 ms</td>
-                    <td>172 ms</td>
-                    <td>540 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-25104173" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T11 click on confirm</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>191 ms</strong></td>
-                    <td>195 ms</td>
-                    <td>207 ms</td>
-                    <td>172 ms</td>
-                    <td>540 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T07 click on category</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-1954908228'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (5)':'▼ Requests (5)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (5)</button></td>
-            <td>810</td>
-            <td class="pass"><strong>1.00</strong></td>
+                    <tr class="child-row-group-3447820351" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Search_Bulldog</code></td>
+                        <td>931</td>
+                        <td>-</td>
+                        <td>181 ms</td>
+                        <td><strong>189 ms</strong></td>
+                        <td>191 ms</td>
+                        <td>203 ms</td>
+                        <td>171 ms</td>
+                        <td>227 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
+            <td>1,864</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass">181 ms</td>
             <td class="pass"><strong>187 ms</strong></td>
-            <td>191 ms</td>
-            <td>208 ms</td>
-            <td>168 ms</td>
-            <td>336 ms</td>
+            <td>189 ms</td>
+            <td>195 ms</td>
+            <td>169 ms</td>
+            <td>266 ms</td>
             <td class="pass">0.00%</td>
             <td>500 ms</td>
             <td><span style="color:var(--green); font-weight:600;">-62.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-1954908228" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T05 click on category-231</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>233 ms</td>
-                    <td>169 ms</td>
-                    <td>561 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1954908228" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T05 click on category</code></td>
-                    <td>814</td>
-                    <td>-</td>
-                    <td>182 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>233 ms</td>
-                    <td>169 ms</td>
-                    <td>561 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1954908228" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T07 click on category-234</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>181 ms</td>
-                    <td><strong>187 ms</strong></td>
-                    <td>191 ms</td>
-                    <td>208 ms</td>
-                    <td>168 ms</td>
-                    <td>336 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1954908228" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T11 click on confirm-269</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>191 ms</strong></td>
-                    <td>195 ms</td>
-                    <td>207 ms</td>
-                    <td>172 ms</td>
-                    <td>540 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-1954908228" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T11 click on confirm</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>191 ms</strong></td>
-                    <td>195 ms</td>
-                    <td>207 ms</td>
-                    <td>172 ms</td>
-                    <td>540 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-        <tr>
-            <td><strong>T10 Add payment and bill details</strong> <button onclick="var rows=document.getElementsByClassName('child-row-group-2079238486'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){rows[i].style.display=isHidden?'table-row':'none';} this.innerText=isHidden?'▲ Hide (7)':'▼ Requests (7)';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests (7)</button></td>
-            <td>808</td>
-            <td class="pass"><strong>0.97</strong></td>
-            <td class="pass">133 ms</td>
-            <td class="pass"><strong>160 ms</strong></td>
-            <td>204 ms</td>
-            <td>295 ms</td>
-            <td>81 ms</td>
-            <td>1804 ms</td>
+                    <tr class="child-row-group-3538747318" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Launch_Homepage</code></td>
+                        <td>934</td>
+                        <td>-</td>
+                        <td>190 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>190 ms</td>
+                        <td>204 ms</td>
+                        <td>171 ms</td>
+                        <td>3266 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-3538747318" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Signon_Form</code></td>
+                        <td>1,864</td>
+                        <td>-</td>
+                        <td>181 ms</td>
+                        <td><strong>187 ms</strong></td>
+                        <td>189 ms</td>
+                        <td>195 ms</td>
+                        <td>169 ms</td>
+                        <td>266 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
+            <td>1,555</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass">180 ms</td>
+            <td class="pass"><strong>188 ms</strong></td>
+            <td>190 ms</td>
+            <td>196 ms</td>
+            <td>166 ms</td>
+            <td>265 ms</td>
             <td class="pass">0.00%</td>
-            <td>200 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-20.0%</span></td>
+            <td>500 ms</td>
+            <td><span style="color:var(--green); font-weight:600;">-62.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-232</code></td>
-                    <td>813</td>
-                    <td>-</td>
-                    <td>185 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>192 ms</td>
-                    <td>222 ms</td>
-                    <td>171 ms</td>
-                    <td>1138 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart-233</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>238 ms</td>
-                    <td>170 ms</td>
-                    <td>573 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T06 Select any animal and add to cart</code></td>
-                    <td>810</td>
-                    <td>-</td>
-                    <td>369 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>384 ms</td>
-                    <td>489 ms</td>
-                    <td>341 ms</td>
-                    <td>1320 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-235</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>184 ms</td>
-                    <td><strong>188 ms</strong></td>
-                    <td>193 ms</td>
-                    <td>211 ms</td>
-                    <td>169 ms</td>
-                    <td>890 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart-236</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>188 ms</td>
-                    <td><strong>190 ms</strong></td>
-                    <td>194 ms</td>
-                    <td>241 ms</td>
-                    <td>169 ms</td>
-                    <td>1133 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T08 select any animal and add to cart</code></td>
-                    <td>809</td>
-                    <td>-</td>
-                    <td>373 ms</td>
-                    <td><strong>378 ms</strong></td>
-                    <td>383 ms</td>
-                    <td>735 ms</td>
-                    <td>341 ms</td>
-                    <td>1344 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-                <tr class="child-row-group-2079238486" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>T10 Add payment and bill details-242</code></td>
-                    <td>808</td>
-                    <td>-</td>
-                    <td>133 ms</td>
-                    <td><strong>160 ms</strong></td>
-                    <td>204 ms</td>
-                    <td>295 ms</td>
-                    <td>81 ms</td>
-                    <td>1804 ms</td>
-                    <td class="pass">0.00%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr></tbody>
+                    <tr class="child-row-group-1603698923" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_View_Product_FI-SW-01</code></td>
+                        <td>1,555</td>
+                        <td>-</td>
+                        <td>180 ms</td>
+                        <td><strong>188 ms</strong></td>
+                        <td>190 ms</td>
+                        <td>196 ms</td>
+                        <td>166 ms</td>
+                        <td>265 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+        <tr style=" font-weight: 500;" class="tree-row"  data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📊</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
+            <td>1,561</td>
+            <td><span class="fail"><strong>0.50</strong></span></td>
+            <td class="fail">179 ms</td>
+            <td class="fail"><strong>187 ms</strong></td>
+            <td>189 ms</td>
+            <td>195 ms</td>
+            <td>166 ms</td>
+            <td>227 ms</td>
+            <td class="pass">0.00%</td>
+            <td>92 ms</td>
+            <td><span style="color:var(--red); font-weight:600;">+103.3%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+                    <tr class="child-row-group-524950257" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Select_Category_Dogs</code></td>
+                        <td>3,090</td>
+                        <td>-</td>
+                        <td>181 ms</td>
+                        <td><strong>189 ms</strong></td>
+                        <td>193 ms</td>
+                        <td>201 ms</td>
+                        <td>169 ms</td>
+                        <td>485 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="child-row-group-524950257" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>HTTP_Select_Category_Fish</code></td>
+                        <td>1,561</td>
+                        <td>-</td>
+                        <td>179 ms</td>
+                        <td><strong>187 ms</strong></td>
+                        <td>189 ms</td>
+                        <td>195 ms</td>
+                        <td>166 ms</td>
+                        <td>227 ms</td>
+                        <td class="pass">0.00%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr></tbody>
             </table>
+            <script>
+            function toggleTreeChildren(btn, clsId) {
+                var isExpanded = btn.getAttribute('data-expanded') === 'true';
+                if (isExpanded) {
+                    // Collapse: hide all descendants with clsId
+                    var rows = document.getElementsByClassName(clsId);
+                    for (var i = 0; i < rows.length; i++) {
+                        rows[i].style.display = 'none';
+                    }
+                    // Also reset any expanded child buttons within those rows
+                    for (var i = 0; i < rows.length; i++) {
+                        var nestedBtns = rows[i].querySelectorAll('.tree-toggle-btn[data-expanded="true"]');
+                        nestedBtns.forEach(function(nb) {
+                            nb.setAttribute('data-expanded', 'false');
+                            var l = nb.textContent.replace(/[▼▲]\s*/, '');
+                            nb.textContent = '▼ ' + l;
+                        });
+                    }
+                    btn.setAttribute('data-expanded', 'false');
+                    var label = btn.textContent.replace(/[▼▲]\s*/, '');
+                    btn.textContent = '▼ ' + label;
+                } else {
+                    // Expand: show ONLY direct children (rows with data-parent-cls === clsId)
+                    var rows = document.querySelectorAll('tr[data-parent-cls="' + clsId + '"]');
+                    for (var i = 0; i < rows.length; i++) {
+                        var currentTgFilter = document.getElementById('tgFilterSelect') ? document.getElementById('tgFilterSelect').value : 'ALL';
+                        var rowTg = rows[i].getAttribute('data-tg');
+                        if (currentTgFilter === 'ALL' || !rowTg || rowTg === currentTgFilter) {
+                            rows[i].style.display = 'table-row';
+                        }
+                    }
+                    btn.setAttribute('data-expanded', 'true');
+                    var label = btn.textContent.replace(/[▼▲]\s*/, '');
+                    btn.textContent = '▲ ' + label;
+                }
+            }
+            function filterByThreadGroup(val) {
+                var table = document.getElementById('txBreakdownTable');
+                if (!table) return;
+                var rows = table.querySelectorAll('tbody tr');
+                rows.forEach(function(row) {
+                    var tg = row.getAttribute('data-tg');
+                    var isTgMatch = (val === 'ALL' || !tg || tg === val);
+                    if (!isTgMatch) {
+                        row.style.display = 'none';
+                    } else {
+                        // Show thread group header rows and top-level depth 0 rows
+                        if (row.classList.contains('tg-header-row') || row.getAttribute('data-depth') === '0') {
+                            row.style.display = 'table-row';
+                        } else {
+                            // For child rows, keep hidden by default unless parent is expanded
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+                // Reset all toggle buttons to collapsed (▼)
+                var allBtns = table.querySelectorAll('.tree-toggle-btn');
+                allBtns.forEach(function(btn) {
+                    btn.setAttribute('data-expanded', 'false');
+                    var label = btn.textContent.replace(/[▼▲]\s*/, '');
+                    btn.textContent = '▼ ' + label;
+                });
+            }
+            </script>
         </div>
     </div>
 
     <!-- TAB 4: Response Time Stats -->
     <div id="rpt-rt" class="tab-pane hidden">
         <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">212<span style="font-size:0.9rem"> ms</span></div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">376<span style="font-size:0.9rem"> ms</span></div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">P99 Response</div><div class="kpi-value">553<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">233<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">543<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">P99 Response</div><div class="kpi-value">571<span style="font-size:0.9rem"> ms</span></div></div>
         </div>
 
         <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
@@ -1868,7 +1031,7 @@
                 <h3 style="margin:0; white-space: nowrap;">📈 Response Time Over Time</h3>
                 <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
                     <option value="ALL">All Transactions (Overall)</option>
-                    <option value="0" title="T01 Launch The JpetStore">T01 Launch The JpetStore</option><option value="1" title="T02 Sign to the application">T02 Sign to the application</option><option value="2" title="T03 Select any animal">T03 Select any animal</option><option value="3" title="T04 Select any animal">T04 Select any animal</option><option value="4" title="T05 click on category">T05 click on category</option><option value="5" title="T06 Select any animal and add to cart">T06 Select any animal and add to cart</option><option value="6" title="T07 click on category">T07 click on category</option><option value="7" title="T08 select any animal and add to cart">T08 select any animal and add to cart</option><option value="8" title="T09 proceed to checkout">T09 proceed to checkout</option><option value="9" title="T10 Add payment and bill details">T10 Add payment and bill details</option><option value="10" title="T11 click on confirm">T11 click on confirm</option>
+                    <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
                 </select>
             </div>
             <div style="position: relative; height: 260px; width: 100%;">
@@ -1878,11 +1041,11 @@
         <div class="ai-observation-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
                 <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
-                <span class="finding-badge-inline" onclick="showFinding('F-003');" style="cursor:pointer;">🔍 F-003</span>
+                
             </div>
-            <p style="font-weight:600; font-size:0.85rem; margin-bottom:0.6rem; color:var(--text);">Latency remains broadly stable during sustained execution, but periodic P99 spikes indicate intermittent high-latency requests.</p>
-            <div class="evidence-grid"><span class="evidence-chip">Avg RT: 212 ms</span> &middot; <span class="evidence-chip">P95: 376 ms</span> &middot; <span class="evidence-chip">P99: 553 ms</span> &middot; <span class="evidence-chip">Maximum observed: 1,804 ms</span></div>
-            <blockquote class="ai-interpretation">The average latency is relatively stable. Tail latency requires investigation because a small subset of requests experiences substantially higher response times.</blockquote>
+            <p style="font-weight:600; font-size:0.85rem; margin-bottom:0.6rem; color:var(--text);">Latency remains broadly stable during sustained execution.</p>
+            <div class="evidence-grid"><span class="evidence-chip">Avg RT: 233 ms</span> &middot; <span class="evidence-chip">P95: 543 ms</span> &middot; <span class="evidence-chip">P99: 571 ms</span> &middot; <span class="evidence-chip">Maximum observed: 3,599 ms</span></div>
+            <blockquote class="ai-interpretation">The average latency is relatively stable. Response time distribution is within acceptable bounds.</blockquote>
         </div>
         
         </div>
@@ -1902,10 +1065,10 @@
             <!-- Mini Summary KPIs -->
             <div style="display:flex; gap:1.25rem; flex-wrap:wrap; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.6rem 1rem; margin-bottom:0.85rem; font-size:0.8rem;">
                 <div><span style="color:var(--muted);">Critical:</span> <strong>4</strong></div>
-                <div><span style="color:var(--muted);">Avg Response:</span> <strong>264 ms</strong></div>
-                <div><span style="color:var(--muted);">P95 Response:</span> <strong>384 ms</strong></div>
+                <div><span style="color:var(--muted);">Avg Response:</span> <strong>183 ms</strong></div>
+                <div><span style="color:var(--muted);">P95 Response:</span> <strong>195 ms</strong></div>
                 <div><span style="color:var(--muted);">SLA Breaches:</span> <strong style="color:var(--red);">1</strong></div>
-                <div><span style="color:var(--muted);">Max Response:</span> <strong>1804 ms</strong></div>
+                <div><span style="color:var(--muted);">Max Response:</span> <strong>3266 ms</strong></div>
             </div>
 
             <!-- Interactive Transaction Toggle Chips -->
@@ -1945,22 +1108,12 @@
         <tbody>
             
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
-            <td><strong>T02 Sign to the application</strong></td>
-            <td>545 ms</td>
-            <td>570 ms</td>
+            <td><strong>TC02_US01_Select_Fish_Category</strong></td>
+            <td>179 ms</td>
+            <td>189 ms</td>
             <td style="color: var(--green);">0.00%</td>
-            <td>200 ms</td>
-            <td style="color: var(--red); font-weight: 600;">+180.0%</td>
-            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
-        </tr>
-        
-        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
-            <td><strong>T06 Select any animal and add to cart</strong></td>
-            <td>369 ms</td>
-            <td>384 ms</td>
-            <td style="color: var(--green);">0.00%</td>
-            <td>182 ms</td>
-            <td style="color: var(--red); font-weight: 600;">+107.7%</td>
+            <td>92 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+103.3%</td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         
@@ -1974,7 +1127,7 @@
     <div id="rpt-error" class="tab-pane hidden">
         <div class="kpi-grid">
             <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value pass">0.00<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">0 transaction failures</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">2</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">1</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
         </div>
 
         <!-- SLA Deviation & Breach Severity Card -->
@@ -1984,7 +1137,7 @@
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">SLA Deviation &amp; Breach Severity</h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Distribution of transactions by SLA utilization</p>
                 </div>
-                <span style="font-size:0.78rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">11 Transactions</span>
+                <span style="font-size:0.78rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">10 Transactions</span>
             </div>
 
             <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-bottom: 1rem;">
@@ -1992,7 +1145,7 @@
                 <div style="position: relative; width: 160px; height: 160px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
                     <canvas id="slaDonut" width="160" height="160"></canvas>
                     <div style="position: absolute; text-align: center; pointer-events: none; width: 100%;">
-                        <div style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; line-height: 1;">81.8%</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #10b981; line-height: 1;">90.0%</div>
                         <div style="font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; margin-top: 0.25rem;">SLA COMPLIANCE</div>
                     </div>
                 </div>
@@ -2003,7 +1156,7 @@
                     <div style="background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#10b981; margin-bottom:0.3rem;">● PASSED</div>
                         <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">9</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">81.8%</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">90.0%</div>
                         <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">Under SLA</div>
                     </div>
 
@@ -2026,9 +1179,9 @@
                     <!-- Critical Card -->
                     <div style="background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#ef4444; margin-bottom:0.3rem;">● CRITICAL</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">2</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">18.2%</div>
-                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">2 breaches</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">1</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">10.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">1 breaches</div>
                     </div>
                 </div>
             </div>
@@ -2090,22 +1243,11 @@
             <div class="rec-card critical" style="margin-bottom: 1rem;">
                 <div class="rec-header">
                     <span class="rec-priority">SLA BREACH</span>
-                    <span class="rec-category">Target: 200 ms P90 / 1.0% Error</span>
+                    <span class="rec-category">Target: 92 ms P90 / 1.0% Error</span>
                 </div>
-                <div class="rec-title">⚠️ T02 Sign to the application</div>
+                <div class="rec-title">⚠️ TC02_US01_Select_Fish_Category</div>
                 <div class="rec-desc">
-                    90th Percentile reached <strong>560 ms</strong> (Target: 200 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
-                </div>
-                
-            </div>
-            <div class="rec-card critical" style="margin-bottom: 1rem;">
-                <div class="rec-header">
-                    <span class="rec-priority">SLA BREACH</span>
-                    <span class="rec-category">Target: 182 ms P90 / 1.0% Error</span>
-                </div>
-                <div class="rec-title">⚠️ T06 Select any animal and add to cart</div>
-                <div class="rec-desc">
-                    90th Percentile reached <strong>378 ms</strong> (Target: 182 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                    90th Percentile reached <strong>187 ms</strong> (Target: 92 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
                 </div>
                 
             </div>
@@ -2163,7 +1305,7 @@
         <div class="ai-observation-panel" style="margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
                 <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 Infrastructure Observation</h4>
-                <span class="finding-badge-inline" onclick="showFinding('F-004');" style="cursor:pointer;">🔍 F-004</span>
+                <span class="finding-badge-inline" onclick="showFinding('F-002');" style="cursor:pointer;">🔍 F-002</span>
             </div>
             <div style="margin-bottom:0.4rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">CPU averaged 60.7% and peaked at 91%. Memory averaged 69.3% and peaked at 89%.</span></div>
             <div><strong style="font-size:0.82rem;">Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Resource contention was observed — scaling or optimization is recommended.</span></div>
@@ -2235,33 +1377,33 @@
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">CPU %</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.55</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.52</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.56</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.56</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Memory %</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.57</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.55</td>
                             <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.55</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Throughput</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.56</td>
                             <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.55</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.57</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.97</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text); background:rgba(16,185,129,0.15);">-0.21</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Resp Time</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.52</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.56</td>
                             <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.55</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.97</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text); background:rgba(16,185,129,0.15);">-0.21</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                         </tr>
                     </tbody>
                 </table>
-                <p style="font-size:0.7rem; color:var(--muted); margin-top:0.6rem;">💡 <em>Calculated correlation between request volume and response latency: <strong>r = -0.97</strong>.</em></p>
+                <p style="font-size:0.7rem; color:var(--muted); margin-top:0.6rem;">💡 <em>Calculated correlation between request volume and response latency: <strong>r = -0.21</strong>.</em></p>
             </div>
 
             <!-- Chronological Event Progression Timeline -->
@@ -2273,7 +1415,7 @@
                     
         <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #3b82f6;">
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#3b82f6;">[</span>
-            <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 24 req/s</span>
+            <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 356 req/s</span>
         </div>
         <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #f59e0b;">
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#f59e0b;">0</span>
@@ -2312,7 +1454,7 @@
         <!-- Correlation Findings List -->
         <div class="section glass-panel">
             <h2>🔗 Client ↔ Server Correlation Findings</h2>
-            <div class="corr-finding critical"><span>🔴</span> CPU peaked at 91.4% — server is CPU-saturated. Response times will degrade under further load.</div><div class="corr-finding warning"><span>🟡</span> Transaction 'T02 Sign to the application' is 2.57x slower than average (545ms vs 212ms). Priority optimization target.</div><div class="corr-finding critical"><span>🔴</span> Azure App Service returned 168 5xx errors during the test window. Server-side failures detected.</div>
+            <div class="corr-finding critical"><span>🔴</span> CPU peaked at 91.4% — server is CPU-saturated. Response times will degrade under further load.</div><div class="corr-finding warning"><span>🟡</span> Transaction 'T-US02_Overall_Iteration' is 2.39x slower than average (558ms vs 233ms). Priority optimization target.</div><div class="corr-finding critical"><span>🔴</span> Azure App Service returned 168 5xx errors during the test window. Server-side failures detected.</div>
         </div>
     </div>
 
@@ -2339,7 +1481,7 @@
 
     <!-- Footer -->
     <div class="report-footer">
-        ⚡ Generated by <strong>JmeterAI</strong> &nbsp;|&nbsp; 2026-08-10 09:19:31 UTC &nbsp;|&nbsp; Run ID: run_20260810_144931
+        ⚡ Generated by <strong>JmeterAI</strong> &nbsp;|&nbsp; 2026-08-20 07:36:30 UTC &nbsp;|&nbsp; Run ID: run_20260820_130630
     </div>
     <!-- Finding Drawer -->
     <div id="findingDrawerOverlay" onclick="closeFinding()"></div>
@@ -2457,18 +1599,18 @@
     Chart.defaults.font = chartFont;
 
     const overallTs = {
-        avg_rt: [268.31, 208.49, 207.36, 215.69, 206.54, 207.47, 220.62, 217.3, 218.95, 205.53, 206.84, 211.45, 213.6, 208.25, 213.76, 207.22, 206.7, 205.69, 213.26, 205.57, 207.44, 210.17, 208.71, 206.62],
-        p95_rt: [750, 369, 365, 368, 365, 367, 380, 364, 368, 364, 366, 365, 369, 363, 372, 365, 361, 361, 369, 369, 367, 369, 371, 367],
-        p99_rt: [958, 380, 376, 390, 372, 377, 710, 423, 754, 374, 374, 381, 535, 378, 489, 380, 378, 377, 546, 379, 374, 411, 382, 379],
-        throughput: [23.8, 48.6, 49.6, 47.2, 50.4, 48.8, 46.2, 48.3, 47.7, 48.3, 50.0, 48.5, 47.1, 47.4, 47.7, 49.5, 49.4, 50.1, 47.1, 49.0, 49.3, 47.9, 47.5, 48.8],
-        errors: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        avg_rt: [229.77, 181.34, 180.47, 180.2, 180.93, 180.6, 181.37],
+        p95_rt: [197, 193, 191, 191, 192, 190, 188],
+        p99_rt: [2162, 202, 197, 196, 204, 198, 188],
+        throughput: [355.9, 558.7, 561.6, 565.7, 559.2, 563.0, 1.9],
+        errors: [0, 0, 0, 0, 0, 0, 0]
     };
 
-    const labelTsMap = {"0": {"ts_avg_rt": [511.1, 181.25, 179.5, 180.44, 180.62, 180.5, 180.44, 179.11, 201.24, 179.5, 179.72, 178.32, 179.06, 179.97, 184.88, 178.8, 178.94, 180.5, 180.25, 179.24, 178.94, 182.74, 180.44, 180.4], "ts_p95_rt": [795, 188, 185, 186, 192, 190, 191, 188, 188, 185, 185, 183, 189, 188, 197, 188, 188, 186, 187, 186, 187, 193, 190, 190], "ts_p99_rt": [795, 188, 185, 188, 193, 190, 194, 189, 193, 188, 186, 184, 192, 189, 222, 189, 189, 189, 200, 187, 187, 201, 193, 191], "ts_throughput": [2.0, 3.6, 3.4, 3.6, 3.4, 3.6, 3.2, 3.6, 3.3, 3.6, 3.2, 3.8, 3.2, 3.5, 3.4, 3.5, 3.5, 3.6, 3.2, 3.7, 3.5, 3.5, 3.4, 3.5], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T01 Launch The JpetStore"}, "1": {"ts_avg_rt": [546.15, 547.15, 544.36, 542.15, 539.56, 550.26, 571.0, 543.64, 539.88, 535.73, 535.48, 537.8, 568.14, 542.12, 565.86, 538.23, 535.42, 536.33, 561.06, 537.32, 538.06, 544.97, 540.85, 539.06], "ts_p95_rt": [564, 566, 567, 559, 558, 554, 619, 566, 564, 553, 555, 555, 890, 564, 702, 561, 555, 560, 571, 554, 555, 589, 562, 556], "ts_p99_rt": [564, 575, 577, 559, 559, 557, 940, 585, 581, 557, 555, 557, 925, 576, 749, 562, 556, 583, 875, 556, 567, 591, 566, 558], "ts_throughput": [2.0, 3.4, 3.6, 3.4, 3.6, 3.5, 3.3, 3.3, 3.4, 3.7, 3.3, 3.5, 3.5, 3.3, 3.5, 3.5, 3.6, 3.6, 3.2, 3.7, 3.4, 3.6, 3.3, 3.5], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T02 Sign to the application"}, "2": {"ts_avg_rt": [181.83, 182.14, 181.03, 206.79, 180.28, 181.19, 181.15, 179.24, 179.26, 179.17, 178.81, 179.74, 202.03, 183.03, 186.24, 180.54, 179.32, 179.68, 189.97, 179.32, 179.0, 181.09, 181.21, 181.17], "ts_p95_rt": [195, 196, 189, 188, 192, 192, 188, 186, 186, 187, 184, 191, 203, 192, 206, 193, 192, 192, 189, 186, 184, 193, 189, 189], "ts_p99_rt": [195, 197, 192, 191, 193, 194, 189, 187, 187, 191, 185, 194, 532, 193, 244, 199, 194, 196, 189, 188, 185, 194, 195, 191], "ts_throughput": [1.8, 3.6, 3.5, 3.3, 3.6, 3.6, 3.3, 3.3, 3.4, 3.5, 3.6, 3.5, 3.4, 3.4, 3.4, 3.5, 3.4, 3.7, 3.2, 3.8, 3.3, 3.4, 3.4, 3.6], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T03 Select any animal"}, "3": {"ts_avg_rt": [182.69, 183.44, 181.48, 183.35, 179.91, 181.35, 188.03, 181.93, 188.83, 179.93, 180.28, 192.81, 180.09, 182.31, 184.71, 181.06, 180.22, 181.29, 191.7, 180.7, 180.28, 185.86, 182.03, 182.47], "ts_p95_rt": [189, 195, 190, 191, 185, 188, 197, 189, 189, 186, 190, 191, 188, 193, 202, 190, 189, 191, 190, 190, 187, 199, 191, 190], "ts_p99_rt": [194, 207, 198, 195, 186, 196, 202, 207, 199, 191, 200, 218, 190, 197, 244, 202, 192, 213, 549, 195, 192, 291, 192, 195], "ts_throughput": [3.6, 6.8, 7.3, 6.3, 7.6, 6.8, 6.7, 6.8, 6.9, 6.9, 7.2, 7.0, 6.7, 6.5, 6.9, 7.2, 6.9, 7.5, 6.4, 7.1, 6.8, 7.1, 6.6, 7.2], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T04 Select any animal"}, "4": {"ts_avg_rt": [182.67, 182.09, 179.89, 180.97, 179.53, 180.09, 192.21, 182.31, 180.17, 178.39, 178.92, 178.84, 192.94, 179.88, 187.74, 181.37, 178.25, 179.11, 201.82, 179.39, 180.28, 180.51, 182.24, 179.76], "ts_p95_rt": [190, 191, 187, 187, 186, 185, 198, 190, 191, 183, 186, 188, 198, 189, 232, 189, 188, 187, 196, 186, 189, 186, 189, 186], "ts_p99_rt": [190, 192, 190, 188, 188, 185, 202, 225, 192, 185, 188, 188, 253, 192, 280, 196, 189, 188, 551, 186, 192, 190, 190, 195], "ts_throughput": [1.8, 3.2, 3.7, 3.3, 3.8, 3.2, 3.4, 3.5, 3.5, 3.3, 3.7, 3.1, 3.6, 3.4, 3.4, 3.5, 3.6, 3.7, 3.3, 3.3, 3.6, 3.5, 3.3, 3.7], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T05 click on category"}, "5": {"ts_avg_rt": [413.41, 366.67, 362.92, 366.68, 364.33, 364.79, 370.97, 390.09, 373.06, 360.5, 363.22, 362.39, 385.36, 362.09, 381.76, 364.94, 361.86, 360.89, 369.12, 364.76, 362.53, 372.26, 364.44, 365.21], "ts_p95_rt": [383, 381, 377, 381, 380, 374, 389, 374, 375, 373, 374, 373, 407, 377, 493, 381, 375, 381, 376, 376, 378, 421, 380, 380], "ts_p99_rt": [383, 382, 382, 390, 400, 375, 421, 382, 388, 375, 381, 379, 727, 378, 499, 386, 380, 385, 383, 383, 379, 435, 382, 390], "ts_throughput": [1.7, 3.3, 3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.5, 3.4, 3.7, 3.1, 3.6, 3.3, 3.4, 3.6, 3.6, 3.5, 3.4, 3.4, 3.6, 3.4, 3.4, 3.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T06 Select any animal and add to cart"}, "6": {"ts_avg_rt": [180.43, 182.8, 180.77, 181.6, 179.83, 179.85, 180.91, 179.14, 178.44, 178.4, 180.32, 178.7, 179.74, 182.09, 186.06, 181.86, 177.92, 178.58, 179.05, 179.42, 179.49, 193.55, 180.23, 180.42], "ts_p95_rt": [186, 193, 187, 191, 189, 187, 191, 186, 183, 186, 189, 184, 189, 189, 208, 195, 186, 187, 185, 186, 187, 257, 185, 191], "ts_p99_rt": [186, 202, 188, 195, 189, 192, 195, 186, 188, 189, 190, 185, 190, 198, 232, 223, 188, 195, 189, 188, 191, 316, 189, 191], "ts_throughput": [1.4, 3.5, 3.5, 3.5, 3.6, 3.4, 3.4, 3.5, 3.2, 3.5, 3.7, 3.3, 3.4, 3.5, 3.4, 3.5, 3.6, 3.3, 3.7, 3.3, 3.7, 3.3, 3.5, 3.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T07 click on category"}, "7": {"ts_avg_rt": [364.43, 366.43, 364.71, 384.94, 363.4, 365.14, 437.25, 417.61, 389.24, 362.47, 361.39, 382.51, 361.94, 367.29, 374.29, 363.51, 362.44, 362.74, 361.51, 365.19, 361.82, 369.78, 367.83, 364.03], "ts_p95_rt": [372, 380, 376, 375, 372, 379, 746, 423, 379, 375, 375, 381, 373, 381, 400, 378, 381, 377, 377, 381, 374, 406, 394, 378], "ts_p99_rt": [372, 380, 380, 380, 379, 383, 746, 1285, 383, 376, 377, 384, 376, 424, 493, 379, 382, 378, 378, 387, 374, 409, 408, 379], "ts_throughput": [1.4, 3.5, 3.5, 3.5, 3.5, 3.5, 3.2, 3.6, 3.3, 3.4, 3.6, 3.5, 3.3, 3.5, 3.4, 3.5, 3.6, 3.4, 3.7, 3.2, 3.8, 3.2, 3.5, 3.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T08 select any animal and add to cart"}, "8": {"ts_avg_rt": [181.79, 184.68, 179.91, 181.89, 180.61, 180.51, 183.16, 181.0, 182.09, 179.83, 195.0, 178.86, 203.55, 181.79, 185.19, 180.09, 180.97, 180.62, 202.06, 180.46, 180.09, 186.14, 182.2, 181.44], "ts_p95_rt": [187, 197, 185, 190, 186, 188, 191, 189, 196, 186, 187, 188, 198, 194, 212, 187, 187, 190, 195, 187, 192, 220, 191, 191], "ts_p99_rt": [187, 198, 186, 195, 188, 189, 194, 190, 201, 186, 190, 188, 535, 209, 215, 189, 193, 192, 543, 192, 193, 241, 218, 191], "ts_throughput": [1.4, 3.4, 3.4, 3.6, 3.3, 3.7, 3.2, 3.4, 3.5, 3.5, 3.5, 3.5, 3.1, 3.8, 3.2, 3.5, 3.7, 3.4, 3.4, 3.5, 3.5, 3.5, 3.5, 3.4], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T09 proceed to checkout"}, "9": {"ts_avg_rt": [272.45, 118.19, 101.11, 111.06, 113.34, 119.21, 150.38, 138.0, 127.82, 142.14, 121.45, 131.32, 160.48, 146.97, 140.88, 119.33, 111.47, 113.5, 125.15, 139.22, 120.4, 122.65, 214.71, 121.21], "ts_p95_rt": [319, 174, 124, 143, 135, 148, 236, 222, 147, 194, 145, 163, 233, 220, 324, 154, 135, 144, 207, 219, 140, 159, 186, 154], "ts_p99_rt": [319, 178, 127, 153, 138, 154, 242, 222, 147, 199, 147, 193, 295, 224, 345, 160, 143, 150, 224, 225, 145, 160, 1508, 157], "ts_throughput": [1.1, 3.6, 3.5, 3.6, 3.2, 3.8, 3.2, 3.4, 3.4, 3.6, 3.3, 3.7, 3.1, 3.7, 3.2, 3.6, 3.6, 3.4, 3.4, 3.6, 3.5, 3.4, 3.5, 3.4], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T10 Add payment and bill details"}, "10": {"ts_avg_rt": [186.3, 187.16, 183.17, 185.17, 184.97, 184.08, 185.13, 183.26, 184.79, 182.97, 182.5, 183.19, 183.75, 184.17, 185.48, 183.46, 182.73, 182.5, 194.3, 183.53, 184.83, 188.82, 185.63, 185.32], "ts_p95_rt": [189, 205, 188, 190, 194, 190, 193, 190, 196, 189, 190, 194, 192, 195, 197, 193, 190, 194, 191, 191, 198, 217, 193, 192], "ts_p99_rt": [189, 211, 189, 192, 194, 198, 194, 195, 200, 191, 191, 194, 192, 198, 202, 203, 192, 196, 191, 196, 199, 225, 196, 193], "ts_throughput": [1.0, 3.7, 3.5, 3.6, 3.2, 3.8, 3.1, 3.5, 3.4, 3.6, 3.2, 3.7, 3.2, 3.6, 3.3, 3.5, 3.7, 3.4, 3.3, 3.6, 3.6, 3.4, 3.5, 3.4], "ts_errors": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "label": "T11 click on confirm"}};
+    const labelTsMap = {"0": {"ts_avg_rt": [656.14, 539.99, 538.27, 537.16, 539.17, 537.87, 0], "ts_p95_rt": [1091, 565, 566, 567, 568, 565, 0], "ts_p99_rt": [3106, 576, 573, 573, 595, 576, 0], "ts_throughput": [18.2, 27.4, 27.8, 27.8, 27.7, 26.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US01_Overall_Iteration"}, "1": {"ts_avg_rt": [659.82, 547.08, 543.59, 543.02, 545.72, 544.56, 0], "ts_p95_rt": [1118, 581, 575, 573, 584, 580, 0], "ts_p99_rt": [3177, 603, 589, 587, 608, 598, 0], "ts_throughput": [35.4, 54.5, 54.8, 55.6, 54.3, 53.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "2": {"ts_avg_rt": [446.61, 363.0, 360.89, 360.17, 362.54, 361.52, 0], "ts_p95_rt": [393, 384, 379, 376, 379, 378, 0], "ts_p99_rt": [1912, 401, 383, 378, 409, 384, 0], "ts_throughput": [10.7, 16.4, 16.6, 16.5, 16.5, 16.4, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "3": {"ts_avg_rt": [439.1, 362.07, 361.12, 360.25, 361.44, 360.99, 0], "ts_p95_rt": [892, 380, 375, 375, 379, 374, 0], "ts_p99_rt": [2271, 395, 383, 378, 406, 381, 0], "ts_throughput": [21.2, 33.0, 33.0, 33.4, 33.0, 32.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "4": {"ts_avg_rt": [294.44, 179.66, 178.89, 178.87, 179.51, 179.04, 0], "ts_p95_rt": [731, 190, 188, 191, 188, 189, 0], "ts_p99_rt": [2754, 194, 194, 194, 196, 193, 0], "ts_throughput": [18.2, 27.4, 27.8, 27.8, 27.7, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US01_Launch_Catalog"}, "5": {"ts_avg_rt": [293.63, 181.5, 180.69, 180.59, 181.25, 180.78, 184.0], "ts_p95_rt": [746, 193, 192, 193, 193, 192, 184], "ts_p99_rt": [2809, 201, 197, 197, 199, 197, 184], "ts_throughput": [35.4, 54.5, 54.8, 55.6, 54.3, 55.1, 0.1], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "6": {"ts_avg_rt": [264.88, 180.98, 180.18, 180.09, 181.3, 180.31, 0], "ts_p95_rt": [196, 190, 190, 189, 189, 189, 0], "ts_p99_rt": [1730, 198, 194, 191, 218, 190, 0], "ts_throughput": [10.7, 16.4, 16.6, 16.5, 16.5, 16.7, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "7": {"ts_avg_rt": [258.15, 181.39, 180.65, 180.09, 180.4, 180.67, 180.0], "ts_p95_rt": [716, 192, 189, 189, 189, 188, 180], "ts_p99_rt": [2088, 204, 193, 193, 196, 206, 180], "ts_throughput": [21.2, 33.0, 33.0, 33.4, 33.0, 33.0, 0.1], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "8": {"ts_avg_rt": [180.74, 179.66, 179.35, 178.89, 179.32, 179.0, 0], "ts_p95_rt": [191, 189, 189, 189, 189, 189, 0], "ts_p99_rt": [196, 193, 193, 192, 193, 201, 0], "ts_throughput": [17.5, 27.6, 27.8, 28.0, 27.4, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "9": {"ts_avg_rt": [182.29, 182.34, 180.82, 180.62, 181.49, 181.42, 180.33], "ts_p95_rt": [194, 194, 192, 192, 194, 192, 182], "ts_p99_rt": [197, 208, 197, 195, 204, 199, 182], "ts_throughput": [34.4, 54.3, 54.9, 55.2, 54.7, 55.2, 0.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "10": {"ts_avg_rt": [181.62, 182.1, 180.68, 180.16, 181.28, 181.04, 184.5], "ts_p95_rt": [193, 195, 191, 190, 190, 190, 181], "ts_p99_rt": [197, 208, 195, 192, 205, 200, 181], "ts_throughput": [10.4, 16.5, 16.4, 16.7, 16.4, 16.5, 0.2], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "11": {"ts_avg_rt": [181.01, 180.61, 180.5, 180.15, 180.99, 180.36, 179.33], "ts_p95_rt": [190, 189, 189, 188, 190, 188, 179], "ts_p99_rt": [193, 196, 195, 191, 204, 192, 179], "ts_throughput": [20.5, 33.1, 33.1, 33.1, 33.0, 33.3, 0.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "12": {"ts_avg_rt": [181.01, 180.6, 180.09, 179.54, 180.18, 179.83, 0], "ts_p95_rt": [190, 191, 189, 190, 190, 189, 0], "ts_p99_rt": [196, 197, 195, 192, 199, 193, 0], "ts_throughput": [16.9, 27.8, 27.6, 27.9, 27.8, 27.5, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "13": {"ts_avg_rt": [184.02, 183.14, 182.15, 181.85, 182.89, 182.32, 182.25], "ts_p95_rt": [197, 196, 194, 192, 194, 194, 185], "ts_p99_rt": [207, 202, 199, 198, 210, 199, 185], "ts_throughput": [33.3, 54.9, 54.7, 55.0, 54.8, 54.5, 0.4], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}};
     
     // Critical Transactions Tracking & Deterministic Colors
     const criticalTxSet = new Set();
-    const initialCriticals = ["T10 Add payment and bill details", "T03 Select any animal", "T06 Select any animal and add to cart", "T08 select any animal and add to cart"];
+    const initialCriticals = ["TC01_US03_Launch_Homepage", "TC02_US01_Select_Fish_Category", "TC02_US04_Navigate_To_Signon_Page", "TC03_US02_Add_Item_To_Cart"];
     initialCriticals.forEach(t => criticalTxSet.add(t));
 
     // Executive Summary Tab 1 Critical Transactions Response Time Chart
@@ -2478,7 +1620,7 @@
         critTxChartObj = new Chart(critCanvas, {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"],
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
                 datasets: []
             },
             options: {
@@ -2503,17 +1645,9 @@
         return fixedColors[Math.abs(hash) % fixedColors.length];
     }
 
-    const targetSlaVal = 182;
+    const targetSlaVal = 92;
 
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: textColor, maxTicksLimit: 8 } },
-                y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'ms', color: textColor } }
-            }
-        }
-    });
+
 
     function renderCritTxChips() {
         const container = document.getElementById('crit-tx-chip-container');
@@ -2558,22 +1692,47 @@
         });
     }
 
+    const txSlaMap = {"TC01_US01_Launch_Catalog": 500.0, "TC01_US02_Launch_Catalog": 500.0, "TC01_US03_Launch_Homepage": 200.0, "TC01_US04_Launch_Catalog": 500.0, "TC02_US01_Select_Fish_Category": 92.0, "TC02_US02_Select_Dogs_Category": 500.0, "TC02_US03_Search_Keyword_Bulldog": 500.0, "TC02_US04_Navigate_To_Signon_Page": 500.0, "TC03_US01_View_Product_Details": 500.0, "TC03_US02_Add_Item_To_Cart": 1517.0};
+
     function updateCriticalTxChart() {
         if (!critTxChartObj) return;
         const datasets = [];
         
-        // 1. SLA Target Reference Line
-        const slaData = new Array(["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"].length).fill(targetSlaVal);
-        datasets.push({
-            label: 'SLA Target (' + targetSlaVal + ' ms)',
-            data: slaData,
-            borderColor: 'rgba(239, 68, 68, 0.85)',
-            backgroundColor: 'rgba(239, 68, 68, 0.05)',
-            borderWidth: 2,
-            borderDash: [6, 6],
-            pointRadius: 0,
-            fill: true
-        });
+        // Render individual SLA target lines if single/few transactions are selected, or distinct targets exist
+        const selectedTxs = Array.from(criticalTxSet);
+        const uniqueSlaTargets = new Set(selectedTxs.map(t => txSlaMap[t] || 500.0));
+
+        if (uniqueSlaTargets.size === 1) {
+            // All selected transactions share the same target value
+            const targetVal = Array.from(uniqueSlaTargets)[0];
+            const slaData = new Array(["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].length).fill(targetVal);
+            datasets.push({
+                label: 'SLA Target (' + targetVal + ' ms)',
+                data: slaData,
+                borderColor: 'rgba(239, 68, 68, 0.85)',
+                backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                borderWidth: 2,
+                borderDash: [6, 6],
+                pointRadius: 0,
+                fill: true
+            });
+        } else {
+            // Render individual dashed target line per distinct SLA threshold
+            uniqueSlaTargets.forEach(targetVal => {
+                if (targetVal) {
+                    const slaData = new Array(["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].length).fill(targetVal);
+                    datasets.push({
+                        label: 'SLA Target (' + targetVal + ' ms)',
+                        data: slaData,
+                        borderColor: 'rgba(239, 68, 68, 0.75)',
+                        borderWidth: 1.8,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    });
+                }
+            });
+        }
 
         // 2. Transaction Lines
         criticalTxSet.forEach(txName => {
@@ -2583,7 +1742,8 @@
             });
             if (tsData && tsData.length > 0) {
                 const color = getTxColor(txName);
-                const shortLabel = txName.length > 25 ? txName.substring(0, 22) + '...' : txName;
+                const txSla = txSlaMap[txName] ? ' (SLA: ' + txSlaMap[txName] + 'ms)' : '';
+                const shortLabel = (txName.length > 25 ? txName.substring(0, 22) + '...' : txName) + txSla;
                 datasets.push({
                     label: shortLabel,
                     data: [...tsData],
@@ -2619,7 +1779,7 @@
     const rtChartObj = new Chart(document.getElementById('rtChart'), {
         type: 'line',
         data: {
-            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"],
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
             datasets: [
                 { label: 'Avg RT', data: overallTs.avg_rt, borderColor: '#6366f1', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
                 { label: 'P95 RT', data: overallTs.p95_rt, borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
@@ -2646,7 +1806,7 @@
     const tpChartObj = new Chart(document.getElementById('tpChart'), {
         type: 'bar',
         data: {
-            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"],
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
             datasets: [
                 { label: 'Throughput (req/s)', data: overallTs.throughput, backgroundColor: 'rgba(99,102,241,0.6)', borderRadius: 4 },
                 { label: 'Errors', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 4 }
@@ -2667,15 +1827,95 @@
         tpChartObj.update('active');
     }
 
+    // SLA Deviation by Transaction Diverging Horizontal Bar Chart
+    const tgToTcsMap = {"US01_Browse_Catalog": ["T-US01_Overall_Iteration", "TC01_US01_Launch_Catalog", "TC02_US01_Select_Fish_Category", "TC03_US01_View_Product_Details"], "US02_Add_To_Cart": ["T-US02_Overall_Iteration", "TC01_US02_Launch_Catalog", "TC02_US02_Select_Dogs_Category", "TC03_US02_Add_Item_To_Cart"], "US03_Search_Products": ["T-US03_Overall_Iteration", "TC01_US03_Launch_Homepage", "TC02_US03_Search_Keyword_Bulldog"], "US04_User_Sign_In": ["T-US04_Overall_Iteration", "TC01_US04_Launch_Catalog", "TC02_US04_Navigate_To_Signon_Page"]};
+    const txDevMap = {"TC01_US03_Launch_Homepage": {"label": "TC01_US03_Launch_Homepage", "dev_pct": -6.0, "p90": 188, "target": 200.0}, "TC01_US02_Launch_Catalog": {"label": "TC01_US02_Launch_Catalog", "dev_pct": -62.0, "p90": 190, "target": 500.0}, "TC01_US04_Launch_Catalog": {"label": "TC01_US04_Launch_Catalog", "dev_pct": -62.6, "p90": 187, "target": 500.0}, "TC01_US01_Launch_Catalog": {"label": "TC01_US01_Launch_Catalog", "dev_pct": -62.6, "p90": 187, "target": 500.0}, "TC02_US01_Select_Fish_Category": {"label": "TC02_US01_Select_Fish_Category", "dev_pct": 103.3, "p90": 187, "target": 92.0}, "TC02_US04_Navigate_To_Signon_Page": {"label": "TC02_US04_Navigate_To_Signon_Page", "dev_pct": -62.6, "p90": 187, "target": 500.0}, "TC02_US02_Select_Dogs_Category": {"label": "TC02_US02_Select_Dogs_Category", "dev_pct": -62.2, "p90": 189, "target": 500.0}, "TC02_US03_Search_Keyword_Bulldog": {"label": "TC02_US03_Search_Keyword_Bulldog", "dev_pct": -62.2, "p90": 189, "target": 500.0}, "TC03_US01_View_Product_Details": {"label": "TC03_US01_View_Product_Details", "dev_pct": -62.4, "p90": 188, "target": 500.0}, "TC03_US02_Add_Item_To_Cart": {"label": "TC03_US02_Add_Item_To_Cart", "dev_pct": -87.4, "p90": 191, "target": 1517.0}};
+    const initialDevLabels = ["TC02_US01_Select_Fish_Category", "TC01_US03_Launch_Homepage", "TC01_US02_Launch_Catalog", "TC02_US02_Select_Dogs_Category", "TC02_US03_Search_Keyword_Bulldog", "TC03_US01_View_Product_Details", "TC01_US04_Launch_Catalog", "TC01_US01_Launch_Catalog", "TC02_US04_Navigate_To_Signon_Page", "TC03_US02_Add_Item_To_Cart"];
+    const initialDevVals = [103.3, -6.0, -62.0, -62.2, -62.2, -62.4, -62.6, -62.6, -62.6, -87.4];
+
+    const slaDevChartObj = new Chart(document.getElementById('chart-sla-deviation-exec'), {
+        type: 'bar',
+        data: {
+            labels: initialDevLabels,
+            datasets: [
+                {
+                    label: 'SLA Deviation (%)',
+                    data: initialDevVals,
+                    backgroundColor: initialDevVals.map(val => val > 0 ? '#ef4444' : '#10b981'),
+                    borderColor: initialDevVals.map(val => val > 0 ? '#dc2626' : '#059669'),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.65
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const val = ctx.parsed.x;
+                            return (val > 0 ? '+' : '') + val + '% deviation from SLA';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: {
+                        color: textColor,
+                        callback: function(val) { return (val > 0 ? '+' : '') + val + '%'; }
+                    },
+                    title: { display: true, text: 'Deviation from SLA Limit (%)', color: textColor }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: textColor, font: { weight: '600', size: 11 } }
+                }
+            }
+        }
+    });
+
+    function filterSlaDevByUs(selectedUs) {
+        if (!slaDevChartObj) return;
+
+        let filteredItems = [];
+
+        if (selectedUs === 'ALL' || !tgToTcsMap[selectedUs]) {
+            // Show all transactions sorted by worst deviation %
+            filteredItems = Object.values(txDevMap);
+        } else {
+            // Filter to child transactions belonging to the selected User Story / Thread Group
+            const childTcs = tgToTcsMap[selectedUs] || [];
+            filteredItems = Object.values(txDevMap).filter(item => childTcs.includes(item.label));
+        }
+
+        filteredItems.sort((a, b) => b.dev_pct - a.dev_pct);
+
+        const newLabels = filteredItems.map(item => item.label.length > 35 ? item.label.substring(0, 32) + '...' : item.label);
+        const newVals   = filteredItems.map(item => item.dev_pct);
+
+        slaDevChartObj.data.labels = newLabels;
+        slaDevChartObj.data.datasets[0].data = newVals;
+        slaDevChartObj.data.datasets[0].backgroundColor = newVals.map(v => v > 0 ? '#ef4444' : '#10b981');
+        slaDevChartObj.data.datasets[0].borderColor = newVals.map(v => v > 0 ? '#dc2626' : '#059669');
+        slaDevChartObj.update('active');
+    }
+
     // Transaction Summary Grouped Bar Chart (Pass vs Fail with Data Labels)
     new Chart(document.getElementById('chart-tx-summary-bar'), {
         type: 'bar',
         data: {
-            labels: ["Thread Group"],
+            labels: ["US01_Browse_Catalog", "US02_Add_To_Cart", "US03_Search_Products", "US04_User_Sign_In"],
             datasets: [
                 {
                     label: 'Pass',
-                    data: [818],
+                    data: [1555, 3076, 931, 1864],
                     backgroundColor: '#10b981',
                     borderColor: '#059669',
                     borderWidth: 1,
@@ -2685,7 +1925,7 @@
                 },
                 {
                     label: 'Fail',
-                    data: [0],
+                    data: [0, 0, 0, 0],
                     backgroundColor: '#ef4444',
                     borderColor: '#dc2626',
                     borderWidth: 1,
@@ -2714,7 +1954,7 @@
     new Chart(document.getElementById('chart-errors-exec'), {
         type: 'bar',
         data: {
-            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"],
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
             datasets: [
                 { label: 'Error Count', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 4 }
             ]
@@ -2725,7 +1965,7 @@
     new Chart(document.getElementById('chart-infra-exec'), {
         type: 'line',
         data: {
-            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"],
+            labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
             datasets: [
                 { label: 'CPU %', data: [34.2, 41.7, 46.3, 82.6, 91.4, 68.2], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
                 { label: 'Memory %', data: [52.4, 55.7, 61.2, 74.8, 89.3, 82.7], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
@@ -2741,7 +1981,7 @@
         data: {
             labels: ['Passed', 'Minor Breach', 'Moderate Breach', 'Critical Breach'],
             datasets: [{
-                data: [9, 0, 0, 2],
+                data: [9, 0, 0, 1],
                 backgroundColor: [
                     '#10b981',  // Passed - Emerald Green
                     '#f59e0b',  // Minor - Amber
@@ -2800,7 +2040,7 @@
             labels: ["<100ms", "100-250ms", "250-500ms", "500ms-1s", "1s-2s", "2s-5s", ">5s"],
             datasets: [{
                 label: 'Requests',
-                data: [0, 7310, 1619, 817, 0, 0, 0],
+                data: [0, 19543, 0, 0, 0, 0, 0],
                 backgroundColor: [
                     'rgba(16,185,129,0.75)','rgba(59,130,246,0.75)','rgba(139,92,246,0.75)',
                     'rgba(245,158,11,0.75)','rgba(249,115,22,0.75)','rgba(239,68,68,0.75)','rgba(127,29,29,0.75)'
@@ -2823,7 +2063,7 @@
     const errDonutCounts = [];
     const errDrillData = {};
     const errDonutColors = ['#ef4444','#f97316','#f59e0b','#8b5cf6','#3b82f6','#06b6d4','#10b981','#ec4899','#84cc16','#64748b'];
-    const startEpochMs = 1786353596000;
+    const startEpochMs = 1787211416000;
     const displayTotalErrors = 0;
 
     if (errDonutLabels.length > 0) {
@@ -2981,12 +2221,12 @@
     }
 
     // 5. Concurrency Estimate Over Time (Little's Law)
-    const concData = [6.4, 10.1, 10.3, 10.2, 10.4, 10.1, 10.2, 10.5, 10.4, 9.9, 10.3, 10.3, 10.1, 9.9, 10.2, 10.3, 10.2, 10.3, 10.0, 10.1, 10.2, 10.1, 9.9, 10.1];
+    const concData = [81.8, 101.3, 101.4, 101.9, 101.2, 101.7, 0.3];
     if (concData.some(v => v > 0)) {
         new Chart(document.getElementById('concChart'), {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"],
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
                 datasets: [{
                     label: 'Est. Concurrent Users',
                     data: concData,
@@ -3024,7 +2264,7 @@
         new Chart(document.getElementById('azChart'), {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"].slice(0, azCpu.length),
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].slice(0, azCpu.length),
                 datasets: [
                     { label: 'CPU %', data: azCpu, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.12)', borderWidth: 2.5, fill: true, tension: 0.3, pointRadius: 3 },
                     { label: 'Memory %', data: azMem, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.12)', borderWidth: 2.5, fill: true, tension: 0.3, pointRadius: 3 }
@@ -3037,7 +2277,7 @@
         new Chart(document.getElementById('workloadCpuChart'), {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"].slice(0, azCpu.length),
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].slice(0, azCpu.length),
                 datasets: [
                     { label: 'Throughput (req/s)', data: overallTs.throughput.slice(0, azCpu.length), borderColor: '#6366f1', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y' },
                     { label: 'CPU %', data: azCpu, borderColor: '#ef4444', borderWidth: 2, borderDash: [4,4], fill: false, tension: 0.3, yAxisID: 'y1' }
@@ -3057,7 +2297,7 @@
         new Chart(document.getElementById('tpRtChart'), {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"].slice(0, azCpu.length),
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].slice(0, azCpu.length),
                 datasets: [
                     { label: 'Throughput (req/s)', data: overallTs.throughput.slice(0, azCpu.length), borderColor: '#10b981', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y' },
                     { label: 'Avg RT (ms)', data: overallTs.avg_rt.slice(0, azCpu.length), borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y1' }
@@ -3077,7 +2317,7 @@
         new Chart(document.getElementById('diskChart'), {
             type: 'bar',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"].slice(0, azCpu.length),
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].slice(0, azCpu.length),
                 datasets: [
                     { type: 'bar', label: 'Disk Read (MB/s)', data: azDiskRead, backgroundColor: 'rgba(59,130,246,0.6)', yAxisID: 'y' },
                     { type: 'bar', label: 'Disk Write (MB/s)', data: azDiskWrite, backgroundColor: 'rgba(16,185,129,0.6)', yAxisID: 'y' },
@@ -3098,7 +2338,7 @@
         new Chart(document.getElementById('netChart'), {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s", "1m20s", "1m30s", "1m40s", "1m50s", "2m", "2m10s", "2m20s", "2m30s", "2m40s", "2m50s", "3m", "3m10s", "3m20s", "3m30s", "3m40s", "3m50s", "4m"].slice(0, azCpu.length),
+                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].slice(0, azCpu.length),
                 datasets: [
                     { label: 'Network In (MB)', data: azNetIn, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.12)', borderWidth: 2, fill: true, tension: 0.3 },
                     { label: 'Network Out (MB)', data: azNetOut, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.12)', borderWidth: 2, fill: true, tension: 0.3 }
@@ -3138,8 +2378,8 @@
     });
 
     // ── Finding Drawer Logic ──
-    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "severity": "Critical Deviation", "title": "T02 Sign to the application shows significant latency deviation", "observation": "T02 Sign to the application response time was significantly higher than the overall test baseline.", "evidence": [{"metric": "P90 Response Time", "value": "560 ms", "baseline": "200 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+180.0%", "baseline": "", "source": "Calculated"}], "interpretation": "T02 Sign to the application is the dominant transaction-level latency contributor in this execution.", "why_it_matters": "T02 Sign to the application is the slowest transaction at 545 ms and significantly exceeds its 200 ms SLA target, making it a priority candidate for optimization.", "root_cause_assessment": "Server-side telemetry is required to determine whether the latency originates from database execution, application processing, authentication logic, or an external dependency.", "confidence": {"bottleneck_identification": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time", "Top Transactions by Response Time"]}, {"id": "F-002", "category": "sla_breach", "severity": "Slightly Deviated", "title": "T06 Select any animal and add to cart SLA deviation", "observation": "T06 Select any animal and add to cart P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "378 ms", "baseline": "182 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "108%", "baseline": "", "source": "SLA Engine"}], "interpretation": "T06 Select any animal and add to cart exceeds its P90 SLA target by 108%.", "why_it_matters": "T06 Select any animal and add to cart is not meeting its 182 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the T06 Select any animal and add to cart execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "tail_latency", "severity": "Acceptable Deviation", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "359 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+54.0%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 2.6\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-004", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-005", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
-    const recsData = [{"priority": "Low", "category": "Configuration", "title": "Maintain Current Performance", "description": "All metrics are within healthy thresholds. Consider running longer duration tests or higher concurrency to find limits.", "expected_impact": "Identify maximum safe throughput capacity"}];
+    const findingsData = [{"id": "F-001", "category": "sla_breach", "severity": "Slightly Deviated", "title": "TC02_US01_Select_Fish_Category SLA deviation", "observation": "TC02_US01_Select_Fish_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "187 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "103%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US01_Select_Fish_Category exceeds its P90 SLA target by 103%.", "why_it_matters": "TC02_US01_Select_Fish_Category is not meeting its 92 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US01_Select_Fish_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-002", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-003", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
+    const recsData = [{"id": "R-0", "triggered_by": [], "priority": "Low", "category": "Configuration", "title": "Maintain Current Performance", "why": "All metrics are within healthy thresholds.", "action": ["Consider running longer duration tests", "Test at higher concurrency to find limits"], "expected_impact": "Identify maximum safe throughput capacity", "validation": "N/A", "confidence": "High"}];
 
     function showFinding(fid) {
         const finding = findingsData.find(f => f.id === fid);

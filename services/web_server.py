@@ -395,6 +395,32 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({"runs": runs})
             return
 
+        # ── /api/trend/hierarchy ──
+        if path == "/api/trend/hierarchy":
+            try:
+                from python_files.trend_engine import get_hierarchy_tree
+                tree = get_hierarchy_tree()
+                self._send_json({"success": True, **tree})
+            except Exception as te_err:
+                self._send_json({"success": False, "message": str(te_err)}, 500)
+            return
+
+        # ── /api/trend/analysis ──
+        if path == "/api/trend/analysis":
+            try:
+                query = urllib.parse.parse_qs(parsed.query)
+                proj = query.get("project", [""])[0]
+                story = query.get("user_story", [""])[0]
+                tx = query.get("transaction", [""])[0]
+                limit_val = int(query.get("limit", [10])[0])
+
+                from python_files.trend_engine import get_trend_analysis
+                data = get_trend_analysis(project=proj, user_story=story, transaction=tx, limit=limit_val)
+                self._send_json({"success": True, **data})
+            except Exception as te_err:
+                self._send_json({"success": False, "message": str(te_err)}, 500)
+            return
+
         # Static file fallback
         super().do_GET()
 
@@ -712,6 +738,39 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             env_path.write_text("\n".join(new_lines), encoding="utf-8")
             os.environ["AZURE_RESOURCE_IDS"] = resource_ids
             self._send_json({"success": True, "message": "Azure Monitor configuration saved."})
+            return
+
+        # ── /api/trend/compare ──
+        if path == "/api/trend/compare":
+            try:
+                run_ids = body.get("run_ids", [])
+                from python_files.trend_engine import compare_runs
+                cmp_data = compare_runs(run_ids)
+                self._send_json({"success": True, **cmp_data})
+            except Exception as te_err:
+                self._send_json({"success": False, "message": str(te_err)}, 500)
+            return
+
+        # ── /api/trend/compare-report ──
+        if path == "/api/trend/compare-report":
+            try:
+                run_ids = body.get("run_ids", [])
+                from python_files.trend_engine import compare_runs, generate_comparison_html
+                cmp_data = compare_runs(run_ids)
+                html_doc = generate_comparison_html(cmp_data)
+                
+                # Save generated comparison report into Results/Published/
+                report_name = f"comparison_report_{int(time.time())}.html"
+                report_path = _PUBLISHED_DIR / report_name
+                report_path.write_text(html_doc, encoding="utf-8")
+
+                self._send_json({
+                    "success": True,
+                    "report_file": report_name,
+                    "url": f"/Results/Published/{report_name}"
+                })
+            except Exception as te_err:
+                self._send_json({"success": False, "message": str(te_err)}, 500)
             return
 
         self._send_json({"success": False, "message": f"Unknown endpoint: {path}"}, 404)

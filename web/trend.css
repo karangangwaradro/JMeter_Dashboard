@@ -1,0 +1,256 @@
+/* trend.css — Styles for JmeterAI Trend Analysis & Comparison Reporting Engine */
+
+.trend-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.2rem;
+    border-radius: 12px;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.filter-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-select {
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+    border-color: #38bdf8;
+}
+
+/* Health Score Banner */
+.health-score-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 16px;
+    padding: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+}
+
+.score-display {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.score-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: conic-gradient(#38bdf8 var(--score-pct, 90%), #334155 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.score-circle-inner {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: #0f172a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.score-num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.health-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem;
+    flex: 1;
+    margin-left: 2rem;
+}
+
+.breakdown-item {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #334155;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+}
+
+.breakdown-title {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+}
+
+.breakdown-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+/* Trend Charts Grid */
+.trend-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .trend-charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 1.4rem;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.chart-delta-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+}
+
+.badge-improved {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.badge-degraded {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.sparkline-svg {
+    width: 100%;
+    height: 140px;
+}
+
+/* Comparison Selector & Matrix */
+.run-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.run-checkbox-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.run-checkbox-card:hover {
+    border-color: #38bdf8;
+}
+
+.run-checkbox-card input[type="checkbox"] {
+    accent-color: #38bdf8;
+    width: 16px;
+    height: 16px;
+}
+
+.compare-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.compare-matrix-table th, .compare-matrix-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #334155;
+    font-size: 0.9rem;
+}
+
+.compare-matrix-table th {
+    background: #0f172a;
+    color: #94a3b8;
+    font-weight: 600;
+    text-align: right;
+}
+
+.compare-matrix-table th:first-child, .compare-matrix-table td:first-child {
+    text-align: left;
+}
+
+.insight-callout {
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 4px solid #38bdf8;
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    color: #e2e8f0;
+    margin-top: 1.25rem;
+    line-height: 1.5;
+}

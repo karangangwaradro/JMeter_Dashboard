@@ -61,6 +61,15 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     except Exception as hier_err:
         print(f"[Report] Hierarchy parse warning: {hier_err}", flush=True)
 
+    # Parse full tree structure for hierarchical table display
+    jmx_full_tree = []
+    tg_to_transactions = {}
+    try:
+        from python_files.sla_manager import parse_jmx_full_tree
+        jmx_full_tree, tg_to_transactions = parse_jmx_full_tree(jmx_name)
+    except Exception as tree_err:
+        print(f"[Report] Full tree parse warning: {tree_err}", flush=True)
+
     # Filter for main report display: if Transaction Controllers exist, only show TCs in main tables/charts
     tc_set = set(tc_ordered) if tc_ordered else set()
     display_labels = {k: v for k, v in labels.items() if k in tc_set} if tc_set else {k: v for k, v in labels.items() if k.upper().startswith("TC")}
@@ -97,145 +106,145 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     
     from python_files.apdex_calculator import calculate_apdex, calculate_apdex_from_summary
 
-    for lname, ldata in sorted(display_labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True):
+    # ── Helper: Build a single transaction row (used for both flat and tree modes) ──
+    def _build_tx_row(lname, ldata, depth=0, node_type="transaction", tg_name="", parent_classes=None, parent_cls_id="", is_hidden=False):
+        """Build HTML row for a transaction or request at the given tree depth."""
+        nonlocal tx_under_sla, tx_breached_count, sla_crit_count, sla_mod_count, sla_minor_count
+
         target = sla_targets.get(lname, {"rt": default_rt, "err": default_err, "minor_pct": 100.0, "mod_pct": 200.0, "crit_pct": 300.0})
         target_rt = target.get("rt", default_rt)
         target_err = target.get("err", default_err)
-        minor_pct  = target.get("minor_pct", 100.0)
-        mod_pct    = target.get("mod_pct", 200.0)
-        crit_pct   = target.get("crit_pct", 300.0)
-        
+
         p90_val = ldata.get("p90", 0)
-        p95_val = ldata.get("p95", 0)
         avg_rt_val = ldata.get("avg_rt", 0)
         err_rate_val = ldata.get("error_rate", 0)
 
-        # Exact Apdex score calculation using raw JTL iteration samples if present, else fallback
-        samples = ldata.get("samples")
-        success_flags = ldata.get("success_flags")
-        if samples:
-            apdex_res = calculate_apdex(samples, success_flags, target_t=target_rt)
-            apdex_score = apdex_res["apdex"]
-        else:
-            apdex_score = calculate_apdex_from_summary(avg_rt_val, p90_val, err_rate_val, target_t=target_rt)
-            
-        all_apdex_scores.append(apdex_score)
-        apdex_cls = "pass" if apdex_score >= 0.85 else "fail" if apdex_score < 0.70 else ""
-        
-        # Calculate Deviation %
-        deviation_pct = ((p90_val - target_rt) / target_rt * 100) if target_rt > 0 else 0
-        err_breached = err_rate_val > target_err
-        
-        # Determine classification
-        severity_label = "No Deviation"
+        is_transaction = (node_type == "transaction")
+        is_display_tx = (lname in display_labels or lname in sla_targets)
+
+        # Apdex score (only for transactions in display_labels)
+        apdex_score = None
+        apdex_cls = ""
+        if is_display_tx:
+            samples = ldata.get("samples")
+            success_flags = ldata.get("success_flags")
+            if samples:
+                apdex_res = calculate_apdex(samples, success_flags, target_t=target_rt)
+                apdex_score = apdex_res["apdex"]
+            else:
+                apdex_score = calculate_apdex_from_summary(avg_rt_val, p90_val, err_rate_val, target_t=target_rt)
+            all_apdex_scores.append(apdex_score)
+            apdex_cls = "pass" if apdex_score >= 0.85 else "fail" if apdex_score < 0.70 else ""
+
+        # SLA deviation (only for display transactions)
+        deviation_pct = 0
+        severity_label = ""
         severity_color = "var(--green)"
-        
-        if err_breached or deviation_pct > 90:
-            severity_label = "Critical Deviation"
-            severity_color = "var(--red)"
-            sla_crit_count += 1
-            is_breached = True
-        elif deviation_pct > 60:
-            severity_label = "Slightly Deviated"
-            severity_color = "var(--yellow)"
-            sla_mod_count += 1
-            is_breached = True
-        elif deviation_pct > 30:
-            severity_label = "Acceptable Deviation"
-            severity_color = "var(--yellow)"
-            sla_minor_count += 1
-            is_breached = False # It's a deviation, but "acceptable", so it doesn't fail the transaction overall
-        else:
-            is_breached = False
-        
-        p90_breached = deviation_pct > 30 # For CSS styling
+        err_breached = False
+        p90_breached = False
+        sla_status_html = ""
+        deviation_html = ""
 
-        if is_breached or deviation_pct > 30:
-            tx_breached_count += 1 if is_breached else 0
+        if is_display_tx:
+            deviation_pct = ((p90_val - target_rt) / target_rt * 100) if target_rt > 0 else 0
+            err_breached = err_rate_val > target_err
+            severity_label = "No Deviation"
+            severity_color = "var(--green)"
 
-            # Collect child HTTP samplers if this is a Transaction Controller
-            child_samplers = tc_to_samplers.get(lname, [])
-            child_details = []
-            if child_samplers:
-                for c_name in child_samplers:
-                    c_data = labels.get(c_name, {})
-                    if c_data:
-                        child_details.append({
-                            "label": c_name,
-                            "p90": c_data.get("p90", 0),
-                            "avg_rt": c_data.get("avg_rt", 0),
-                            "error_rate": c_data.get("error_rate", 0),
-                            "count": c_data.get("count", 0)
-                        })
-            sla_breaches.append({
-                "label": lname,
-                "severity": severity_label,
-                "target_rt": target_rt,
-                "target_err": target_err,
-                "p90": p90_val,
-                "avg_rt": avg_rt_val,
-                "error_rate": err_rate_val,
-                "child_samplers": child_details
-            })
-        else:
-            tx_under_sla += 1
+            if err_breached or deviation_pct > 90:
+                severity_label = "Critical Deviation"
+                severity_color = "var(--red)"
+                sla_crit_count += 1
+                is_breached = True
+            elif deviation_pct > 60:
+                severity_label = "Slightly Deviated"
+                severity_color = "var(--yellow)"
+                sla_mod_count += 1
+                is_breached = True
+            elif deviation_pct > 30:
+                severity_label = "Acceptable Deviation"
+                severity_color = "var(--yellow)"
+                sla_minor_count += 1
+                is_breached = False
+            else:
+                is_breached = False
+            p90_breached = deviation_pct > 30
 
-        sla_status_html = f'<span style="color: {severity_color}; font-weight:700;">{severity_label}</span>'
+            if is_breached or deviation_pct > 30:
+                tx_breached_count += 1 if is_breached else 0
+                child_samplers = tc_to_samplers.get(lname, [])
+                child_details = []
+                if child_samplers:
+                    for c_name in child_samplers:
+                        c_data = labels.get(c_name, {})
+                        if c_data:
+                            child_details.append({
+                                "label": c_name,
+                                "p90": c_data.get("p90", 0),
+                                "avg_rt": c_data.get("avg_rt", 0),
+                                "error_rate": c_data.get("error_rate", 0),
+                                "count": c_data.get("count", 0)
+                            })
+                sla_breaches.append({
+                    "label": lname,
+                    "severity": severity_label,
+                    "target_rt": target_rt,
+                    "target_err": target_err,
+                    "p90": p90_val,
+                    "avg_rt": avg_rt_val,
+                    "error_rate": err_rate_val,
+                    "child_samplers": child_details
+                })
+            else:
+                tx_under_sla += 1
+
+            dev_color = "var(--red)" if deviation_pct > 90 else "var(--yellow)" if deviation_pct > 30 else "var(--green)"
+            deviation_html = f'<span style="color:{dev_color}; font-weight:600;">{deviation_pct:+.1f}%</span>'
+            sla_status_html = f'<span style="color: {severity_color}; font-weight:700;">{severity_label}</span>'
+
+        # Build the row HTML
         err_cls = "pass" if not err_breached else "fail"
         rt_cls = "pass" if not p90_breached else "fail"
 
-        # Match child samplers / sub-requests for table tree dropdown
-        c_samplers_table = tc_to_samplers.get(lname, [])
-        matched_table_children = {}
-        for c_spec in c_samplers_table:
-            if c_spec in labels and c_spec != lname:
-                matched_table_children[c_spec] = labels[c_spec]
+        # Indentation & styling based on depth and type
+        indent_px = depth * 24
+        tg_attr = f' data-tg="{tg_name}"' if tg_name else ''
+        parent_attr = f' data-parent-cls="{parent_cls_id}"' if parent_cls_id else ''
+        extra_classes = (" " + " ".join(parent_classes)) if parent_classes else ""
+        disp_style = "display: none;" if is_hidden else ""
 
-        if not matched_table_children:
-            import re
-            clean_name_t = re.sub(r'TC\d+|_|T\d+', ' ', lname)
-            split_words_t = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\d|\W|$)|\d+', clean_name_t)
-            keywords_t = [w.lower() for w in split_words_t if len(w) >= 3 and w.lower() not in ("tc01", "tc02", "tc03", "t01", "t02", "t03", "t04")]
-            for l_key, l_val in labels.items():
-                if l_key != lname and not l_key.upper().startswith("TC0") and not l_key.upper().startswith("TC1"):
-                    if any(kw in l_key.lower() for kw in keywords_t):
-                        matched_table_children[l_key] = l_val
+        if node_type == "request":
+            # Leaf HTTP request row
+            name_html = f'<span style="padding-left:{indent_px}px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">{lname}</code></span>'
+            row_style = 'background: var(--surface2); font-size: 0.78rem; color: var(--muted);'
+            apdex_cell = '-'
+            sla_rt_cell = '-'
+            dev_cell = '-'
+            status_cell = '-'
+        elif is_display_tx:
+            # Main transaction row (bold, with SLA)
+            icon = '📁' if depth > 0 else '📊'
+            name_html = f'<span style="padding-left:{indent_px}px; display:inline-flex; align-items:center; gap:0.3rem;"><span>{icon}</span> <strong>{lname}</strong></span>'
+            row_style = 'font-weight: 500;'
+            apdex_cell = f'<span class="{apdex_cls}"><strong>{apdex_score:.2f}</strong></span>' if apdex_score is not None else '-'
+            sla_rt_cell = f'{target_rt:.0f} ms'
+            dev_cell = deviation_html if deviation_html else '-'
+            status_cell = sla_status_html if sla_status_html else '-'
+        else:
+            # Sub-transaction (no SLA, but shown as a transaction node)
+            icon = '📂'
+            name_html = f'<span style="padding-left:{indent_px}px; display:inline-flex; align-items:center; gap:0.3rem;"><span>{icon}</span> <strong style="font-weight:500; color:var(--text);">{lname}</strong></span>'
+            row_style = 'font-size: 0.82rem;'
+            apdex_cell = '-'
+            sla_rt_cell = '-'
+            dev_cell = '-'
+            status_cell = '-'
 
-        child_tbl_rows = ""
-        c_cls_id = f"child-row-group-{hash(lname) & 0xffffffff}"
-        if matched_table_children:
-            for cs_k, cs_v in matched_table_children.items():
-                c_err_cls = "pass" if cs_v.get('error_rate', 0) <= 1 else "fail"
-                child_tbl_rows += f"""
-                <tr class="{c_cls_id}" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                    <td style="padding-left: 2rem;">↳ <code>{cs_k}</code></td>
-                    <td>{cs_v.get('count', 0):,}</td>
-                    <td>-</td>
-                    <td>{cs_v.get('avg_rt', 0):.0f} ms</td>
-                    <td><strong>{cs_v.get('p90', 0)} ms</strong></td>
-                    <td>{cs_v.get('p95', 0)} ms</td>
-                    <td>{cs_v.get('p99', 0)} ms</td>
-                    <td>{cs_v.get('min_rt', 0)} ms</td>
-                    <td>{cs_v.get('max_rt', 0)} ms</td>
-                    <td class="{c_err_cls}">{cs_v.get('error_rate', 0):.2f}%</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>"""
-
-        toggle_tbl_btn = f"""<button onclick="var rows=document.getElementsByClassName('{c_cls_id}'); var isHidden=rows[0].style.display==='none'; for(var i=0;i<rows.length;i++){{rows[i].style.display=isHidden?'table-row':'none';}} this.innerText=isHidden?'▲ Hide ({len(matched_table_children)})':'▼ Requests ({len(matched_table_children)})';" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;">▼ Requests ({len(matched_table_children)})</button>""" if child_tbl_rows else ''
-
-        # Store finding badge placeholder — actual badge built after findings_engine runs
-        _finding_badge_key = f"__FINDING_BADGE_{lname}__"
-        
-        dev_color = "var(--red)" if deviation_pct > 90 else "var(--yellow)" if deviation_pct > 30 else "var(--green)"
-        deviation_html = f'<span style="color:{dev_color}; font-weight:600;">{deviation_pct:+.1f}%</span>'
-
-        labels_rows += f"""
-        <tr>
-            <td><strong>{lname}</strong> {toggle_tbl_btn}</td>
+        row_html = f"""
+        <tr style="{disp_style} {row_style}" class="tree-row{extra_classes}" {tg_attr}{parent_attr} data-depth="{depth}" data-type="{node_type}">
+            <td>{name_html}</td>
             <td>{ldata['count']:,}</td>
-            <td class="{apdex_cls}"><strong>{apdex_score:.2f}</strong></td>
+            <td>{apdex_cell}</td>
             <td class="{rt_cls}">{ldata['avg_rt']:.0f} ms</td>
             <td class="{rt_cls}"><strong>{ldata['p90']} ms</strong></td>
             <td>{ldata['p95']} ms</td>
@@ -243,11 +252,135 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <td>{ldata['min_rt']} ms</td>
             <td>{ldata['max_rt']} ms</td>
             <td class="{err_cls}">{ldata['error_rate']:.2f}%</td>
-            <td>{target_rt:.0f} ms</td>
-            <td>{deviation_html}</td>
-            <td>{sla_status_html}</td>
-        </tr>
-        {child_tbl_rows}"""
+            <td>{sla_rt_cell}</td>
+            <td>{dev_cell}</td>
+            <td>{status_cell}</td>
+        </tr>"""
+        return row_html
+
+    # ── Helper: Recursively walk the tree and build rows ──
+    def _walk_tree_node(node, depth, tg_name, ancestor_classes=None, parent_cls_id=""):
+        """Recursively walk a tree node and return HTML rows + child toggle buttons."""
+        node_name = node["name"]
+        node_type = node.get("type", "transaction")
+        children = node.get("children", [])
+        ldata = labels.get(node_name)
+
+        rows_html = ""
+
+        if not ldata:
+            # If this node has no JTL data (e.g., a wrapper TC that doesn't appear in JTL),
+            # just recurse into children without rendering this node
+            for child in children:
+                rows_html += _walk_tree_node(child, depth, tg_name, ancestor_classes, parent_cls_id)
+            return rows_html
+
+        # Generate unique class for this node's children (for toggle)
+        c_cls_id = f"tree-children-{hash(node_name) & 0xffffffff}"
+        has_children_with_data = any(labels.get(c["name"]) for c in children)
+
+        # Build toggle button if this node has visible children
+        toggle_btn = ""
+        if has_children_with_data and node_type == "transaction":
+            child_count = sum(1 for c in children if labels.get(c["name"]))
+            # Count sub-transactions vs requests
+            sub_tx_count = sum(1 for c in children if c.get("type") == "transaction" and labels.get(c["name"]))
+            req_count = sum(1 for c in children if c.get("type") == "request" and labels.get(c["name"]))
+            if sub_tx_count > 0 and req_count > 0:
+                btn_label = f"{sub_tx_count} Sub-Tx, {req_count} Req"
+            elif sub_tx_count > 0:
+                btn_label = f"{sub_tx_count} Sub-Transactions"
+            else:
+                btn_label = f"{req_count} Requests"
+            toggle_btn = f"""<button onclick="toggleTreeChildren(this, '{c_cls_id}')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ {btn_label}</button>"""
+
+        # Build this node's row (depth > 0 is hidden by default)
+        row = _build_tx_row(
+            node_name, ldata, depth=depth, node_type=node_type, tg_name=tg_name,
+            parent_classes=ancestor_classes, parent_cls_id=parent_cls_id,
+            is_hidden=(depth > 0)
+        )
+        # Inject toggle button into the first <td>
+        if toggle_btn:
+            row = row.replace("</span></td>", f"</span> {toggle_btn}</td>", 1)
+
+        rows_html += row
+
+        # Build children rows
+        if has_children_with_data:
+            next_ancestors = (ancestor_classes or []) + [c_cls_id]
+            for child in children:
+                child_row = _walk_tree_node(child, depth + 1, tg_name, ancestor_classes=next_ancestors, parent_cls_id=c_cls_id)
+                if child_row:
+                    rows_html += child_row
+
+        return rows_html
+
+    # ── Build labels_rows using tree or flat mode ──
+    if jmx_full_tree:
+        # TREE MODE: Walk the full JMX tree structure
+        # Build thread group filter options
+        tg_filter_options = '<option value="ALL">All Thread Groups</option>'
+        for tg_node in jmx_full_tree:
+            tg_name = tg_node["name"]
+            tg_filter_options += f'<option value="{tg_name}">{tg_name}</option>'
+
+        for tg_node in jmx_full_tree:
+            tg_name = tg_node["name"]
+            # Thread group header row
+            labels_rows += f"""
+            <tr class="tg-header-row" data-tg="{tg_name}" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
+                <td colspan="13" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
+                    <span style="display:inline-flex; align-items:center; gap:0.4rem;">🔧 Thread Group: <span style="color:var(--text);">{tg_name}</span></span>
+                </td>
+            </tr>"""
+
+            # Walk all children of this thread group
+            for child in tg_node.get("children", []):
+                labels_rows += _walk_tree_node(child, depth=0, tg_name=tg_name)
+    else:
+        # FLAT MODE (fallback): No JMX tree available, use original flat rendering
+        tg_filter_options = ''
+        for lname, ldata in sorted(display_labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True):
+            labels_rows += _build_tx_row(lname, ldata, depth=0, node_type="transaction", tg_name="")
+
+            # Also build flat child rows for fallback mode (original behavior)
+            c_samplers_table = tc_to_samplers.get(lname, [])
+            matched_table_children = {}
+            for c_spec in c_samplers_table:
+                if c_spec in labels and c_spec != lname:
+                    matched_table_children[c_spec] = labels[c_spec]
+
+            if not matched_table_children:
+                import re
+                clean_name_t = re.sub(r'TC\d+|_|T\d+', ' ', lname)
+                split_words_t = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\d|\W|$)|\d+', clean_name_t)
+                keywords_t = [w.lower() for w in split_words_t if len(w) >= 3 and w.lower() not in ("tc01", "tc02", "tc03", "t01", "t02", "t03", "t04")]
+                for l_key, l_val in labels.items():
+                    if l_key != lname and not l_key.upper().startswith("TC0") and not l_key.upper().startswith("TC1"):
+                        if any(kw in l_key.lower() for kw in keywords_t):
+                            matched_table_children[l_key] = l_val
+
+            c_cls_id = f"child-row-group-{hash(lname) & 0xffffffff}"
+            if matched_table_children:
+                for cs_k, cs_v in matched_table_children.items():
+                    c_err_cls = "pass" if cs_v.get('error_rate', 0) <= 1 else "fail"
+                    labels_rows += f"""
+                    <tr class="{c_cls_id}" style="display: none; background: var(--surface2); font-size: 0.76rem;">
+                        <td style="padding-left: 2rem;">↳ <code>{cs_k}</code></td>
+                        <td>{cs_v.get('count', 0):,}</td>
+                        <td>-</td>
+                        <td>{cs_v.get('avg_rt', 0):.0f} ms</td>
+                        <td><strong>{cs_v.get('p90', 0)} ms</strong></td>
+                        <td>{cs_v.get('p95', 0)} ms</td>
+                        <td>{cs_v.get('p99', 0)} ms</td>
+                        <td>{cs_v.get('min_rt', 0)} ms</td>
+                        <td>{cs_v.get('max_rt', 0)} ms</td>
+                        <td class="{c_err_cls}">{cs_v.get('error_rate', 0):.2f}%</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>"""
 
     # Overall Average Apdex Score for header badge
     overall_apdex = round(sum(all_apdex_scores) / len(all_apdex_scores), 2) if all_apdex_scores else 1.00
@@ -1134,6 +1267,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             --border: rgba(255, 255, 255, 0.6);
             --text: #1f2328; --muted: #4b5563;
             --accent: #2563eb; --accent2: #1d4ed8;
+            --accent-bg: rgba(37, 99, 235, 0.06);
             --green: #059669; --yellow: #d97706; --red: #dc2626; --blue: #2563eb;
             --green-bg: rgba(16, 185, 129, 0.15); --yellow-bg: rgba(245, 158, 11, 0.15);
             --red-bg: rgba(239, 68, 68, 0.15); --blue-bg: rgba(59, 130, 246, 0.15);
@@ -1147,6 +1281,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             --border: rgba(255, 255, 255, 0.08);
             --text: #f1f5f9; --muted: #94a3b8;
             --accent: #3b82f6; --accent2: #60a5fa;
+            --accent-bg: rgba(59, 130, 246, 0.08);
             --green: #10b981; --yellow: #f59e0b; --red: #ef4444; --blue: #3b82f6;
             --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
             --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -1164,6 +1299,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
         }}
+
+        /* Tree hierarchy styles */
+        .tg-header-row td {{ border-bottom: 1px solid var(--accent) !important; }}
+        .tree-row[data-type="request"] td {{ padding-top: 0.3rem; padding-bottom: 0.3rem; }}
+        .tree-toggle-btn {{ transition: all 0.2s ease; }}
+        .tree-toggle-btn:hover {{ background: var(--accent-bg) !important; border-color: var(--accent) !important; }}
 
         /* Header */
         .report-header {{ display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.75rem; border-radius: 12px; margin-bottom: 1.5rem; transition: box-shadow 0.2s; }}
@@ -1570,8 +1711,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <div class="section glass-panel">
-            <h2>📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
-            <table>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; margin-bottom:0.8rem;">
+                <h2 style="margin:0;">📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
+                {'<div style="display:flex; align-items:center; gap:0.5rem;"><label style="font-size:0.8rem; font-weight:600; color:var(--muted); white-space:nowrap;">🔧 Thread Group:</label><select id="tgFilterSelect" onchange="filterByThreadGroup(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.7rem; font-size:0.8rem; outline:none; cursor:pointer; min-width:200px;">' + tg_filter_options + '</select></div>' if tg_filter_options else ''}
+            </div>
+            <table id="txBreakdownTable">
                 <thead><tr>
                     <th>Transaction / Request</th><th>Samples</th><th>Apdex</th><th>Avg RT</th>
                    <th>P90</th><th>P95</th><th>P99</th>
@@ -1579,6 +1723,70 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 </tr></thead>
                 <tbody>{labels_rows}</tbody>
             </table>
+            <script>
+            function toggleTreeChildren(btn, clsId) {{
+                var isExpanded = btn.getAttribute('data-expanded') === 'true';
+                if (isExpanded) {{
+                    // Collapse: hide all descendants with clsId
+                    var rows = document.getElementsByClassName(clsId);
+                    for (var i = 0; i < rows.length; i++) {{
+                        rows[i].style.display = 'none';
+                    }}
+                    // Also reset any expanded child buttons within those rows
+                    for (var i = 0; i < rows.length; i++) {{
+                        var nestedBtns = rows[i].querySelectorAll('.tree-toggle-btn[data-expanded="true"]');
+                        nestedBtns.forEach(function(nb) {{
+                            nb.setAttribute('data-expanded', 'false');
+                            var l = nb.textContent.replace(/[▼▲]\\s*/, '');
+                            nb.textContent = '▼ ' + l;
+                        }});
+                    }}
+                    btn.setAttribute('data-expanded', 'false');
+                    var label = btn.textContent.replace(/[▼▲]\\s*/, '');
+                    btn.textContent = '▼ ' + label;
+                }} else {{
+                    // Expand: show ONLY direct children (rows with data-parent-cls === clsId)
+                    var rows = document.querySelectorAll('tr[data-parent-cls="' + clsId + '"]');
+                    for (var i = 0; i < rows.length; i++) {{
+                        var currentTgFilter = document.getElementById('tgFilterSelect') ? document.getElementById('tgFilterSelect').value : 'ALL';
+                        var rowTg = rows[i].getAttribute('data-tg');
+                        if (currentTgFilter === 'ALL' || !rowTg || rowTg === currentTgFilter) {{
+                            rows[i].style.display = 'table-row';
+                        }}
+                    }}
+                    btn.setAttribute('data-expanded', 'true');
+                    var label = btn.textContent.replace(/[▼▲]\\s*/, '');
+                    btn.textContent = '▲ ' + label;
+                }}
+            }}
+            function filterByThreadGroup(val) {{
+                var table = document.getElementById('txBreakdownTable');
+                if (!table) return;
+                var rows = table.querySelectorAll('tbody tr');
+                rows.forEach(function(row) {{
+                    var tg = row.getAttribute('data-tg');
+                    var isTgMatch = (val === 'ALL' || !tg || tg === val);
+                    if (!isTgMatch) {{
+                        row.style.display = 'none';
+                    }} else {{
+                        // Show thread group header rows and top-level depth 0 rows
+                        if (row.classList.contains('tg-header-row') || row.getAttribute('data-depth') === '0') {{
+                            row.style.display = 'table-row';
+                        }} else {{
+                            // For child rows, keep hidden by default unless parent is expanded
+                            row.style.display = 'none';
+                        }}
+                    }}
+                }});
+                // Reset all toggle buttons to collapsed (▼)
+                var allBtns = table.querySelectorAll('.tree-toggle-btn');
+                allBtns.forEach(function(btn) {{
+                    btn.setAttribute('data-expanded', 'false');
+                    var label = btn.textContent.replace(/[▼▲]\\s*/, '');
+                    btn.textContent = '▼ ' + label;
+                }});
+            }}
+            </script>
         </div>
     </div>
 

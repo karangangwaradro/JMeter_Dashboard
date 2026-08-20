@@ -402,3 +402,182 @@ def parse_jmx_thread_groups(jmx_input) -> List[Dict]:
 
     return result
 
+
+def parse_jmx_full_tree(jmx_input) -> Tuple[List[Dict], Dict[str, List[str]]]:
+    """
+    Parse JMX file(s) and return a full nested tree structure preserving the
+    Thread Group → Transaction Controller → Sub-Transaction → HTTP Request hierarchy.
+
+    Returns:
+        (tree, tg_to_transactions)
+        - tree: list of thread group dicts, each with nested 'children':
+            [
+                {
+                    "name": "US01_Browse_Catalog",
+                    "type": "threadgroup",
+                    "children": [
+                        {
+                            "name": "T-US01_Overall_Iteration",
+                            "type": "transaction",
+                            "children": [
+                                {
+                                    "name": "TC01_US01_Launch_Catalog",
+                                    "type": "transaction",
+                                    "children": [
+                                        {"name": "HTTP_Launch_Catalog", "type": "request", "children": []}
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        - tg_to_transactions: mapping of thread group name → list of direct TC names
+            {"US01_Browse_Catalog": ["TC01_US01_Launch_Catalog", "TC02_US01_Select_Fish_Category", ...]}
+    """
+    tree = []
+    tg_to_transactions = {}
+
+    if not jmx_input:
+        return tree, tg_to_transactions
+
+    jmx_paths = []
+    if isinstance(jmx_input, (list, tuple)):
+        jmx_paths = [Path(p) for p in jmx_input]
+    elif isinstance(jmx_input, Path):
+        jmx_paths = [jmx_input]
+    elif isinstance(jmx_input, str):
+        for name in jmx_input.split(","):
+            name = name.strip()
+            if not name:
+                continue
+            p = Path(name)
+            if not p.is_absolute():
+                p = _TESTS_DIR / name
+            jmx_paths.append(p)
+
+    def _build_subtree(parent_children_list):
+        """
+        Walk a list of XML elements (children of a hashTree) and pair each
+        test element with its following hashTree sibling to build a nested tree.
+
+        JMeter XML structure:
+            <hashTree>
+                <TransactionController testname="TC01"/>
+                <hashTree>   ← this hashTree contains TC01's children
+                    <HTTPSamplerProxy testname="HTTP_1"/>
+                    <hashTree/>
+                    <TransactionController testname="SubTC"/>
+                    <hashTree>
+                        ...
+                    </hashTree>
+                </hashTree>
+                <TransactionController testname="TC02"/>
+                <hashTree>
+                    ...
+                </hashTree>
+            </hashTree>
+        """
+        nodes = []
+        elems = list(parent_children_list)
+        i = 0
+        while i < len(elems):
+            elem = elems[i]
+            tag = elem.tag
+            test_name = elem.attrib.get("testname", "").strip()
+            is_enabled = elem.attrib.get("enabled", "true").lower() == "true"
+
+            # Determine node type
+            node_type = None
+            if "TransactionController" in tag:
+                node_type = "transaction"
+            elif "HTTPSampler" in tag:
+                node_type = "request"
+            elif "Parallel" in tag:
+                node_type = "transaction"  # Parallel controllers act like transactions
+
+            if node_type and test_name and is_enabled:
+                # The NEXT sibling should be a hashTree with this element's children
+                child_hash = None
+                if i + 1 < len(elems) and elems[i + 1].tag == "hashTree":
+                    child_hash = elems[i + 1]
+                    i += 1  # skip the hashTree in main iteration
+
+                children = []
+                if child_hash is not None and node_type != "request":
+                    children = _build_subtree(child_hash)
+
+                nodes.append({
+                    "name": test_name,
+                    "type": node_type,
+                    "children": children
+                })
+            elif tag == "hashTree":
+                # Orphan hashTree (e.g. for config elements) — recurse into it
+                # to catch any nested test elements
+                nested = _build_subtree(elem)
+                nodes.extend(nested)
+
+            i += 1
+        return nodes
+
+    def _collect_tc_names(node, depth=0):
+        """Recursively collect all transaction names from a tree node."""
+        names = []
+        if node.get("type") == "transaction":
+            names.append(node["name"])
+        for child in node.get("children", []):
+            names.extend(_collect_tc_names(child, depth + 1))
+        return names
+
+    for jmx_path in jmx_paths:
+        if not jmx_path.exists():
+            continue
+
+        try:
+            jmx_tree = ET.parse(jmx_path)
+            root = jmx_tree.getroot()
+
+            # Find ThreadGroup elements and pair with sibling hashTrees
+            def _find_tg_pairs(parent_elem):
+                pairs = []
+                children = list(parent_elem)
+                for idx, child in enumerate(children):
+                    if child.tag in ("ThreadGroup", "PostThreadGroup", "SetupThreadGroup"):
+                        tg_hash = children[idx + 1] if (
+                            idx + 1 < len(children) and children[idx + 1].tag == "hashTree"
+                        ) else None
+                        pairs.append((child, tg_hash))
+                    if child.tag == "hashTree":
+                        pairs.extend(_find_tg_pairs(child))
+                return pairs
+
+            tg_pairs = _find_tg_pairs(root)
+
+            for tg_elem, tg_hashtree in tg_pairs:
+                tg_name = tg_elem.attrib.get("testname", "").strip()
+                tg_enabled = tg_elem.attrib.get("enabled", "true").lower() == "true"
+                if not tg_name or not tg_enabled:
+                    continue
+
+                tg_children = []
+                if tg_hashtree is not None:
+                    tg_children = _build_subtree(tg_hashtree)
+
+                tg_node = {
+                    "name": tg_name,
+                    "type": "threadgroup",
+                    "children": tg_children
+                }
+                tree.append(tg_node)
+
+                # Build tg_to_transactions mapping
+                all_tc_names = []
+                for child in tg_children:
+                    all_tc_names.extend(_collect_tc_names(child))
+                tg_to_transactions[tg_name] = all_tc_names
+
+        except Exception as e:
+            print(f"[SLA] Error parsing full tree from {jmx_path.name}: {e}", flush=True)
+
+    return tree, tg_to_transactions

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Run Performance Comparison Report</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+        .card { background: #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #334155; }
+        h1, h2, h3 { color: #38bdf8; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 10px 14px; border-bottom: 1px solid #334155; }
+        th { background: #0f172a; text-align: left; color: #94a3b8; }
+        .badge { background: #0284c7; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; display: inline-block; }
+        .insight-box { background: rgba(56, 189, 248, 0.1); border-left: 4px solid #38bdf8; padding: 1rem; border-radius: 4px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>⚡ Performance Intelligence Comparison Report</h1>
+    <div class="card">
+        <h2>Executive Summary</h2>
+        <div class="insight-box">ℹ️ Reduced Load Context: Load decreased by 95.2%. Response time changed by 153.9%.</div>
+    </div>
+
+    <div class="card">
+        <h2>Side-by-Side Performance Matrix</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>run_20260819_151017 (63 users)</th><th>run_20260819_142352 (14 users)</th><th>run_20260806_024753 (6 users)</th><th>run_20260804_130041 (10 users)</th><th>run_20260803_194617 (10 users)</th><th>run_20260803_185436 (3 users)</th><th>run_20260803_181158 (3 users)</th>
+                    <th style="text-align:center;">Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>Avg Response Time</strong></td>
+            <td style='text-align:right;'>234.43 ms</td><td style='text-align:right;'>224.25 ms</td><td style='text-align:right;'>1521.83 ms</td><td style='text-align:right;'>200.06 ms</td><td style='text-align:right;'>198.23 ms</td><td style='text-align:right;'>561.19 ms</td><td style='text-align:right;'>595.32 ms</td>
+            <td style='text-align:center; font-weight:bold; color:#ef4444;'>↑ 153.9%</td>
+        </tr>
+        
+        <tr>
+            <td><strong>P95 Response Time</strong></td>
+            <td style='text-align:right;'>545 ms</td><td style='text-align:right;'>516 ms</td><td style='text-align:right;'>6071 ms</td><td style='text-align:right;'>353 ms</td><td style='text-align:right;'>349 ms</td><td style='text-align:right;'>1586 ms</td><td style='text-align:right;'>1297 ms</td>
+            <td style='text-align:center; font-weight:bold; color:#ef4444;'>↑ 138.0%</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Throughput</strong></td>
+            <td style='text-align:right;'>773.41 req/s</td><td style='text-align:right;'>181.25 req/s</td><td style='text-align:right;'>5.08 req/s</td><td style='text-align:right;'>97.87 req/s</td><td style='text-align:right;'>98.72 req/s</td><td style='text-align:right;'>16.97 req/s</td><td style='text-align:right;'>20.99 req/s</td>
+            <td style='text-align:center; font-weight:bold; color:#ef4444;'>↓ 97.3%</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Error Rate</strong></td>
+            <td style='text-align:right;'>0.0 %</td><td style='text-align:right;'>0.0 %</td><td style='text-align:right;'>10.98 %</td><td style='text-align:right;'>0.03 %</td><td style='text-align:right;'>0.07 %</td><td style='text-align:right;'>1.18 %</td><td style='text-align:right;'>1.51 %</td>
+            <td style='text-align:center; font-weight:bold; color:#94a3b8;'>→ 0%</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Virtual Users</strong></td>
+            <td style='text-align:right;'>63 users</td><td style='text-align:right;'>14 users</td><td style='text-align:right;'>6 users</td><td style='text-align:right;'>10 users</td><td style='text-align:right;'>10 users</td><td style='text-align:right;'>3 users</td><td style='text-align:right;'>3 users</td>
+            <td style='text-align:center; font-weight:bold; color:#94a3b8;'>↓ 95.2%</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Automated Insights</h2>
+        <div style="display: flex; gap: 2rem;">
+            <div style="flex: 1;">
+                <h3 style="color:#ef4444;">🔴 Performance Regressions</h3>
+                <ul><li style='color:#f87171; margin-bottom:0.4rem;'><strong>Response Time Regression:</strong> Avg Response Time degraded from 234.43 ms to 595.32 ms (+153.9%).</li><li style='color:#f87171; margin-bottom:0.4rem;'><strong>Error Rate Spike:</strong> Error rate increased from 0.0% to 1.51%.</li></ul>
+            </div>
+            <div style="flex: 1;">
+                <h3 style="color:#10b981;">🟢 Key Improvements</h3>
+                <ul><li>No major improvements noted.</li></ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
