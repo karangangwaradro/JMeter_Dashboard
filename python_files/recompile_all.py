@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
+import sys
 import json
 import importlib
 from pathlib import Path
 
 _ROOT_DIR = Path(__file__).parent.parent.resolve()
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
 
 
 def run():

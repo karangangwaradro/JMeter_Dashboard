@@ -50,9 +50,31 @@
 
         /* Tree hierarchy styles */
         .tg-header-row td { border-bottom: 1px solid var(--accent) !important; }
-        .tree-row[data-type="request"] td { padding-top: 0.3rem; padding-bottom: 0.3rem; }
-        .tree-toggle-btn { transition: all 0.2s ease; }
-        .tree-toggle-btn:hover { background: var(--accent-bg) !important; border-color: var(--accent) !important; }
+        .tree-row[data-type="request"] td { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+        .tree-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.72rem;
+            padding: 0.1rem 0.25rem;
+            margin-right: 0.25rem;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .tree-toggle-btn:hover {
+            color: var(--text);
+            transform: scale(1.3);
+        }
+        .tree-toggle-spacer {
+            display: inline-block;
+            width: 0.95rem;
+            margin-right: 0.25rem;
+        }
 
         /* Header */
         .report-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.75rem; border-radius: 12px; margin-bottom: 1.5rem; transition: box-shadow 0.2s; }
@@ -62,7 +84,7 @@
         .report-title h1 { font-size: 1.35rem; font-weight: 700; color: var(--text); }
         .report-title p { color: var(--muted); font-size: 0.82rem; margin-top: 0.25rem; }
         .header-right { display: flex; align-items: center; gap: 1rem; }
-        .score-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; border: 2px solid #10b981; color: #10b981; background: var(--surface2); }
+        .score-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; border: 2px solid #f59e0b; color: #f59e0b; background: var(--surface2); }
         .status-pill { padding: 0.35rem 0.85rem; border-radius: 12px; font-size: 0.78rem; font-weight: 700; color: #fff; background: #10b981; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .theme-toggle { cursor: pointer; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.8rem; color: var(--text); font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
         .theme-toggle:hover { background: var(--border); }
@@ -212,6 +234,139 @@
         .drawer-section { margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
         .drawer-section:last-child { border-bottom: none; }
         .drawer-h { font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* --- Graph Info Button & Modal --- */
+        .chart-info-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+            user-select: none;
+            z-index: 15;
+        }
+        .chart-info-btn:hover {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+            transform: translateY(-2px) scale(1.1);
+            box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+        #graphModalOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        #graphModalOverlay.open {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        #graphInfoModal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 540px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            transform: scale(0.95);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10001;
+        }
+        #graphModalOverlay.open #graphInfoModal {
+            transform: scale(1);
+        }
+        .graph-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .graph-modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .graph-modal-close {
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0 0.3rem;
+            border-radius: 4px;
+            transition: color 0.15s;
+        }
+        .graph-modal-close:hover {
+            color: var(--text);
+        }
+        .graph-modal-section {
+            margin-bottom: 1rem;
+        }
+        .graph-modal-section:last-child {
+            margin-bottom: 0;
+        }
+        .graph-modal-section-title {
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .graph-modal-text {
+            font-size: 0.86rem;
+            color: var(--text);
+            line-height: 1.5;
+            margin: 0;
+        }
+        .graph-modal-list {
+            margin: 0.3rem 0 0 1.2rem;
+            padding: 0;
+            font-size: 0.86rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .graph-modal-list li {
+            margin-bottom: 0.3rem;
+        }
     </style>
 </head>
 <body>
@@ -222,11 +377,7 @@
         <div class="header-left" style="display:flex; align-items:center; gap:1.25rem;">
             <div class="engine-badge" style="font-weight:800; font-size:1.2rem; color:var(--accent);">⚡ JMeter AI</div>
             <div style="border-left:2px solid var(--border); padding-left:1.25rem;">
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Project Details &amp; Execution Time</div>
-                <div style="font-size:1rem; font-weight:700; color:var(--text); margin:0.1rem 0;">Application Name: JPetStore_MultiUserStories.jmx &nbsp;|&nbsp; Module Executed: <span contenteditable="true">Load Test Module</span></div>
-                <div style="font-size:0.78rem; color:var(--muted);">
-                    <strong>Start Time:</strong> 2026-08-20 08:11:06 UTC &nbsp;|&nbsp; <strong>End Time:</strong> 2026-08-20 08:11:06 UTC &nbsp;|&nbsp; <strong>Run ID:</strong> run_20260820_134106
-                </div>
+                <div style="font-size:1.15rem; font-weight:700; color:var(--text);" contenteditable="true">Performance Test Report - JPetStore_MultiUserStories.jmx</div>
             </div>
         </div>
         <div class="header-right" style="display:flex; align-items:center; gap:0.6rem;">
@@ -253,29 +404,41 @@
         <!-- 1. Test Config / Details -->
         <div class="section glass-panel">
             <h2>📋 Test Config / Details</h2>
-            <table style="margin-bottom:1rem; font-size:0.85rem;">
-                <thead>
-                    <tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr>
-                </thead>
+            <table style="margin-bottom:1rem; font-size:0.85rem; width:100%;">
                 <tbody>
-                    <tr><td style="font-weight:700;">Test Name</td><td>JPetStore_MultiUserStories.jmx</td><td style="font-weight:700;">Total Iterations</td><td>157</td></tr>
-                    <tr><td style="font-weight:700;">Test Type</td><td contenteditable="true">Load Test</td><td style="font-weight:700;">Total Requests</td><td>3,044</td></tr>
-                    <tr><td style="font-weight:700;">Duration</td><td>60 seconds</td><td style="font-weight:700;">Total Transactions</td><td>10</td></tr>
-                    <tr><td style="font-weight:700;">Peak Users</td><td>4 users</td><td style="font-weight:700;">Failed Transactions</td><td>0</td></tr>
-                    <tr><td style="font-weight:700;">Ramp-up / Down</td><td contenteditable="true">Manual Input</td><td style="font-weight:700;">Environment</td><td contenteditable="true">Staging</td></tr>
+                    <tr>
+                        <td style="font-weight:700; width:18%;">Start Time</td>
+                        <td style="width:32%;" contenteditable="true">2026-08-20 08:11:06 UTC</td>
+                        <td style="font-weight:700; width:18%;">End Time</td>
+                        <td style="width:32%;" contenteditable="true">2026-08-20 08:11:06 UTC</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700;">Test Name</td>
+                        <td contenteditable="true">JPetStore_MultiUserStories.jmx</td>
+                        <td style="font-weight:700;">Environment</td>
+                        <td contenteditable="true">Staging</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700;">Total Concurrent Users</td>
+                        <td contenteditable="true">4 users</td>
+                        <td style="font-weight:700;">Duration</td>
+                        <td contenteditable="true">60 seconds</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700;">Ramp-up</td>
+                        <td contenteditable="true">Manual Input</td>
+                        <td style="font-weight:700;">Release</td>
+                        <td contenteditable="true">Release 1.0</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700; vertical-align:top;">Test Objective</td>
+                        <td colspan="3" contenteditable="true" style="line-height:1.5;">Validate system performance, throughput stability, response time SLA compliance, and error rates of JPetStore_MultiUserStories.jmx under peak load conditions.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- 2. Test Objective -->
-        <div class="section glass-panel" style="margin-top:1.25rem;">
-            <h2>🎯 Test Objective</h2>
-            <div style="font-size:0.88rem; line-height:1.6; padding:0.4rem 0;" contenteditable="true">
-                Validate system performance, throughput stability, response time SLA compliance, and error rates of JPetStore_MultiUserStories.jmx under peak load conditions.
-            </div>
-        </div>
-
-        <!-- 3. Performance Scorecard & SLA Violation Grid (Grouped 3x3 Layout) -->
+        <!-- 2. Performance Scorecard & SLA Violation Grid (Grouped 3x3 Layout) -->
         <div class="section glass-panel" style="margin-top:1.25rem;">
             <h2>📈 Performance Scorecard &amp; SLA Violation Summary</h2>
             
@@ -285,7 +448,7 @@
                 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">Overall APDEX Score</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#10b981; margin:0.3rem 0;">0.94</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#f59e0b; margin:0.3rem 0;">0.84</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Target &ge; 0.85</div>
                 </div>
 
@@ -309,115 +472,93 @@
 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 100%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--green); margin:0.3rem 0;">0</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">1</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 2x SLA target</div>
                 </div>
 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 50%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">1</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--red); margin:0.3rem 0;">3</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.5x SLA target</div>
                 </div>
 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 20%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">1</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">3</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.2x SLA target</div>
                 </div>
 
             </div>
         </div>
 
-        <!-- 4. Iteration Statistics & Transaction Statistics Table/Chart (Exact Wireframe Format) -->
-        <div class="section glass-panel" style="margin-top:1.25rem;">
-            <h2>📊 Transaction Statistics &amp; Iteration Summary</h2>
-            
-            <div style="overflow-x:auto; margin-bottom:1.5rem;">
-                <table style="width:100%; border-collapse:collapse; font-size:0.83rem; border:1px solid var(--border);">
-                    <thead>
-                        <tr style="background:var(--surface2); border-bottom:1px solid var(--border);">
-                            <th rowspan="2" style="text-align:left; padding:0.6rem; border-right:1px solid var(--border);">Scripts Name</th>
-                            <th rowspan="2" style="text-align:center; padding:0.6rem; border-right:1px solid var(--border);">Duration of Run (Min)</th>
-                            <th rowspan="2" style="text-align:center; padding:0.6rem; border-right:1px solid var(--border);">Users</th>
-                            <th colspan="3" style="text-align:center; padding:0.4rem; border-bottom:1px solid var(--border); border-right:1px solid var(--border);">Samples</th>
-                            <th rowspan="2" style="text-align:center; padding:0.6rem;">Error Percentage (%)</th>
-                        </tr>
-                        <tr style="background:var(--surface2); border-bottom:2px solid var(--border);">
-                            <th style="text-align:center; padding:0.4rem; border-right:1px solid var(--border);">Total</th>
-                            <th style="text-align:center; padding:0.4rem; color:var(--green); border-right:1px solid var(--border);">Pass</th>
-                            <th style="text-align:center; padding:0.4rem; color:var(--red); border-right:1px solid var(--border);">Fail</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-        <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US01_Browse_Catalog</td>
-            <td style="text-align:center; padding:0.5rem;">1.0</td>
-            <td style="text-align:center; padding:0.5rem;">1</td>
-            <td style="text-align:center; font-weight:700; padding:0.5rem;">106</td>
-            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">106</td>
-            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
-            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
-        </tr>
-        
-        <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US02_Add_To_Cart</td>
-            <td style="text-align:center; padding:0.5rem;">1.0</td>
-            <td style="text-align:center; padding:0.5rem;">1</td>
-            <td style="text-align:center; font-weight:700; padding:0.5rem;">105</td>
-            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">105</td>
-            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
-            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
-        </tr>
-        
-        <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US03_Search_Products</td>
-            <td style="text-align:center; padding:0.5rem;">1.0</td>
-            <td style="text-align:center; padding:0.5rem;">1</td>
-            <td style="text-align:center; font-weight:700; padding:0.5rem;">156</td>
-            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">156</td>
-            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
-            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
-        </tr>
-        
-        <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:600; text-align:left; padding:0.5rem 0.6rem;">US04_User_Sign_In</td>
-            <td style="text-align:center; padding:0.5rem;">1.0</td>
-            <td style="text-align:center; padding:0.5rem;">1</td>
-            <td style="text-align:center; font-weight:700; padding:0.5rem;">157</td>
-            <td style="text-align:center; color:var(--green); font-weight:700; padding:0.5rem;">157</td>
-            <td style="text-align:center; color:var(--red); font-weight:700; padding:0.5rem;">0</td>
-            <td style="text-align:center; font-weight:700; color:var(--green); padding:0.5rem;">0.00%</td>
-        </tr>
-        
-    <tr style="border-top:2px solid var(--accent); background:var(--surface2); font-weight:800;">
-        <td style="text-align:left; padding:0.6rem;">Overall</td>
-        <td style="text-align:center; padding:0.6rem;">1.0</td>
-        <td style="text-align:center; padding:0.6rem;">4</td>
-        <td style="text-align:center; padding:0.6rem;">524</td>
-        <td style="text-align:center; color:var(--green); padding:0.6rem;">524</td>
-        <td style="text-align:center; color:var(--red); padding:0.6rem;">0</td>
-        <td style="text-align:center; color:var(--green); padding:0.6rem;">0.00%</td>
-    </tr>
-    
-                    </tbody>
-                </table>
+        <!-- 3. Transaction Statistics & Iteration Summary Bar Chart -->
+        <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('tx-summary')" title="How to read this graph &amp; use filters">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
+                <div>
+                    <h2 style="margin:0;">📊 Transaction Statistics &amp; Iteration Summary</h2>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Total vs passed and failed request sample counts per test script</p>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+                    <span style="font-size:0.75rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">Total Samples: <strong style="color:var(--accent);">524</strong></span>
+                    <span style="font-size:0.75rem; font-weight:700; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">Pass: <strong>524</strong></span>
+                    <span style="font-size:0.75rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--muted);">Fail: <strong>0</strong></span>
+                </div>
             </div>
-
-            <h3 style="margin:1.2rem 0 0.6rem 0; font-size:1.05rem; font-weight:700; text-align:center;">Transaction Summary</h3>
-            <div style="position:relative; height:340px; width:100%;">
+            
+            <div style="position:relative; height:370px; width:100%;">
                 <canvas id="chart-tx-summary-bar"></canvas>
             </div>
         </div>
 
-        <!-- 5. SLA Deviation by Transaction (Executive Diagnostic Diverging Chart) -->
-        <div class="section glass-panel" style="margin-top:1.25rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+        <!-- 5. Transaction & Sub-Transaction Response Time Breakdown (Hierarchical Bar Chart) -->
+        <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('tx-rt-breakdown')" title="How to read this graph &amp; use filters">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; padding-right:2.5rem;">
+                <div>
+                    <h2 style="margin:0;">⏱️ Transaction &amp; Sub-Transaction Response Time Breakdown</h2>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
+                        Hierarchical response time analysis. Filter by User Story, drill down into specific transactions to view child HTTP requests &amp; sub-transactions.
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                        <label for="txRtUsFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">User Story:</label>
+                        <select id="txRtUsFilter" onchange="onTxRtUsChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                        <label for="txRtTxFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">Transaction:</label>
+                        <select id="txRtTxFilter" onchange="onTxRtTxChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer; max-width:280px;">
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                        <label for="txRtMetricFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">Metric:</label>
+                        <select id="txRtMetricFilter" onchange="onTxRtMetricChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
+                            <option value="avg_rt" selected>Average RT (ms)</option>
+                            <option value="p90">90th Percentile (P90) (ms)</option>
+                            <option value="p95">95th Percentile (P95) (ms)</option>
+                            <option value="max_rt">Max RT (ms)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="txRtBreadcrumb" style="font-size:0.78rem; font-weight:600; color:var(--muted); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;">
+            </div>
+            <div style="position:relative; height:340px; width:100%;">
+                <canvas id="chart-tx-rt-breakdown"></canvas>
+            </div>
+        </div>
+
+        <!-- 6. SLA Deviation by Transaction (Executive Diagnostic Diverging Chart) -->
+        <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('sla-deviation')" title="How to read this graph &amp; use filters">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; padding-right:2.5rem;">
                 <div>
                     <h2 style="margin:0;">🎯 SLA Deviation by Transaction (% from Target SLA)</h2>
                     <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Diverging diagnostic chart normalized as (P90 Response Time &divide; Target SLA - 1) &times; 100%. Sorted by worst breach.</div>
                 </div>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
                     <label for="usDevFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
                     <select id="usDevFilter" onchange="filterSlaDevByUs(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:600;">
                         <option value="ALL">All User Stories / Thread Groups</option><option value="US01_Browse_Catalog">US01_Browse_Catalog</option><option value="US02_Add_To_Cart">US02_Add_To_Cart</option><option value="US03_Search_Products">US03_Search_Products</option><option value="US04_User_Sign_In">US04_User_Sign_In</option>
@@ -429,17 +570,49 @@
             </div>
         </div>
 
-        <!-- 6. Error Stats Graph -->
-        <div class="section glass-panel" style="margin-top:1.25rem;">
-            <h2>🔴 Error Stats Graph</h2>
-            <div style="position:relative; height:260px; width:100%; margin-top:0.75rem;">
-                <canvas id="chart-errors-exec"></canvas>
+        <!-- 7. Error Distribution & Analysis (Pie/Donut Chart) -->
+        <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid #ef4444; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('error-distribution')" title="How to read this graph &amp; use filters">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem; padding-right:2.5rem;">
+                <div>
+                    <h2 style="margin:0;">🔴 Error Distribution &amp; Analysis</h2>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Global Acceptable Error Rate Threshold: <strong style="color:var(--text);">1.0%</strong>. Distribution of errors by category / response code.</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Total Errors</span>
+                </div>
+            </div>
+
+            <div id="execErrorContent">
+                <div style="display:flex; gap:1.5rem; align-items:flex-start; flex-wrap:wrap;">
+                    <!-- Left: Donut Chart -->
+                    <div style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:0.6rem;">
+                        <div style="position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center;">
+                            <canvas id="chart-errors-exec" width="200" height="200"></canvas>
+                            <div id="execErrorDonutCenter" style="position:absolute; text-align:center; pointer-events:none; width:100%;">
+                                <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1;">0</div>
+                                <div style="font-size:0.65rem; font-weight:700; color:var(--muted); letter-spacing:0.04em; margin-top:0.2rem;">ERRORS</div>
+                            </div>
+                        </div>
+                        <div id="execErrorDonutLegend" style="font-size:0.75rem; display:flex; flex-direction:column; gap:0.3rem; max-width:220px;"></div>
+                    </div>
+
+                    <!-- Right: Drill-Down Detail Panel -->
+                    <div id="execErrorDrillPanel" style="flex:1; min-width:300px; min-height:200px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:1rem; display:flex; align-items:center; justify-content:center;">
+                        <div style="text-align:center; color:var(--muted); font-size:0.85rem;">
+                            <div style="font-size:2rem; margin-bottom:0.5rem; opacity:0.4;">🔍</div>
+                            <div style="font-weight:600;">Click an error slice to view details</div>
+                            <div style="font-size:0.75rem; margin-top:0.3rem;">Shows affected transactions, timing, and response data</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 7. Server Side Graphs -->
-        <div class="section glass-panel" style="margin-top:1.25rem;">
-            <h2>🖥️ Server Side Graphs</h2>
+        <!-- 8. Server Side Graphs -->
+        <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('server-side')" title="How to read this graph &amp; use filters">ℹ️</button>
+            <h2 style="margin:0; padding-right:2.5rem;">🖥️ Server Side Graphs</h2>
             <div style="position:relative; height:260px; width:100%; margin-top:0.75rem;">
                 <canvas id="chart-infra-exec"></canvas>
             </div>
@@ -493,7 +666,10 @@
             <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;">Capacity boundaries require incremental stress testing.</p>
         </div>
         <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
-            <h3>👥 Estimated Concurrent Users Over Time <small style="font-size:0.7rem; color:var(--muted); font-weight:400;">(Little's Law)</small></h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                <h3 style="margin:0;">👥 Estimated Concurrent Users Over Time <small style="font-size:0.7rem; color:var(--muted); font-weight:400; margin-left:0.3rem;">(Little's Law)</small></h3>
+                <button class="chart-info-btn" onclick="openGraphModal('concurrency')" title="How to read this graph &amp; use filters">ℹ️</button>
+            </div>
             <div style="position: relative; height: 260px; width: 100%;">
                 <canvas id="concChart"></canvas>
             </div>
@@ -509,11 +685,14 @@
         
         <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
-                <h3 style="margin:0; white-space: nowrap;">📊 Throughput & Errors</h3>
-                <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
-                    <option value="ALL">All Transactions (Overall)</option>
-                    <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
-                </select>
+                <h3 style="margin:0; white-space: nowrap;">📊 Throughput &amp; Errors</h3>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                        <option value="ALL">All Transactions (Overall)</option>
+                        <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
+                    </select>
+                    <button class="chart-info-btn" onclick="openGraphModal('throughput')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
             </div>
             <div style="position: relative; height: 260px; width: 100%;">
                 <canvas id="tpChart"></canvas>
@@ -536,390 +715,359 @@
         <div class="section glass-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; margin-bottom:0.8rem;">
                 <h2 style="margin:0;">📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
-                <div style="display:flex; align-items:center; gap:0.5rem;"><label style="font-size:0.8rem; font-weight:600; color:var(--muted); white-space:nowrap;">🔧 Thread Group:</label><select id="tgFilterSelect" onchange="filterByThreadGroup(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.7rem; font-size:0.8rem; outline:none; cursor:pointer; min-width:200px;"><option value="ALL">All Thread Groups</option><option value="US01_Browse_Catalog">US01_Browse_Catalog</option><option value="US02_Add_To_Cart">US02_Add_To_Cart</option><option value="US03_Search_Products">US03_Search_Products</option><option value="US04_User_Sign_In">US04_User_Sign_In</option></select></div>
+                <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                        <label style="font-size:0.8rem; font-weight:600; color:var(--muted); white-space:nowrap;">⏱️ Unit:</label>
+                        <select id="txUnitSelector" onchange="toggleTxTableUnits(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.6rem; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
+                            <option value="ms" selected>Milliseconds (ms)</option>
+                            <option value="s">Seconds (s)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.4rem;"><label style="font-size:0.8rem; font-weight:600; color:var(--muted); white-space:nowrap;">🔧 Thread Group:</label><select id="tgFilterSelect" onchange="filterByThreadGroup(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.7rem; font-size:0.8rem; outline:none; cursor:pointer; min-width:200px;"><option value="ALL">All Thread Groups</option><option value="US01_Browse_Catalog">US01_Browse_Catalog</option><option value="US02_Add_To_Cart">US02_Add_To_Cart</option><option value="US03_Search_Products">US03_Search_Products</option><option value="US04_User_Sign_In">US04_User_Sign_In</option></select></div>
+                </div>
             </div>
             <table id="txBreakdownTable">
                 <thead><tr>
-                    <th>Transaction / Request</th><th>Samples</th><th>Apdex</th><th>Avg RT</th>
-                   <th>P90</th><th>P95</th><th>P99</th>
-                    <th>Min</th><th>Max</th><th>Error Rate</th><th>RT SLA</th><th>Deviation %</th><th>SLA Status</th>
+                    <th>Transaction / Request</th>
+                    <th>Samples</th>
+                    <th>Apdex</th>
+                    <th id="th-tx-avg">Avg RT (ms)</th>
+                    <th id="th-tx-p90">P90 (ms)</th>
+                    <th id="th-tx-min">Min (ms)</th>
+                    <th id="th-tx-max">Max (ms)</th>
+                    <th>Error Rate</th>
+                    <th id="th-tx-sla">RT SLA (ms)</th>
+                    <th>Deviation %</th>
+                    <th>SLA Status</th>
                 </tr></thead>
                 <tbody>
             <tr class="tg-header-row" data-tg="US01_Browse_Catalog" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
-                <td colspan="13" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
+                <td colspan="11" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
                     <span style="display:inline-flex; align-items:center; gap:0.4rem;">🔧 Thread Group: <span style="color:var(--text);">US01_Browse_Catalog</span></span>
                 </td>
             </tr>
-        <tr style=" font-size: 0.82rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📂</span> <strong style="font-weight:500; color:var(--text);">T-US01_Overall_Iteration</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-4029668339')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 3 Sub-Transactions</button></td>
+        <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1792468888')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
             <td>106</td>
             <td>-</td>
-            <td class="pass">562 ms</td>
-            <td class="pass"><strong>544 ms</strong></td>
-            <td>707 ms</td>
-            <td>1086 ms</td>
-            <td>517 ms</td>
-            <td>1571 ms</td>
+            <td class="pass tx-rt-cell" data-ms="562.2"><span class="tx-rt-val">562</span></td>
+            <td class="pass tx-rt-cell" data-ms="544"><strong class="tx-rt-val">544</strong></td>
+            <td class="tx-rt-cell" data-ms="517"><span class="tx-rt-val">517</span></td>
+            <td class="tx-rt-cell" data-ms="1571"><span class="tx-rt-val">1571</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4029668339"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4029668339" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-966947643')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1792468888"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1792468888" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1993446637')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
             <td>106</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass">194 ms</td>
-            <td class="pass"><strong>180 ms</strong></td>
-            <td>195 ms</td>
-            <td>357 ms</td>
-            <td>172 ms</td>
-            <td>1212 ms</td>
+            <td class="pass tx-rt-cell" data-ms="194.1"><span class="tx-rt-val">194</span></td>
+            <td class="pass tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="1212"><span class="tx-rt-val">1212</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
+            <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
             <td><span style="color:var(--green); font-weight:600;">-64.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4029668339 tree-children-966947643"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966947643" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1792468888 tree-children-1993446637"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1993446637" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
             <td>368</td>
             <td>-</td>
-            <td class="pass">196 ms</td>
-            <td class="pass"><strong>185 ms</strong></td>
-            <td>195 ms</td>
-            <td>421 ms</td>
-            <td>172 ms</td>
-            <td>1783 ms</td>
+            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
+            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="1783"><span class="tx-rt-val">1783</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4029668339"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4029668339" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-3903271316')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1792468888"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1792468888" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3366426312')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
             <td>106</td>
             <td><span class="fail"><strong>0.49</strong></span></td>
-            <td class="fail">178 ms</td>
-            <td class="fail"><strong>180 ms</strong></td>
-            <td>182 ms</td>
-            <td>192 ms</td>
-            <td>171 ms</td>
-            <td>397 ms</td>
+            <td class="fail tx-rt-cell" data-ms="178.4"><span class="tx-rt-val">178</span></td>
+            <td class="fail tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
+            <td class="tx-rt-cell" data-ms="171"><span class="tx-rt-val">171</span></td>
+            <td class="tx-rt-cell" data-ms="397"><span class="tx-rt-val">397</span></td>
             <td class="pass">0.00%</td>
-            <td>92 ms</td>
+            <td class="tx-rt-cell" data-ms="92"><span class="tx-rt-val">92</span></td>
             <td><span style="color:var(--red); font-weight:600;">+95.7%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4029668339 tree-children-3903271316"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3903271316" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Fish</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1792468888 tree-children-3366426312"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3366426312" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Fish</code></span></td>
             <td>106</td>
             <td>-</td>
-            <td class="pass">178 ms</td>
-            <td class="pass"><strong>180 ms</strong></td>
-            <td>182 ms</td>
-            <td>192 ms</td>
-            <td>171 ms</td>
-            <td>397 ms</td>
+            <td class="pass tx-rt-cell" data-ms="178.4"><span class="tx-rt-val">178</span></td>
+            <td class="pass tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
+            <td class="tx-rt-cell" data-ms="171"><span class="tx-rt-val">171</span></td>
+            <td class="tx-rt-cell" data-ms="397"><span class="tx-rt-val">397</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4029668339"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4029668339" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-904521033')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1792468888"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1792468888" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2752800369')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
             <td>106</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass">190 ms</td>
-            <td class="pass"><strong>183 ms</strong></td>
-            <td>188 ms</td>
-            <td>397 ms</td>
-            <td>172 ms</td>
-            <td>732 ms</td>
+            <td class="pass tx-rt-cell" data-ms="189.7"><span class="tx-rt-val">190</span></td>
+            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="732"><span class="tx-rt-val">732</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
+            <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
             <td><span style="color:var(--green); font-weight:600;">-63.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4029668339 tree-children-904521033"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-904521033" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_View_Product_FI-SW-01</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1792468888 tree-children-2752800369"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-2752800369" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_View_Product_FI-SW-01</code></span></td>
             <td>106</td>
             <td>-</td>
-            <td class="pass">190 ms</td>
-            <td class="pass"><strong>183 ms</strong></td>
-            <td>188 ms</td>
-            <td>397 ms</td>
-            <td>172 ms</td>
-            <td>732 ms</td>
+            <td class="pass tx-rt-cell" data-ms="189.7"><span class="tx-rt-val">190</span></td>
+            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="732"><span class="tx-rt-val">732</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
             <tr class="tg-header-row" data-tg="US02_Add_To_Cart" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
-                <td colspan="13" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
+                <td colspan="11" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
                     <span style="display:inline-flex; align-items:center; gap:0.4rem;">🔧 Thread Group: <span style="color:var(--text);">US02_Add_To_Cart</span></span>
                 </td>
             </tr>
-        <tr style=" font-size: 0.82rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📂</span> <strong style="font-weight:500; color:var(--text);">T-US02_Overall_Iteration</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-965549824')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 3 Sub-Transactions</button></td>
+        <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-633783910')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
             <td>105</td>
             <td>-</td>
-            <td class="pass">568 ms</td>
-            <td class="pass"><strong>554 ms</strong></td>
-            <td>705 ms</td>
-            <td>934 ms</td>
-            <td>520 ms</td>
-            <td>2143 ms</td>
+            <td class="pass tx-rt-cell" data-ms="568.1"><span class="tx-rt-val">568</span></td>
+            <td class="pass tx-rt-cell" data-ms="554"><strong class="tx-rt-val">554</strong></td>
+            <td class="tx-rt-cell" data-ms="520"><span class="tx-rt-val">520</span></td>
+            <td class="tx-rt-cell" data-ms="2143"><span class="tx-rt-val">2143</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-965549824"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-965549824" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-2631188482')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-633783910"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-633783910" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2236654269')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
             <td>105</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass">201 ms</td>
-            <td class="pass"><strong>182 ms</strong></td>
-            <td>201 ms</td>
-            <td>360 ms</td>
-            <td>172 ms</td>
-            <td>1783 ms</td>
+            <td class="pass tx-rt-cell" data-ms="200.5"><span class="tx-rt-val">201</span></td>
+            <td class="pass tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="1783"><span class="tx-rt-val">1783</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
+            <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
             <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-965549824 tree-children-2631188482"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2631188482" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-633783910 tree-children-2236654269"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2236654269" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
             <td>368</td>
             <td>-</td>
-            <td class="pass">196 ms</td>
-            <td class="pass"><strong>185 ms</strong></td>
-            <td>195 ms</td>
-            <td>421 ms</td>
-            <td>172 ms</td>
-            <td>1783 ms</td>
+            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
+            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="1783"><span class="tx-rt-val">1783</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-965549824"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-965549824" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-1485054851')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-633783910"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-633783910" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3686434023')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
+            <td>105</td>
+            <td><span class="fail"><strong>0.49</strong></span></td>
+            <td class="fail tx-rt-cell" data-ms="183.1"><span class="tx-rt-val">183</span></td>
+            <td class="fail tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="410"><span class="tx-rt-val">410</span></td>
+            <td class="pass">0.00%</td>
+            <td class="tx-rt-cell" data-ms="100"><span class="tx-rt-val">100</span></td>
+            <td><span style="color:var(--yellow); font-weight:600;">+82.0%</span></td>
+            <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
+        </tr>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-633783910 tree-children-3686434023"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3686434023" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Dogs</code></span></td>
+            <td>105</td>
+            <td>-</td>
+            <td class="pass tx-rt-cell" data-ms="183.1"><span class="tx-rt-val">183</span></td>
+            <td class="pass tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="410"><span class="tx-rt-val">410</span></td>
+            <td class="pass">0.00%</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-633783910"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-633783910" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4155195198')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
             <td>105</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
-            <td class="pass">183 ms</td>
-            <td class="pass"><strong>182 ms</strong></td>
-            <td>185 ms</td>
-            <td>395 ms</td>
-            <td>172 ms</td>
-            <td>410 ms</td>
+            <td class="pass tx-rt-cell" data-ms="184.5"><span class="tx-rt-val">184</span></td>
+            <td class="pass tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="521"><span class="tx-rt-val">521</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
-            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
-        </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-965549824 tree-children-1485054851"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1485054851" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Dogs</code></span></td>
-            <td>105</td>
-            <td>-</td>
-            <td class="pass">183 ms</td>
-            <td class="pass"><strong>182 ms</strong></td>
-            <td>185 ms</td>
-            <td>395 ms</td>
-            <td>172 ms</td>
-            <td>410 ms</td>
-            <td class="pass">0.00%</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-965549824"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-965549824" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-671277553')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
-            <td>105</td>
-            <td><span class="pass"><strong>1.00</strong></span></td>
-            <td class="pass">184 ms</td>
-            <td class="pass"><strong>184 ms</strong></td>
-            <td>187 ms</td>
-            <td>345 ms</td>
-            <td>172 ms</td>
-            <td>521 ms</td>
-            <td class="pass">0.00%</td>
-            <td>1517 ms</td>
+            <td class="tx-rt-cell" data-ms="1517"><span class="tx-rt-val">1517</span></td>
             <td><span style="color:var(--green); font-weight:600;">-87.9%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-965549824 tree-children-671277553"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-671277553" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Add_Item_EST-26</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-633783910 tree-children-4155195198"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-4155195198" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Add_Item_EST-26</code></span></td>
             <td>105</td>
             <td>-</td>
-            <td class="pass">184 ms</td>
-            <td class="pass"><strong>184 ms</strong></td>
-            <td>187 ms</td>
-            <td>345 ms</td>
-            <td>172 ms</td>
-            <td>521 ms</td>
+            <td class="pass tx-rt-cell" data-ms="184.5"><span class="tx-rt-val">184</span></td>
+            <td class="pass tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="521"><span class="tx-rt-val">521</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
             <tr class="tg-header-row" data-tg="US03_Search_Products" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
-                <td colspan="13" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
+                <td colspan="11" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
                     <span style="display:inline-flex; align-items:center; gap:0.4rem;">🔧 Thread Group: <span style="color:var(--text);">US03_Search_Products</span></span>
                 </td>
             </tr>
-        <tr style=" font-size: 0.82rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📂</span> <strong style="font-weight:500; color:var(--text);">T-US03_Overall_Iteration</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-3203572212')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 2 Sub-Transactions</button></td>
+        <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3869094279')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
             <td>156</td>
             <td>-</td>
-            <td class="pass">381 ms</td>
-            <td class="pass"><strong>371 ms</strong></td>
-            <td>529 ms</td>
-            <td>764 ms</td>
-            <td>351 ms</td>
-            <td>1750 ms</td>
+            <td class="pass tx-rt-cell" data-ms="380.9"><span class="tx-rt-val">381</span></td>
+            <td class="pass tx-rt-cell" data-ms="371"><strong class="tx-rt-val">371</strong></td>
+            <td class="tx-rt-cell" data-ms="351"><span class="tx-rt-val">351</span></td>
+            <td class="tx-rt-cell" data-ms="1750"><span class="tx-rt-val">1750</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3203572212"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3203572212" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-3866689986')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3869094279"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3869094279" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3998833666')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
             <td>157</td>
             <td><span class="pass"><strong>0.96</strong></span></td>
-            <td class="pass">196 ms</td>
-            <td class="pass"><strong>185 ms</strong></td>
-            <td>222 ms</td>
-            <td>375 ms</td>
-            <td>175 ms</td>
-            <td>1562 ms</td>
+            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
+            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
+            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
+            <td class="tx-rt-cell" data-ms="1562"><span class="tx-rt-val">1562</span></td>
             <td class="pass">0.00%</td>
-            <td>200 ms</td>
+            <td class="tx-rt-cell" data-ms="200"><span class="tx-rt-val">200</span></td>
             <td><span style="color:var(--green); font-weight:600;">-7.5%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3203572212 tree-children-3866689986"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3866689986" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Homepage</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3869094279 tree-children-3998833666"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3998833666" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Homepage</code></span></td>
             <td>157</td>
             <td>-</td>
-            <td class="pass">196 ms</td>
-            <td class="pass"><strong>185 ms</strong></td>
-            <td>222 ms</td>
-            <td>375 ms</td>
-            <td>175 ms</td>
-            <td>1562 ms</td>
+            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
+            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
+            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
+            <td class="tx-rt-cell" data-ms="1562"><span class="tx-rt-val">1562</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3203572212"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3203572212" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-2438764452')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3869094279"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3869094279" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4194100182')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
             <td>156</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
-            <td class="pass">184 ms</td>
-            <td class="pass"><strong>183 ms</strong></td>
-            <td>188 ms</td>
-            <td>205 ms</td>
-            <td>175 ms</td>
-            <td>737 ms</td>
+            <td class="pass tx-rt-cell" data-ms="184.4"><span class="tx-rt-val">184</span></td>
+            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
+            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
+            <td class="tx-rt-cell" data-ms="737"><span class="tx-rt-val">737</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
+            <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
             <td><span style="color:var(--green); font-weight:600;">-63.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3203572212 tree-children-2438764452"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2438764452" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Search_Bulldog</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3869094279 tree-children-4194100182"  data-tg="US03_Search_Products" data-parent-cls="tree-children-4194100182" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Search_Bulldog</code></span></td>
             <td>156</td>
             <td>-</td>
-            <td class="pass">184 ms</td>
-            <td class="pass"><strong>183 ms</strong></td>
-            <td>188 ms</td>
-            <td>205 ms</td>
-            <td>175 ms</td>
-            <td>737 ms</td>
+            <td class="pass tx-rt-cell" data-ms="184.4"><span class="tx-rt-val">184</span></td>
+            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
+            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
+            <td class="tx-rt-cell" data-ms="737"><span class="tx-rt-val">737</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
             <tr class="tg-header-row" data-tg="US04_User_Sign_In" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
-                <td colspan="13" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
+                <td colspan="11" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
                     <span style="display:inline-flex; align-items:center; gap:0.4rem;">🔧 Thread Group: <span style="color:var(--text);">US04_User_Sign_In</span></span>
                 </td>
             </tr>
-        <tr style=" font-size: 0.82rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📂</span> <strong style="font-weight:500; color:var(--text);">T-US04_Overall_Iteration</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-2548985688')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 2 Sub-Transactions</button></td>
+        <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1878788440')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
             <td>157</td>
             <td>-</td>
-            <td class="pass">380 ms</td>
-            <td class="pass"><strong>370 ms</strong></td>
-            <td>385 ms</td>
-            <td>917 ms</td>
-            <td>353 ms</td>
-            <td>1618 ms</td>
+            <td class="pass tx-rt-cell" data-ms="380.0"><span class="tx-rt-val">380</span></td>
+            <td class="pass tx-rt-cell" data-ms="370"><strong class="tx-rt-val">370</strong></td>
+            <td class="tx-rt-cell" data-ms="353"><span class="tx-rt-val">353</span></td>
+            <td class="tx-rt-cell" data-ms="1618"><span class="tx-rt-val">1618</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2548985688"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2548985688" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-2350880799')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1878788440"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1878788440" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3020957590')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
             <td>157</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass">195 ms</td>
-            <td class="pass"><strong>185 ms</strong></td>
-            <td>190 ms</td>
-            <td>364 ms</td>
-            <td>176 ms</td>
-            <td>1211 ms</td>
+            <td class="pass tx-rt-cell" data-ms="194.9"><span class="tx-rt-val">195</span></td>
+            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
+            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
+            <td class="tx-rt-cell" data-ms="1211"><span class="tx-rt-val">1211</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
+            <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
             <td><span style="color:var(--green); font-weight:600;">-63.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2548985688 tree-children-2350880799"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2350880799" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1878788440 tree-children-3020957590"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3020957590" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
             <td>368</td>
             <td>-</td>
-            <td class="pass">196 ms</td>
-            <td class="pass"><strong>185 ms</strong></td>
-            <td>195 ms</td>
-            <td>421 ms</td>
-            <td>172 ms</td>
-            <td>1783 ms</td>
+            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
+            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
+            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
+            <td class="tx-rt-cell" data-ms="1783"><span class="tx-rt-val">1783</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2548985688"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2548985688" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:24px; display:inline-flex; align-items:center; gap:0.3rem;"><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span> <button onclick="toggleTreeChildren(this, 'tree-children-429592586')" class="tree-toggle-btn" style="background:var(--surface2); border:1px solid var(--border); color:var(--accent); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer; font-weight:600; margin-left:0.5rem;" data-expanded="false">▼ 1 Requests</button></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1878788440"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1878788440" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1199043728')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
             <td>157</td>
-            <td><span class="pass"><strong>1.00</strong></span></td>
-            <td class="pass">185 ms</td>
-            <td class="pass"><strong>184 ms</strong></td>
-            <td>188 ms</td>
-            <td>209 ms</td>
-            <td>176 ms</td>
-            <td>738 ms</td>
+            <td><span class="fail"><strong>0.48</strong></span></td>
+            <td class="fail tx-rt-cell" data-ms="185.0"><span class="tx-rt-val">185</span></td>
+            <td class="fail tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
+            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
+            <td class="tx-rt-cell" data-ms="738"><span class="tx-rt-val">738</span></td>
             <td class="pass">0.00%</td>
-            <td>500 ms</td>
-            <td><span style="color:var(--green); font-weight:600;">-63.2%</span></td>
-            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
+            <td class="tx-rt-cell" data-ms="50"><span class="tx-rt-val">50</span></td>
+            <td><span style="color:var(--red); font-weight:600;">+268.0%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2548985688 tree-children-429592586"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-429592586" data-depth="2" data-type="request">
-            <td><span style="padding-left:48px; display:inline-block;">↳ <code style="font-size:0.78rem; color:var(--muted);">HTTP_Signon_Form</code></span></td>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1878788440 tree-children-1199043728"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1199043728" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Signon_Form</code></span></td>
             <td>157</td>
             <td>-</td>
-            <td class="pass">185 ms</td>
-            <td class="pass"><strong>184 ms</strong></td>
-            <td>188 ms</td>
-            <td>209 ms</td>
-            <td>176 ms</td>
-            <td>738 ms</td>
+            <td class="pass tx-rt-cell" data-ms="185.0"><span class="tx-rt-val">185</span></td>
+            <td class="pass tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
+            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
+            <td class="tx-rt-cell" data-ms="738"><span class="tx-rt-val">738</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -940,13 +1088,11 @@
                         var nestedBtns = rows[i].querySelectorAll('.tree-toggle-btn[data-expanded="true"]');
                         nestedBtns.forEach(function(nb) {
                             nb.setAttribute('data-expanded', 'false');
-                            var l = nb.textContent.replace(/[▼▲]\s*/, '');
-                            nb.textContent = '▼ ' + l;
+                            nb.textContent = '▶';
                         });
                     }
                     btn.setAttribute('data-expanded', 'false');
-                    var label = btn.textContent.replace(/[▼▲]\s*/, '');
-                    btn.textContent = '▼ ' + label;
+                    btn.textContent = '▶';
                 } else {
                     // Expand: show ONLY direct children (rows with data-parent-cls === clsId)
                     var rows = document.querySelectorAll('tr[data-parent-cls="' + clsId + '"]');
@@ -958,8 +1104,7 @@
                         }
                     }
                     btn.setAttribute('data-expanded', 'true');
-                    var label = btn.textContent.replace(/[▼▲]\s*/, '');
-                    btn.textContent = '▲ ' + label;
+                    btn.textContent = '▼';
                 }
             }
             function filterByThreadGroup(val) {
@@ -981,12 +1126,37 @@
                         }
                     }
                 });
-                // Reset all toggle buttons to collapsed (▼)
+                // Reset all toggle buttons to collapsed (▶)
                 var allBtns = table.querySelectorAll('.tree-toggle-btn');
                 allBtns.forEach(function(btn) {
                     btn.setAttribute('data-expanded', 'false');
-                    var label = btn.textContent.replace(/[▼▲]\s*/, '');
-                    btn.textContent = '▼ ' + label;
+                    btn.textContent = '▶';
+                });
+            }
+            function toggleTxTableUnits(unit) {
+                var isSec = (unit === 's');
+                var thAvg = document.getElementById('th-tx-avg');
+                var thP90 = document.getElementById('th-tx-p90');
+                var thMin = document.getElementById('th-tx-min');
+                var thMax = document.getElementById('th-tx-max');
+                var thSla = document.getElementById('th-tx-sla');
+                if (thAvg) thAvg.textContent = isSec ? 'Avg RT (s)' : 'Avg RT (ms)';
+                if (thP90) thP90.textContent = isSec ? 'P90 (s)' : 'P90 (ms)';
+                if (thMin) thMin.textContent = isSec ? 'Min (s)' : 'Min (ms)';
+                if (thMax) thMax.textContent = isSec ? 'Max (s)' : 'Max (ms)';
+                if (thSla) thSla.textContent = isSec ? 'RT SLA (s)' : 'RT SLA (ms)';
+
+                var cells = document.querySelectorAll('#txBreakdownTable .tx-rt-cell');
+                cells.forEach(function(cell) {
+                    var rawMs = parseFloat(cell.getAttribute('data-ms'));
+                    if (isNaN(rawMs)) return;
+                    var valEl = cell.querySelector('.tx-rt-val') || cell;
+                    if (isSec) {
+                        var secVal = rawMs / 1000.0;
+                        valEl.textContent = secVal >= 10 ? secVal.toFixed(1) : secVal.toFixed(2);
+                    } else {
+                        valEl.textContent = Math.round(rawMs).toString();
+                    }
                 });
             }
             </script>
@@ -1004,10 +1174,13 @@
         <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
                 <h3 style="margin:0; white-space: nowrap;">📈 Response Time Over Time</h3>
-                <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
-                    <option value="ALL">All Transactions (Overall)</option>
-                    <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
-                </select>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                        <option value="ALL">All Transactions (Overall)</option>
+                        <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
+                    </select>
+                    <button class="chart-info-btn" onclick="openGraphModal('rt-over-time')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
             </div>
             <div style="position: relative; height: 260px; width: 100%;">
                 <canvas id="rtChart"></canvas>
@@ -1016,7 +1189,7 @@
         <div class="ai-observation-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
                 <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
-                <span class="finding-badge-inline" onclick="showFinding('F-002');" style="cursor:pointer;">🔍 F-002</span>
+                <span class="finding-badge-inline" onclick="showFinding('F-004');" style="cursor:pointer;">🔍 F-004</span>
             </div>
             <p style="font-weight:600; font-size:0.85rem; margin-bottom:0.6rem; color:var(--text);">Latency remains broadly variable with periodic spikes during sustained execution, but periodic P99 spikes indicate intermittent high-latency requests.</p>
             <div class="evidence-grid"><span class="evidence-chip">Avg RT: 235 ms</span> &middot; <span class="evidence-chip">P95: 528 ms</span> &middot; <span class="evidence-chip">P99: 730 ms</span> &middot; <span class="evidence-chip">Maximum observed: 2,143 ms</span></div>
@@ -1032,8 +1205,9 @@
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🔥 Critical Transaction Response Time</h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Response time trend for transactions marked as critical</p>
                 </div>
-                <div>
+                <div style="display:flex; align-items:center; gap:0.75rem;">
                     <a href="#" onclick="switchReportTab('rpt-tx', document.querySelectorAll('.nav-btn')[2]); return false;" style="font-size:0.78rem; font-weight:600; color:var(--accent); text-decoration:none;">Manage Critical Transactions →</a>
+                    <button class="chart-info-btn" onclick="openGraphModal('critical-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
 
@@ -1042,7 +1216,7 @@
                 <div><span style="color:var(--muted);">Critical:</span> <strong>4</strong></div>
                 <div><span style="color:var(--muted);">Avg Response:</span> <strong>186 ms</strong></div>
                 <div><span style="color:var(--muted);">P95 Response:</span> <strong>222 ms</strong></div>
-                <div><span style="color:var(--muted);">SLA Breaches:</span> <strong style="color:var(--red);">1</strong></div>
+                <div><span style="color:var(--muted);">SLA Breaches:</span> <strong style="color:var(--red);">2</strong></div>
                 <div><span style="color:var(--muted);">Max Response:</span> <strong>1562 ms</strong></div>
             </div>
 
@@ -1057,13 +1231,19 @@
 
         <div class="chart-grid">
             <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
-                <h3>📊 Response Time Distribution</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                    <h3 style="margin:0;">📊 Response Time Distribution</h3>
+                    <button class="chart-info-btn" onclick="openGraphModal('rt-hist')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
                 <div style="position: relative; height: 220px; width: 100%;">
                     <canvas id="histChart"></canvas>
                 </div>
             </div>
             <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
-                <h3>🏷️ Top Transactions by Response Time</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                    <h3 style="margin:0;">🏷️ Top Transactions by Response Time</h3>
+                    <button class="chart-info-btn" onclick="openGraphModal('top-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
                 <div style="position: relative; height: 220px; width: 100%;">
                     <canvas id="txChart"></canvas>
                 </div>
@@ -1083,6 +1263,16 @@
         <tbody>
             
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC02_US04_Navigate_To_Signon_Page</strong></td>
+            <td>185 ms</td>
+            <td>188 ms</td>
+            <td style="color: var(--green);">0.00%</td>
+            <td>50 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+268.0%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
             <td><strong>TC02_US01_Select_Fish_Category</strong></td>
             <td>178 ms</td>
             <td>182 ms</td>
@@ -1090,6 +1280,16 @@
             <td>92 ms</td>
             <td style="color: var(--red); font-weight: 600;">+95.7%</td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC02_US02_Select_Dogs_Category</strong></td>
+            <td>183 ms</td>
+            <td>185 ms</td>
+            <td style="color: var(--green);">0.00%</td>
+            <td>100 ms</td>
+            <td style="color: var(--yellow); font-weight: 600;">+82.0%</td>
+            <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
         </tr>
         
         </tbody>
@@ -1102,7 +1302,7 @@
     <div id="rpt-error" class="tab-pane hidden">
         <div class="kpi-grid">
             <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value pass">0.00<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">0 transaction failures</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">1</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">3</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
         </div>
 
         <!-- SLA Deviation & Breach Severity Card -->
@@ -1112,7 +1312,10 @@
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">SLA Deviation &amp; Breach Severity</h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Distribution of transactions by SLA utilization</p>
                 </div>
-                <span style="font-size:0.78rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">10 Transactions</span>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="font-size:0.78rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">10 Transactions</span>
+                    <button class="chart-info-btn" onclick="openGraphModal('sla-donut')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
             </div>
 
             <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-bottom: 1rem;">
@@ -1120,7 +1323,7 @@
                 <div style="position: relative; width: 160px; height: 160px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
                     <canvas id="slaDonut" width="160" height="160"></canvas>
                     <div style="position: absolute; text-align: center; pointer-events: none; width: 100%;">
-                        <div style="font-size: 1.4rem; font-weight: 800; color: #10b981; line-height: 1;">90.0%</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; line-height: 1;">70.0%</div>
                         <div style="font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; margin-top: 0.25rem;">SLA COMPLIANCE</div>
                     </div>
                 </div>
@@ -1130,8 +1333,8 @@
                     <!-- Passed Card -->
                     <div style="background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#10b981; margin-bottom:0.3rem;">● PASSED</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">9</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">90.0%</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">7</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">70.0%</div>
                         <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">Under SLA</div>
                     </div>
 
@@ -1146,17 +1349,17 @@
                     <!-- Moderate Card -->
                     <div style="background: rgba(249,115,22,0.07); border: 1px solid rgba(249,115,22,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#f97316; margin-bottom:0.3rem;">● MODERATE</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">0</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#f97316; margin-top:0.1rem;">0.0%</div>
-                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">0 breaches</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">1</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#f97316; margin-top:0.1rem;">10.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">1 breaches</div>
                     </div>
 
                     <!-- Critical Card -->
                     <div style="background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#ef4444; margin-bottom:0.3rem;">● CRITICAL</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">1</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">10.0%</div>
-                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">1 breaches</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">2</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">20.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">2 breaches</div>
                     </div>
                 </div>
             </div>
@@ -1171,7 +1374,10 @@
         </div>
 
         <div class="chart-box glass-panel" style="position: relative; min-height: 280px; margin-bottom: 1.5rem;">
-            <h3>🔴 Error Rate by Transaction (%)</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 style="margin:0;">🔴 Error Rate by Transaction (%)</h3>
+                <button class="chart-info-btn" onclick="openGraphModal('error-rate-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
+            </div>
             <div style="position: relative; height: 260px; width: 100%;">
                 <canvas id="errChart"></canvas>
             </div>
@@ -1184,7 +1390,10 @@
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Error Distribution &amp; Analysis</h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Global Acceptable Error Rate Threshold: <strong style="color:var(--text);">1.0%</strong>. Click any error type in the donut to drill into affected transactions.</p>
                 </div>
-                <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Total Errors</span>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Total Errors</span>
+                    <button class="chart-info-btn" onclick="openGraphModal('error-distribution')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
             </div>
 
             <div style="display:flex; gap:1.5rem; align-items:flex-start; flex-wrap:wrap;">
@@ -1223,6 +1432,28 @@
                 <div class="rec-title">⚠️ TC02_US01_Select_Fish_Category</div>
                 <div class="rec-desc">
                     90th Percentile reached <strong>180 ms</strong> (Target: 92 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 100 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC02_US02_Select_Dogs_Category</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>182 ms</strong> (Target: 100 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 50 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC02_US04_Navigate_To_Signon_Page</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>184 ms</strong> (Target: 50 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
                 </div>
                 
             </div>
@@ -1266,7 +1497,10 @@
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🖥️ Azure Resource Utilization (CPU &amp; Memory)</h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Dual-line time series tracking host resource pressure thresholds</p>
                 </div>
-                <span style="font-size:0.75rem; font-weight:600; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:0.25rem 0.6rem; border-radius:12px;">Threshold Bands: 80% / 90%</span>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="font-size:0.75rem; font-weight:600; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:0.25rem 0.6rem; border-radius:12px;">Threshold Bands: 80% / 90%</span>
+                    <button class="chart-info-btn" onclick="openGraphModal('azure-cpu-mem')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
             </div>
             
             <div style="position: relative; height: 310px; width: 100%;">
@@ -1280,7 +1514,7 @@
         <div class="ai-observation-panel" style="margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
                 <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 Infrastructure Observation</h4>
-                <span class="finding-badge-inline" onclick="showFinding('F-003');" style="cursor:pointer;">🔍 F-003</span>
+                <span class="finding-badge-inline" onclick="showFinding('F-005');" style="cursor:pointer;">🔍 F-005</span>
             </div>
             <div style="margin-bottom:0.4rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">CPU averaged 60.7% and peaked at 91%. Memory averaged 69.3% and peaked at 89%.</span></div>
             <div><strong style="font-size:0.82rem;">Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Resource contention was observed — scaling or optimization is recommended.</span></div>
@@ -1292,8 +1526,13 @@
         <div class="chart-grid" style="margin-bottom: 1.5rem;">
             <!-- Workload vs Resource (Throughput vs CPU) -->
             <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
-                <h3 style="margin:0; font-size:1rem; font-weight:700;">📈 Workload vs CPU Utilization</h3>
-                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Aligning JMeter request throughput against Azure host CPU %</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                    <div>
+                        <h3 style="margin:0; font-size:1rem; font-weight:700;">📈 Workload vs CPU Utilization</h3>
+                        <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Aligning JMeter request throughput against Azure host CPU %</p>
+                    </div>
+                    <button class="chart-info-btn" onclick="openGraphModal('workload-cpu')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
                 <div style="position: relative; height: 240px; width: 100%;">
                     <canvas id="workloadCpuChart"></canvas>
                 </div>
@@ -1301,8 +1540,13 @@
 
             <!-- Performance Impact (Throughput vs Response Time) -->
             <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
-                <h3 style="margin:0; font-size:1rem; font-weight:700;">⚡ Throughput vs Response Time</h3>
-                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Analyzing capacity limits as request load increases</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                    <div>
+                        <h3 style="margin:0; font-size:1rem; font-weight:700;">⚡ Throughput vs Response Time</h3>
+                        <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Analyzing capacity limits as request load increases</p>
+                    </div>
+                    <button class="chart-info-btn" onclick="openGraphModal('tp-rt-impact')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
                 <div style="position: relative; height: 240px; width: 100%;">
                     <canvas id="tpRtChart"></canvas>
                 </div>
@@ -1313,8 +1557,13 @@
         <div class="chart-grid" style="margin-bottom: 1.5rem;">
             <!-- Storage I/O & Queue Depth -->
             <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
-                <h3 style="margin:0; font-size:1rem; font-weight:700;">💾 Disk I/O &amp; Queue Contention</h3>
-                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Disk Read/Write throughput (MB/s) vs Disk Queue Depth</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                    <div>
+                        <h3 style="margin:0; font-size:1rem; font-weight:700;">💾 Disk I/O &amp; Queue Contention</h3>
+                        <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Disk Read/Write throughput (MB/s) vs Disk Queue Depth</p>
+                    </div>
+                    <button class="chart-info-btn" onclick="openGraphModal('disk-io')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
                 <div style="position: relative; height: 240px; width: 100%;">
                     <canvas id="diskChart"></canvas>
                 </div>
@@ -1322,8 +1571,13 @@
 
             <!-- Network Throughput -->
             <div class="chart-box glass-panel" style="position: relative; min-height: 320px; padding: 1.2rem;">
-                <h3 style="margin:0; font-size:1rem; font-weight:700;">🌐 Network Throughput (In/Out)</h3>
-                <p style="margin:0.2rem 0 0.75rem 0; font-size:0.75rem; color:var(--muted);">Inbound and Outbound network data transfer rate</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                    <div>
+                        <h3 style="margin:0; font-size:1rem; font-weight:700;">🌐 Network Throughput (In/Out)</h3>
+                        <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Inbound and Outbound network data transfer rate</p>
+                    </div>
+                    <button class="chart-info-btn" onclick="openGraphModal('network-tp')" title="How to read this graph &amp; use filters">ℹ️</button>
+                </div>
                 <div style="position: relative; height: 240px; width: 100%;">
                     <canvas id="netChart"></canvas>
                 </div>
@@ -1463,6 +1717,17 @@
     <div id="findingDrawer">
         <button class="drawer-close" onclick="closeFinding()" style="position:absolute; top:1rem; right:1rem;">&times;</button>
         <div id="drawerContent"></div>
+    </div>
+
+    <!-- Graph Info Modal -->
+    <div id="graphModalOverlay" onclick="closeGraphModal(event)">
+        <div id="graphInfoModal" onclick="event.stopPropagation()">
+            <div class="graph-modal-header">
+                <h3 class="graph-modal-title" id="graphModalTitle">📊 Graph Guide</h3>
+                <button class="graph-modal-close" onclick="closeGraphModal()">&times;</button>
+            </div>
+            <div id="graphModalBody"></div>
+        </div>
     </div>
 </div>
 
@@ -1620,7 +1885,7 @@
         return fixedColors[Math.abs(hash) % fixedColors.length];
     }
 
-    const targetSlaVal = 92;
+    const targetSlaVal = 50;
 
 
 
@@ -1667,7 +1932,7 @@
         });
     }
 
-    const txSlaMap = {"TC01_US01_Launch_Catalog": 500.0, "TC01_US02_Launch_Catalog": 500.0, "TC01_US03_Launch_Homepage": 200.0, "TC01_US04_Launch_Catalog": 500.0, "TC02_US01_Select_Fish_Category": 92.0, "TC02_US02_Select_Dogs_Category": 500.0, "TC02_US03_Search_Keyword_Bulldog": 500.0, "TC02_US04_Navigate_To_Signon_Page": 500.0, "TC03_US01_View_Product_Details": 500.0, "TC03_US02_Add_Item_To_Cart": 1517.0};
+    const txSlaMap = {"TC01_US01_Launch_Catalog": 500.0, "TC01_US02_Launch_Catalog": 500.0, "TC01_US03_Launch_Homepage": 200.0, "TC01_US04_Launch_Catalog": 500.0, "TC02_US01_Select_Fish_Category": 92.0, "TC02_US02_Select_Dogs_Category": 100.0, "TC02_US03_Search_Keyword_Bulldog": 500.0, "TC02_US04_Navigate_To_Signon_Page": 50.0, "TC03_US01_View_Product_Details": 500.0, "TC03_US02_Add_Item_To_Cart": 1517.0};
 
     function updateCriticalTxChart() {
         if (!critTxChartObj) return;
@@ -1802,11 +2067,262 @@
         tpChartObj.update('active');
     }
 
+    // ── Hierarchical Transaction & Sub-Transaction Response Time Breakdown Bar Chart ──
+    const txRtHierarchyData = {"user_stories": [{"name": "US01_Browse_Catalog", "transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 194.1, "p90": 180, "p95": 195, "min_rt": 172, "max_rt": 1212, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 195, "min_rt": 172, "max_rt": 1783, "count": 368, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 178.4, "p90": 180, "p95": 182, "min_rt": 171, "max_rt": 397, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_Select_Category_Fish", "type": "request", "avg_rt": 178.4, "p90": 180, "p95": 182, "min_rt": 171, "max_rt": 397, "count": 106, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 189.7, "p90": 183, "p95": 188, "min_rt": 172, "max_rt": 732, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_View_Product_FI-SW-01", "type": "request", "avg_rt": 189.7, "p90": 183, "p95": 188, "min_rt": 172, "max_rt": 732, "count": 106, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US02_Add_To_Cart", "transactions": [{"name": "TC01_US02_Launch_Catalog", "avg_rt": 200.5, "p90": 182, "p95": 201, "min_rt": 172, "max_rt": 1783, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 195, "min_rt": 172, "max_rt": 1783, "count": 368, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 183.1, "p90": 182, "p95": 185, "min_rt": 172, "max_rt": 410, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_Select_Category_Dogs", "type": "request", "avg_rt": 183.1, "p90": 182, "p95": 185, "min_rt": 172, "max_rt": 410, "count": 105, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 184.5, "p90": 184, "p95": 187, "min_rt": 172, "max_rt": 521, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_Add_Item_EST-26", "type": "request", "avg_rt": 184.5, "p90": 184, "p95": 187, "min_rt": 172, "max_rt": 521, "count": 105, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US03_Search_Products", "transactions": [{"name": "TC01_US03_Launch_Homepage", "avg_rt": 196.3, "p90": 185, "p95": 222, "min_rt": 175, "max_rt": 1562, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_Launch_Homepage", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 222, "min_rt": 175, "max_rt": 1562, "count": 157, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 184.4, "p90": 183, "p95": 188, "min_rt": 175, "max_rt": 737, "count": 156, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Search_Bulldog", "type": "request", "avg_rt": 184.4, "p90": 183, "p95": 188, "min_rt": 175, "max_rt": 737, "count": 156, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US04_User_Sign_In", "transactions": [{"name": "TC01_US04_Launch_Catalog", "avg_rt": 194.9, "p90": 185, "p95": 190, "min_rt": 176, "max_rt": 1211, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 195, "min_rt": 172, "max_rt": 1783, "count": 368, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 185.0, "p90": 184, "p95": 188, "min_rt": 176, "max_rt": 738, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_Signon_Form", "type": "request", "avg_rt": 185.0, "p90": 184, "p95": 188, "min_rt": 176, "max_rt": 738, "count": 157, "errors": 0, "error_rate": 0.0}]}]}], "all_transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 194.1, "p90": 180, "p95": 195, "min_rt": 172, "max_rt": 1212, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 195, "min_rt": 172, "max_rt": 1783, "count": 368, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 178.4, "p90": 180, "p95": 182, "min_rt": 171, "max_rt": 397, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_Select_Category_Fish", "type": "request", "avg_rt": 178.4, "p90": 180, "p95": 182, "min_rt": 171, "max_rt": 397, "count": 106, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 189.7, "p90": 183, "p95": 188, "min_rt": 172, "max_rt": 732, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_View_Product_FI-SW-01", "type": "request", "avg_rt": 189.7, "p90": 183, "p95": 188, "min_rt": 172, "max_rt": 732, "count": 106, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US02_Launch_Catalog", "avg_rt": 200.5, "p90": 182, "p95": 201, "min_rt": 172, "max_rt": 1783, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 195, "min_rt": 172, "max_rt": 1783, "count": 368, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 183.1, "p90": 182, "p95": 185, "min_rt": 172, "max_rt": 410, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_Select_Category_Dogs", "type": "request", "avg_rt": 183.1, "p90": 182, "p95": 185, "min_rt": 172, "max_rt": 410, "count": 105, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 184.5, "p90": 184, "p95": 187, "min_rt": 172, "max_rt": 521, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_Add_Item_EST-26", "type": "request", "avg_rt": 184.5, "p90": 184, "p95": 187, "min_rt": 172, "max_rt": 521, "count": 105, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US03_Launch_Homepage", "avg_rt": 196.3, "p90": 185, "p95": 222, "min_rt": 175, "max_rt": 1562, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_Launch_Homepage", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 222, "min_rt": 175, "max_rt": 1562, "count": 157, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 184.4, "p90": 183, "p95": 188, "min_rt": 175, "max_rt": 737, "count": 156, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Search_Bulldog", "type": "request", "avg_rt": 184.4, "p90": 183, "p95": 188, "min_rt": 175, "max_rt": 737, "count": 156, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US04_Launch_Catalog", "avg_rt": 194.9, "p90": 185, "p95": 190, "min_rt": 176, "max_rt": 1211, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 196.3, "p90": 185, "p95": 195, "min_rt": 172, "max_rt": 1783, "count": 368, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 185.0, "p90": 184, "p95": 188, "min_rt": 176, "max_rt": 738, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_Signon_Form", "type": "request", "avg_rt": 185.0, "p90": 184, "p95": 188, "min_rt": 176, "max_rt": 738, "count": 157, "errors": 0, "error_rate": 0.0}]}]};
+    let currentTxRtUs = 'ALL';
+    let currentTxRtTx = 'ALL';
+    let currentTxRtMetric = 'avg_rt';
+
+    // Chart.js Data Labels Plugin to draw time values above vertical bars
+    const txRtDataLabelsPlugin = {
+        id: 'txRtDataLabelsPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            ctx.save();
+            const isDark = document.documentElement.classList.contains('dark');
+            ctx.font = '600 11px Inter, sans-serif';
+            ctx.fillStyle = isDark ? '#f1f5f9' : '#1f2328';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                if (!meta.hidden) {
+                    meta.data.forEach((element, index) => {
+                        const val = dataset.data[index];
+                        if (val !== null && val !== undefined && !isNaN(val)) {
+                            const formatted = Math.round(val).toLocaleString() + ' ms';
+                            const x = element.x;
+                            const y = element.y - 5;
+                            ctx.fillText(formatted, x, y);
+                        }
+                    });
+                }
+            });
+            ctx.restore();
+        }
+    };
+
+    let txRtBreakdownChartObj = null;
+
+    function initTxRtBreakdownChart() {
+        const usSelect = document.getElementById('txRtUsFilter');
+        if (!usSelect) return;
+
+        // Populate User Story dropdown
+        usSelect.innerHTML = '<option value="ALL">All User Stories / Thread Groups</option>';
+        if (txRtHierarchyData.user_stories) {
+            txRtHierarchyData.user_stories.forEach(us => {
+                const opt = document.createElement('option');
+                opt.value = us.name;
+                opt.textContent = us.name;
+                usSelect.appendChild(opt);
+            });
+        }
+
+        populateTxRtTxDropdown();
+
+        const canvas = document.getElementById('chart-tx-rt-breakdown');
+        if (!canvas) return;
+
+        txRtBreakdownChartObj = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Response Time (ms)',
+                        data: [],
+                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                        borderColor: '#6366f1',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const val = ctx.parsed.y;
+                                const metricLabel = currentTxRtMetric === 'avg_rt' ? 'Avg RT' :
+                                                    currentTxRtMetric === 'p90' ? 'P90 RT' :
+                                                    currentTxRtMetric === 'p95' ? 'P95 RT' : 'Max RT';
+                                return `${metricLabel}: ${Math.round(val).toLocaleString()} ms`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: textColor,
+                            font: { weight: '600', size: 10 },
+                            maxRotation: 25
+                        }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: {
+                            color: textColor,
+                            callback: function(val) { return val.toLocaleString() + ' ms'; }
+                        },
+                        title: { display: true, text: 'Response Time (ms)', color: textColor },
+                        grace: '18%',
+                        beginAtZero: true
+                    }
+                }
+            },
+            plugins: [txRtDataLabelsPlugin]
+        });
+
+        updateTxRtBreakdownChart();
+    }
+
+    function populateTxRtTxDropdown() {
+        const txSelect = document.getElementById('txRtTxFilter');
+        if (!txSelect) return;
+
+        txSelect.innerHTML = '';
+        const allOpt = document.createElement('option');
+        allOpt.value = 'ALL';
+        allOpt.textContent = currentTxRtUs === 'ALL' ? 'All Transactions (Overview)' : `All Transactions in ${currentTxRtUs}`;
+        txSelect.appendChild(allOpt);
+
+        let txList = [];
+        if (currentTxRtUs === 'ALL') {
+            txList = txRtHierarchyData.all_transactions || [];
+        } else {
+            const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === currentTxRtUs);
+            if (foundUs) txList = foundUs.transactions || [];
+        }
+
+        txList.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.name;
+            const subCount = (t.children || []).length;
+            const suffix = subCount > 0 ? ` (${subCount} sub-requests)` : '';
+            opt.textContent = (t.name.length > 35 ? t.name.substring(0, 32) + '...' : t.name) + suffix;
+            opt.title = t.name;
+            txSelect.appendChild(opt);
+        });
+
+        txSelect.value = currentTxRtTx;
+        if (txSelect.value !== currentTxRtTx) {
+            currentTxRtTx = 'ALL';
+            txSelect.value = 'ALL';
+        }
+    }
+
+    function onTxRtUsChange(val) {
+        currentTxRtUs = val;
+        currentTxRtTx = 'ALL';
+        populateTxRtTxDropdown();
+        updateTxRtBreakdownChart();
+    }
+
+    function onTxRtTxChange(val) {
+        currentTxRtTx = val;
+        updateTxRtBreakdownChart();
+    }
+
+    function onTxRtMetricChange(val) {
+        currentTxRtMetric = val;
+        updateTxRtBreakdownChart();
+    }
+
+    function updateTxRtBreakdownChart() {
+        if (!txRtBreakdownChartObj) return;
+
+        const breadcrumbEl = document.getElementById('txRtBreadcrumb');
+        let items = [];
+        let isDrilldown = false;
+        let chartTitleLabel = 'Transactions';
+        let barColor = 'rgba(99, 102, 241, 0.75)';
+        let barBorder = '#6366f1';
+
+        if (currentTxRtTx !== 'ALL') {
+            // Drilldown mode: find the selected transaction across hierarchy
+            let targetTx = null;
+            if (txRtHierarchyData.all_transactions) {
+                targetTx = txRtHierarchyData.all_transactions.find(t => t.name === currentTxRtTx);
+            }
+            if (!targetTx && txRtHierarchyData.user_stories) {
+                for (const us of txRtHierarchyData.user_stories) {
+                    const found = (us.transactions || []).find(t => t.name === currentTxRtTx);
+                    if (found) { targetTx = found; break; }
+                }
+            }
+
+            if (targetTx && targetTx.children && targetTx.children.length > 0) {
+                isDrilldown = true;
+                items = targetTx.children;
+                chartTitleLabel = `Inside Requests of "${targetTx.name}"`;
+                barColor = 'rgba(14, 165, 233, 0.8)'; // Cyan / Sky Blue
+                barBorder = '#0284c7';
+                if (breadcrumbEl) {
+                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${currentTxRtUs === 'ALL' ? 'All Stories' : currentTxRtUs}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${targetTx.name}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${items.length} Child Requests / Sub-Transactions</span>`;
+                }
+            } else if (targetTx) {
+                // Single transaction with no sub-requests
+                items = [targetTx];
+                chartTitleLabel = targetTx.name;
+                if (breadcrumbEl) {
+                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${currentTxRtUs === 'ALL' ? 'All Stories' : currentTxRtUs}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${targetTx.name}</span> (No child requests)`;
+                }
+            }
+        } else {
+            // Overview mode: show transactions
+            if (currentTxRtUs === 'ALL') {
+                items = txRtHierarchyData.all_transactions || [];
+                if (breadcrumbEl) {
+                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">🌐 All User Stories</span> &rarr; <span style="color:var(--text); font-weight:700;">${items.length} Main Transactions</span>`;
+                }
+            } else {
+                const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === currentTxRtUs);
+                items = foundUs ? (foundUs.transactions || []) : [];
+                if (breadcrumbEl) {
+                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">📁 ${currentTxRtUs}</span> &rarr; <span style="color:var(--text); font-weight:700;">${items.length} Transactions</span>`;
+                }
+            }
+            barColor = 'rgba(99, 102, 241, 0.75)'; // Indigo
+            barBorder = '#4f46e5';
+        }
+
+        const labels = items.map(item => item.name.length > 32 ? item.name.substring(0, 29) + '...' : item.name);
+        const dataValues = items.map(item => {
+            const v = item[currentTxRtMetric];
+            return v !== undefined && v !== null ? v : 0;
+        });
+
+        const metricName = currentTxRtMetric === 'avg_rt' ? 'Average RT (ms)' :
+                           currentTxRtMetric === 'p90' ? 'P90 RT (ms)' :
+                           currentTxRtMetric === 'p95' ? 'P95 RT (ms)' : 'Max RT (ms)';
+
+        txRtBreakdownChartObj.data.labels = labels;
+        txRtBreakdownChartObj.data.datasets[0].label = metricName;
+        txRtBreakdownChartObj.data.datasets[0].data = dataValues;
+        txRtBreakdownChartObj.data.datasets[0].backgroundColor = barColor;
+        txRtBreakdownChartObj.data.datasets[0].borderColor = barBorder;
+        txRtBreakdownChartObj.options.scales.y.title.text = metricName;
+
+        txRtBreakdownChartObj.update('active');
+    }
+
+    initTxRtBreakdownChart();
+
     // SLA Deviation by Transaction Diverging Horizontal Bar Chart
     const tgToTcsMap = {"US01_Browse_Catalog": ["T-US01_Overall_Iteration", "TC01_US01_Launch_Catalog", "TC02_US01_Select_Fish_Category", "TC03_US01_View_Product_Details"], "US02_Add_To_Cart": ["T-US02_Overall_Iteration", "TC01_US02_Launch_Catalog", "TC02_US02_Select_Dogs_Category", "TC03_US02_Add_Item_To_Cart"], "US03_Search_Products": ["T-US03_Overall_Iteration", "TC01_US03_Launch_Homepage", "TC02_US03_Search_Keyword_Bulldog"], "US04_User_Sign_In": ["T-US04_Overall_Iteration", "TC01_US04_Launch_Catalog", "TC02_US04_Navigate_To_Signon_Page"]};
-    const txDevMap = {"TC01_US01_Launch_Catalog": {"label": "TC01_US01_Launch_Catalog", "dev_pct": -64.0, "p90": 180, "target": 500.0}, "TC01_US04_Launch_Catalog": {"label": "TC01_US04_Launch_Catalog", "dev_pct": -63.0, "p90": 185, "target": 500.0}, "TC02_US01_Select_Fish_Category": {"label": "TC02_US01_Select_Fish_Category", "dev_pct": 95.7, "p90": 180, "target": 92.0}, "TC01_US03_Launch_Homepage": {"label": "TC01_US03_Launch_Homepage", "dev_pct": -7.5, "p90": 185, "target": 200.0}, "TC03_US01_View_Product_Details": {"label": "TC03_US01_View_Product_Details", "dev_pct": -63.4, "p90": 183, "target": 500.0}, "TC02_US04_Navigate_To_Signon_Page": {"label": "TC02_US04_Navigate_To_Signon_Page", "dev_pct": -63.2, "p90": 184, "target": 500.0}, "TC02_US03_Search_Keyword_Bulldog": {"label": "TC02_US03_Search_Keyword_Bulldog", "dev_pct": -63.4, "p90": 183, "target": 500.0}, "TC01_US02_Launch_Catalog": {"label": "TC01_US02_Launch_Catalog", "dev_pct": -63.6, "p90": 182, "target": 500.0}, "TC02_US02_Select_Dogs_Category": {"label": "TC02_US02_Select_Dogs_Category", "dev_pct": -63.6, "p90": 182, "target": 500.0}, "TC03_US02_Add_Item_To_Cart": {"label": "TC03_US02_Add_Item_To_Cart", "dev_pct": -87.9, "p90": 184, "target": 1517.0}};
-    const initialDevLabels = ["TC02_US01_Select_Fish_Category", "TC01_US03_Launch_Homepage", "TC01_US04_Launch_Catalog", "TC02_US04_Navigate_To_Signon_Page", "TC03_US01_View_Product_Details", "TC02_US03_Search_Keyword_Bulldog", "TC01_US02_Launch_Catalog", "TC02_US02_Select_Dogs_Category", "TC01_US01_Launch_Catalog", "TC03_US02_Add_Item_To_Cart"];
-    const initialDevVals = [95.7, -7.5, -63.0, -63.2, -63.4, -63.4, -63.6, -63.6, -64.0, -87.9];
+    const txDevMap = {"TC01_US01_Launch_Catalog": {"label": "TC01_US01_Launch_Catalog", "dev_pct": -64.0, "p90": 180, "target": 500.0}, "TC01_US04_Launch_Catalog": {"label": "TC01_US04_Launch_Catalog", "dev_pct": -63.0, "p90": 185, "target": 500.0}, "TC02_US01_Select_Fish_Category": {"label": "TC02_US01_Select_Fish_Category", "dev_pct": 95.7, "p90": 180, "target": 92.0}, "TC01_US03_Launch_Homepage": {"label": "TC01_US03_Launch_Homepage", "dev_pct": -7.5, "p90": 185, "target": 200.0}, "TC03_US01_View_Product_Details": {"label": "TC03_US01_View_Product_Details", "dev_pct": -63.4, "p90": 183, "target": 500.0}, "TC02_US04_Navigate_To_Signon_Page": {"label": "TC02_US04_Navigate_To_Signon_Page", "dev_pct": 268.0, "p90": 184, "target": 50.0}, "TC02_US03_Search_Keyword_Bulldog": {"label": "TC02_US03_Search_Keyword_Bulldog", "dev_pct": -63.4, "p90": 183, "target": 500.0}, "TC01_US02_Launch_Catalog": {"label": "TC01_US02_Launch_Catalog", "dev_pct": -63.6, "p90": 182, "target": 500.0}, "TC02_US02_Select_Dogs_Category": {"label": "TC02_US02_Select_Dogs_Category", "dev_pct": 82.0, "p90": 182, "target": 100.0}, "TC03_US02_Add_Item_To_Cart": {"label": "TC03_US02_Add_Item_To_Cart", "dev_pct": -87.9, "p90": 184, "target": 1517.0}};
+    const initialDevLabels = ["TC02_US04_Navigate_To_Signon_Page", "TC02_US01_Select_Fish_Category", "TC02_US02_Select_Dogs_Category", "TC01_US03_Launch_Homepage", "TC01_US04_Launch_Catalog", "TC03_US01_View_Product_Details", "TC02_US03_Search_Keyword_Bulldog", "TC01_US02_Launch_Catalog", "TC01_US01_Launch_Catalog", "TC03_US02_Add_Item_To_Cart"];
+    const initialDevVals = [268.0, 95.7, 82.0, -7.5, -63.0, -63.4, -63.4, -63.6, -64.0, -87.9];
 
     const slaDevChartObj = new Chart(document.getElementById('chart-sla-deviation-exec'), {
         type: 'bar',
@@ -1882,60 +2398,138 @@
         slaDevChartObj.update('active');
     }
 
-    // Transaction Summary Grouped Bar Chart (Pass vs Fail with Data Labels)
+    // Chart.js Data Labels Plugin to draw exact sample counts on top of bars
+    const txSummaryDataLabelsPlugin = {
+        id: 'txSummaryDataLabelsPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            ctx.save();
+            const isDark = document.documentElement.classList.contains('dark');
+            ctx.font = '700 11px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                if (!meta.hidden) {
+                    meta.data.forEach((element, index) => {
+                        const val = dataset.data[index];
+                        if (val !== null && val !== undefined && !isNaN(val)) {
+                            if (datasetIndex === 1 && val === 0) return; // Don't draw 0 for Fail
+                            const formatted = val.toLocaleString();
+                            const x = element.x;
+                            const y = element.y - 4;
+                            ctx.fillStyle = datasetIndex === 0 
+                                ? (isDark ? '#34d399' : '#059669') 
+                                : '#ef4444';
+                            ctx.fillText(formatted, x, y);
+                        }
+                    });
+                }
+            });
+            ctx.restore();
+        }
+    };
+
+    // Transaction Summary Grouped Bar Chart (Pass vs Fail with Numbers on Bars)
     new Chart(document.getElementById('chart-tx-summary-bar'), {
         type: 'bar',
         data: {
             labels: ["US01_Browse_Catalog", "US02_Add_To_Cart", "US03_Search_Products", "US04_User_Sign_In"],
             datasets: [
                 {
-                    label: 'Pass',
+                    label: 'Pass Samples',
                     data: [106, 105, 156, 157],
-                    backgroundColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.85)',
                     borderColor: '#059669',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    barPercentage: 0.6,
-                    categoryPercentage: 0.6
+                    borderWidth: 1.5,
+                    borderRadius: 5,
+                    barPercentage: 0.62,
+                    categoryPercentage: 0.65
                 },
                 {
-                    label: 'Fail',
+                    label: 'Fail Samples',
                     data: [0, 0, 0, 0],
-                    backgroundColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.85)',
                     borderColor: '#dc2626',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    barPercentage: 0.6,
-                    categoryPercentage: 0.6
+                    borderWidth: 1.5,
+                    borderRadius: 5,
+                    barPercentage: 0.62,
+                    categoryPercentage: 0.65
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 25,
+                    bottom: 5
+                }
+            },
             plugins: {
-                legend: { position: 'bottom', labels: { font: { weight: 'bold' } } },
-                tooltip: { mode: 'index', intersect: false }
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { weight: '700', size: 12 },
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 16,
+                        color: textColor
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    padding: 10,
+                    callbacks: {
+                        label: function(ctx) {
+                            const label = ctx.dataset.label || '';
+                            const val = ctx.raw || 0;
+                            const chart = ctx.chart;
+                            const pass = chart.data.datasets[0].data[ctx.dataIndex] || 0;
+                            const fail = (chart.data.datasets[1] && chart.data.datasets[1].data[ctx.dataIndex]) || 0;
+                            const total = pass + fail;
+                            const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+                            return `${label}: ${val.toLocaleString()} (${pct}%)`;
+                        },
+                        footer: function(tooltipItems) {
+                            if (tooltipItems.length > 0) {
+                                const idx = tooltipItems[0].dataIndex;
+                                const chart = tooltipItems[0].chart;
+                                const pass = chart.data.datasets[0].data[idx] || 0;
+                                const fail = (chart.data.datasets[1] && chart.data.datasets[1].data[idx]) || 0;
+                                const total = pass + fail;
+                                const errRate = total > 0 ? ((fail / total) * 100).toFixed(2) : '0.00';
+                                return `Total: ${total.toLocaleString()} samples | Error Rate: ${errRate}%`;
+                            }
+                            return '';
+                        }
+                    }
+                }
             },
             scales: {
-                x: { grid: { display: false }, ticks: { maxRotation: 25, font: { size: 10 } } },
-                y: { grid: { color: gridColor }, beginAtZero: true, title: { display: true, text: 'Sample Count' } }
+                x: {
+                    grid: { display: false },
+                    ticks: { maxRotation: 25, font: { weight: '600', size: 11 }, color: textColor }
+                },
+                y: {
+                    grid: { color: gridColor },
+                    beginAtZero: true,
+                    grace: '12%',
+                    ticks: {
+                        color: textColor,
+                        callback: function(val) { return val.toLocaleString(); }
+                    },
+                    title: { display: true, text: 'Sample Count', color: textColor, font: { weight: '700' } }
+                }
             }
-        }
-    });
-
-
-
-    new Chart(document.getElementById('chart-errors-exec'), {
-        type: 'bar',
-        data: {
-            labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
-            datasets: [
-                { label: 'Error Count', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 4 }
-            ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+        plugins: [txSummaryDataLabelsPlugin]
     });
+
+
 
     new Chart(document.getElementById('chart-infra-exec'), {
         type: 'line',
@@ -1956,7 +2550,7 @@
         data: {
             labels: ['Passed', 'Minor Breach', 'Moderate Breach', 'Critical Breach'],
             datasets: [{
-                data: [9, 0, 0, 1],
+                data: [7, 0, 1, 2],
                 backgroundColor: [
                     '#10b981',  // Passed - Emerald Green
                     '#f59e0b',  // Minor - Amber
@@ -2033,7 +2627,7 @@
         }
     });
 
-    // ── Error Distribution Donut Chart with Interactive Drill-Down ──
+    // ── Error Distribution Donut / Pie Charts (Executive Summary & Error Tab) ──
     const errDonutLabels = [];
     const errDonutCounts = [];
     const errDrillData = {};
@@ -2041,106 +2635,106 @@
     const startEpochMs = 1787213468000;
     const displayTotalErrors = 0;
 
-    if (errDonutLabels.length > 0) {
-        const errorDonutCtx = document.getElementById('errorDonutChart');
-        const errorDonutObj = new Chart(errorDonutCtx, {
-            type: 'doughnut',
-            data: {
-                labels: errDonutLabels,
-                datasets: [{
-                    data: errDonutCounts,
-                    backgroundColor: errDonutColors.slice(0, errDonutLabels.length),
-                    borderColor: errDonutColors.slice(0, errDonutLabels.length).map(c => c + '88'),
-                    borderWidth: 2,
-                    hoverOffset: 8,
-                    hoverBorderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '68%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(ctx) {
-                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : '0';
-                                return ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+    function initErrorDonutInstances() {
+        const configs = [
+            { canvasId: 'chart-errors-exec', legendId: 'execErrorDonutLegend', contentId: 'execErrorContent' },
+            { canvasId: 'errorDonutChart', legendId: 'errorDonutLegend', contentId: null }
+        ];
+
+        configs.forEach(cfg => {
+            const canvasEl = document.getElementById(cfg.canvasId);
+            if (!canvasEl) return;
+
+            if (errDonutLabels.length > 0) {
+                new Chart(canvasEl, {
+                    type: 'doughnut',
+                    data: {
+                        labels: errDonutLabels,
+                        datasets: [{
+                            data: errDonutCounts,
+                            backgroundColor: errDonutColors.slice(0, errDonutLabels.length),
+                            borderColor: errDonutColors.slice(0, errDonutLabels.length).map(c => c + '88'),
+                            borderWidth: 2,
+                            hoverOffset: 8,
+                            hoverBorderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '68%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                        const pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : '0';
+                                        return ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                                    }
+                                }
+                            }
+                        },
+                        onClick: function(evt, elements) {
+                            if (elements.length > 0) {
+                                const idx = elements[0].index;
+                                const errorKey = errDonutLabels[idx];
+                                showErrorDrillDown(errorKey, errDonutColors[idx % errDonutColors.length]);
                             }
                         }
                     }
-                },
-                onClick: function(evt, elements) {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        const errorKey = errDonutLabels[idx];
-                        showErrorDrillDown(errorKey, errDonutColors[idx % errDonutColors.length]);
-                    }
+                });
+
+                // Build custom legend
+                const legendEl = document.getElementById(cfg.legendId);
+                if (legendEl) {
+                    legendEl.innerHTML = '';
+                    const totalAll = errDonutCounts.reduce((a, b) => a + b, 0);
+                    errDonutLabels.forEach((label, i) => {
+                        const pct = totalAll > 0 ? ((errDonutCounts[i] / totalAll) * 100).toFixed(1) : '0';
+                        const color = errDonutColors[i % errDonutColors.length];
+                        const item = document.createElement('div');
+                        item.style.cssText = 'display:flex; align-items:center; gap:0.4rem; cursor:pointer; padding:0.15rem 0; transition:opacity 0.15s;';
+                        item.innerHTML = `<span style="width:10px; height:10px; border-radius:50%; background:${color}; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${label}">${label.length > 28 ? label.substring(0,25)+'...' : label}</span><span style="margin-left:auto; font-weight:700; color:${color}; flex-shrink:0;">${errDonutCounts[i]}</span>`;
+                        item.onclick = () => showErrorDrillDown(label, color);
+                        item.onmouseenter = () => { item.style.opacity = '0.7'; };
+                        item.onmouseleave = () => { item.style.opacity = '1'; };
+                        legendEl.appendChild(item);
+                    });
+                }
+            } else if (displayTotalErrors > 0) {
+                // Legacy fallback
+                const parent = cfg.contentId ? document.getElementById(cfg.contentId) : canvasEl.parentElement.parentElement;
+                if (parent) {
+                    parent.innerHTML = `
+                        <div style="text-align:center; padding:2rem 1rem; color:var(--muted);">
+                            <div style="font-size:2.5rem; margin-bottom:0.5rem; opacity:0.7;">⚠️</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:var(--text);">${displayTotalErrors} Errors Detected</div>
+                            <div style="font-size:0.82rem; margin-top:0.3rem;">Granular error distribution is not available for this run.<br>Please re-execute the test to capture detailed error analytics.</div>
+                        </div>`;
+                }
+            } else {
+                // Zero errors success state
+                const parent = cfg.contentId ? document.getElementById(cfg.contentId) : canvasEl.parentElement.parentElement;
+                if (parent) {
+                    parent.innerHTML = `
+                        <div style="text-align:center; padding:2rem 1rem; color:var(--muted);">
+                            <div style="font-size:2.5rem; margin-bottom:0.5rem;">✅</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:#10b981;">Zero Errors Detected</div>
+                            <div style="font-size:0.82rem; color:var(--muted); margin-top:0.3rem;">All requests completed successfully during this test execution.</div>
+                        </div>`;
                 }
             }
         });
-
-        // Build custom legend
-        const legendEl = document.getElementById('errorDonutLegend');
-        if (legendEl) {
-            const totalAll = errDonutCounts.reduce((a, b) => a + b, 0);
-            errDonutLabels.forEach((label, i) => {
-                const pct = totalAll > 0 ? ((errDonutCounts[i] / totalAll) * 100).toFixed(1) : '0';
-                const color = errDonutColors[i % errDonutColors.length];
-                const item = document.createElement('div');
-                item.style.cssText = 'display:flex; align-items:center; gap:0.4rem; cursor:pointer; padding:0.15rem 0; transition:opacity 0.15s;';
-                item.innerHTML = `<span style="width:10px; height:10px; border-radius:50%; background:${color}; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${label}">${label.length > 28 ? label.substring(0,25)+'...' : label}</span><span style="margin-left:auto; font-weight:700; color:${color}; flex-shrink:0;">${errDonutCounts[i]}</span>`;
-                item.onclick = () => showErrorDrillDown(label, color);
-                item.onmouseenter = () => { item.style.opacity = '0.7'; };
-                item.onmouseleave = () => { item.style.opacity = '1'; };
-                legendEl.appendChild(item);
-            });
-        }
-    } else if (displayTotalErrors > 0) {
-        // Legacy fallback - we have errors, but no granular details
-        const errorDonutEl = document.getElementById('errorDonutChart');
-        if (errorDonutEl) {
-            errorDonutEl.parentElement.parentElement.parentElement.parentElement.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
-                    <div>
-                        <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Error Distribution &amp; Analysis</h3>
-                        <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Granular error data unavailable (legacy run)</p>
-                    </div>
-                    <span style="font-size:0.78rem; font-weight:700; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#f59e0b;">${displayTotalErrors} Total Errors</span>
-                </div>
-                <div style="text-align:center; padding:2.5rem 1rem; color:var(--muted);">
-                    <div style="font-size:3rem; margin-bottom:0.5rem; opacity:0.7;">⚠️</div>
-                    <div style="font-size:1.1rem; font-weight:700; color:var(--text);">${displayTotalErrors} Errors Detected</div>
-                    <div style="font-size:0.82rem; margin-top:0.3rem;">Granular error distribution is not available for this run.<br>Please re-execute the test to capture detailed error analytics.</div>
-                </div>`;
-        }
-    } else {
-        // No errors - show success state
-        const errorDonutEl = document.getElementById('errorDonutChart');
-        if (errorDonutEl) {
-            errorDonutEl.parentElement.parentElement.parentElement.parentElement.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
-                    <div>
-                        <h3 style="margin:0; font-size:1.05rem; font-weight:700;">Error Distribution &amp; Analysis</h3>
-                        <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">No errors detected during test execution</p>
-                    </div>
-                    <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Errors</span>
-                </div>
-                <div style="text-align:center; padding:2.5rem 1rem; color:var(--muted);">
-                    <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
-                    <div style="font-size:1.1rem; font-weight:700; color:#10b981;">Zero Errors Detected</div>
-                    <div style="font-size:0.82rem; margin-top:0.3rem;">All requests completed successfully during this test execution.</div>
-                </div>`;
-        }
     }
 
+    initErrorDonutInstances();
+
     function showErrorDrillDown(errorKey, accentColor) {
-        const panel = document.getElementById('errorDrillPanel');
-        if (!panel) return;
+        const panels = [document.getElementById('errorDrillPanel'), document.getElementById('execErrorDrillPanel')].filter(Boolean);
+        if (panels.length === 0) return;
         const data = errDrillData[errorKey];
-        if (!data) { panel.innerHTML = '<p style="color:var(--muted); text-align:center;">No drill-down data available for this error.</p>'; return; }
+        if (!data) { panels.forEach(p => p.innerHTML = '<p style="color:var(--muted); text-align:center;">No drill-down data available for this error.</p>'); return; }
 
         const txEntries = Object.entries(data.transactions || {});
         const failureNote = data.failure_message ? `<div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:0.5rem 0.75rem; margin-bottom:0.75rem; font-size:0.78rem; color:#ef4444; word-break:break-word;">⚠️ <strong>Assertion/Failure:</strong> ${data.failure_message}</div>` : '';
@@ -2161,38 +2755,40 @@
                 </tr>`;
         });
 
-        panel.style.display = 'block';
-        panel.style.alignItems = 'stretch';
-        panel.style.justifyContent = 'flex-start';
-        panel.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; gap:0.5rem;">
-                <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
-                    <span style="width:12px; height:12px; border-radius:50%; background:${accentColor}; flex-shrink:0;"></span>
-                    <strong style="font-size:0.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${errorKey}">${errorKey}</strong>
+        panels.forEach(panel => {
+            panel.style.display = 'block';
+            panel.style.alignItems = 'stretch';
+            panel.style.justifyContent = 'flex-start';
+            panel.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; gap:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; min-width:0;">
+                        <span style="width:12px; height:12px; border-radius:50%; background:${accentColor}; flex-shrink:0;"></span>
+                        <strong style="font-size:0.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${errorKey}">${errorKey}</strong>
+                    </div>
+                    <span style="font-size:0.78rem; font-weight:700; background:${accentColor}18; border:1px solid ${accentColor}44; padding:0.2rem 0.6rem; border-radius:10px; color:${accentColor}; flex-shrink:0;">${data.total} occurrences</span>
                 </div>
-                <span style="font-size:0.78rem; font-weight:700; background:${accentColor}18; border:1px solid ${accentColor}44; padding:0.2rem 0.6rem; border-radius:10px; color:${accentColor}; flex-shrink:0;">${data.total} occurrences</span>
-            </div>
-            ${failureNote}
-            <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem;">
-                ${data.code ? '<strong>HTTP Code:</strong> ' + data.code + ' &nbsp;|&nbsp; ' : ''}<strong>Affected Transactions:</strong> ${txEntries.length}
-            </div>
-            <div style="overflow-x:auto; border-radius:6px; border:1px solid var(--border);">
-                <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
-                    <thead>
-                        <tr style="background:var(--bg); border-bottom:2px solid var(--border);">
-                            <th style="padding:0.45rem 0.5rem; text-align:left; font-weight:700; font-size:0.75rem; color:var(--muted);">Transaction</th>
-                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Errors</th>
-                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Avg RT</th>
-                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Min RT</th>
-                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Max RT</th>
-                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">First</th>
-                            <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Last</th>
-                        </tr>
-                    </thead>
-                    <tbody>${txTableRows}</tbody>
-                </table>
-            </div>
-        `;
+                ${failureNote}
+                <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem;">
+                    ${data.code ? '<strong>HTTP Code:</strong> ' + data.code + ' &nbsp;|&nbsp; ' : ''}<strong>Affected Transactions:</strong> ${txEntries.length}
+                </div>
+                <div style="overflow-x:auto; border-radius:6px; border:1px solid var(--border);">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                        <thead>
+                            <tr style="background:var(--bg); border-bottom:2px solid var(--border);">
+                                <th style="padding:0.45rem 0.5rem; text-align:left; font-weight:700; font-size:0.75rem; color:var(--muted);">Transaction</th>
+                                <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Errors</th>
+                                <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Avg RT</th>
+                                <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Min RT</th>
+                                <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Max RT</th>
+                                <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">First</th>
+                                <th style="padding:0.45rem; text-align:center; font-weight:700; font-size:0.75rem; color:var(--muted);">Last</th>
+                            </tr>
+                        </thead>
+                        <tbody>${txTableRows}</tbody>
+                    </table>
+                </div>
+            `;
+        });
     }
 
     // 5. Concurrency Estimate Over Time (Little's Law)
@@ -2353,7 +2949,7 @@
     });
 
     // ── Finding Drawer Logic ──
-    const findingsData = [{"id": "F-001", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation", "observation": "TC02_US01_Select_Fish_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "180 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "96%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US01_Select_Fish_Category exceeds its P90 SLA target by 96%.", "why_it_matters": "TC02_US01_Select_Fish_Category is not meeting its 92 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US01_Select_Fish_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-002", "category": "tail_latency", "severity": "Acceptable Deviation", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "364 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+100.5%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 3.1\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-003", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-004", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
+    const findingsData = [{"id": "F-001", "category": "sla_breach", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation", "observation": "TC02_US04_Navigate_To_Signon_Page P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "184 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "268%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US04_Navigate_To_Signon_Page exceeds its P90 SLA target by 268%.", "why_it_matters": "TC02_US04_Navigate_To_Signon_Page is not meeting its 50 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US04_Navigate_To_Signon_Page execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-002", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation", "observation": "TC02_US02_Select_Dogs_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "182 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "82%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US02_Select_Dogs_Category exceeds its P90 SLA target by 82%.", "why_it_matters": "TC02_US02_Select_Dogs_Category is not meeting its 100 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US02_Select_Dogs_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation", "observation": "TC02_US01_Select_Fish_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "180 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "96%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US01_Select_Fish_Category exceeds its P90 SLA target by 96%.", "why_it_matters": "TC02_US01_Select_Fish_Category is not meeting its 92 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US01_Select_Fish_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "tail_latency", "severity": "Acceptable Deviation", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "364 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+100.5%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 3.1\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-005", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-006", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
     const recsData = [{"id": "R-0", "triggered_by": [], "priority": "Low", "category": "Configuration", "title": "Maintain Current Performance", "why": "All metrics are within healthy thresholds.", "action": ["Consider running longer duration tests", "Test at higher concurrency to find limits"], "expected_impact": "Identify maximum safe throughput capacity", "validation": "N/A", "confidence": "High"}];
 
     function showFinding(fid) {
@@ -2416,6 +3012,218 @@
         document.getElementById('findingDrawer').classList.remove('open');
         setTimeout(() => document.getElementById('findingDrawerOverlay').style.display = 'none', 300);
     }
+
+    // ── Graph Guide Modal Logic ──
+    const graphGuides = {
+        'tx-summary': {
+            title: '📊 Transaction Statistics &amp; Iteration Summary',
+            what: 'Shows total request samples split into Passed (green) and Failed (red) executions for each test script.',
+            howToRead: [
+                'Taller green bars indicate high execution volume with successful assertions.',
+                'Any red bars highlight transaction failures or assertion breaches.',
+                'Exact sample counts are printed directly on top of each bar for instant reading.'
+            ],
+            filters: 'Hover over bars to view percentage breakdown and script error rate. Click "Pass Samples" or "Fail Samples" in the bottom legend to toggle datasets.'
+        },
+        'tx-rt-breakdown': {
+            title: '⏱️ Transaction &amp; Sub-Transaction Response Time Breakdown',
+            what: 'Hierarchical response time analysis from high-level User Stories down to individual child HTTP requests and sub-transactions.',
+            howToRead: [
+                'Data labels on top of bars display the exact response time in milliseconds.',
+                'Allows pinpointing which sub-request is responsible for overall transaction slowness.'
+            ],
+            filters: 'Use <strong>User Story</strong> dropdown to isolate a flow, <strong>Transaction</strong> to drill down into child requests, and <strong>Metric</strong> to switch between Average RT, P90, P95, and Max RT.'
+        },
+        'sla-deviation': {
+            title: '🎯 SLA Deviation by Transaction (% from Target SLA)',
+            what: 'Diverging diagnostic chart measuring percentage deviation of each transaction\'s P90 latency from its SLA target.',
+            howToRead: [
+                '<strong>Green bars (left/negative):</strong> Within acceptable SLA target (healthy).',
+                '<strong>Red bars (right/positive):</strong> Exceeding SLA threshold (breached).'
+            ],
+            filters: 'Use the <strong>Filter User Story</strong> dropdown to isolate transactions in a specific user story. Hover over bars to see the exact percentage deviation and target.'
+        },
+        'error-distribution': {
+            title: '🔴 Error Distribution &amp; Analysis',
+            what: 'Interactive donut chart breaking down all failed requests grouped by HTTP status code, assertion failure message, or error category.',
+            howToRead: [
+                'Larger slices represent the predominant error types causing test degradation.',
+                'Center text shows the total count of errors captured during the test.'
+            ],
+            filters: '<strong>Click any slice or legend item</strong> to populate the right-hand drill-down panel with affected transactions, timestamps, and assertion details.'
+        },
+        'server-side': {
+            title: '🖥️ Server Side CPU &amp; Memory Utilization',
+            what: 'Simultaneous dual-line time series tracking host CPU utilization (%) in amber and Memory utilization (%) in blue.',
+            howToRead: [
+                'Values sustained above 80% indicate high resource pressure.',
+                'Spikes aligning with test load indicate infrastructure bottlenecks.'
+            ],
+            filters: 'Hover along the timeline to inspect synchronized CPU and Memory % at any specific test second.'
+        },
+        'concurrency': {
+            title: '👥 Estimated Concurrent Users Over Time',
+            what: 'Calculated active concurrent user load across the test duration derived from throughput and response time (Little\'s Law).',
+            howToRead: [
+                'Displays ramp-up phase, steady-state plateau, and ramp-down.',
+                'Sudden drops or fluctuations highlight client-side or server-side stalls.'
+            ],
+            filters: 'Hover over data points to check estimated active users at each interval.'
+        },
+        'throughput': {
+            title: '📊 Throughput &amp; Errors Over Time',
+            what: 'Request throughput (req/sec in blue/indigo) and error occurrences (in red) minute-by-minute throughout the execution.',
+            howToRead: [
+                'Throughput should remain steady or scale with concurrent user ramp-up.',
+                'Red bars indicate the exact timeframe when errors occurred.'
+            ],
+            filters: 'Use the top-right <strong>Transaction</strong> dropdown to view throughput and error trends for a specific transaction or the entire test.'
+        },
+        'rt-over-time': {
+            title: '📈 Response Time Trend Over Time',
+            what: 'Multi-line timeline tracking Average RT (indigo), 95th Percentile P95 (amber), and 99th Percentile P99 (red dashed).',
+            howToRead: [
+                'Flat, low lines indicate stable performance under load.',
+                'Rising slopes or sharp spikes reveal latency degradation or server queueing.'
+            ],
+            filters: 'Use the <strong>Transaction</strong> dropdown to focus on an individual transaction. Click legend items to toggle P95/P99 visibility.'
+        },
+        'critical-tx': {
+            title: '🔥 Critical Transaction Response Time',
+            what: 'Response time trends for high-priority or slowest transactions plotted alongside dashed red SLA target lines.',
+            howToRead: [
+                'Lines rising above the dashed red SLA line signify performance SLA breaches.',
+                'Summary badges at top show critical count, average, P95, and max response times.'
+            ],
+            filters: 'Click the <strong>Transaction Chips</strong> above the chart to toggle specific transactions on/off, or click "Show All".'
+        },
+        'rt-hist': {
+            title: '📊 Response Time Distribution Histogram',
+            what: 'Request count distribution grouped into response time latency buckets (from <500ms up to >5000ms).',
+            howToRead: [
+                'Skew towards green/blue buckets (<500ms-1s) means fast user experience.',
+                'Skew towards amber/red (>2s) shows tail latency delays affecting users.'
+            ],
+            filters: 'Hover over each latency bucket bar to see exact request volume and distribution.'
+        },
+        'top-tx': {
+            title: '🏷️ Top Transactions by Response Time',
+            what: 'Horizontal bar ranking of slowest transactions ordered by average response time.',
+            howToRead: [
+                'Quickly identifies top optimization candidates and slowest user actions in the application.'
+            ],
+            filters: 'Hover over bars to inspect average response times in milliseconds.'
+        },
+        'sla-donut': {
+            title: 'SLA Deviation &amp; Breach Severity Donut',
+            what: 'Overall SLA compliance score and distribution of transactions across SLA severity categories (Passed, Minor, Moderate, Critical).',
+            howToRead: [
+                'Center percentage shows overall SLA compliance (>=85% is passing).',
+                'Side cards break down exact transaction counts in each breach tier.'
+            ],
+            filters: 'Hover over donut segments to inspect individual tier counts.'
+        },
+        'error-rate-tx': {
+            title: '🔴 Error Rate by Transaction (%)',
+            what: 'Horizontal bar chart showing failure rate percentage for transactions that experienced errors.',
+            howToRead: [
+                'Highlights which specific transactions suffered the highest failure rates during the test.'
+            ],
+            filters: 'Hover over bars to view exact failure percentages.'
+        },
+        'azure-cpu-mem': {
+            title: '🖥️ Azure Resource Utilization (CPU &amp; Memory)',
+            what: 'Full-width dual time series of server CPU % (amber) and Memory % (blue) with threshold bands (80% and 90%).',
+            howToRead: [
+                'Sustained periods above 80% indicate resource starvation causing response time degradation.'
+            ],
+            filters: 'Hover across the timeline to see exact CPU and memory % at each sample timestamp.'
+        },
+        'workload-cpu': {
+            title: '📈 Workload vs CPU Utilization',
+            what: 'Dual-axis chart comparing JMeter request throughput (req/s on left axis) against Azure CPU % (on right axis).',
+            howToRead: [
+                'Reveals whether CPU utilization scales proportionally with client load or saturates early.'
+            ],
+            filters: 'Hover across points to compare req/sec against host CPU load simultaneously.'
+        },
+        'tp-rt-impact': {
+            title: '⚡ Throughput vs Response Time',
+            what: 'Request throughput (req/s) plotted against Average Response Time (ms).',
+            howToRead: [
+                'If throughput flattens while response time climbs, the application has reached its maximum capacity/saturation point.'
+            ],
+            filters: 'Hover to inspect throughput and latency correlation at any second.'
+        },
+        'disk-io': {
+            title: '💾 Disk I/O &amp; Queue Contention',
+            what: 'Disk Read (MB/s) and Write (MB/s) bars alongside Disk Queue Depth line on secondary axis.',
+            howToRead: [
+                'Queue Depth > 2-5 indicates disk I/O bottlenecks and storage queueing delays.'
+            ],
+            filters: 'Hover over bars and line to inspect storage transfer rates and queue length.'
+        },
+        'network-tp': {
+            title: '🌐 Network Throughput (In/Out)',
+            what: 'Inbound (cyan) and Outbound (purple) network transfer volume in megabytes over time.',
+            howToRead: [
+                'Highlights network bandwidth usage and identifies potential network saturation.'
+            ],
+            filters: 'Hover across timestamps to check network MB transferred at each point.'
+        }
+    };
+
+    function openGraphModal(key) {
+        const guide = graphGuides[key];
+        if (!guide) return;
+
+        document.getElementById('graphModalTitle').innerHTML = guide.title;
+        
+        let howToReadList = '';
+        if (Array.isArray(guide.howToRead)) {
+            howToReadList = '<ul class="graph-modal-list">' + guide.howToRead.map(item => `<li>${item}</li>`).join('') + '</ul>';
+        } else {
+            howToReadList = `<p class="graph-modal-text">${guide.howToRead}</p>`;
+        }
+
+        let html = `
+            <div class="graph-modal-section">
+                <div class="graph-modal-section-title">📊 What This Graph Shows</div>
+                <p class="graph-modal-text">${guide.what}</p>
+            </div>
+            <div class="graph-modal-section">
+                <div class="graph-modal-section-title">🔍 How To Read It</div>
+                ${howToReadList}
+            </div>
+        `;
+
+        if (guide.filters) {
+            html += `
+                <div class="graph-modal-section">
+                    <div class="graph-modal-section-title">🎛️ Filters &amp; Interactions</div>
+                    <p class="graph-modal-text">${guide.filters}</p>
+                </div>
+            `;
+        }
+
+        document.getElementById('graphModalBody').innerHTML = html;
+        const overlay = document.getElementById('graphModalOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.classList.add('open'), 10);
+    }
+
+    function closeGraphModal(event) {
+        if (event && event.target && event.target.id !== 'graphModalOverlay' && !event.target.classList.contains('graph-modal-close')) {
+            return;
+        }
+        const overlay = document.getElementById('graphModalOverlay');
+        overlay.classList.remove('open');
+        setTimeout(() => { overlay.style.display = 'none'; }, 200);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeGraphModal();
+    });
 </script>
 </body>
 </html>

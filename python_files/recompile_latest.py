@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
+import sys
 import json
 from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 from python_files.report_generator import generate_report
 
 results_dir = Path("D:/BlazemeterMCPZIP/JmeterAI/Results")

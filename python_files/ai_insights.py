@@ -528,3 +528,87 @@ Return JSON with exact keys:
         insights["performance_grade"] = grade
         
         return insights
+
+
+def generate_comparison_ai_insights(comparison_facts: dict) -> dict:
+    """
+    Synthesizes factual multi-release comparison observations from calculated deterministic facts.
+    Strictly forbids speculative root-cause statements (e.g. database locks).
+    """
+    _load_env()
+    gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    github_token = os.environ.get("GITHUB_TOKEN", "").strip()
+
+    prompt = f"""You are a Lead Performance Engineer. Analyze these calculated release comparison facts and generate factual summary observations in JSON format.
+
+RULES:
+1. Ground every sentence strictly in the provided numbers.
+2. DO NOT invent speculative causes like "database contention", "thread pool exhaustion", or "network latency" unless provided in facts.
+3. Keep observations concise, direct, and actionable.
+
+Calculated Facts:
+{json.dumps(comparison_facts, indent=2)}
+
+Return JSON with exact keys:
+{{
+  "executive_bullets": ["5-7 factual bullet points"],
+  "trend_observation": "One sentence describing overall response time direction across releases",
+  "sla_observation": "One sentence describing SLA compliance progression",
+  "degradation_observation": "One sentence identifying the most degraded transaction and its largest step",
+  "improvement_observation": "One sentence identifying the most improved transaction",
+  "risk_observation": "One sentence summarizing high/critical breach evolution"
+}}
+"""
+
+    if gemini_key:
+        try:
+            import urllib.request
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
+            payload = json.dumps({
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json"}
+            }).encode("utf-8")
+            req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                res_data = json.loads(resp.read().decode("utf-8"))
+                text = res_data["candidates"][0]["content"]["parts"][0]["text"]
+                parsed = json.loads(text)
+                parsed["source"] = "gemini_2.0"
+                return parsed
+        except Exception as e:
+            print(f"[AI Comparison] Gemini API error: {e}", flush=True)
+
+    if github_token:
+        try:
+            import urllib.request
+            url = "https://models.inference.ai.azure.com/chat/completions"
+            payload = json.dumps({
+                "messages": [{"role": "user", "content": prompt}],
+                "model": "gpt-4o-mini",
+                "temperature": 0.2,
+                "response_format": {"type": "json_object"}
+            }).encode("utf-8")
+            req = urllib.request.Request(url, data=payload, headers={
+                "Authorization": f"Bearer {github_token}",
+                "Content-Type": "application/json"
+            })
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                res_data = json.loads(resp.read().decode("utf-8"))
+                text = res_data["choices"][0]["message"]["content"]
+                parsed = json.loads(text)
+                parsed["source"] = "github_ai"
+                return parsed
+        except Exception as e:
+            print(f"[AI Comparison] GitHub API error: {e}", flush=True)
+
+    # Fallback to deterministic observations already present in comparison_facts
+    return {
+        "source": "deterministic_facts",
+        "executive_bullets": comparison_facts.get("ai_executive_summary", []),
+        "trend_observation": comparison_facts.get("graph_insights", {}).get("rt_trend", {}).get("observation", ""),
+        "sla_observation": comparison_facts.get("graph_insights", {}).get("sla_trend", {}).get("observation", ""),
+        "degradation_observation": f"{comparison_facts.get('executive_kpis', {}).get('most_degraded_tx', 'None')} recorded {comparison_facts.get('executive_kpis', {}).get('most_degraded_pct', 0):+.2f}% degradation.",
+        "improvement_observation": f"Most improved transaction: {comparison_facts.get('deterministic_conclusions', {}).get('most_improved', 'None')} (-{comparison_facts.get('deterministic_conclusions', {}).get('most_improved_pct', 0):.2f}%).",
+        "risk_observation": f"Critical SLA breaches: {comparison_facts.get('executive_kpis', {}).get('critical_breaches_current', 0)}."
+    }
+
