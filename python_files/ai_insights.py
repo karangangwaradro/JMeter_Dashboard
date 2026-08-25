@@ -270,7 +270,42 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
       "validation": "How to verify the fix",
       "confidence": "High/Medium/Low/Confirmed"
     }}
-  ]
+  ],
+  "performance_intelligence": {{
+    "executive_summary": {{
+      "assessment_text": "One natural, non-templated synthesis paragraph summarizing the test narrative, citing exact measurements, primary bottlenecks, and reliability status.",
+      "conclusions": [
+        "Concise conclusion bullet 1 citing numbers",
+        "Concise conclusion bullet 2 citing numbers",
+        "Concise conclusion bullet 3 citing numbers"
+      ],
+      "observations_table": [
+        {{"category": "Transaction Performance", "observation": "...", "impact": "🟢 Low: ..."}},
+        {{"category": "Response Time (P90)", "observation": "...", "impact": "🔴 High: ..."}},
+        {{"category": "Reliability & Errors", "observation": "...", "impact": "🟢 Low: ..."}},
+        {{"category": "Infrastructure (Azure)", "observation": "...", "impact": "🟢 Low: ..."}}
+      ],
+      "priority_recommendations": [
+        {{"priority": "High", "badge": "🟠", "title": "Short recommendation title", "detail": "Actionable, evidence-backed advice"}}
+      ]
+    }},
+    "tab_tx_stats": {{
+      "observations": ["2-3 bullet observations on transactions, iterations, throughput pacing"],
+      "recommendations": ["1-2 actionable recommendations"]
+    }},
+    "tab_rt_stats": {{
+      "observations": ["2-3 bullet observations on response times, P90 outliers, SLA deviations"],
+      "recommendations": ["1-2 actionable recommendations"]
+    }},
+    "tab_error_stats": {{
+      "observations": ["2-3 bullet observations on error patterns and sample failure rates"],
+      "recommendations": ["1-2 actionable recommendations"]
+    }},
+    "tab_infra_stats": {{
+      "observations": ["2-3 bullet observations on host CPU, memory, and resource headroom"],
+      "recommendations": ["1-2 actionable recommendations"]
+    }}
+  }}
 }}"""
 
     res_text = None
@@ -290,7 +325,11 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
                         {"text": prompt}
                     ]
                 }
-            ]
+            ],
+            "generationConfig": {
+                "temperature": 0.2,
+                "responseMimeType": "application/json"
+            }
         }).encode("utf-8")
 
         req = urllib.request.Request(
@@ -299,7 +338,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
             headers={"Content-Type": "application/json"}
         )
 
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=90) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             candidates = data.get("candidates", [])
 
@@ -333,6 +372,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
         result["performance_score"] = score
         result["performance_grade"] = grade
         
+        result = _ensure_performance_intelligence(result, summary, labels, infra, correlation)
         return result
     except json.JSONDecodeError:
         # Try to extract JSON from the response
@@ -348,11 +388,34 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
                 result["performance_score"] = score
                 result["performance_grade"] = grade
                 
+                result = _ensure_performance_intelligence(result, summary, labels, infra, correlation)
                 return result
             except json.JSONDecodeError:
                 pass
         print(f"[AI] Failed to parse Gemini response as JSON", flush=True)
         return _generate_rule_based_insights("", summary, labels, infra, {})
+
+
+def _ensure_performance_intelligence(insights: dict, summary: dict, labels: dict,
+                                     infra: dict, correlation: dict) -> dict:
+    """Ensure structured performance_intelligence is present, creating it deterministically if needed."""
+    try:
+        from python_files.findings_engine import build_performance_intelligence
+        base_intel = build_performance_intelligence(
+            summary=summary, labels=labels, display_labels=labels,
+            time_series={}, infra=infra if infra else {}, correlation=correlation if correlation else {},
+            sla_targets={}, default_rt=500.0, default_err=1.0
+        )
+        if "performance_intelligence" not in insights or not insights["performance_intelligence"]:
+            insights["performance_intelligence"] = base_intel
+        else:
+            # Merge any missing tab or executive keys
+            for k, v in base_intel.items():
+                if k not in insights["performance_intelligence"]:
+                    insights["performance_intelligence"][k] = v
+    except Exception as e:
+        print(f"[AI] Note: _ensure_performance_intelligence fallback: {e}", flush=True)
+    return insights
 
 
 def _generate_rule_based_insights(test_name: str, summary: dict, labels: dict,
@@ -450,11 +513,23 @@ def _generate_rule_based_insights(test_name: str, summary: dict, labels: dict,
             "confidence": "High"
         })
 
+    try:
+        from python_files.findings_engine import build_performance_intelligence
+        perf_intelligence = build_performance_intelligence(
+            summary=summary, labels=labels, display_labels=labels,
+            time_series={}, infra=infra if infra else {}, correlation=correlation if correlation else {},
+            sla_targets={}, default_rt=500.0, default_err=1.0
+        )
+    except Exception as e:
+        print(f"[AI] Error building performance intelligence: {e}", flush=True)
+        perf_intelligence = {}
+
     return {
         "source": "rule_based",
         "executive_summary": exec_summary,
         "performance_score": score,
         "performance_grade": grade,
+        "performance_intelligence": perf_intelligence,
         "data_quality_findings": [],
         "finding_enrichments": {},
         "root_cause_assessment": {
@@ -501,7 +576,8 @@ Return JSON with exact keys:
 "bottleneck_analysis", "tail_latency_analysis", "infra_analysis",
 "capacity_planning" (object with "estimated_max_users", "saturation_point", "safe_concurrency", "analysis" - use null for unknown capacity, do NOT invent max users from throughput),
 "correlation_insights",
-"recommendations" (array of objects with "id", "triggered_by", "priority", "category", "title", "why", "action", "expected_impact", "validation", "confidence")
+"recommendations" (array of objects with "id", "triggered_by", "priority", "category", "title", "why", "action", "expected_impact", "validation", "confidence"),
+"performance_intelligence" (object with "executive_summary" (having "assessment_text", "conclusions" array, "observations_table" array of objects with "category", "observation", "impact", "priority_recommendations" array of objects with "priority", "badge", "title", "detail"), "tab_tx_stats" (having "observations" array, "recommendations" array), "tab_rt_stats" (having "observations" array, "recommendations" array), "tab_error_stats" (having "observations" array, "recommendations" array), "tab_infra_stats" (having "observations" array, "recommendations" array))
 """
 
     payload = json.dumps({
@@ -527,6 +603,7 @@ Return JSON with exact keys:
         insights["performance_score"] = score
         insights["performance_grade"] = grade
         
+        insights = _ensure_performance_intelligence(insights, summary, labels, infra, correlation)
         return insights
 
 

@@ -270,7 +270,53 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 reqs.extend(_collect_leaf_requests(c))
         return reqs
 
+    def _find_matching_ldata(name, tg_specific, all_lbls):
+        """Find matching sample data in thread-group specific labels or all labels, supporting normalized name matching."""
+        if not name:
+            return None, name
+        if name in tg_specific:
+            return tg_specific[name], name
+        if name in all_lbls:
+            return all_lbls[name], name
+
+        import re
+        simplified = re.sub(r'US\d+_|TC\d+_|_\d+$|_Err\d+$', '', name).strip('_')
+        if simplified in tg_specific:
+            return tg_specific[simplified], simplified
+        if simplified in all_lbls:
+            return all_lbls[simplified], simplified
+
+        name_clean = re.sub(r'HTTP_|US\d+_|TC\d+|_', '', name).lower()
+        for k, v in tg_specific.items():
+            k_clean = re.sub(r'HTTP_|US\d+_|TC\d+|_', '', k).lower()
+            if name_clean in k_clean or k_clean in name_clean:
+                return v, k
+        for k, v in all_lbls.items():
+            k_clean = re.sub(r'HTTP_|US\d+_|TC\d+|_', '', k).lower()
+            if name_clean in k_clean or k_clean in name_clean:
+                return v, k
+
+        return None, name
+
+    def _get_matched_visible_requests(leaf_reqs, tg_specific, all_lbls):
+        matched = []
+        seen = set()
+        for r in leaf_reqs:
+            r_name = r.get("name", "")
+            ldata, matched_k = _find_matching_ldata(r_name, tg_specific, all_lbls)
+            if ldata:
+                if matched_k not in seen:
+                    seen.add(matched_k)
+                    matched.append({
+                        "name": matched_k,
+                        "display_name": r_name,
+                        "ldata": ldata
+                    })
+        return matched
+
     # ── Build labels_rows using tree or flat mode ──
+    labels_by_tg = parsed.get("labels_by_tg", {})
+
     if jmx_full_tree:
         # TREE MODE: Thread Group -> Overall Transaction -> Main Transactions -> All Requests (flattening sub-transactions)
         tg_filter_options = '<option value="ALL">All Thread Groups</option>'
@@ -280,6 +326,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         for tg_node in jmx_full_tree:
             tg_name = tg_node["name"]
+            tg_specific_labels = labels_by_tg.get(tg_name, {})
+
             # Thread group header row
             labels_rows += f"""
             <tr class="tg-header-row" data-tg="{tg_name}" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
@@ -290,7 +338,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
             for top_child in tg_node.get("children", []):
                 top_name = top_child["name"]
-                top_ldata = labels.get(top_name)
+                top_ldata, _ = _find_matching_ldata(top_name, tg_specific_labels, labels)
                 
                 # Check if top_child has child transactions (Overall Transaction pattern)
                 child_txs = [c for c in top_child.get("children", []) if c.get("type") == "transaction"]
@@ -298,7 +346,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 if child_txs:
                     # Level 2: Overall Transaction (depth 0)
                     top_cls_id = f"tree-children-{hash(top_name + tg_name) & 0xffffffff}"
-                    has_children = any(labels.get(c["name"]) for c in child_txs)
+                    has_children = any(_find_matching_ldata(c["name"], tg_specific_labels, labels)[0] for c in child_txs)
                     top_toggle_btn = f'<button onclick="toggleTreeChildren(this, \'{top_cls_id}\')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button>' if has_children else ''
                     
                     if top_ldata:
@@ -310,13 +358,13 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     # Level 3: Main Transactions under Overall Transaction (depth 1)
                     for main_tx in child_txs:
                         main_name = main_tx["name"]
-                        main_ldata = labels.get(main_name)
+                        main_ldata, _ = _find_matching_ldata(main_name, tg_specific_labels, labels)
                         if not main_ldata:
                             continue
                         
                         # Collect all leaf requests under this main transaction (bypassing intermediate sub-transactions)
                         leaf_requests = _collect_leaf_requests(main_tx)
-                        visible_requests = [r for r in leaf_requests if labels.get(r["name"])]
+                        visible_requests = _get_matched_visible_requests(leaf_requests, tg_specific_labels, labels)
                         
                         main_cls_id = f"tree-children-{hash(main_name + tg_name) & 0xffffffff}"
                         main_toggle_btn = f'<button onclick="toggleTreeChildren(this, \'{main_cls_id}\')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button>' if visible_requests else ''
@@ -330,16 +378,15 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         # Level 4: All Requests under Main Transaction (depth 2)
                         for req in visible_requests:
                             req_name = req["name"]
-                            req_ldata = labels.get(req_name)
-                            if req_ldata:
-                                labels_rows += _build_tx_row(
-                                    req_name, req_ldata, depth=2, node_type="request", tg_name=tg_name,
-                                    parent_classes=[top_cls_id, main_cls_id], parent_cls_id=main_cls_id, is_hidden=True
-                                )
+                            req_ldata = req["ldata"]
+                            labels_rows += _build_tx_row(
+                                req_name, req_ldata, depth=2, node_type="request", tg_name=tg_name,
+                                parent_classes=[top_cls_id, main_cls_id], parent_cls_id=main_cls_id, is_hidden=True
+                            )
                 else:
                     # top_child is directly a Main Transaction (no Overall Transaction)
                     leaf_requests = _collect_leaf_requests(top_child)
-                    visible_requests = [r for r in leaf_requests if labels.get(r["name"])]
+                    visible_requests = _get_matched_visible_requests(leaf_requests, tg_specific_labels, labels)
                     
                     top_cls_id = f"tree-children-{hash(top_name + tg_name) & 0xffffffff}"
                     top_toggle_btn = f'<button onclick="toggleTreeChildren(this, \'{top_cls_id}\')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button>' if visible_requests else ''
@@ -352,12 +399,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         
                         for req in visible_requests:
                             req_name = req["name"]
-                            req_ldata = labels.get(req_name)
-                            if req_ldata:
-                                labels_rows += _build_tx_row(
-                                    req_name, req_ldata, depth=1, node_type="request", tg_name=tg_name,
-                                    parent_classes=[top_cls_id], parent_cls_id=top_cls_id, is_hidden=True
-                                )
+                            req_ldata = req["ldata"]
+                            labels_rows += _build_tx_row(
+                                req_name, req_ldata, depth=1, node_type="request", tg_name=tg_name,
+                                parent_classes=[top_cls_id], parent_cls_id=top_cls_id, is_hidden=True
+                            )
     else:
         # FLAT MODE (fallback): No JMX tree available, use original flat rendering
         tg_filter_options = ''
@@ -524,9 +570,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     # Sort by count descending, take top 10
     error_types_sorted = sorted(error_details_raw.items(), key=lambda x: x[1]["count"], reverse=True)[:10]
     total_errors_all = sum(ed["count"] for _, ed in error_types_sorted) if error_types_sorted else 0
-    
-    summary_errs = summary.get("tc_errors", summary.get("errors", 0))
-    display_total_errors = max(total_errors_all, summary_errs)
+    display_total_errors = total_errors_all
     
     error_donut_labels = json.dumps([k[:50] for k, _ in error_types_sorted])
     error_donut_counts = json.dumps([ed["count"] for _, ed in error_types_sorted])
@@ -585,13 +629,304 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                           and ldata_x.get("error_rate", 0) <= sla_targets.get(lname_x, {"err": default_err})["err"])
     sla_breach_count = len(display_labels) - sla_pass_count
 
-    # Concurrency Estimate Over Time using Little's Law: N = throughput × avg_rt/1000
+    # Active Virtual Users / Concurrency Over Time
     ts_tp_raw  = ts.get("ts_throughput", [])
     ts_rt_raw  = ts.get("ts_avg_rt", [])
-    concurrency_est = json.dumps([
-        round(tp * (rt / 1000.0), 1) if (tp and rt) else 0
-        for tp, rt in zip(ts_tp_raw, ts_rt_raw)
-    ])
+    ts_active_threads = ts.get("ts_active_threads", [])
+    if ts_active_threads and any(t > 0 for t in ts_active_threads):
+        concurrency_est = json.dumps(ts_active_threads)
+        peak_concurrency_est = max(ts_active_threads)
+        concurrency_metric_note = "Actual active virtual user concurrency recorded by JMeter engine."
+    else:
+        # Fallback if allThreads was not in JTL
+        concurrency_est = json.dumps([
+            min(users, round(tp * (rt / 1000.0), 1)) if (tp and rt) else 0
+            for tp, rt in zip(ts_tp_raw, ts_rt_raw)
+        ])
+        peak_concurrency_est = min(users, max([round(tp * (rt / 1000.0), 1) for tp, rt in zip(ts_tp_raw, ts_rt_raw)], default=users))
+        concurrency_metric_note = "Estimated in-flight concurrency based on workload intensity."
+
+    # ── User Journey (Thread Group) Breakdown for Load & Capacity Tab ──
+    # ── User Journey (Thread Group) Breakdown for Load & Capacity Tab ──
+    tg_configs = []
+    try:
+        from python_files.sla_manager import parse_jmx_thread_groups
+        tg_configs = parse_jmx_thread_groups(jmx_name)
+    except Exception as tg_err:
+        print(f"[Report] Thread groups parse warning: {tg_err}", flush=True)
+
+    if not tg_configs and tg_to_transactions:
+        for tg_name, tcs in tg_to_transactions.items():
+            tg_configs.append({
+                "name": tg_name,
+                "enabled": True,
+                "wrapper_tc": None,
+                "users": users // max(1, len(tg_to_transactions)) or 1,
+                "duration": int(summary.get("duration_sec", 60)),
+                "child_tcs": tcs
+            })
+
+    if not tg_configs:
+        tg_configs.append({
+            "name": "Default_User_Journey",
+            "enabled": True,
+            "wrapper_tc": None,
+            "users": users,
+            "duration": int(summary.get("duration_sec", 60)),
+            "child_tcs": list(display_labels.keys())
+        })
+
+    total_tg_users = sum(tg.get("users", 1) for tg in tg_configs) if tg_configs else users
+    test_dur_sec = max(1, int(summary.get("duration_sec", 60)))
+    
+    # ── High-Level Capacity Metrics ──
+    cap_peak_tps = max(ts_tp_raw) if ts_tp_raw else summary.get('throughput', 0)
+    cap_p95_val = summary.get('p95', 0)
+    cap_p95_str = f"{cap_p95_val / 1000:.2f}s" if cap_p95_val >= 1000 else f"{cap_p95_val:.0f} ms"
+    cap_err_rate_val = summary.get('raw_error_rate', summary.get('error_rate', 0))
+    
+    # Determine Safe Capacity & Overall Capacity Status
+    has_global_err_breach = cap_err_rate_val > 1.0 or summary.get('errors', 0) > 50
+    has_global_rt_breach = cap_p95_val > default_rt
+    
+    if has_global_err_breach and has_global_rt_breach:
+        cap_status_text = "🔴 Capacity Breached"
+        cap_status_color = "var(--red)"
+        cap_safe_operating = f"~{max(1, total_tg_users // 2)} VUs (Constrained)"
+    elif has_global_err_breach:
+        cap_status_text = "🔴 Functional Error Limit"
+        cap_status_color = "var(--red)"
+        cap_safe_operating = f"{total_tg_users} VUs (Fix Errors)"
+    elif has_global_rt_breach:
+        cap_status_text = "🟡 Near Capacity (Latency)"
+        cap_status_color = "var(--yellow)"
+        cap_safe_operating = f"~{max(1, int(total_tg_users * 0.75))} VUs"
+    else:
+        cap_status_text = "🟢 Healthy Capacity"
+        cap_status_color = "var(--green)"
+        cap_safe_operating = f"{total_tg_users} VUs (Verified)"
+
+    # Compute Throughput Scaling Efficiency
+    first_tp = ts_tp_raw[0] if ts_tp_raw and ts_tp_raw[0] > 0 else (ts_tp_raw[1] if len(ts_tp_raw) > 1 else cap_peak_tps)
+    tp_growth_pct = round(((cap_peak_tps - first_tp) / first_tp * 100), 1) if first_tp > 0 else 0.0
+    tp_scaling_text = f"+{tp_growth_pct:.1f}%" if tp_growth_pct > 0 else "0.0%"
+    tp_scaling_eval = "🟢 Linear Scaling" if tp_growth_pct >= 20 else ("🟡 Steady Load" if tp_growth_pct >= 0 else "🔴 Degrading")
+
+    # ── Load vs Throughput and Load vs RT Data Series for Charts ──
+    # Map time points with VUs, TPS, P95, and Avg RT
+    ts_lbls_list = json.loads(ts_labels)
+    ts_vus_list = json.loads(concurrency_est) if concurrency_est else [total_tg_users] * len(ts_lbls_list)
+    
+    # Combined labels showing interval + active VUs (e.g., "10s (11 VUs)")
+    load_chart_labels = [f"{lbl} ({vu} VUs)" for lbl, vu in zip(ts_lbls_list, ts_vus_list)]
+    load_chart_labels_json = json.dumps(load_chart_labels)
+    
+    # Expected linear scaling reference line
+    max_vu_val = max(ts_vus_list, default=total_tg_users) or 1
+    expected_tp_series = [round((vu / max_vu_val) * cap_peak_tps, 1) for vu in ts_vus_list]
+    expected_tp_json = json.dumps(expected_tp_series)
+    
+    # Global SLA threshold reference array for chart
+    sla_ref_series = [round(default_rt, 1)] * len(ts_lbls_list)
+    sla_ref_json = json.dumps(sla_ref_series)
+
+    # ── Load Level Staging Matrix ──
+    staging_rows_html = ""
+    n_points = len(ts_lbls_list)
+    if n_points >= 4:
+        stg_chunks = [
+            ("Ramp-up / Baseline", 0, max(1, n_points // 4)),
+            ("Normal Operating Load", max(1, n_points // 4), max(2, n_points // 2)),
+            ("High Load Phase", max(2, n_points // 2), max(3, (n_points * 3) // 4)),
+            ("Peak Sustained Load", max(3, (n_points * 3) // 4), n_points)
+        ]
+        for stg_name, s_start, s_end in stg_chunks:
+            chunk_vus = [int(x or 0) for x in ts_vus_list[s_start:s_end]] or [total_tg_users]
+            chunk_tp = [float(x or 0) for x in ts_tp_raw[s_start:s_end]] or [cap_peak_tps]
+            chunk_p95 = [float(x or 0) for x in ts.get("ts_p95_rt", [])[s_start:s_end]] or [cap_p95_val]
+            chunk_err = [int(x or 0) for x in ts.get("ts_errors", [])[s_start:s_end]] or [0]
+            
+            c_vu_val = max(chunk_vus)
+            c_tp_avg = sum(chunk_tp) / len(chunk_tp) if chunk_tp else 0
+            c_p95_max = max(chunk_p95) if chunk_p95 else 0
+            c_err_sum = sum(chunk_err)
+            
+            if c_err_sum > 0:
+                c_eval = '<span style="color:var(--red); font-weight:700;">🔴 Functional Errors</span>'
+            elif c_p95_max > default_rt:
+                c_eval = '<span style="color:var(--yellow); font-weight:700;">🟡 Latency Breach</span>'
+            else:
+                c_eval = '<span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span>'
+                
+            staging_rows_html += f"""
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>{stg_name}</strong></td>
+                <td>{c_vu_val} VUs</td>
+                <td>{c_tp_avg:.1f} TPS</td>
+                <td>{c_p95_max} ms</td>
+                <td style="color: {'var(--red)' if c_err_sum > 0 else 'var(--green)'}; font-weight: 600;">{c_err_sum} err</td>
+                <td>{c_eval}</td>
+            </tr>
+            """
+    else:
+        staging_rows_html = f"""
+        <tr style="border-bottom: 1px solid var(--border);">
+            <td><strong>Full Test Execution</strong></td>
+            <td>{total_tg_users} VUs</td>
+            <td>{summary.get('throughput', 0):.1f} TPS</td>
+            <td>{cap_p95_val} ms</td>
+            <td style="color: {'var(--red)' if summary.get('errors', 0) > 0 else 'var(--green)'}; font-weight: 600;">{summary.get('errors', 0)} err</td>
+            <td>{'<span style="color:var(--red); font-weight:700;">🔴 Errors</span>' if summary.get('errors', 0) > 0 else '<span style="color:var(--green); font-weight:700;">🟢 Stable</span>'}</td>
+        </tr>
+        """
+
+    # ── User Journey Capacity Breakdown (Clean, Expandable Rows) ──
+    tg_rows_html = ""
+    bottleneck_cards_html = ""
+    tg_passed_count = 0
+    bottleneck_items = []
+    
+    for idx, tg in enumerate(tg_configs):
+        tg_name = tg.get("name", "User Journey")
+        tg_u = tg.get("users", 1)
+        tg_dur = tg.get("duration", test_dur_sec)
+        child_tcs = tg.get("child_tcs", [])
+        wrapper_tc = tg.get("wrapper_tc")
+        
+        # Use disaggregated thread-group metrics if available
+        tg_specific = labels_by_tg.get(tg_name, {})
+        
+        if wrapper_tc and (tg_specific.get(wrapper_tc) or wrapper_tc in labels):
+            w_data = tg_specific.get(wrapper_tc) or labels[wrapper_tc]
+            tg_iters = w_data.get("count", 0)
+            tg_avg_rt = w_data.get("avg_rt", 0)
+            tg_p90 = w_data.get("p90", 0)
+            tg_errors = w_data.get("errors", 0)
+        elif child_tcs:
+            present_tcs_data = [tg_specific.get(tc) or labels.get(tc) for tc in child_tcs if (tg_specific.get(tc) or tc in labels)]
+            present_tcs_data = [d for d in present_tcs_data if d]
+            tg_iters = max((d.get("count", 0) for d in present_tcs_data), default=total_iterations)
+            tg_avg_rt = (sum(d.get("avg_rt", 0) for d in present_tcs_data) / len(present_tcs_data)) if present_tcs_data else summary.get("avg_rt", 0)
+            tg_p90 = max((d.get("p90", 0) for d in present_tcs_data), default=summary.get("p90", 0))
+            tg_errors = sum(d.get("errors", 0) for d in present_tcs_data)
+        else:
+            tg_iters = total_iterations
+            tg_avg_rt = summary.get("avg_rt", 0)
+            tg_p90 = summary.get("p90", 0)
+            tg_errors = summary.get("errors", 0)
+
+        # Child samples & errors
+        present_tcs = [tc for tc in child_tcs if (tg_specific.get(tc) or tc in labels)]
+        tg_total_samples = sum((tg_specific.get(tc) or labels[tc]).get("count", 0) for tc in present_tcs) if present_tcs else tg_iters
+        tg_err_rate = round((tg_errors / max(1, tg_total_samples) * 100), 2)
+        tg_tps = round(tg_total_samples / max(1, tg_dur), 1)
+
+        # Evaluate SLA compliance & specific failing transaction
+        breached_tcs = []
+        for tc in present_tcs:
+            tc_data = tg_specific.get(tc) or labels.get(tc, {})
+            tc_p90 = tc_data.get("p90", 0)
+            tc_target = sla_targets.get(tc, {}).get("rt", default_rt)
+            if tc_p90 > tc_target:
+                breached_tcs.append((tc, tc_p90, tc_target))
+
+        # Clear, separated SLA & Error Status
+        if tg_errors > 0 and breached_tcs:
+            sla_status_badge = f'<span style="color:var(--red); font-weight:700; font-size:0.8rem;">❌ SLA Breach &amp; Errors</span>'
+            sla_explanation = f"P90: {tg_p90}ms vs SLA: {breached_tcs[0][2]:.0f}ms | {tg_errors} failed requests"
+            capacity_rating = '<span style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid #ef444455; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🔴 Constrained</span>'
+            bottleneck_items.append((tg_name, "Primary Capacity Concern", f"Error rate: {tg_err_rate:.1f}% ({tg_errors} errors) · P90: {tg_p90}ms vs SLA {breached_tcs[0][2]:.0f}ms", "var(--red)", 1))
+        elif tg_errors > 0:
+            sla_status_badge = f'<span style="color:var(--red); font-weight:700; font-size:0.8rem;">❌ Error Breach</span>'
+            sla_explanation = f"{tg_errors} failed HTTP requests ({tg_err_rate:.1f}%)"
+            capacity_rating = '<span style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid #ef444455; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🔴 Error Limit</span>'
+            bottleneck_items.append((tg_name, "Functional Error Concern", f"Error rate: {tg_err_rate:.1f}% ({tg_errors} errors) · Requires endpoint investigation", "var(--red)", 2))
+        elif breached_tcs:
+            first_br = breached_tcs[0]
+            sla_status_badge = f'<span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span>'
+            sla_explanation = f"P90: {first_br[1]}ms vs SLA: {first_br[2]:.0f}ms on {first_br[0][:22]}"
+            capacity_rating = '<span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>'
+            bottleneck_items.append((tg_name, "Latency SLA Deviation", f"P90: {first_br[1]}ms exceeds SLA target of {first_br[2]:.0f}ms · 0% errors", "var(--yellow)", 3))
+        else:
+            tg_passed_count += 1
+            sla_status_badge = f'<span style="color:var(--green); font-weight:700; font-size:0.8rem;">✅ Met SLA</span>'
+            sla_explanation = f"P90: {tg_p90}ms within target · 0% errors"
+            capacity_rating = '<span style="background:rgba(16,185,129,0.12); color:#10b981; border:1px solid #10b98155; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟢 Stable</span>'
+            bottleneck_items.append((tg_name, "Stable Concurrency", f"P90: {tg_p90}ms · 0.00% error rate · Supported under tested load", "var(--green)", 4))
+
+        # Build clean expandable child transaction breakdown table
+        child_tx_subrows = ""
+        for tc in child_tcs:
+            tc_data = tg_specific.get(tc) or labels.get(tc, {})
+            tc_p90 = tc_data.get("p90", 0)
+            tc_avg = tc_data.get("avg_rt", 0)
+            tc_count = tc_data.get("count", 0)
+            tc_err_rate = tc_data.get("error_rate", 0)
+            tc_target = sla_targets.get(tc, {}).get("rt", default_rt)
+            tc_breached = tc_p90 > tc_target
+            tc_dev = ((tc_p90 - tc_target) / tc_target * 100) if tc_target > 0 else 0
+            
+            child_tx_subrows += f"""
+            <tr style="border-bottom: 1px solid var(--border); font-size: 0.78rem;">
+                <td style="padding: 0.4rem 0.6rem; padding-left: 1.5rem;">↳ <code>{tc}</code></td>
+                <td style="text-align:center;">{tc_count:,}</td>
+                <td style="text-align:center;">{tc_avg:.0f} ms</td>
+                <td style="text-align:center; color:{'var(--red)' if tc_breached else 'var(--text)'}; font-weight:700;">{tc_p90} ms</td>
+                <td style="text-align:center; color:{'var(--red)' if tc_err_rate > 0 else 'var(--green)'};">{tc_err_rate:.2f}%</td>
+                <td style="text-align:center;">{tc_target:.0f} ms</td>
+                <td style="text-align:center; color:{'var(--red)' if tc_dev > 0 else 'var(--green)'}; font-weight:600;">{tc_dev:+.1f}%</td>
+            </tr>
+            """
+
+        tg_share_pct = round((tg_u / total_tg_users) * 100, 1) if total_tg_users > 0 else 0
+        tg_rows_html += f"""
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>👥</span> {tg_name}
+                </div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">{tg_u} <small style="font-size:0.72rem; color:var(--muted); font-weight:600;">VU</small></div>
+                <div style="font-size:0.72rem; color:var(--muted);">{tg_share_pct}% Load Share</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">{tg_tps:.1f}</div>
+                <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">{tg_p90} ms</div>
+                <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:800; color:{'var(--green)' if tg_errors == 0 else 'var(--red)'};">{tg_err_rate:.2f}%</div>
+                <div style="font-size:0.72rem; color:var(--muted);">{tg_errors} errors</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div>{sla_status_badge}</div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">{sla_explanation}</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                {capacity_rating}
+            </td>
+        </tr>
+        """
+
+    # Build Bottleneck Cards HTML
+    bottleneck_items.sort(key=lambda x: x[4])
+    bottleneck_cards_html = ""
+    for b_name, b_title, b_desc, b_color, _ in bottleneck_items:
+        bottleneck_cards_html += f"""
+        <div class="kpi-card glass-panel" style="background:var(--surface1); border-left:4px solid {b_color}; padding:0.9rem 1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">
+                <span style="font-weight:700; font-size:0.88rem; color:var(--text);">👥 {b_name}</span>
+                <span style="font-size:0.7rem; font-weight:700; color:{b_color};">{b_title}</span>
+            </div>
+            <div style="font-size:0.78rem; color:var(--muted); line-height:1.45;">{b_desc}</div>
+        </div>
+        """
+
+    tg_compliance_pct = round((tg_passed_count / max(1, len(tg_configs))) * 100) if tg_configs else 100
 
     # Azure data
     azure_configured = azure_data and azure_data.get("configured", False)
@@ -774,68 +1109,167 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     overall_rc = findings_result.get("overall_root_cause", {})
     overall_rc_html = ""
     if overall_rc:
-        rc_ev = ""
-        if overall_rc.get("evidence"):
-            rc_ev = "<div style='margin-top:0.8rem; font-size:0.8rem; color:var(--muted);'><strong>Evidence:</strong> " + " &middot; ".join(overall_rc["evidence"]) + "</div>"
-        overall_rc_html = f'''
-        <div class="section glass-panel" style="margin-bottom: 1.5rem; border-left: 4px solid var(--blue);">
-            <h2>🔍 Primary Root-Cause Assessment</h2>
-            <div style="font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">{overall_rc.get("primary_bottleneck", "No bottleneck identified")}</div>
-            <p style="font-size:0.9rem; margin-bottom:0.5rem;">{overall_rc.get("assessment", "")}</p>
-            <div style="font-size:0.8rem; font-weight:600; display:inline-block; padding:0.2rem 0.6rem; border-radius:4px; background:var(--surface2); border:1px solid var(--border);">Confidence: {overall_rc.get("confidence", "Unknown")}</div>
-            {rc_ev}
-        </div>
-        '''
+        if isinstance(overall_rc, list):
+            rc_cards = ""
+            for item in overall_rc:
+                if isinstance(item, dict):
+                    f_name = item.get("finding", item.get("primary_bottleneck", "Finding"))
+                    ev_text = item.get("evidence", "")
+                    if isinstance(ev_text, list):
+                        ev_text = " &middot; ".join(ev_text)
+                    cause = item.get("likely_cause", item.get("assessment", ""))
+                    conf = item.get("confidence", "Medium")
+                    rc_cards += f'''
+                    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
+                        <div style="font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:0.3rem;">{f_name}</div>
+                        <p style="font-size:0.85rem; margin:0 0 0.4rem 0; color:var(--text);">{cause}</p>
+                        {f"<div style='font-size:0.8rem; color:var(--muted); margin-bottom:0.4rem;'><strong>Evidence:</strong> {ev_text}</div>" if ev_text else ""}
+                        <div style="font-size:0.75rem; font-weight:600; display:inline-block; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border);">Confidence: {conf}</div>
+                    </div>
+                    '''
+            overall_rc_html = f'''
+            <div class="section glass-panel" style="margin-bottom: 1.5rem; border-left: 4px solid var(--blue);">
+                <h2>🔍 Primary Root-Cause Assessment</h2>
+                {rc_cards}
+            </div>
+            '''
+        elif isinstance(overall_rc, dict):
+            rc_ev = ""
+            ev_data = overall_rc.get("evidence")
+            if ev_data:
+                ev_str = " &middot; ".join(ev_data) if isinstance(ev_data, list) else str(ev_data)
+                rc_ev = f"<div style='margin-top:0.8rem; font-size:0.8rem; color:var(--muted);'><strong>Evidence:</strong> {ev_str}</div>"
+            overall_rc_html = f'''
+            <div class="section glass-panel" style="margin-bottom: 1.5rem; border-left: 4px solid var(--blue);">
+                <h2>🔍 Primary Root-Cause Assessment</h2>
+                <div style="font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">{overall_rc.get("primary_bottleneck", "No bottleneck identified")}</div>
+                <p style="font-size:0.9rem; margin-bottom:0.5rem;">{overall_rc.get("assessment", "")}</p>
+                <div style="font-size:0.8rem; font-weight:600; display:inline-block; padding:0.2rem 0.6rem; border-radius:4px; background:var(--surface2); border:1px solid var(--border);">Confidence: {overall_rc.get("confidence", "Unknown")}</div>
+                {rc_ev}
+            </div>
+            '''
 
     # ── Build inline observation HTML panels ──────────────────────────────────
     rt_obs = chart_observations.get("response_time", {})
     rt_observation_html = ""
     if rt_obs:
-        evidence_chips = " &middot; ".join([f'<span class="evidence-chip">{e}</span>' for e in rt_obs.get("evidence", [])])
+        status_code = rt_obs.get("status_code", "healthy")
+        badge_text = rt_obs.get("badge", "🟢 Latency Stable")
+        border_color = "var(--green)" if status_code == "healthy" else "var(--yellow)" if status_code == "variable" else "var(--red)"
+        bg_color = "rgba(16,185,129,0.05)" if status_code == "healthy" else "rgba(245,158,11,0.05)" if status_code == "variable" else "rgba(239,68,68,0.05)"
         related_badge = f'<span class="finding-badge-inline" onclick="showFinding(\'{rt_obs.get("related_finding", "")}\');" style="cursor:pointer;">🔍 {rt_obs.get("related_finding", "")}</span>' if rt_obs.get("related_finding") else ""
+        
         rt_observation_html = f'''
-        <div class="ai-observation-panel">
+        <div class="glass-panel" style="border-left: 4px solid {border_color}; background: {bg_color}; padding: 1rem 1.25rem; border-radius: 8px; margin-top: 0.75rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
-                {related_badge}
+                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>🧠 Performance Observation</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    {related_badge}
+                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">{badge_text}</span>
+                </div>
             </div>
-            <p style="font-weight:600; font-size:0.85rem; margin-bottom:0.6rem; color:var(--text);">{rt_obs.get("title", "")}</p>
-            <div class="evidence-grid">{evidence_chips}</div>
-            <blockquote class="ai-interpretation">{rt_obs.get("interpretation", "")}</blockquote>
+            
+            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
+                {rt_obs.get("observation", "")}
+            </p>
+            
+            <div style="margin-bottom:0.55rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
+                    {rt_obs.get("why_it_matters", "")}
+                </p>
+            </div>
+            
+            <div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
+                    {rt_obs.get("validate", "")}
+                </p>
+            </div>
         </div>
         '''
 
     tp_obs = chart_observations.get("throughput", {})
     tp_observation_html = ""
     if tp_obs:
-        tp_evidence_chips = " &middot; ".join([f'<span class="evidence-chip">{e}</span>' for e in tp_obs.get("evidence", [])])
+        status_code = tp_obs.get("status_code", "healthy")
+        badge_text = tp_obs.get("badge", "🟢 Stable Throughput")
+        border_color = "var(--green)" if status_code == "healthy" else "var(--yellow)" if status_code in ("variable", "degrading") else "var(--red)"
+        bg_color = "rgba(16,185,129,0.05)" if status_code == "healthy" else "rgba(245,158,11,0.05)" if status_code in ("variable", "degrading") else "rgba(239,68,68,0.05)"
         tp_related_badge = f'<span class="finding-badge-inline" onclick="showFinding(\'{tp_obs.get("related_finding", "")}\');" style="cursor:pointer;">🔍 {tp_obs.get("related_finding", "")}</span>' if tp_obs.get("related_finding") else ""
+        
         tp_observation_html = f'''
-        <div class="ai-observation-panel">
+        <div class="glass-panel" style="border-left: 4px solid {border_color}; background: {bg_color}; padding: 1rem 1.25rem; border-radius: 8px; margin-top: 0.75rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
-                {tp_related_badge}
+                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>🧠 Performance Observation</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    {tp_related_badge}
+                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">{badge_text}</span>
+                </div>
             </div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">{tp_obs.get("observation", "")}</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Interpretation:</strong> <span style="font-size:0.82rem;">{tp_obs.get("interpretation", "")}</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">AI Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">{tp_obs.get("assessment", "")}</span></div>
-            <div><strong style="font-size:0.82rem;">Next Validation:</strong> <span style="font-size:0.82rem; color:var(--muted);">{tp_obs.get("next_validation", "")}</span></div>
-            <div class="evidence-grid" style="margin-top:0.5rem;">{tp_evidence_chips}</div>
+            
+            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
+                {tp_obs.get("observation", "")}
+            </p>
+            
+            <div style="margin-bottom:0.55rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
+                    {tp_obs.get("why_it_matters", "")}
+                </p>
+            </div>
+            
+            <div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
+                    {tp_obs.get("validate", "")}
+                </p>
+            </div>
         </div>
         '''
 
     infra_obs = chart_observations.get("infrastructure")
     infra_observation_html = ""
     if infra_obs:
+        inf_status = infra_obs.get("status_code", "healthy")
+        inf_badge = infra_obs.get("badge", "🟢 Infrastructure Healthy")
+        inf_border = "var(--green)" if inf_status == "healthy" else "var(--yellow)" if inf_status == "variable" else "var(--red)"
+        inf_bg = "rgba(16,185,129,0.05)" if inf_status == "healthy" else "rgba(245,158,11,0.05)" if inf_status == "variable" else "rgba(239,68,68,0.05)"
         infra_related = f'<span class="finding-badge-inline" onclick="showFinding(\'{infra_obs.get("related_finding", "")}\');" style="cursor:pointer;">🔍 {infra_obs.get("related_finding", "")}</span>' if infra_obs.get("related_finding") else ""
+        
         infra_observation_html = f'''
-        <div class="ai-observation-panel" style="margin-top:1rem;">
+        <div class="glass-panel" style="border-left: 4px solid {inf_border}; background: {inf_bg}; padding: 1rem 1.25rem; border-radius: 8px; margin-top: 1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 Infrastructure Observation</h4>
-                {infra_related}
+                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>🧠 Infrastructure Observation</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    {infra_related}
+                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">{inf_badge}</span>
+                </div>
             </div>
-            <div style="margin-bottom:0.4rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">{infra_obs.get("observation", "")}</span></div>
-            <div><strong style="font-size:0.82rem;">Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">{infra_obs.get("assessment", "")}</span></div>
+            
+            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
+                {infra_obs.get("observation", "")}
+            </p>
+            
+            <div style="margin-bottom:0.55rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
+                    {infra_obs.get("why_it_matters", "")}
+                </p>
+            </div>
+            
+            <div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
+                    {infra_obs.get("validate", "")}
+                </p>
+            </div>
         </div>
         '''
 
@@ -991,6 +1425,155 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     if not priority_actions_html:
         priority_actions_html = '<div class="roadmap-step"><span class="step-num">1</span><span>🟢 No critical findings — maintain current performance baseline.</span></div>'
 
+    # ── 6. Build Performance Intelligence Sections (Executive Summary & Tab-wise) ─
+    perf_intel = findings_result.get("performance_intelligence", {})
+    exec_intel = perf_intel.get("executive_summary", {})
+    tab_tx_intel = perf_intel.get("tab_tx_stats", {})
+    tab_rt_intel = perf_intel.get("tab_rt_stats", {})
+    tab_error_intel = perf_intel.get("tab_error_stats", {})
+    tab_infra_intel = perf_intel.get("tab_infra_stats", {})
+
+    # Standardized Tab Insight Panel Helper
+    def _build_tab_insight_panel(intel_data: dict, tab_title: str) -> str:
+        if not intel_data:
+            return ""
+        obs_items = "".join([f'<li style="margin-bottom:0.35rem;">{obs}</li>' for obs in intel_data.get("observations", [])])
+        rec_items = "".join([f'<li style="margin-bottom:0.35rem;">{rec}</li>' for rec in intel_data.get("recommendations", [])])
+        return f"""
+        <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 {tab_title} Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        {obs_items}
+                    </ul>
+                </div>
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        {rec_items}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        """
+
+    tab_tx_panel_html = _build_tab_insight_panel(tab_tx_intel, "Transaction Performance")
+    tab_rt_panel_html = _build_tab_insight_panel(tab_rt_intel, "Response Time & SLA")
+    tab_error_panel_html = _build_tab_insight_panel(tab_error_intel, "Reliability & Errors")
+    tab_infra_panel_html = _build_tab_insight_panel(tab_infra_intel, "Infrastructure Monitoring")
+
+    # Executive Summary Blocks
+    exec_assessment_badge = exec_intel.get("assessment_badge", "⚠️ PERFORMANCE REQUIRES ATTENTION")
+    exec_assessment_color = exec_intel.get("assessment_color", "var(--red)")
+    exec_assessment_text = exec_intel.get("assessment_text", "")
+    
+    exec_assessment_html = f"""
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 5px solid {exec_assessment_color}; padding: 1.25rem 1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+            <div style="font-size:0.92rem; font-weight:800; color:{exec_assessment_color}; letter-spacing:0.04em;">{exec_assessment_badge}</div>
+            <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Executive Overview</span>
+        </div>
+        <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">{exec_assessment_text}</p>
+    </div>
+    """
+
+    kpis_dict = exec_intel.get("kpis", {})
+    exec_kpi_strip_html = f"""
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.25rem;">
+        <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1.1rem;">
+            <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">{kpis_dict.get('sla', {}).get('title', 'SLA COMPLIANCE')}</div>
+            <div class="kpi-value" style="font-size:1.75rem; font-weight:800; color:{'var(--green)' if kpis_dict.get('sla',{}).get('status')=='pass' else 'var(--yellow)' if kpis_dict.get('sla',{}).get('status')=='warning' else 'var(--red)'}; margin:0.2rem 0;">{kpis_dict.get('sla', {}).get('value', '-')}</div>
+            <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">{kpis_dict.get('sla', {}).get('sub', '')}</div>
+        </div>
+        <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1.1rem;">
+            <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">{kpis_dict.get('error_rate', {}).get('title', 'ERROR RATE')}</div>
+            <div class="kpi-value" style="font-size:1.75rem; font-weight:800; color:{'var(--green)' if kpis_dict.get('error_rate',{}).get('status')=='pass' else 'var(--red)'}; margin:0.2rem 0;">{kpis_dict.get('error_rate', {}).get('value', '-')}</div>
+            <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">{kpis_dict.get('error_rate', {}).get('sub', '')}</div>
+        </div>
+        <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1.1rem;">
+            <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">{kpis_dict.get('throughput', {}).get('title', 'THROUGHPUT')}</div>
+            <div class="kpi-value" style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0.2rem 0;">{kpis_dict.get('throughput', {}).get('value', '-')}</div>
+            <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">{kpis_dict.get('throughput', {}).get('sub', '')}</div>
+        </div>
+        <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1.1rem;">
+            <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">{kpis_dict.get('infra', {}).get('title', 'INFRASTRUCTURE')}</div>
+            <div class="kpi-value" style="font-size:1.75rem; font-weight:800; color:{'var(--green)' if kpis_dict.get('infra',{}).get('status')=='pass' else 'var(--yellow)'}; margin:0.2rem 0;">{kpis_dict.get('infra', {}).get('value', '-')}</div>
+            <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">{kpis_dict.get('infra', {}).get('sub', '')}</div>
+        </div>
+    </div>
+    """
+
+    # Observations Table
+    obs_rows = ""
+    for row in exec_intel.get("observations_table", []):
+        obs_rows += f"""
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">{row.get('category', '')}</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">{row.get('observation', '')}</td>
+        </tr>
+        """
+    exec_obs_table_html = f"""
+    <div class="section glass-panel" style="margin-top:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <h2 style="margin:0;">📋 High-Level Performance Observations</h2>
+            <span style="font-size:0.75rem; font-weight:600; color:var(--muted);">Factual Assessment</span>
+        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:var(--surface2); text-align:left;">
+                    <th style="padding:0.6rem 0.8rem; font-size:0.78rem; font-weight:700; width:24%;">Category</th>
+                    <th style="padding:0.6rem 0.8rem; font-size:0.78rem; font-weight:700; width:76%;">Key Observation with Embedded Evidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                {obs_rows}
+            </tbody>
+        </table>
+    </div>
+    """
+
+    # Conclusions & Priority Recommendations
+    concl_items = "".join([f'<li style="margin-bottom:0.45rem;">{c}</li>' for c in exec_intel.get("conclusions", [])])
+    exec_conclusions_html = f"""
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid var(--accent);">
+        <h2 style="margin:0 0 0.6rem 0;">📌 Key Conclusions</h2>
+        <ul style="margin:0; padding-left:1.3rem; font-size:0.88rem; line-height:1.65; color:var(--text);" contenteditable="true">
+            {concl_items}
+        </ul>
+    </div>
+    """
+
+    p_recs_html = ""
+    for r in exec_intel.get("priority_recommendations", []):
+        r_badge = r.get("badge", "💡")
+        r_title = r.get("title", "")
+        r_detail = r.get("detail", "")
+        r_priority = r.get("priority", "Medium")
+        p_recs_html += f"""
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+                <span style="font-size:1rem;">{r_badge}</span>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">{r_title}</strong>
+                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">{r_priority}</span>
+            </div>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">{r_detail}</p>
+        </div>
+        """
+
+    exec_priority_recs_html = f"""
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid var(--green);">
+        <h2 style="margin:0 0 0.8rem 0;">💡 Priority Recommendations</h2>
+        <div contenteditable="true">
+            {p_recs_html}
+        </div>
+    </div>
+    """
+
     # Build list of critical transactions for initial chart render
     critical_tx_list = [
         lname for lname, target in sla_targets.items()
@@ -1033,13 +1616,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             tx_sla_map[k] = default_rt
     tx_sla_json = json.dumps(tx_sla_map)
 
-    # Build sub-map only for displayed labels, keyed by numeric index
+    # Build comprehensive label time-series map: keyed by integer index AND string label name
     display_ts_map = {}
     for idx_i, l_name in enumerate(display_label_names):
         if l_name in label_ts_map:
             entry = dict(label_ts_map[l_name])
             entry["label"] = l_name
             display_ts_map[idx_i] = entry
+            display_ts_map[l_name] = entry
+    for l_name, l_ts in label_ts_map.items():
+        if l_name not in display_ts_map:
+            entry = dict(l_ts)
+            entry["label"] = l_name
+            display_ts_map[l_name] = entry
     label_ts_json = json.dumps(display_ts_map)
 
     # Build dropdown HTML options using numeric index values
@@ -1896,7 +2485,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </div>
         </div>
 
-        <!-- 3. Transaction Statistics & Iteration Summary Bar Chart -->
+        <!-- 3. Overall Performance Assessment Banner -->
+        {exec_assessment_html}
+
+        <!-- 4. High-Level Performance Observations Table -->
+        {exec_obs_table_html}
+
+        <!-- 6. Key Conclusions -->
+        {exec_conclusions_html}
+
+        <!-- 7. Priority Recommendations -->
+        {exec_priority_recs_html}
+
+        <!-- 8. Transaction Statistics & Iteration Summary Bar Chart -->
         <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
             <button class="chart-info-btn" onclick="openGraphModal('tx-summary')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
@@ -1916,42 +2517,25 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </div>
         </div>
 
-        <!-- 5. Transaction & Sub-Transaction Response Time Breakdown (Hierarchical Bar Chart) -->
+        <!-- 5. Transaction & Sub-Transaction Response Time Breakdown (Hierarchical Multi-View Line Graphs) -->
         <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
             <button class="chart-info-btn" onclick="openGraphModal('tx-rt-breakdown')" title="How to read this graph &amp; use filters">ℹ️</button>
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; padding-right:2.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
                 <div>
-                    <h2 style="margin:0;">⏱️ Transaction &amp; Sub-Transaction Response Time Breakdown</h2>
+                    <h2 style="margin:0;">📈 Transaction &amp; Sub-Transaction Performance Line Graphs</h2>
                     <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
-                        Hierarchical response time analysis. Filter by User Story, drill down into specific transactions to view child HTTP requests &amp; sub-transactions.
+                        Hierarchical multi-metric line analysis. Filter by User Story, drill into child HTTP requests, and duplicate charts to compare different metrics simultaneously.
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-                    <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <label for="txRtUsFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">User Story:</label>
-                        <select id="txRtUsFilter" onchange="onTxRtUsChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
-                        </select>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <label for="txRtTxFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">Transaction:</label>
-                        <select id="txRtTxFilter" onchange="onTxRtTxChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer; max-width:280px;">
-                        </select>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <label for="txRtMetricFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">Metric:</label>
-                        <select id="txRtMetricFilter" onchange="onTxRtMetricChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
-                            <option value="avg_rt" selected>Average RT (ms)</option>
-                            <option value="p90">90th Percentile (P90) (ms)</option>
-                            <option value="p95">95th Percentile (P95) (ms)</option>
-                            <option value="max_rt">Max RT (ms)</option>
-                        </select>
-                    </div>
+                <div>
+                    <button type="button" onclick="addTxRtChartView()" style="background:var(--accent); color:#ffffff; border:none; padding:0.45rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:0.4rem; box-shadow: 0 2px 6px rgba(99,102,241,0.3);">
+                        <span>➕</span> Add / Duplicate Comparison Chart
+                    </button>
                 </div>
             </div>
-            <div id="txRtBreadcrumb" style="font-size:0.78rem; font-weight:600; color:var(--muted); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;">
-            </div>
-            <div style="position:relative; height:340px; width:100%;">
-                <canvas id="chart-tx-rt-breakdown"></canvas>
+
+            <!-- Dynamic Multi-Chart Vertical Container -->
+            <div id="txRtChartsContainer" style="display:flex; flex-direction:column; gap:1.5rem; width:100%;">
             </div>
         </div>
 
@@ -2023,72 +2607,154 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </div>
         </div>
 
-    </div>
-
-
-        <!-- Recommendations -->
-        <div class="section glass-panel" style="margin-top: 1.5rem; border-left: 4px solid var(--green);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h2 style="margin:0;" contenteditable="true">💡 Recommendations</h2>
-                <button class="delete-rec-btn" onclick="if(confirm('Delete Recommendations section?')) this.closest('.section').remove();" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:0.25rem 0.6rem; font-size:0.75rem; cursor:pointer; font-weight:600;">🗑️ Delete Section</button>
-            </div>
-            <div class="rec-grid" contenteditable="true">{linked_recs_html if linked_recs_html else recs_html}</div>
-        </div>
-        
         <!-- Limitations Disclaimer -->
         <div style="font-size:0.75rem; color:var(--muted); margin-top: 1.5rem; text-align:center;">
             <strong>Test Limitations:</strong> Capacity estimates and performance thresholds are extrapolated from a single load profile. They represent observed pressure points, not certified maximums. Validated root-cause analysis requires infrastructure telemetry alignment.
         </div>
     </div>
 
-    <!-- TAB 2: User Load Distribution -->
+    <!-- TAB 2: Load & Capacity Analysis -->
     <div id="rpt-load" class="tab-pane hidden">
+        <!-- 1. Focused Capacity Summary KPI Strip (3 Cards) -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.25rem;">
+            <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
+                <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Target Concurrency</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0.25rem 0;">{total_tg_users} <small style="font-size:0.75rem; color:var(--muted);">VUs</small></div>
+                <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">{len(tg_configs)} Configured User Journeys</div>
+            </div>
+            <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
+                <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Peak Throughput</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--accent); margin:0.25rem 0;">{cap_peak_tps:.1f} <small style="font-size:0.75rem; color:var(--muted);">TPS</small></div>
+                <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Sustained over {test_dur_sec}s test</div>
+            </div>
+            <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
+                <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Scaling Efficiency</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0.25rem 0;">{tp_scaling_text}</div>
+                <div class="kpi-sub" style="font-size:0.75rem; font-weight:600;">{tp_scaling_eval}</div>
+            </div>
+        </div>
+
+        <!-- 2. Hero Visual: Load vs Throughput (TPS vs VUs) -->
+        <div class="chart-box glass-panel" style="position: relative; margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.6rem;">
+                <div>
+                    <h3 style="margin:0; font-size:1rem; font-weight:700;">📈 Load vs Throughput (TPS vs VUs)</h3>
+                    <p style="font-size:0.73rem; color:var(--muted); margin:0.15rem 0 0 0;">Evaluates throughput scaling linearity as concurrency scales</p>
+                </div>
+                <span style="font-size:0.72rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.55rem; border-radius:10px; color:var(--accent);">{tp_scaling_text} Scaling</span>
+            </div>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="chartLoadVsThroughput"></canvas>
+            </div>
+            <div style="font-size:0.75rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.75rem; border-radius:6px; margin-top:0.6rem;">
+                💡 <strong>Throughput Evaluation:</strong> Sustained {cap_peak_tps:.1f} TPS at peak {total_tg_users} VUs ({tp_scaling_eval}).
+            </div>
+        </div>
+
+        <!-- 3. Load Level Progression Matrix -->
         <div class="section glass-panel" style="margin-bottom: 1.5rem;">
-            <h2>📐 Capacity Planning</h2>
-            <table style="font-size: 0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <div>
+                    <h2 style="margin:0; font-size:1.05rem;">📊 Load Level Progression Matrix</h2>
+                    <p style="font-size:0.75rem; color:var(--muted); margin:0.2rem 0 0 0;">System performance behavior across test execution stages</p>
+                </div>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                 <thead>
-                    <tr><th>Metric</th><th>Status</th><th>Notes</th></tr>
+                    <tr style="background:var(--surface2); text-align:left; font-size:0.75rem; color:var(--muted);">
+                        <th style="padding:0.5rem 0.75rem;">Load Stage</th>
+                        <th style="text-align:center;">Active VUs</th>
+                        <th style="text-align:center;">Throughput (TPS)</th>
+                        <th style="text-align:center;">P95 Latency</th>
+                        <th style="text-align:center;">Errors</th>
+                        <th style="text-align:center;">Assessment</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr><td><strong>Observed Concurrency</strong></td><td>{users} users</td><td>Tested concurrency level.</td></tr>
-                    <tr><td><strong>Safe Concurrency</strong></td><td>Not determined</td><td>Cannot be established without stepped load testing.</td></tr>
-                    <tr><td><strong>Saturation Point</strong></td><td>Not determined</td><td>System saturation was not strictly observed.</td></tr>
+                    {staging_rows_html}
                 </tbody>
             </table>
-            <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;">Capacity boundaries require incremental stress testing.</p>
         </div>
-        <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
-                <h3 style="margin:0;">👥 Estimated Concurrent Users Over Time <small style="font-size:0.7rem; color:var(--muted); font-weight:400; margin-left:0.3rem;">(Little's Law)</small></h3>
-                <button class="chart-info-btn" onclick="openGraphModal('concurrency')" title="How to read this graph &amp; use filters">ℹ️</button>
+
+        <!-- 4. User Journey Concurrency Allocation & Capacity -->
+        <div class="section glass-panel" style="margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.85rem;">
+                <div>
+                    <h2 style="margin:0; font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
+                        👥 User Journey Concurrency Allocation &amp; Capacity
+                    </h2>
+                    <p style="font-size:0.8rem; color:var(--muted); margin:0.25rem 0 0 0;">Journey-level concurrency allocation, throughput generation, and capacity limit classification</p>
+                </div>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.25rem 0.65rem; border-radius:12px;">{len(tg_configs)} Configured Journeys</span>
             </div>
-            <div style="position: relative; height: 260px; width: 100%;">
-                <canvas id="concChart"></canvas>
+            <div style="overflow-x:auto; border-radius:8px; border:1px solid var(--border);">
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:var(--surface2); text-align:left;">
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem;">User Journey</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:13%;">Concurrency Allocation</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:12%;">Throughput</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:12%;">P90 Latency</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:12%;">Error Rate</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; width:22%;">SLA Compliance</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:15%;">Capacity Limit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tg_rows_html}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- TAB 3: Transaction Stats -->
     <div id="rpt-tx" class="tab-pane hidden">
-        <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Total Iterations</div><div class="kpi-value">{summary.get('total_iterations', summary.get('total', 0)):,}</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">Total Transactions</div><div class="kpi-value">{total_tx_count}</div></div>
-        </div>
+        {tab_tx_panel_html}
         
-        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
-                <h3 style="margin:0; white-space: nowrap;">📊 Throughput &amp; Errors</h3>
+        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; gap: 0.5rem; flex-wrap:wrap;">
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
+                        📊 Throughput &amp; Errors
+                    </h3>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Request execution rate and failure distribution over test timeline</p>
+                </div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 260px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.65rem; font-size:0.78rem; font-weight:600; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
                         <option value="ALL">All Transactions (Overall)</option>
                         {tx_options_html}
                     </select>
                     <button class="chart-info-btn" onclick="openGraphModal('throughput')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
-            <div style="position: relative; height: 260px; width: 100%;">
+
+            <!-- 4 Compact KPI Chips ABOVE the Chart -->
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:0.75rem; margin-bottom:1rem;">
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">AVG THROUGHPUT</div>
+                    <div id="tpKpiAvg" style="font-size:1.25rem; font-weight:800; color:var(--text); margin-top:0.2rem;">{tp_obs.get('avg_tp', round(summary.get('throughput', 0))):.0f} req/s</div>
+                </div>
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">PEAK THROUGHPUT</div>
+                    <div id="tpKpiPeak" style="font-size:1.25rem; font-weight:800; color:var(--accent); margin-top:0.2rem;">{tp_obs.get('peak_tp', 0):.0f} req/s</div>
+                </div>
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">ERROR RATE</div>
+                    <div id="tpKpiErr" style="font-size:1.25rem; font-weight:800; color:{'var(--green)' if tp_obs.get('error_rate', 0) == 0 else 'var(--red)'}; margin-top:0.2rem;">{tp_obs.get('error_rate', 0):.2f}%</div>
+                </div>
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">END TREND / VARIATION</div>
+                    <div id="tpKpiTrend" style="font-size:1.15rem; font-weight:800; color:{tp_obs.get('trend_color', 'var(--text)')}; margin-top:0.2rem;">{tp_obs.get('trend_label', 'Stable')}</div>
+                </div>
+            </div>
+
+            <!-- Throughput Chart (Wider, Height 240px) -->
+            <div style="position: relative; height: 240px; width: 100%; margin-bottom: 0.5rem;">
                 <canvas id="tpChart"></canvas>
             </div>
+
+            <!-- Standardized Contextual AI Performance Observation Card -->
             {tp_observation_html}
         </div>
 
@@ -2213,6 +2879,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
     <!-- TAB 4: Response Time Stats -->
     <div id="rpt-rt" class="tab-pane hidden">
+        {tab_rt_panel_html}
         <div class="kpi-grid">
             <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value {'pass' if avg_rt <= 500 else 'warn' if avg_rt <= 2000 else 'fail'}">{avg_rt:.0f}<span style="font-size:0.9rem"> ms</span></div></div>
             <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">{summary.get('p95', 0)}<span style="font-size:0.9rem"> ms</span></div></div>
@@ -2244,7 +2911,6 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Response time trend for transactions marked as critical</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <a href="#" onclick="switchReportTab('rpt-tx', document.querySelectorAll('.nav-btn')[2]); return false;" style="font-size:0.78rem; font-weight:600; color:var(--accent); text-decoration:none;">Manage Critical Transactions →</a>
                     <button class="chart-info-btn" onclick="openGraphModal('critical-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
@@ -2297,6 +2963,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
     <!-- TAB 5: Error Statistics -->
     <div id="rpt-error" class="tab-pane hidden">
+        {tab_error_panel_html}
         <div class="kpi-grid">
             <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value {'pass' if error_rate <= 1 else 'warn' if error_rate <= 5 else 'fail'}">{error_rate:.2f}<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">{summary.get('tc_errors', summary.get('errors', 0))} transaction failures</div></div>
             <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: {'var(--red)' if tx_breached_count > 0 else 'var(--green)'};">{tx_breached_count}</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
@@ -2426,6 +3093,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
     <!-- TAB 6: Infrastructure Monitoring -->
     <div id="rpt-infra" class="tab-pane hidden">
+        {tab_infra_panel_html}
         
         <!-- 1. Top Health KPI Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
@@ -2681,6 +3349,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         const pane = document.getElementById(tabId);
         if (pane) pane.classList.remove('hidden');
         if (btn) btn.classList.add('active');
+        // Force immediate resize on all Chart.js instances so hidden canvases get full 100% width
+        for (let id in Chart.instances) {{
+            Chart.instances[id].resize();
+        }}
         window.dispatchEvent(new Event('resize'));
     }}
 
@@ -2796,9 +3468,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     const initialCriticals = {critical_tx_list_json};
     initialCriticals.forEach(t => criticalTxSet.add(t));
 
-    // Executive Summary Tab 1 Critical Transactions Response Time Chart
+    // Critical Transactions Response Time Chart
     let critTxChartObj = null;
-    const critCanvas = document.getElementById('chart-rt-exec');
+    const critCanvas = document.getElementById('critTxChart') || document.getElementById('chart-rt-exec');
     if (critCanvas) {{
         critTxChartObj = new Chart(critCanvas, {{
             type: 'line',
@@ -2854,11 +3526,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         initialCriticals.forEach(txName => {{
             const isSelected = criticalTxSet.has(txName);
             const color = getTxColor(txName);
-            const shortName = txName.length > 25 ? txName.substring(0, 22) + '...' : txName;
+            const txSla = txSlaMap[txName] ? ' (SLA: ' + txSlaMap[txName] + 'ms)' : '';
+            const shortName = (txName.length > 25 ? txName.substring(0, 22) + '...' : txName) + txSla;
 
             const chip = document.createElement('button');
             chip.type = 'button';
-            chip.title = txName;
+            chip.title = txName + txSla;
             chip.style.cssText = `padding:0.25rem 0.65rem; font-size:0.75rem; border-radius:12px; border:1px solid ${{isSelected ? color : 'var(--border)'}}; background:${{isSelected ? color + '22' : 'transparent'}}; color:${{isSelected ? color : 'var(--muted)'}}; cursor:pointer; font-weight:${{isSelected ? '700' : '500'}}; transition:all 0.15s;`;
             chip.innerText = (isSelected ? '● ' : '○ ') + shortName;
             chip.onclick = (e) => {{
@@ -2880,49 +3553,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     function updateCriticalTxChart() {{
         if (!critTxChartObj) return;
         const datasets = [];
-        
-        // Render individual SLA target lines if single/few transactions are selected, or distinct targets exist
-        const selectedTxs = Array.from(criticalTxSet);
-        const uniqueSlaTargets = new Set(selectedTxs.map(t => txSlaMap[t] || {default_rt}));
 
-        if (uniqueSlaTargets.size === 1) {{
-            // All selected transactions share the same target value
-            const targetVal = Array.from(uniqueSlaTargets)[0];
-            const slaData = new Array({ts_labels}.length).fill(targetVal);
-            datasets.push({{
-                label: 'SLA Target (' + targetVal + ' ms)',
-                data: slaData,
-                borderColor: 'rgba(239, 68, 68, 0.85)',
-                backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                borderWidth: 2,
-                borderDash: [6, 6],
-                pointRadius: 0,
-                fill: true
-            }});
-        }} else {{
-            // Render individual dashed target line per distinct SLA threshold
-            uniqueSlaTargets.forEach(targetVal => {{
-                if (targetVal) {{
-                    const slaData = new Array({ts_labels}.length).fill(targetVal);
-                    datasets.push({{
-                        label: 'SLA Target (' + targetVal + ' ms)',
-                        data: slaData,
-                        borderColor: 'rgba(239, 68, 68, 0.75)',
-                        borderWidth: 1.8,
-                        borderDash: [5, 5],
-                        pointRadius: 0,
-                        fill: false
-                    }});
-                }}
-            }});
-        }}
-
-        // 2. Transaction Lines
+        // Transaction Lines with SLA target embedded in the index/label
         criticalTxSet.forEach(txName => {{
             let tsData = null;
-            Object.values(labelTsMap).forEach(entry => {{
-                if (entry.label === txName) tsData = entry.ts_avg_rt;
-            }});
+            if (labelTsMap[txName] && labelTsMap[txName].ts_avg_rt) {{
+                tsData = labelTsMap[txName].ts_avg_rt;
+            }} else {{
+                Object.values(labelTsMap).forEach(entry => {{
+                    if (entry && (entry.label === txName || entry.name === txName)) {{
+                        tsData = entry.ts_avg_rt;
+                    }}
+                }});
+            }}
             if (tsData && tsData.length > 0) {{
                 const color = getTxColor(txName);
                 const txSla = txSlaMap[txName] ? ' (SLA: ' + txSlaMap[txName] + 'ms)' : '';
@@ -2935,7 +3578,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     borderWidth: 2.5,
                     fill: false,
                     tension: 0.3,
-                    pointRadius: 2.5
+                    pointRadius: 3.5,
+                    pointHoverRadius: 6
                 }});
             }}
         }});
@@ -2985,17 +3629,59 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         rtChartObj.update('active');
     }}
 
-    // Throughput Chart Instance
+    // Throughput Chart Instance (Line Graph)
+    const hasInitialErrors = overallTs.errors && overallTs.errors.some(e => e > 0);
+    const tpDatasets = [
+        {{
+            label: 'Throughput (req/s)',
+            data: overallTs.throughput,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.12)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#6366f1',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2
+        }}
+    ];
+    if (hasInitialErrors) {{
+        tpDatasets.push({{
+            label: 'Errors',
+            data: overallTs.errors,
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.10)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ef4444',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2
+        }});
+    }}
+
     const tpChartObj = new Chart(document.getElementById('tpChart'), {{
-        type: 'bar',
+        type: 'line',
         data: {{
             labels: {ts_labels},
-            datasets: [
-                {{ label: 'Throughput (req/s)', data: overallTs.throughput, backgroundColor: 'rgba(99,102,241,0.6)', borderRadius: 4 }},
-                {{ label: 'Errors', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 4 }}
-            ]
+            datasets: tpDatasets
         }},
-        options: {{ responsive: true, scales: {{ y: {{ grid: {{ color: gridColor }} }}, x: {{ grid: {{ 'display': false }} }} }} }}
+        options: {{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {{
+                legend: {{ position: 'bottom', labels: {{ color: textColor, font: {{ weight: '600' }} }} }},
+                tooltip: {{ mode: 'index', intersect: false }}
+            }},
+            scales: {{
+                x: {{ grid: {{ color: 'rgba(255,255,255,0.04)' }}, ticks: {{ color: textColor, font: {{ weight: '600' }} }} }},
+                y: {{ grid: {{ color: gridColor }}, ticks: {{ color: textColor }}, title: {{ display: true, text: 'Throughput (req/s)', color: textColor }}, beginAtZero: true }}
+            }}
+        }}
     }});
 
     function updateTpChart(val) {{
@@ -3006,24 +3692,69 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             if (entry) d = {{ throughput: entry.ts_throughput, errors: entry.ts_errors }};
         }}
         tpChartObj.data.datasets[0].data = [...d.throughput];
-        tpChartObj.data.datasets[1].data = [...d.errors];
+        if (tpChartObj.data.datasets.length > 1 && d.errors) {{
+            tpChartObj.data.datasets[1].data = [...d.errors];
+        }}
         tpChartObj.update('active');
+
+        // Dynamically update the 4 KPI chips above the chart
+        const tpArr = d.throughput || [];
+        const errArr = d.errors || [];
+        if (tpArr.length > 0) {{
+            const avgVal = Math.round(tpArr.reduce((a,b)=>a+b, 0) / tpArr.length);
+            const peakVal = Math.round(Math.max(...tpArr));
+            const endVal = Math.round(tpArr[tpArr.length - 1]);
+            const totalErrs = errArr.reduce((a,b)=>a+b, 0);
+            const totalSamples = tpArr.reduce((a,b)=>a+b, 0) * 10;
+            const errRateVal = totalSamples > 0 ? (totalErrs / totalSamples * 100).toFixed(2) : '0.00';
+
+            const kpiAvg = document.getElementById('tpKpiAvg');
+            const kpiPeak = document.getElementById('tpKpiPeak');
+            const kpiErr = document.getElementById('tpKpiErr');
+            const kpiTrend = document.getElementById('tpKpiTrend');
+            if (kpiAvg) kpiAvg.innerText = avgVal + ' req/s';
+            if (kpiPeak) kpiPeak.innerText = peakVal + ' req/s';
+            if (kpiErr) {{
+                kpiErr.innerText = errRateVal + '%';
+                kpiErr.style.color = parseFloat(errRateVal) > 0 ? 'var(--red)' : 'var(--green)';
+            }}
+            if (kpiTrend) {{
+                const diffPct = peakVal > 0 ? Math.round((peakVal - endVal)/peakVal * 100) : 0;
+                if (diffPct >= 10) {{
+                    kpiTrend.innerText = '↓ ' + diffPct + '% from Peak';
+                    kpiTrend.style.color = 'var(--red)';
+                }} else {{
+                    kpiTrend.innerText = '🟢 Stable';
+                    kpiTrend.style.color = 'var(--green)';
+                }}
+            }}
+        }}
     }}
 
-    // ── Hierarchical Transaction & Sub-Transaction Response Time Breakdown Bar Chart ──
+    // ── Hierarchical Transaction & Sub-Transaction Multi-View Line Chart Manager ──
     const txRtHierarchyData = {tx_rt_hierarchy_json};
-    let currentTxRtUs = 'ALL';
-    let currentTxRtTx = 'ALL';
-    let currentTxRtMetric = 'avg_rt';
+    let txRtChartPanels = [];
+    let nextTxRtPanelId = 1;
 
-    // Chart.js Data Labels Plugin to draw time values above vertical bars
-    const txRtDataLabelsPlugin = {{
-        id: 'txRtDataLabelsPlugin',
+    // Metric visual configuration and styling
+    const txRtMetricColorMap = {{
+        'avg_rt': {{ line: '#6366f1', fill: 'rgba(99, 102, 241, 0.12)', label: 'Average RT (ms)', unit: 'ms' }},
+        'p90': {{ line: '#f59e0b', fill: 'rgba(245, 158, 11, 0.12)', label: '90th Percentile (P90) (ms)', unit: 'ms' }},
+        'p95': {{ line: '#ef4444', fill: 'rgba(239, 68, 68, 0.12)', label: '95th Percentile (P95) (ms)', unit: 'ms' }},
+        'max_rt': {{ line: '#ec4899', fill: 'rgba(236, 72, 153, 0.12)', label: 'Max Response Time (ms)', unit: 'ms' }},
+        'min_rt': {{ line: '#10b981', fill: 'rgba(16, 185, 129, 0.12)', label: 'Min Response Time (ms)', unit: 'ms' }},
+        'error_rate': {{ line: '#dc2626', fill: 'rgba(220, 38, 38, 0.12)', label: 'Error Rate (%)', unit: '%' }},
+        'count': {{ line: '#8b5cf6', fill: 'rgba(139, 92, 246, 0.12)', label: 'Sample Count', unit: 'samples' }}
+    }};
+
+    // Custom Data Labels Plugin for Line Points
+    const txRtLineLabelsPlugin = {{
+        id: 'txRtLineLabelsPlugin',
         afterDatasetsDraw(chart) {{
             const {{ ctx }} = chart;
             ctx.save();
             const isDark = document.documentElement.classList.contains('dark');
-            ctx.font = '600 11px Inter, sans-serif';
+            ctx.font = '600 10.5px Inter, sans-serif';
             ctx.fillStyle = isDark ? '#f1f5f9' : '#1f2328';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
@@ -3034,9 +3765,17 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     meta.data.forEach((element, index) => {{
                         const val = dataset.data[index];
                         if (val !== null && val !== undefined && !isNaN(val)) {{
-                            const formatted = Math.round(val).toLocaleString() + ' ms';
+                            let formatted = '';
+                            const metric = chart.config._metricKey || 'avg_rt';
+                            if (metric === 'error_rate') {{
+                                formatted = Number(val).toFixed(2) + '%';
+                            }} else if (metric === 'count') {{
+                                formatted = Math.round(val).toLocaleString();
+                            }} else {{
+                                formatted = Math.round(val).toLocaleString() + ' ms';
+                            }}
                             const x = element.x;
-                            const y = element.y - 5;
+                            const y = element.y - 6;
                             ctx.fillText(formatted, x, y);
                         }}
                     }});
@@ -3046,42 +3785,107 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
     }};
 
-    let txRtBreakdownChartObj = null;
+    function addTxRtChartView(initialMetric) {{
+        const container = document.getElementById('txRtChartsContainer');
+        if (!container) return;
 
-    function initTxRtBreakdownChart() {{
-        const usSelect = document.getElementById('txRtUsFilter');
-        if (!usSelect) return;
+        const panelId = nextTxRtPanelId++;
+        const defaultMetric = initialMetric || (txRtChartPanels.length === 1 ? 'p90' : (txRtChartPanels.length === 2 ? 'max_rt' : 'avg_rt'));
 
-        // Populate User Story dropdown
-        usSelect.innerHTML = '<option value="ALL">All User Stories / Thread Groups</option>';
-        if (txRtHierarchyData.user_stories) {{
-            txRtHierarchyData.user_stories.forEach(us => {{
-                const opt = document.createElement('option');
-                opt.value = us.name;
-                opt.textContent = us.name;
-                usSelect.appendChild(opt);
-            }});
+        const cardEl = document.createElement('div');
+        cardEl.id = `tx-rt-panel-${{panelId}}`;
+        cardEl.className = 'glass-panel';
+        cardEl.style.cssText = 'background:var(--surface1); border:1px solid var(--border); border-radius:10px; padding:1.25rem; position:relative; width:100%; box-sizing:border-box;';
+
+        const canRemove = txRtChartPanels.length > 0;
+
+        cardEl.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.6rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">User Story:</label>
+                        <select id="txRtUsSelect-${{panelId}}" onchange="onPanelUsChange(${{panelId}}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer;">
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">Transaction:</label>
+                        <select id="txRtTxSelect-${{panelId}}" onchange="onPanelTxChange(${{panelId}}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer; max-width:260px;">
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">Metric:</label>
+                        <select id="txRtMetricSelect-${{panelId}}" onchange="onPanelMetricChange(${{panelId}}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:700; outline:none; cursor:pointer;">
+                            <option value="avg_rt" ${{defaultMetric === 'avg_rt' ? 'selected' : ''}}>Average RT (ms)</option>
+                            <option value="p90" ${{defaultMetric === 'p90' ? 'selected' : ''}}>90th Percentile (P90) (ms)</option>
+                            <option value="p95" ${{defaultMetric === 'p95' ? 'selected' : ''}}>95th Percentile (P95) (ms)</option>
+                            <option value="max_rt" ${{defaultMetric === 'max_rt' ? 'selected' : ''}}>Max Response Time (ms)</option>
+                            <option value="min_rt" ${{defaultMetric === 'min_rt' ? 'selected' : ''}}>Min Response Time (ms)</option>
+                            <option value="error_rate" ${{defaultMetric === 'error_rate' ? 'selected' : ''}}>Error Rate (%)</option>
+                            <option value="count" ${{defaultMetric === 'count' ? 'selected' : ''}}>Sample Count</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button type="button" onclick="duplicateTxRtView(${{panelId}})" title="Duplicate this exact view" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); font-size:0.72rem; font-weight:600; padding:0.25rem 0.55rem; border-radius:4px; cursor:pointer;">⧉ Duplicate</button>
+                    ${{canRemove ? `<button type="button" onclick="removeTxRtChartView(${{panelId}})" title="Close this chart view" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:0.75rem; font-weight:700; padding:0.25rem 0.55rem; border-radius:4px; cursor:pointer;">✕</button>` : ''}}
+                </div>
+            </div>
+            <div id="txRtBreadcrumb-${{panelId}}" style="font-size:0.75rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.3rem;">
+            </div>
+            <div style="position:relative; height:320px; width:100%;">
+                <canvas id="chart-tx-rt-canvas-${{panelId}}"></canvas>
+            </div>
+        `;
+
+        container.appendChild(cardEl);
+
+        const panelObj = {{
+            id: panelId,
+            us: 'ALL',
+            tx: 'ALL',
+            metric: defaultMetric,
+            chartObj: null
+        }};
+        txRtChartPanels.push(panelObj);
+
+        // Populate User Stories
+        const usSelect = document.getElementById(`txRtUsSelect-${{panelId}}`);
+        if (usSelect) {{
+            usSelect.innerHTML = '<option value="ALL">All User Stories</option>';
+            if (txRtHierarchyData.user_stories) {{
+                txRtHierarchyData.user_stories.forEach(us => {{
+                    const opt = document.createElement('option');
+                    opt.value = us.name;
+                    opt.textContent = us.name;
+                    usSelect.appendChild(opt);
+                }});
+            }}
         }}
 
-        populateTxRtTxDropdown();
+        populatePanelTxDropdown(panelId);
 
-        const canvas = document.getElementById('chart-tx-rt-breakdown');
-        if (!canvas) return;
+        // Create Chart.js Line Instance
+        const canvas = document.getElementById(`chart-tx-rt-canvas-${{panelId}}`);
+        const mInfo = txRtMetricColorMap[defaultMetric] || txRtMetricColorMap['avg_rt'];
 
-        txRtBreakdownChartObj = new Chart(canvas, {{
-            type: 'bar',
+        const chartObj = new Chart(canvas, {{
+            type: 'line',
             data: {{
                 labels: [],
                 datasets: [
                     {{
-                        label: 'Response Time (ms)',
+                        label: mInfo.label,
                         data: [],
-                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
-                        borderColor: '#6366f1',
-                        borderWidth: 1.5,
-                        borderRadius: 6,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
+                        borderColor: mInfo.line,
+                        backgroundColor: mInfo.fill,
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: mInfo.line,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
                     }}
                 ]
             }},
@@ -3094,20 +3898,20 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         callbacks: {{
                             label: function(ctx) {{
                                 const val = ctx.parsed.y;
-                                const metricLabel = currentTxRtMetric === 'avg_rt' ? 'Avg RT' :
-                                                    currentTxRtMetric === 'p90' ? 'P90 RT' :
-                                                    currentTxRtMetric === 'p95' ? 'P95 RT' : 'Max RT';
-                                return `${{metricLabel}}: ${{Math.round(val).toLocaleString()}} ms`;
+                                const curM = panelObj.metric;
+                                if (curM === 'error_rate') return `Error Rate: ${{Number(val).toFixed(2)}}%`;
+                                if (curM === 'count') return `Count: ${{Math.round(val).toLocaleString()}} samples`;
+                                return `${{mInfo.label}}: ${{Math.round(val).toLocaleString()}} ms`;
                             }}
                         }}
                     }}
                 }},
                 scales: {{
                     x: {{
-                        grid: {{ display: false }},
+                        grid: {{ color: 'rgba(255,255,255,0.04)' }},
                         ticks: {{
                             color: textColor,
-                            font: {{ weight: '600', size: 10 }},
+                            font: {{ weight: '600', size: 9.5 }},
                             maxRotation: 25
                         }}
                     }},
@@ -3115,35 +3919,45 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         grid: {{ color: gridColor }},
                         ticks: {{
                             color: textColor,
-                            callback: function(val) {{ return val.toLocaleString() + ' ms'; }}
+                            callback: function(val) {{
+                                const curM = panelObj.metric;
+                                if (curM === 'error_rate') return val + '%';
+                                if (curM === 'count') return val.toLocaleString();
+                                return val.toLocaleString() + ' ms';
+                            }}
                         }},
-                        title: {{ display: true, text: 'Response Time (ms)', color: textColor }},
+                        title: {{ display: true, text: mInfo.label, color: textColor }},
                         grace: '18%',
                         beginAtZero: true
                     }}
                 }}
             }},
-            plugins: [txRtDataLabelsPlugin]
+            plugins: [txRtLineLabelsPlugin]
         }});
 
-        updateTxRtBreakdownChart();
+        chartObj.config._metricKey = defaultMetric;
+        panelObj.chartObj = chartObj;
+
+        updatePanelChart(panelId);
     }}
 
-    function populateTxRtTxDropdown() {{
-        const txSelect = document.getElementById('txRtTxFilter');
+    function populatePanelTxDropdown(panelId) {{
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        const txSelect = document.getElementById(`txRtTxSelect-${{panelId}}`);
         if (!txSelect) return;
 
         txSelect.innerHTML = '';
         const allOpt = document.createElement('option');
         allOpt.value = 'ALL';
-        allOpt.textContent = currentTxRtUs === 'ALL' ? 'All Transactions (Overview)' : `All Transactions in ${{currentTxRtUs}}`;
+        allOpt.textContent = panel.us === 'ALL' ? 'All Transactions (Overview)' : `All in ${{panel.us}}`;
         txSelect.appendChild(allOpt);
 
         let txList = [];
-        if (currentTxRtUs === 'ALL') {{
+        if (panel.us === 'ALL') {{
             txList = txRtHierarchyData.all_transactions || [];
         }} else {{
-            const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === currentTxRtUs);
+            const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === panel.us);
             if (foundUs) txList = foundUs.transactions || [];
         }}
 
@@ -3151,115 +3965,141 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             const opt = document.createElement('option');
             opt.value = t.name;
             const subCount = (t.children || []).length;
-            const suffix = subCount > 0 ? ` (${{subCount}} sub-requests)` : '';
-            opt.textContent = (t.name.length > 35 ? t.name.substring(0, 32) + '...' : t.name) + suffix;
+            const suffix = subCount > 0 ? ` (${{subCount}} sub-req)` : '';
+            opt.textContent = (t.name.length > 25 ? t.name.substring(0, 22) + '...' : t.name) + suffix;
             opt.title = t.name;
             txSelect.appendChild(opt);
         }});
 
-        txSelect.value = currentTxRtTx;
-        if (txSelect.value !== currentTxRtTx) {{
-            currentTxRtTx = 'ALL';
+        txSelect.value = panel.tx;
+        if (txSelect.value !== panel.tx) {{
+            panel.tx = 'ALL';
             txSelect.value = 'ALL';
         }}
     }}
 
-    function onTxRtUsChange(val) {{
-        currentTxRtUs = val;
-        currentTxRtTx = 'ALL';
-        populateTxRtTxDropdown();
-        updateTxRtBreakdownChart();
+    function onPanelUsChange(panelId, val) {{
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        panel.us = val;
+        panel.tx = 'ALL';
+        populatePanelTxDropdown(panelId);
+        updatePanelChart(panelId);
     }}
 
-    function onTxRtTxChange(val) {{
-        currentTxRtTx = val;
-        updateTxRtBreakdownChart();
+    function onPanelTxChange(panelId, val) {{
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        panel.tx = val;
+        updatePanelChart(panelId);
     }}
 
-    function onTxRtMetricChange(val) {{
-        currentTxRtMetric = val;
-        updateTxRtBreakdownChart();
+    function onPanelMetricChange(panelId, val) {{
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        panel.metric = val;
+        updatePanelChart(panelId);
     }}
 
-    function updateTxRtBreakdownChart() {{
-        if (!txRtBreakdownChartObj) return;
+    function duplicateTxRtView(sourcePanelId) {{
+        const src = txRtChartPanels.find(p => p.id === sourcePanelId);
+        if (!src) return;
+        addTxRtChartView(src.metric);
+        const newPanel = txRtChartPanels[txRtChartPanels.length - 1];
+        if (newPanel) {{
+            newPanel.us = src.us;
+            newPanel.tx = src.tx;
+            newPanel.metric = src.metric;
+            const usSel = document.getElementById(`txRtUsSelect-${{newPanel.id}}`);
+            if (usSel) usSel.value = src.us;
+            populatePanelTxDropdown(newPanel.id);
+            const txSel = document.getElementById(`txRtTxSelect-${{newPanel.id}}`);
+            if (txSel) txSel.value = src.tx;
+            const mSel = document.getElementById(`txRtMetricSelect-${{newPanel.id}}`);
+            if (mSel) mSel.value = src.metric;
+            updatePanelChart(newPanel.id);
+        }}
+    }}
 
-        const breadcrumbEl = document.getElementById('txRtBreadcrumb');
+    function removeTxRtChartView(panelId) {{
+        const idx = txRtChartPanels.findIndex(p => p.id === panelId);
+        if (idx === -1) return;
+        const panel = txRtChartPanels[idx];
+        if (panel.chartObj) {{
+            panel.chartObj.destroy();
+        }}
+        txRtChartPanels.splice(idx, 1);
+        const card = document.getElementById(`tx-rt-panel-${{panelId}}`);
+        if (card) card.remove();
+    }}
+
+    function updatePanelChart(panelId) {{
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel || !panel.chartObj) return;
+
+        const breadcrumbEl = document.getElementById(`txRtBreadcrumb-${{panelId}}`);
         let items = [];
-        let isDrilldown = false;
-        let chartTitleLabel = 'Transactions';
-        let barColor = 'rgba(99, 102, 241, 0.75)';
-        let barBorder = '#6366f1';
 
-        if (currentTxRtTx !== 'ALL') {{
-            // Drilldown mode: find the selected transaction across hierarchy
+        if (panel.tx !== 'ALL') {{
             let targetTx = null;
             if (txRtHierarchyData.all_transactions) {{
-                targetTx = txRtHierarchyData.all_transactions.find(t => t.name === currentTxRtTx);
+                targetTx = txRtHierarchyData.all_transactions.find(t => t.name === panel.tx);
             }}
             if (!targetTx && txRtHierarchyData.user_stories) {{
                 for (const us of txRtHierarchyData.user_stories) {{
-                    const found = (us.transactions || []).find(t => t.name === currentTxRtTx);
+                    const found = (us.transactions || []).find(t => t.name === panel.tx);
                     if (found) {{ targetTx = found; break; }}
                 }}
             }}
 
             if (targetTx && targetTx.children && targetTx.children.length > 0) {{
-                isDrilldown = true;
                 items = targetTx.children;
-                chartTitleLabel = `Inside Requests of "${{targetTx.name}}"`;
-                barColor = 'rgba(14, 165, 233, 0.8)'; // Cyan / Sky Blue
-                barBorder = '#0284c7';
                 if (breadcrumbEl) {{
-                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{currentTxRtUs === 'ALL' ? 'All Stories' : currentTxRtUs}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${{items.length}} Child Requests / Sub-Transactions</span>`;
+                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${{items.length}} Child Requests</span>`;
                 }}
             }} else if (targetTx) {{
-                // Single transaction with no sub-requests
                 items = [targetTx];
-                chartTitleLabel = targetTx.name;
                 if (breadcrumbEl) {{
-                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{currentTxRtUs === 'ALL' ? 'All Stories' : currentTxRtUs}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> (No child requests)`;
+                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> (No child requests)`;
                 }}
             }}
         }} else {{
-            // Overview mode: show transactions
-            if (currentTxRtUs === 'ALL') {{
+            if (panel.us === 'ALL') {{
                 items = txRtHierarchyData.all_transactions || [];
                 if (breadcrumbEl) {{
                     breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">🌐 All User Stories</span> &rarr; <span style="color:var(--text); font-weight:700;">${{items.length}} Main Transactions</span>`;
                 }}
             }} else {{
-                const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === currentTxRtUs);
+                const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === panel.us);
                 items = foundUs ? (foundUs.transactions || []) : [];
                 if (breadcrumbEl) {{
-                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">📁 ${{currentTxRtUs}}</span> &rarr; <span style="color:var(--text); font-weight:700;">${{items.length}} Transactions</span>`;
+                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">📁 ${{panel.us}}</span> &rarr; <span style="color:var(--text); font-weight:700;">${{items.length}} Transactions</span>`;
                 }}
             }}
-            barColor = 'rgba(99, 102, 241, 0.75)'; // Indigo
-            barBorder = '#4f46e5';
         }}
 
-        const labels = items.map(item => item.name.length > 32 ? item.name.substring(0, 29) + '...' : item.name);
+        const labels = items.map(item => item.name.length > 28 ? item.name.substring(0, 25) + '...' : item.name);
         const dataValues = items.map(item => {{
-            const v = item[currentTxRtMetric];
+            const v = item[panel.metric];
             return v !== undefined && v !== null ? v : 0;
         }});
 
-        const metricName = currentTxRtMetric === 'avg_rt' ? 'Average RT (ms)' :
-                           currentTxRtMetric === 'p90' ? 'P90 RT (ms)' :
-                           currentTxRtMetric === 'p95' ? 'P95 RT (ms)' : 'Max RT (ms)';
+        const mInfo = txRtMetricColorMap[panel.metric] || txRtMetricColorMap['avg_rt'];
 
-        txRtBreakdownChartObj.data.labels = labels;
-        txRtBreakdownChartObj.data.datasets[0].label = metricName;
-        txRtBreakdownChartObj.data.datasets[0].data = dataValues;
-        txRtBreakdownChartObj.data.datasets[0].backgroundColor = barColor;
-        txRtBreakdownChartObj.data.datasets[0].borderColor = barBorder;
-        txRtBreakdownChartObj.options.scales.y.title.text = metricName;
+        panel.chartObj.config._metricKey = panel.metric;
+        panel.chartObj.data.labels = labels;
+        panel.chartObj.data.datasets[0].label = mInfo.label;
+        panel.chartObj.data.datasets[0].data = dataValues;
+        panel.chartObj.data.datasets[0].borderColor = mInfo.line;
+        panel.chartObj.data.datasets[0].backgroundColor = mInfo.fill;
+        panel.chartObj.data.datasets[0].pointBackgroundColor = mInfo.line;
+        panel.chartObj.options.scales.y.title.text = mInfo.label;
 
-        txRtBreakdownChartObj.update('active');
+        panel.chartObj.update('active');
     }}
 
-    initTxRtBreakdownChart();
+    // Initialize primary line chart view
+    addTxRtChartView('avg_rt');
 
     // SLA Deviation by Transaction Diverging Horizontal Bar Chart
     const tgToTcsMap = {tg_to_tcs_json};
@@ -3570,6 +4410,35 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
     }});
 
+    // 5. Top Transactions by Response Time (Percentile comparison bar chart)
+    const elTxChart = document.getElementById('txChart');
+    if (elTxChart) {{
+        new Chart(elTxChart, {{
+            type: 'bar',
+            data: {{
+                labels: {pct_names},
+                datasets: [
+                    {{ label: 'P50', data: {pct_p50}, backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 3 }},
+                    {{ label: 'P90', data: {pct_p90}, backgroundColor: 'rgba(245,158,11,0.75)', borderRadius: 3 }},
+                    {{ label: 'P95', data: {pct_p95}, backgroundColor: 'rgba(249,115,22,0.75)', borderRadius: 3 }},
+                    {{ label: 'P99', data: {pct_p99}, backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 3 }}
+                ]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{ position: 'bottom', labels: {{ color: textColor, font: {{ weight: '600', size: 10 }}, boxWidth: 10, padding: 6 }} }},
+                    tooltip: {{ mode: 'index', intersect: false }}
+                }},
+                scales: {{
+                    x: {{ grid: {{ display: false }}, ticks: {{ color: textColor, font: {{ size: 10 }}, maxRotation: 25 }} }},
+                    y: {{ grid: {{ color: gridColor }}, ticks: {{ color: textColor }}, title: {{ display: true, text: 'Latency (ms)', color: textColor }} }}
+                }}
+            }}
+        }});
+    }}
+
     // ── Error Distribution Donut / Pie Charts (Executive Summary & Error Tab) ──
     const errDonutLabels = {error_donut_labels};
     const errDonutCounts = {error_donut_counts};
@@ -3734,35 +4603,79 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }});
     }}
 
-    // 5. Concurrency Estimate Over Time (Little's Law)
-    const concData = {concurrency_est};
-    if (concData.some(v => v > 0)) {{
-        new Chart(document.getElementById('concChart'), {{
+    // ── Load & Capacity Hero Charts ──
+    const loadLabels = {load_chart_labels_json};
+    const loadTpData = {ts_tp_raw};
+    const expectedTpData = {expected_tp_json};
+    const loadP95Data = {ts_p95_rt};
+    const loadAvgData = {ts_avg_rt};
+    const slaRefData = {sla_ref_json};
+
+    // 1. Load vs Throughput (TPS vs VUs)
+    const elLoadTp = document.getElementById('chartLoadVsThroughput');
+    if (elLoadTp && loadTpData.length > 0) {{
+        new Chart(elLoadTp, {{
             type: 'line',
             data: {{
-                labels: {ts_labels},
-                datasets: [{{
-                    label: 'Est. Concurrent Users',
-                    data: concData,
-                    borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139,92,246,0.12)',
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.35,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#8b5cf6'
-                }}]
+                labels: loadLabels,
+                datasets: [
+                    {{
+                        label: 'Actual Throughput (TPS)',
+                        data: loadTpData,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139,92,246,0.15)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#8b5cf6'
+                    }},
+                    {{
+                        label: 'Linear Scaling Reference',
+                        data: expectedTpData,
+                        borderColor: '#94a3b8',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }}
+                ]
             }},
             options: {{
                 responsive: true,
-                plugins: {{ legend: {{ labels: {{ color: textColor }} }} }},
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{ position: 'bottom', labels: {{ color: textColor, font: {{ weight: '600' }} }} }},
+                    tooltip: {{
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {{
+                            label: function(ctx) {{
+                                return ctx.dataset.label + ': ' + ctx.raw + ' TPS';
+                            }}
+                        }}
+                    }}
+                }},
                 scales: {{
-                    x: {{ grid: {{ display: false }}, ticks: {{ color: textColor }} }},
-                    y: {{ grid: {{ color: gridColor }}, ticks: {{ color: textColor }}, title: {{ display: true, text: 'Users', color: textColor }}, beginAtZero: true }}
+                    x: {{
+                        grid: {{ display: false }},
+                        ticks: {{ color: textColor, font: {{ weight: '600' }} }},
+                        title: {{ display: true, text: 'Active Virtual Users (VUs)', color: textColor }}
+                    }},
+                    y: {{
+                        grid: {{ color: gridColor }},
+                        ticks: {{ color: textColor }},
+                        title: {{ display: true, text: 'Throughput (TPS)', color: textColor }},
+                        beginAtZero: true
+                    }}
                 }}
             }}
         }});
     }}
+
+
 
     // Azure Infrastructure Diagnostic Suite Charts
     const azCpu = {ts_cpu};

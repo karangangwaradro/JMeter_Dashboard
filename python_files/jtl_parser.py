@@ -63,6 +63,7 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
     errors = sum(1 for r in rows if str(get_col(r, "success", "true")).lower() == "false")
     elapsed_values = []
     label_data = {}
+    tg_label_data = {}
     timestamps = []
     # Error detail tracking: {error_key: {code, message, failure_message, count, occurrences: [{label, timestamp, elapsed}]}}
     error_details = {}
@@ -85,59 +86,97 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
         if label not in label_data:
             label_data[label] = {"count": 0, "errors": 0, "elapsed": [], "success_flags": []}
         label_data[label]["count"] += 1
+
+        # Thread Group Disaggregation
+        t_name = get_col(r, "threadName", "").strip()
+        tg_key = t_name.rsplit(" ", 1)[0].strip() if (" " in t_name and any(c.isdigit() for c in t_name.rsplit(" ", 1)[1])) else t_name
+        if tg_key:
+            if tg_key not in tg_label_data:
+                tg_label_data[tg_key] = {}
+            if label not in tg_label_data[tg_key]:
+                tg_label_data[tg_key][label] = {"count": 0, "errors": 0, "elapsed": [], "success_flags": []}
+            tg_label_data[tg_key][label]["count"] += 1
+
         is_succ = str(get_col(r, "success", "true")).lower() == "true"
         if not is_succ:
             label_data[label]["errors"] += 1
+            if tg_key and tg_key in tg_label_data and label in tg_label_data[tg_key]:
+                tg_label_data[tg_key][label]["errors"] += 1
+
             # Collect error details for error analysis donut
             resp_code = str(get_col(r, "responseCode", "")).strip()
             resp_msg = str(get_col(r, "responseMessage", "")).strip()
             failure_msg = str(get_col(r, "failureMessage", "")).strip()
             
-            # Build a descriptive error key
-            if failure_msg and "number of samples" not in failure_msg.lower():
-                err_key = failure_msg[:80]
-            elif resp_code and resp_code not in ("", "200"):
-                err_key = f"{resp_code} {resp_msg}" if resp_msg else resp_code
-            else:
-                err_key = resp_msg if resp_msg else "Unknown Error"
-            err_key = err_key.strip()
-            
-            if err_key not in error_details:
-                error_details[err_key] = {
-                    "code": resp_code,
-                    "message": resp_msg,
-                    "failure_message": failure_msg,
-                    "count": 0,
-                    "occurrences": []
-                }
-            error_details[err_key]["count"] += 1
-            
-            # Cap occurrences at 50 per error type to keep payload reasonable
-            if len(error_details[err_key]["occurrences"]) < 50:
-                try:
-                    occ_ts = int(get_col(r, "timeStamp", 0))
-                except (ValueError, TypeError):
-                    occ_ts = 0
-                try:
-                    occ_elapsed = int(get_col(r, "elapsed", 0))
-                except (ValueError, TypeError):
-                    occ_elapsed = 0
-                error_details[err_key]["occurrences"].append({
-                    "label": label,
-                    "timestamp": occ_ts,
-                    "elapsed": occ_elapsed
-                })
+            # Check if this row is a Transaction Controller container rollup
+            # (JMeter sets "Number of samples in transaction : N, number of failing samples : M" for container rollups)
+            f_lower = failure_msg.lower()
+            r_lower = resp_msg.lower()
+            is_tc_rollup = (
+                "number of samples in transaction" in f_lower or
+                "number of samples in transaction" in r_lower or
+                "samples in transaction" in f_lower or
+                "samples in transaction" in r_lower or
+                "number of failing samples" in f_lower or
+                "number of failing samples" in r_lower or
+                "failing samples" in f_lower or
+                "failing samples" in r_lower or
+                "transaction failed:" in f_lower or
+                "transaction failed:" in r_lower or
+                (not resp_code and not failure_msg and ("transaction" in r_lower or "controller" in label.lower() or label.upper().startswith("TC") or label.upper().startswith("T-")))
+            )
+
+            # ONLY track actual HTTP request errors or assertion failures (avoiding duplicate transaction container rollups)
+            if not is_tc_rollup:
+                # Build a descriptive error key
+                if failure_msg:
+                    err_key = failure_msg[:80]
+                elif resp_code and resp_code not in ("", "200"):
+                    err_key = f"{resp_code} {resp_msg}" if resp_msg else resp_code
+                else:
+                    err_key = resp_msg if resp_msg else "Unknown Error"
+                err_key = err_key.strip()
+                
+                if err_key not in error_details:
+                    error_details[err_key] = {
+                        "code": resp_code,
+                        "message": resp_msg,
+                        "failure_message": failure_msg,
+                        "count": 0,
+                        "occurrences": []
+                    }
+                error_details[err_key]["count"] += 1
+                
+                # Cap occurrences at 50 per error type to keep payload reasonable
+                if len(error_details[err_key]["occurrences"]) < 50:
+                    try:
+                        occ_ts = int(get_col(r, "timeStamp", 0))
+                    except (ValueError, TypeError):
+                        occ_ts = 0
+                    try:
+                        occ_elapsed = int(get_col(r, "elapsed", 0))
+                    except (ValueError, TypeError):
+                        occ_elapsed = 0
+                    error_details[err_key]["occurrences"].append({
+                        "label": label,
+                        "timestamp": occ_ts,
+                        "elapsed": occ_elapsed
+                    })
                 
         label_data[label]["success_flags"].append(is_succ)
         try:
-            label_data[label]["elapsed"].append(int(get_col(r, "elapsed", 0)))
+            e_val = int(get_col(r, "elapsed", 0))
+            label_data[label]["elapsed"].append(e_val)
+            if tg_key and tg_key in tg_label_data and label in tg_label_data[tg_key]:
+                tg_label_data[tg_key][label]["elapsed"].append(e_val)
+                tg_label_data[tg_key][label]["success_flags"].append(is_succ)
         except (ValueError, TypeError):
             pass
 
     elapsed_values.sort()
     n = len(elapsed_values)
 
-    # Per-label stats
+    # Per-label stats (global)
     labels_summary = {}
     for lname, ldata in label_data.items():
         sorted_elapsed = sorted(ldata["elapsed"])
@@ -156,6 +195,28 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
             "samples":       ldata["elapsed"],
             "success_flags": ldata["success_flags"]
         }
+
+    # Per-label stats by Thread Group (disaggregated)
+    labels_by_tg = {}
+    for tg_k, tg_lbls in tg_label_data.items():
+        labels_by_tg[tg_k] = {}
+        for lname, ldata in tg_lbls.items():
+            sorted_elapsed = sorted(ldata["elapsed"])
+            ln = len(sorted_elapsed)
+            labels_by_tg[tg_k][lname] = {
+                "count":         ldata["count"],
+                "errors":        ldata["errors"],
+                "error_rate":    round(ldata["errors"] / ldata["count"] * 100, 2) if ldata["count"] > 0 else 0,
+                "avg_rt":        round(sum(sorted_elapsed) / ln, 2) if ln > 0 else 0,
+                "p50":           pct(sorted_elapsed, 50),
+                "p90":           pct(sorted_elapsed, 90),
+                "p95":           pct(sorted_elapsed, 95),
+                "p99":           pct(sorted_elapsed, 99),
+                "min_rt":        min(sorted_elapsed) if sorted_elapsed else 0,
+                "max_rt":        max(sorted_elapsed) if sorted_elapsed else 0,
+                "samples":       ldata["elapsed"],
+                "success_flags": ldata["success_flags"]
+            }
 
     # Time-series dynamic bucket aggregation (10s buckets for tests <=5min, 1m buckets for longer tests)
     start_ts = min(timestamps) if timestamps else 0
@@ -203,9 +264,15 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
                     if not has_tc_rows or is_tc:
                         b_idx = max(0, int((t_val - start_ts) // bucket_ms))
                         if b_idx not in buckets:
-                            buckets[b_idx] = {"elapsed": [], "errors": 0, "count": 0}
+                            buckets[b_idx] = {"elapsed": [], "errors": 0, "count": 0, "threads": []}
                         buckets[b_idx]["elapsed"].append(e_val)
                         buckets[b_idx]["count"] += 1
+                        try:
+                            th_val = int(get_col(r, "allThreads", 0))
+                            if th_val > 0:
+                                buckets[b_idx]["threads"].append(th_val)
+                        except (ValueError, TypeError):
+                            pass
                         if not s_val:
                             buckets[b_idx]["errors"] += 1
             except Exception:
@@ -218,6 +285,7 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
     ts_p99_rt = []
     ts_throughput = []
     ts_errors = []
+    ts_active_threads = []
 
     for idx in range(total_buckets):
         if bucket_sec == 10:
@@ -235,15 +303,19 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
             ts_p99_rt.append(pct(bdata["elapsed"], 99))
             ts_throughput.append(round(bdata["count"] / float(bucket_sec), 2))
             ts_errors.append(bdata["errors"])
+            th_list = bdata.get("threads", [])
+            ts_active_threads.append(max(th_list) if th_list else (ts_active_threads[-1] if ts_active_threads else 0))
         else:
             if ts_avg_rt:
                 ts_avg_rt.append(ts_avg_rt[-1])
                 ts_p95_rt.append(ts_p95_rt[-1])
                 ts_p99_rt.append(ts_p99_rt[-1])
+                ts_active_threads.append(ts_active_threads[-1] if ts_active_threads else 0)
             else:
                 ts_avg_rt.append(round(sum(elapsed_values) / n, 2) if n > 0 else 0)
                 ts_p95_rt.append(pct(elapsed_values, 95))
                 ts_p99_rt.append(pct(elapsed_values, 99))
+                ts_active_threads.append(0)
             ts_throughput.append(0)
             ts_errors.append(0)
 
@@ -282,6 +354,7 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
         "ts_p99_rt": ts_p99_rt,
         "ts_throughput": ts_throughput,
         "ts_errors": ts_errors,
+        "ts_active_threads": ts_active_threads,
         "label_ts_map": label_ts_map
     }
 
@@ -300,13 +373,15 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
     avg_rt     = sum(elapsed_values) / n if n > 0 else 0
     throughput = total / duration_sec if duration_sec > 0 else 0
 
+    leaf_http_errors = sum(ed["count"] for ed in error_details.values())
+
     summary = {
         "total":            total,
         "total_iterations": total_iterations,
-        "errors":           errors,
+        "errors":           leaf_http_errors if (error_details or leaf_http_errors > 0) else errors,
         "tc_errors":        tc_errors,
         "error_rate":       tc_error_rate,
-        "raw_error_rate":   round((errors / total * 100), 2) if total > 0 else 0,
+        "raw_error_rate":   round(((leaf_http_errors if (error_details or leaf_http_errors > 0) else errors) / total * 100), 2) if total > 0 else 0,
         "avg_rt":           round(avg_rt, 2),
         "p50":              pct(elapsed_values, 50),
         "p90":              pct(elapsed_values, 90),
@@ -323,6 +398,7 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
     return {
         "summary":       summary,
         "labels":        labels_summary,
+        "labels_by_tg":  labels_by_tg,
         "time_series":   time_series,
         "error_details": error_details,
         "raw_rows":      len(rows)

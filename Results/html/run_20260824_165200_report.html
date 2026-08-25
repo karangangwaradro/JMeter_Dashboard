@@ -408,9 +408,9 @@
                 <tbody>
                     <tr>
                         <td style="font-weight:700; width:18%;">Start Time</td>
-                        <td style="width:32%;" contenteditable="true">2026-08-20 08:11:06 UTC</td>
+                        <td style="width:32%;" contenteditable="true">2026-08-24 11:22:00 UTC</td>
                         <td style="font-weight:700; width:18%;">End Time</td>
-                        <td style="width:32%;" contenteditable="true">2026-08-20 08:11:06 UTC</td>
+                        <td style="width:32%;" contenteditable="true">2026-08-24 11:22:00 UTC</td>
                     </tr>
                     <tr>
                         <td style="font-weight:700;">Test Name</td>
@@ -420,7 +420,7 @@
                     </tr>
                     <tr>
                         <td style="font-weight:700;">Total Concurrent Users</td>
-                        <td contenteditable="true">4 users</td>
+                        <td contenteditable="true">21 users</td>
                         <td style="font-weight:700;">Duration</td>
                         <td contenteditable="true">60 seconds</td>
                     </tr>
@@ -448,7 +448,7 @@
                 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">Overall APDEX Score</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#f59e0b; margin:0.3rem 0;">0.84</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:#f59e0b; margin:0.3rem 0;">0.75</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Target &ge; 0.85</div>
                 </div>
 
@@ -484,7 +484,7 @@
 
                 <div class="kpi-card glass-panel" style="background:var(--surface1); border:1px solid var(--border); text-align:center; padding:1rem;">
                     <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted);">RT SLA Violated (&gt; 20%)</div>
-                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">3</div>
+                    <div class="kpi-value" style="font-size:1.8rem; font-weight:800; color:var(--yellow); margin:0.3rem 0;">4</div>
                     <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">&gt; 1.2x SLA target</div>
                 </div>
 
@@ -498,7 +498,7 @@
             <div style="font-size:0.92rem; font-weight:800; color:var(--red); letter-spacing:0.04em;">⚠️ PERFORMANCE REQUIRES ATTENTION</div>
             <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Executive Overview</span>
         </div>
-        <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">The system maintained steady throughput of 50.8 TPS, but 3 of 10 transactions breached SLA targets, led by TC02_US04_Navigate_To_Signon_Page (+268% SLA deviation). Overall error rate reached 0.0%. Infrastructure resources remained below saturation (peak CPU 91.4%, memory 69.3%), indicating latency originates from application processing or database execution rather than host sizing.</p>
+        <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">The JPetStore application test, conducted over 60 seconds with 17,224 samples, revealed critical functional and performance issues. The system achieved a throughput of 287.08 req/s with an average response time of 213.91 ms, but its reliability is severely compromised by a 0.81% overall error rate, including 168 5xx errors from Azure App Service. Critically, three transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) experienced a 100% error rate, rendering them non-functional. The primary performance bottleneck is server CPU saturation, which peaked at 91.4%, indicating that the system is CPU-bound and will degrade further under increased load.</p>
     </div>
     
 
@@ -520,22 +520,22 @@
                 
         <tr style="border-bottom:1px solid var(--border);">
             <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Transaction Performance</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">157 iterations executed across 10 user journeys with 1,260 total transactions. 1,260 passed, 0 failed (100.0% success rate). Throughput held steady at 50.8 TPS.</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">T-US01_Overall_Iteration is 4.97x slower than average (1064ms vs 214ms) and has a 100% error rate.</td>
         </tr>
         
         <tr style="border-bottom:1px solid var(--border);">
             <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Response Time (P90)</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">3 of 10 transactions breached NFR SLA targets. Worst offender: TC02_US04_Navigate_To_Signon_Page recorded P90 of 0.18s against a 0.05s SLA (+268.0% deviation). Average response time across all flows was 235ms.</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Overall P90 is 339ms, with P99 at 673ms, indicating significant tail latency.</td>
         </tr>
         
         <tr style="border-bottom:1px solid var(--border);">
             <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Reliability & Errors</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Zero transaction failures recorded across the entire execution (1,260 successful samples).</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Overall error rate is 0.81%, with 168 5xx errors from Azure App Service. Three transactions show 100% errors.</td>
         </tr>
         
         <tr style="border-bottom:1px solid var(--border);">
             <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Infrastructure (Azure)</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Host CPU averaged 60.7% and peaked at 91.4%. Memory utilization remained stable around 69.3%. Host resources maintained sufficient headroom, ruling out hardware saturation as the root cause.</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">CPU peaked at 91.4% (avg 60.7%), indicating saturation. Memory peaked at 89.3% (avg 69.3%).</td>
         </tr>
         
             </tbody>
@@ -548,7 +548,7 @@
     <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid var(--accent);">
         <h2 style="margin:0 0 0.6rem 0;">📌 Key Conclusions</h2>
         <ul style="margin:0; padding-left:1.3rem; font-size:0.88rem; line-height:1.65; color:var(--text);" contenteditable="true">
-            <li style="margin-bottom:0.45rem;">Workflows involving 'TC02_US04_Navigate_To_Signon_Page' represent the primary latency bottleneck under concurrency.</li><li style="margin-bottom:0.45rem;">Transaction reliability was verified with zero systemic failure patterns.</li><li style="margin-bottom:0.45rem;">Host CPU reached 91.4%, indicating compute capacity constraints under peak load.</li>
+            <li style="margin-bottom:0.45rem;">Three critical transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) failed 100% of the time, indicating severe functional defects.</li><li style="margin-bottom:0.45rem;">Server CPU utilization peaked at 91.4%, confirming CPU saturation and a primary performance bottleneck.</li><li style="margin-bottom:0.45rem;">Overall system reliability is compromised with a 0.81% error rate client-side and 168 5xx errors server-side, despite an average response time of 213.91 ms.</li>
         </ul>
     </div>
     
@@ -561,20 +561,20 @@
             
         <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
-                <span style="font-size:1rem;">🟠</span>
-                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Profile and optimize TC02_US04_Navigate_To_Signon_Page latency</strong>
-                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">High</span>
+                <span style="font-size:1rem;">🔴</span>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Fix 100% Error Rate Transactions</strong>
+                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">Critical</span>
             </div>
-            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Examine downstream API calls and database query execution times within TC02_US04_Navigate_To_Signon_Page to bring P90 response time (0.18s) within the 0.05s SLA.</p>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Immediately debug and resolve the functional defects causing T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2 to fail 100% of the time. This is a critical reliability issue.</p>
         </div>
         
         <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
                 <span style="font-size:1rem;">🟠</span>
-                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Scale compute capacity or optimize thread utilization</strong>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Optimize CPU Utilization</strong>
                 <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">High</span>
             </div>
-            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Peak CPU reached 91.4%. Consider horizontal instance scaling or profiling CPU-heavy routines.</p>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Investigate and optimize CPU-intensive code paths or scale up/out the Azure App Service instance to address the 91.4% peak CPU utilization and prevent further performance degradation.</p>
         </div>
         
         </div>
@@ -590,9 +590,9 @@
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Total vs passed and failed request sample counts per test script</p>
                 </div>
                 <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-                    <span style="font-size:0.75rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">Total Samples: <strong style="color:var(--accent);">524</strong></span>
-                    <span style="font-size:0.75rem; font-weight:700; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">Pass: <strong>524</strong></span>
-                    <span style="font-size:0.75rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--muted);">Fail: <strong>0</strong></span>
+                    <span style="font-size:0.75rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.3rem 0.75rem; border-radius:12px; color:var(--text);">Total Samples: <strong style="color:var(--accent);">3,141</strong></span>
+                    <span style="font-size:0.75rem; font-weight:700; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">Pass: <strong>3,085</strong></span>
+                    <span style="font-size:0.75rem; font-weight:700; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#ef4444;">Fail: <strong>56</strong></span>
                 </div>
             </div>
             
@@ -652,7 +652,7 @@
                     <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Global Acceptable Error Rate Threshold: <strong style="color:var(--text);">1.0%</strong>. Distribution of errors by category / response code.</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Total Errors</span>
+                    <span style="font-size:0.78rem; font-weight:700; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#ef4444;">56 Total Errors</span>
                 </div>
             </div>
 
@@ -663,7 +663,7 @@
                         <div style="position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center;">
                             <canvas id="chart-errors-exec" width="200" height="200"></canvas>
                             <div id="execErrorDonutCenter" style="position:absolute; text-align:center; pointer-events:none; width:100%;">
-                                <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1;">0</div>
+                                <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1;">56</div>
                                 <div style="font-size:0.65rem; font-weight:700; color:var(--muted); letter-spacing:0.04em; margin-top:0.2rem;">ERRORS</div>
                             </div>
                         </div>
@@ -708,13 +708,13 @@
             </div>
             <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
                 <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Peak Throughput</div>
-                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--accent); margin:0.25rem 0;">35.6 <small style="font-size:0.75rem; color:var(--muted);">TPS</small></div>
-                <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Sustained over 59s test</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--accent); margin:0.25rem 0;">190.3 <small style="font-size:0.75rem; color:var(--muted);">TPS</small></div>
+                <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Sustained over 60s test</div>
             </div>
             <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
                 <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Scaling Efficiency</div>
-                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0.25rem 0;">+16.3%</div>
-                <div class="kpi-sub" style="font-size:0.75rem; font-weight:600;">🟡 Steady Load</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0.25rem 0;">+39.5%</div>
+                <div class="kpi-sub" style="font-size:0.75rem; font-weight:600;">🟢 Linear Scaling</div>
             </div>
         </div>
 
@@ -725,13 +725,13 @@
                     <h3 style="margin:0; font-size:1rem; font-weight:700;">📈 Load vs Throughput (TPS vs VUs)</h3>
                     <p style="font-size:0.73rem; color:var(--muted); margin:0.15rem 0 0 0;">Evaluates throughput scaling linearity as concurrency scales</p>
                 </div>
-                <span style="font-size:0.72rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.55rem; border-radius:10px; color:var(--accent);">+16.3% Scaling</span>
+                <span style="font-size:0.72rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.55rem; border-radius:10px; color:var(--accent);">+39.5% Scaling</span>
             </div>
             <div style="position: relative; height: 280px; width: 100%;">
                 <canvas id="chartLoadVsThroughput"></canvas>
             </div>
             <div style="font-size:0.75rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.75rem; border-radius:6px; margin-top:0.6rem;">
-                💡 <strong>Throughput Evaluation:</strong> Sustained 35.6 TPS at peak 21 VUs (🟡 Steady Load).
+                💡 <strong>Throughput Evaluation:</strong> Sustained 190.3 TPS at peak 21 VUs (🟢 Linear Scaling).
             </div>
         </div>
 
@@ -758,38 +758,38 @@
                     
             <tr style="border-bottom: 1px solid var(--border);">
                 <td><strong>Ramp-up / Baseline</strong></td>
-                <td>4 VUs</td>
-                <td>30.6 TPS</td>
-                <td>195.0 ms</td>
-                <td style="color: var(--green); font-weight: 600;">0 err</td>
-                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+                <td>21 VUs</td>
+                <td>136.4 TPS</td>
+                <td>185.0 ms</td>
+                <td style="color: var(--red); font-weight: 600;">16 err</td>
+                <td><span style="color:var(--red); font-weight:700;">🔴 Functional Errors</span></td>
             </tr>
             
             <tr style="border-bottom: 1px solid var(--border);">
                 <td><strong>Normal Operating Load</strong></td>
-                <td>4 VUs</td>
-                <td>31.5 TPS</td>
-                <td>362.0 ms</td>
-                <td style="color: var(--green); font-weight: 600;">0 err</td>
-                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+                <td>21 VUs</td>
+                <td>189.9 TPS</td>
+                <td>179.0 ms</td>
+                <td style="color: var(--red); font-weight: 600;">39 err</td>
+                <td><span style="color:var(--red); font-weight:700;">🔴 Functional Errors</span></td>
             </tr>
             
             <tr style="border-bottom: 1px solid var(--border);">
                 <td><strong>High Load Phase</strong></td>
-                <td>4 VUs</td>
-                <td>35.1 TPS</td>
-                <td>186.0 ms</td>
-                <td style="color: var(--green); font-weight: 600;">0 err</td>
-                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+                <td>21 VUs</td>
+                <td>189.5 TPS</td>
+                <td>178.0 ms</td>
+                <td style="color: var(--red); font-weight: 600;">19 err</td>
+                <td><span style="color:var(--red); font-weight:700;">🔴 Functional Errors</span></td>
             </tr>
             
             <tr style="border-bottom: 1px solid var(--border);">
                 <td><strong>Peak Sustained Load</strong></td>
-                <td>4 VUs</td>
-                <td>35.5 TPS</td>
-                <td>186.0 ms</td>
-                <td style="color: var(--green); font-weight: 600;">0 err</td>
-                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+                <td>21 VUs</td>
+                <td>188.7 TPS</td>
+                <td>184.0 ms</td>
+                <td style="color: var(--red); font-weight: 600;">38 err</td>
+                <td><span style="color:var(--red); font-weight:700;">🔴 Functional Errors</span></td>
             </tr>
             
                 </tbody>
@@ -833,23 +833,23 @@
                 <div style="font-size:0.72rem; color:var(--muted);">4.8% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.3</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">2.8</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">544 ms</div>
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">1051 ms</div>
                 <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:0.92rem; font-weight:800; color:var(--green);">0.00%</div>
-                <div style="font-size:0.72rem; color:var(--muted);">0 errors</div>
+                <div style="font-size:0.92rem; font-weight:800; color:var(--red);">33.33%</div>
+                <div style="font-size:0.72rem; color:var(--muted);">56 errors</div>
             </td>
             <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
-                <div><span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span></div>
-                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 180ms vs SLA: 92ms on TC02_US01_Select_Fish_</div>
+                <div><span style="color:var(--red); font-weight:700; font-size:0.8rem;">❌ SLA Breach &amp; Errors</span></div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 1051ms vs SLA: 500ms | 56 failed requests</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>
+                <span style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid #ef444455; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🔴 Constrained</span>
             </td>
         </tr>
         
@@ -864,11 +864,11 @@
                 <div style="font-size:0.72rem; color:var(--muted);">23.8% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.2</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">27.8</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">554 ms</div>
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">527 ms</div>
                 <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -877,7 +877,7 @@
             </td>
             <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
                 <div><span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span></div>
-                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 182ms vs SLA: 100ms on TC02_US02_Select_Dogs_</div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 178ms vs SLA: 100ms on TC02_US02_Select_Dogs_</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
                 <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>
@@ -895,11 +895,11 @@
                 <div style="font-size:0.72rem; color:var(--muted);">47.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.2</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">56.3</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">371 ms</div>
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">349 ms</div>
                 <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -908,7 +908,7 @@
             </td>
             <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
                 <div><span style="color:var(--green); font-weight:700; font-size:0.8rem;">✅ Met SLA</span></div>
-                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 371ms within target · 0% errors</div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 349ms within target · 0% errors</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
                 <span style="background:rgba(16,185,129,0.12); color:#10b981; border:1px solid #10b98155; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟢 Stable</span>
@@ -926,11 +926,11 @@
                 <div style="font-size:0.72rem; color:var(--muted);">23.8% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.2</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">28.1</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">370 ms</div>
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">350 ms</div>
                 <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -939,7 +939,7 @@
             </td>
             <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
                 <div><span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span></div>
-                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 184ms vs SLA: 50ms on TC02_US04_Navigate_To_</div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 176ms vs SLA: 50ms on TC02_US04_Navigate_To_</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
                 <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>
@@ -964,13 +964,13 @@
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Completed 157 test iterations across 10 transaction flows with 1,260 total requests.</li><li style="margin-bottom:0.35rem;">Achieved a steady-state throughput of 50.8 TPS with consistent execution pacing across threads.</li>
+                        <li style="margin-bottom:0.35rem;">The test processed 17,224 samples over 60 seconds, achieving a throughput of 287.08 req/s.</li><li style="margin-bottom:0.35rem;">Three transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) recorded a 100.00% error rate, indicating severe functional issues.</li><li style="margin-bottom:0.35rem;">T-US01_Overall_Iteration is the slowest transaction with an average response time of 1064ms, significantly higher than the overall average of 213.91ms, primarily due to its 100% error rate.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Maintain current thread pacing and ramp-up profiles for baseline comparison in subsequent releases.</li>
+                        <li style="margin-bottom:0.35rem;">Prioritize debugging and fixing the functional errors in T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2 to ensure basic system functionality.</li><li style="margin-bottom:0.35rem;">Analyze the performance of T-US02_Overall_Iteration (avg=521ms, p95=533ms) for optimization opportunities once critical errors are resolved, as it contributes to overall latency without errors.</li>
                     </ul>
                 </div>
             </div>
@@ -988,7 +988,7 @@
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                     <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 260px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.65rem; font-size:0.78rem; font-weight:600; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
                         <option value="ALL">All Transactions (Overall)</option>
-                        <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
+                        <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option><option value="14" title="Transaction Controller_T1">Transaction Controller_T1</option><option value="15" title="Transaction Controller_T2">Transaction Controller_T2</option>
                     </select>
                     <button class="chart-info-btn" onclick="openGraphModal('throughput')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
@@ -998,15 +998,15 @@
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:0.75rem; margin-bottom:1rem;">
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">AVG THROUGHPUT</div>
-                    <div id="tpKpiAvg" style="font-size:1.25rem; font-weight:800; color:var(--text); margin-top:0.2rem;">33 req/s</div>
+                    <div id="tpKpiAvg" style="font-size:1.25rem; font-weight:800; color:var(--text); margin-top:0.2rem;">180 req/s</div>
                 </div>
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">PEAK THROUGHPUT</div>
-                    <div id="tpKpiPeak" style="font-size:1.25rem; font-weight:800; color:var(--accent); margin-top:0.2rem;">36 req/s</div>
+                    <div id="tpKpiPeak" style="font-size:1.25rem; font-weight:800; color:var(--accent); margin-top:0.2rem;">190 req/s</div>
                 </div>
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">ERROR RATE</div>
-                    <div id="tpKpiErr" style="font-size:1.25rem; font-weight:800; color:var(--green); margin-top:0.2rem;">0.00%</div>
+                    <div id="tpKpiErr" style="font-size:1.25rem; font-weight:800; color:var(--red); margin-top:0.2rem;">0.81%</div>
                 </div>
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">END TREND / VARIATION</div>
@@ -1033,7 +1033,7 @@
             </div>
             
             <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
-                Throughput remained stable at an average of 33 req/s (peak: 36 req/s) with no significant anomaly.
+                Throughput remained stable at an average of 180 req/s (peak: 190 req/s) with no significant anomaly.
             </p>
             
             <div style="margin-bottom:0.55rem;">
@@ -1089,38 +1089,77 @@
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
             <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4213702364')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
-            <td>106</td>
+            <td>56</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="562.2"><span class="tx-rt-val">562</span></td>
-            <td class="pass tx-rt-cell" data-ms="544"><strong class="tx-rt-val">544</strong></td>
-            <td class="tx-rt-cell" data-ms="517"><span class="tx-rt-val">517</span></td>
-            <td class="tx-rt-cell" data-ms="1571"><span class="tx-rt-val">1571</span></td>
-            <td class="pass">0.00%</td>
+            <td class="pass tx-rt-cell" data-ms="1064.0"><span class="tx-rt-val">1064</span></td>
+            <td class="pass tx-rt-cell" data-ms="1051"><strong class="tx-rt-val">1051</strong></td>
+            <td class="tx-rt-cell" data-ms="1013"><span class="tx-rt-val">1013</span></td>
+            <td class="tx-rt-cell" data-ms="2612"><span class="tx-rt-val">2612</span></td>
+            <td class="pass">100.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4213702364"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4213702364" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1540503273')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
-            <td>106</td>
-            <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="194.1"><span class="tx-rt-val">194</span></td>
-            <td class="pass tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="1212"><span class="tx-rt-val">1212</span></td>
-            <td class="pass">0.00%</td>
+            <td>56</td>
+            <td><span class="fail"><strong>0.00</strong></span></td>
+            <td class="fail tx-rt-cell" data-ms="717.8"><span class="tx-rt-val">718</span></td>
+            <td class="fail tx-rt-cell" data-ms="701"><strong class="tx-rt-val">701</strong></td>
+            <td class="tx-rt-cell" data-ms="676"><span class="tx-rt-val">676</span></td>
+            <td class="tx-rt-cell" data-ms="2263"><span class="tx-rt-val">2263</span></td>
+            <td class="fail">100.00%</td>
             <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-64.0%</span></td>
-            <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
+            <td><span style="color:var(--yellow); font-weight:600;">+40.2%</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1540503273"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1540503273" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
-            <td>106</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_1</code></span></td>
+            <td>57</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="194.1"><span class="tx-rt-val">194</span></td>
+            <td class="pass tx-rt-cell" data-ms="200.7"><span class="tx-rt-val">201</span></td>
+            <td class="pass tx-rt-cell" data-ms="179"><strong class="tx-rt-val">179</strong></td>
+            <td class="tx-rt-cell" data-ms="168"><span class="tx-rt-val">168</span></td>
+            <td class="tx-rt-cell" data-ms="1746"><span class="tx-rt-val">1746</span></td>
+            <td class="pass">0.00%</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1540503273"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1540503273" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_2</code></span></td>
+            <td>56</td>
+            <td>-</td>
+            <td class="pass tx-rt-cell" data-ms="171.2"><span class="tx-rt-val">171</span></td>
+            <td class="pass tx-rt-cell" data-ms="174"><strong class="tx-rt-val">174</strong></td>
+            <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
+            <td class="tx-rt-cell" data-ms="179"><span class="tx-rt-val">179</span></td>
+            <td class="pass">0.00%</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1540503273"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1540503273" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_Err500</code></span></td>
+            <td>56</td>
+            <td>-</td>
+            <td class="pass tx-rt-cell" data-ms="172.5"><span class="tx-rt-val">172</span></td>
+            <td class="pass tx-rt-cell" data-ms="177"><strong class="tx-rt-val">177</strong></td>
+            <td class="tx-rt-cell" data-ms="169"><span class="tx-rt-val">169</span></td>
+            <td class="tx-rt-cell" data-ms="185"><span class="tx-rt-val">185</span></td>
+            <td class="pass">100.00%</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1540503273"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1540503273" data-depth="2" data-type="request">
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_3</code></span></td>
+            <td>56</td>
+            <td>-</td>
+            <td class="pass tx-rt-cell" data-ms="172.8"><span class="tx-rt-val">173</span></td>
             <td class="pass tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="1212"><span class="tx-rt-val">1212</span></td>
+            <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
+            <td class="tx-rt-cell" data-ms="185"><span class="tx-rt-val">185</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1128,25 +1167,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4213702364"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4213702364" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3861148539')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
-            <td>106</td>
-            <td><span class="fail"><strong>0.49</strong></span></td>
-            <td class="fail tx-rt-cell" data-ms="178.4"><span class="tx-rt-val">178</span></td>
-            <td class="fail tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
-            <td class="tx-rt-cell" data-ms="171"><span class="tx-rt-val">171</span></td>
-            <td class="tx-rt-cell" data-ms="397"><span class="tx-rt-val">397</span></td>
+            <td>56</td>
+            <td><span class="fail"><strong>0.50</strong></span></td>
+            <td class="fail tx-rt-cell" data-ms="172.8"><span class="tx-rt-val">173</span></td>
+            <td class="fail tx-rt-cell" data-ms="177"><strong class="tx-rt-val">177</strong></td>
+            <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
+            <td class="tx-rt-cell" data-ms="199"><span class="tx-rt-val">199</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="92"><span class="tx-rt-val">92</span></td>
-            <td><span style="color:var(--red); font-weight:600;">+95.7%</span></td>
+            <td><span style="color:var(--red); font-weight:600;">+92.4%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-3861148539"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3861148539" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Fish</code></span></td>
-            <td>106</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Select_Category_Fish</code></span></td>
+            <td>56</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="178.4"><span class="tx-rt-val">178</span></td>
-            <td class="pass tx-rt-cell" data-ms="180"><strong class="tx-rt-val">180</strong></td>
-            <td class="tx-rt-cell" data-ms="171"><span class="tx-rt-val">171</span></td>
-            <td class="tx-rt-cell" data-ms="397"><span class="tx-rt-val">397</span></td>
+            <td class="pass tx-rt-cell" data-ms="172.8"><span class="tx-rt-val">173</span></td>
+            <td class="pass tx-rt-cell" data-ms="177"><strong class="tx-rt-val">177</strong></td>
+            <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
+            <td class="tx-rt-cell" data-ms="199"><span class="tx-rt-val">199</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1154,25 +1193,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4213702364"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4213702364" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1463729601')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
-            <td>106</td>
-            <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="189.7"><span class="tx-rt-val">190</span></td>
-            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="732"><span class="tx-rt-val">732</span></td>
+            <td>56</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass tx-rt-cell" data-ms="173.4"><span class="tx-rt-val">173</span></td>
+            <td class="pass tx-rt-cell" data-ms="179"><strong class="tx-rt-val">179</strong></td>
+            <td class="tx-rt-cell" data-ms="168"><span class="tx-rt-val">168</span></td>
+            <td class="tx-rt-cell" data-ms="185"><span class="tx-rt-val">185</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-63.4%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-64.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1463729601"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1463729601" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_View_Product_FI-SW-01</code></span></td>
-            <td>106</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_View_Product_FI-SW-01</code></span></td>
+            <td>56</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="189.7"><span class="tx-rt-val">190</span></td>
-            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="732"><span class="tx-rt-val">732</span></td>
+            <td class="pass tx-rt-cell" data-ms="173.4"><span class="tx-rt-val">173</span></td>
+            <td class="pass tx-rt-cell" data-ms="179"><strong class="tx-rt-val">179</strong></td>
+            <td class="tx-rt-cell" data-ms="168"><span class="tx-rt-val">168</span></td>
+            <td class="tx-rt-cell" data-ms="185"><span class="tx-rt-val">185</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1185,12 +1224,12 @@
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
             <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2493960460')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
-            <td>105</td>
+            <td>555</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="568.1"><span class="tx-rt-val">568</span></td>
-            <td class="pass tx-rt-cell" data-ms="554"><strong class="tx-rt-val">554</strong></td>
-            <td class="tx-rt-cell" data-ms="520"><span class="tx-rt-val">520</span></td>
-            <td class="tx-rt-cell" data-ms="2143"><span class="tx-rt-val">2143</span></td>
+            <td class="pass tx-rt-cell" data-ms="520.8"><span class="tx-rt-val">521</span></td>
+            <td class="pass tx-rt-cell" data-ms="527"><strong class="tx-rt-val">527</strong></td>
+            <td class="tx-rt-cell" data-ms="498"><span class="tx-rt-val">498</span></td>
+            <td class="tx-rt-cell" data-ms="2173"><span class="tx-rt-val">2173</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1198,25 +1237,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2493960460"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2493960460" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3747930077')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
-            <td>105</td>
-            <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="200.5"><span class="tx-rt-val">201</span></td>
-            <td class="pass tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="1783"><span class="tx-rt-val">1783</span></td>
+            <td>557</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass tx-rt-cell" data-ms="178.0"><span class="tx-rt-val">178</span></td>
+            <td class="pass tx-rt-cell" data-ms="178"><strong class="tx-rt-val">178</strong></td>
+            <td class="tx-rt-cell" data-ms="165"><span class="tx-rt-val">165</span></td>
+            <td class="tx-rt-cell" data-ms="1830"><span class="tx-rt-val">1830</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-64.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2493960460 tree-children-3747930077"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3747930077" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
-            <td>105</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Launch_Catalog</code></span></td>
+            <td>557</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="200.5"><span class="tx-rt-val">201</span></td>
-            <td class="pass tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="1783"><span class="tx-rt-val">1783</span></td>
+            <td class="pass tx-rt-cell" data-ms="178.0"><span class="tx-rt-val">178</span></td>
+            <td class="pass tx-rt-cell" data-ms="178"><strong class="tx-rt-val">178</strong></td>
+            <td class="tx-rt-cell" data-ms="165"><span class="tx-rt-val">165</span></td>
+            <td class="tx-rt-cell" data-ms="1830"><span class="tx-rt-val">1830</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1224,25 +1263,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2493960460"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2493960460" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3075654173')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
-            <td>105</td>
-            <td><span class="fail"><strong>0.49</strong></span></td>
-            <td class="fail tx-rt-cell" data-ms="183.1"><span class="tx-rt-val">183</span></td>
-            <td class="fail tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="410"><span class="tx-rt-val">410</span></td>
+            <td>556</td>
+            <td><span class="fail"><strong>0.50</strong></span></td>
+            <td class="fail tx-rt-cell" data-ms="170.6"><span class="tx-rt-val">171</span></td>
+            <td class="fail tx-rt-cell" data-ms="178"><strong class="tx-rt-val">178</strong></td>
+            <td class="tx-rt-cell" data-ms="165"><span class="tx-rt-val">165</span></td>
+            <td class="tx-rt-cell" data-ms="193"><span class="tx-rt-val">193</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="100"><span class="tx-rt-val">100</span></td>
-            <td><span style="color:var(--yellow); font-weight:600;">+82.0%</span></td>
+            <td><span style="color:var(--yellow); font-weight:600;">+78.0%</span></td>
             <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2493960460 tree-children-3075654173"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3075654173" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Dogs</code></span></td>
-            <td>105</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Select_Category_Dogs</code></span></td>
+            <td>556</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="183.1"><span class="tx-rt-val">183</span></td>
-            <td class="pass tx-rt-cell" data-ms="182"><strong class="tx-rt-val">182</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="410"><span class="tx-rt-val">410</span></td>
+            <td class="pass tx-rt-cell" data-ms="170.6"><span class="tx-rt-val">171</span></td>
+            <td class="pass tx-rt-cell" data-ms="178"><strong class="tx-rt-val">178</strong></td>
+            <td class="tx-rt-cell" data-ms="165"><span class="tx-rt-val">165</span></td>
+            <td class="tx-rt-cell" data-ms="193"><span class="tx-rt-val">193</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1250,25 +1289,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2493960460"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2493960460" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1822962755')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
-            <td>105</td>
+            <td>555</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="184.5"><span class="tx-rt-val">184</span></td>
-            <td class="pass tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="521"><span class="tx-rt-val">521</span></td>
+            <td class="pass tx-rt-cell" data-ms="172.1"><span class="tx-rt-val">172</span></td>
+            <td class="pass tx-rt-cell" data-ms="179"><strong class="tx-rt-val">179</strong></td>
+            <td class="tx-rt-cell" data-ms="165"><span class="tx-rt-val">165</span></td>
+            <td class="tx-rt-cell" data-ms="231"><span class="tx-rt-val">231</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="1517"><span class="tx-rt-val">1517</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-87.9%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-88.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2493960460 tree-children-1822962755"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1822962755" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Add_Item_EST-26</code></span></td>
-            <td>105</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Add_Item_EST-26</code></span></td>
+            <td>555</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="184.5"><span class="tx-rt-val">184</span></td>
-            <td class="pass tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
-            <td class="tx-rt-cell" data-ms="172"><span class="tx-rt-val">172</span></td>
-            <td class="tx-rt-cell" data-ms="521"><span class="tx-rt-val">521</span></td>
+            <td class="pass tx-rt-cell" data-ms="172.1"><span class="tx-rt-val">172</span></td>
+            <td class="pass tx-rt-cell" data-ms="179"><strong class="tx-rt-val">179</strong></td>
+            <td class="tx-rt-cell" data-ms="165"><span class="tx-rt-val">165</span></td>
+            <td class="tx-rt-cell" data-ms="231"><span class="tx-rt-val">231</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1281,12 +1320,12 @@
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
             <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2017810262')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
-            <td>156</td>
+            <td>1,687</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="380.9"><span class="tx-rt-val">381</span></td>
-            <td class="pass tx-rt-cell" data-ms="371"><strong class="tx-rt-val">371</strong></td>
-            <td class="tx-rt-cell" data-ms="351"><span class="tx-rt-val">351</span></td>
-            <td class="tx-rt-cell" data-ms="1750"><span class="tx-rt-val">1750</span></td>
+            <td class="pass tx-rt-cell" data-ms="341.4"><span class="tx-rt-val">341</span></td>
+            <td class="pass tx-rt-cell" data-ms="349"><strong class="tx-rt-val">349</strong></td>
+            <td class="tx-rt-cell" data-ms="323"><span class="tx-rt-val">323</span></td>
+            <td class="tx-rt-cell" data-ms="2015"><span class="tx-rt-val">2015</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1294,25 +1333,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2017810262"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2017810262" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4109271456')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
-            <td>157</td>
-            <td><span class="pass"><strong>0.96</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
-            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
-            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
-            <td class="tx-rt-cell" data-ms="1562"><span class="tx-rt-val">1562</span></td>
+            <td>1,690</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass tx-rt-cell" data-ms="173.0"><span class="tx-rt-val">173</span></td>
+            <td class="pass tx-rt-cell" data-ms="176"><strong class="tx-rt-val">176</strong></td>
+            <td class="tx-rt-cell" data-ms="160"><span class="tx-rt-val">160</span></td>
+            <td class="tx-rt-cell" data-ms="1841"><span class="tx-rt-val">1841</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="200"><span class="tx-rt-val">200</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-7.5%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-12.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2017810262 tree-children-4109271456"  data-tg="US03_Search_Products" data-parent-cls="tree-children-4109271456" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Homepage</code></span></td>
-            <td>157</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US03_Launch_Homepage</code></span></td>
+            <td>1,690</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
-            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
-            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
-            <td class="tx-rt-cell" data-ms="1562"><span class="tx-rt-val">1562</span></td>
+            <td class="pass tx-rt-cell" data-ms="173.0"><span class="tx-rt-val">173</span></td>
+            <td class="pass tx-rt-cell" data-ms="176"><strong class="tx-rt-val">176</strong></td>
+            <td class="tx-rt-cell" data-ms="160"><span class="tx-rt-val">160</span></td>
+            <td class="tx-rt-cell" data-ms="1841"><span class="tx-rt-val">1841</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1320,25 +1359,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2017810262"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2017810262" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-590571763')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
-            <td>156</td>
+            <td>1,687</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="184.4"><span class="tx-rt-val">184</span></td>
-            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
-            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
-            <td class="tx-rt-cell" data-ms="737"><span class="tx-rt-val">737</span></td>
+            <td class="pass tx-rt-cell" data-ms="168.5"><span class="tx-rt-val">168</span></td>
+            <td class="pass tx-rt-cell" data-ms="175"><strong class="tx-rt-val">175</strong></td>
+            <td class="tx-rt-cell" data-ms="161"><span class="tx-rt-val">161</span></td>
+            <td class="tx-rt-cell" data-ms="203"><span class="tx-rt-val">203</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-63.4%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-65.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2017810262 tree-children-590571763"  data-tg="US03_Search_Products" data-parent-cls="tree-children-590571763" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Search_Bulldog</code></span></td>
-            <td>156</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US03_Search_Bulldog</code></span></td>
+            <td>1,687</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="184.4"><span class="tx-rt-val">184</span></td>
-            <td class="pass tx-rt-cell" data-ms="183"><strong class="tx-rt-val">183</strong></td>
-            <td class="tx-rt-cell" data-ms="175"><span class="tx-rt-val">175</span></td>
-            <td class="tx-rt-cell" data-ms="737"><span class="tx-rt-val">737</span></td>
+            <td class="pass tx-rt-cell" data-ms="168.5"><span class="tx-rt-val">168</span></td>
+            <td class="pass tx-rt-cell" data-ms="175"><strong class="tx-rt-val">175</strong></td>
+            <td class="tx-rt-cell" data-ms="161"><span class="tx-rt-val">161</span></td>
+            <td class="tx-rt-cell" data-ms="203"><span class="tx-rt-val">203</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1351,12 +1390,12 @@
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
             <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3850683577')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
-            <td>157</td>
+            <td>843</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="380.0"><span class="tx-rt-val">380</span></td>
-            <td class="pass tx-rt-cell" data-ms="370"><strong class="tx-rt-val">370</strong></td>
-            <td class="tx-rt-cell" data-ms="353"><span class="tx-rt-val">353</span></td>
-            <td class="tx-rt-cell" data-ms="1618"><span class="tx-rt-val">1618</span></td>
+            <td class="pass tx-rt-cell" data-ms="343.0"><span class="tx-rt-val">343</span></td>
+            <td class="pass tx-rt-cell" data-ms="350"><strong class="tx-rt-val">350</strong></td>
+            <td class="tx-rt-cell" data-ms="324"><span class="tx-rt-val">324</span></td>
+            <td class="tx-rt-cell" data-ms="1985"><span class="tx-rt-val">1985</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1364,25 +1403,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3850683577"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3850683577" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-428886488')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
-            <td>157</td>
-            <td><span class="pass"><strong>0.99</strong></span></td>
-            <td class="pass tx-rt-cell" data-ms="194.9"><span class="tx-rt-val">195</span></td>
-            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
-            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
-            <td class="tx-rt-cell" data-ms="1211"><span class="tx-rt-val">1211</span></td>
+            <td>845</td>
+            <td><span class="pass"><strong>1.00</strong></span></td>
+            <td class="pass tx-rt-cell" data-ms="174.0"><span class="tx-rt-val">174</span></td>
+            <td class="pass tx-rt-cell" data-ms="177"><strong class="tx-rt-val">177</strong></td>
+            <td class="tx-rt-cell" data-ms="162"><span class="tx-rt-val">162</span></td>
+            <td class="tx-rt-cell" data-ms="1819"><span class="tx-rt-val">1819</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="500"><span class="tx-rt-val">500</span></td>
-            <td><span style="color:var(--green); font-weight:600;">-63.0%</span></td>
+            <td><span style="color:var(--green); font-weight:600;">-64.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3850683577 tree-children-428886488"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-428886488" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
-            <td>157</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US04_Launch_Catalog</code></span></td>
+            <td>845</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="194.9"><span class="tx-rt-val">195</span></td>
-            <td class="pass tx-rt-cell" data-ms="185"><strong class="tx-rt-val">185</strong></td>
-            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
-            <td class="tx-rt-cell" data-ms="1211"><span class="tx-rt-val">1211</span></td>
+            <td class="pass tx-rt-cell" data-ms="174.0"><span class="tx-rt-val">174</span></td>
+            <td class="pass tx-rt-cell" data-ms="177"><strong class="tx-rt-val">177</strong></td>
+            <td class="tx-rt-cell" data-ms="162"><span class="tx-rt-val">162</span></td>
+            <td class="tx-rt-cell" data-ms="1819"><span class="tx-rt-val">1819</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1390,25 +1429,25 @@
         </tr>
         <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3850683577"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3850683577" data-depth="1" data-type="transaction">
             <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3517727065')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
-            <td>157</td>
-            <td><span class="fail"><strong>0.48</strong></span></td>
-            <td class="fail tx-rt-cell" data-ms="185.0"><span class="tx-rt-val">185</span></td>
-            <td class="fail tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
-            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
-            <td class="tx-rt-cell" data-ms="738"><span class="tx-rt-val">738</span></td>
+            <td>843</td>
+            <td><span class="fail"><strong>0.50</strong></span></td>
+            <td class="fail tx-rt-cell" data-ms="169.0"><span class="tx-rt-val">169</span></td>
+            <td class="fail tx-rt-cell" data-ms="176"><strong class="tx-rt-val">176</strong></td>
+            <td class="tx-rt-cell" data-ms="161"><span class="tx-rt-val">161</span></td>
+            <td class="tx-rt-cell" data-ms="212"><span class="tx-rt-val">212</span></td>
             <td class="pass">0.00%</td>
             <td class="tx-rt-cell" data-ms="50"><span class="tx-rt-val">50</span></td>
-            <td><span style="color:var(--red); font-weight:600;">+268.0%</span></td>
+            <td><span style="color:var(--red); font-weight:600;">+252.0%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3850683577 tree-children-3517727065"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3517727065" data-depth="2" data-type="request">
-            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Signon_Form</code></span></td>
-            <td>157</td>
+            <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US04_Signon_Form</code></span></td>
+            <td>843</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="185.0"><span class="tx-rt-val">185</span></td>
-            <td class="pass tx-rt-cell" data-ms="184"><strong class="tx-rt-val">184</strong></td>
-            <td class="tx-rt-cell" data-ms="176"><span class="tx-rt-val">176</span></td>
-            <td class="tx-rt-cell" data-ms="738"><span class="tx-rt-val">738</span></td>
+            <td class="pass tx-rt-cell" data-ms="169.0"><span class="tx-rt-val">169</span></td>
+            <td class="pass tx-rt-cell" data-ms="176"><strong class="tx-rt-val">176</strong></td>
+            <td class="tx-rt-cell" data-ms="161"><span class="tx-rt-val">161</span></td>
+            <td class="tx-rt-cell" data-ms="212"><span class="tx-rt-val">212</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
@@ -1516,22 +1555,22 @@
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">7 out of 10 transactions complied with NFR response time SLA targets (70% compliance rate).</li><li style="margin-bottom:0.35rem;">Overall average response time was 235ms; 90th percentile was 364ms. Primary latency outlier: TC02_US04_Navigate_To_Signon_Page at 0.18s (+268% vs SLA).</li>
+                        <li style="margin-bottom:0.35rem;">The overall average response time was 213.91 ms, with a P50 of 170 ms.</li><li style="margin-bottom:0.35rem;">Tail latency is significant, with P90 at 339 ms, P95 at 354 ms, and P99 at 673 ms, indicating a wide distribution of response times.</li><li style="margin-bottom:0.35rem;">The maximum response time observed was 2612 ms, suggesting occasional severe outliers.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Focus latency reduction efforts on the TC02_US04_Navigate_To_Signon_Page request path.</li>
+                        <li style="margin-bottom:0.35rem;">Address the root causes of CPU saturation and functional errors, as these are major contributors to elevated average and tail latencies.</li><li style="margin-bottom:0.35rem;">Implement detailed monitoring for application-level metrics (e.g., GC activity, thread pool usage) to identify specific factors contributing to tail latency outliers.</li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">235<span style="font-size:0.9rem"> ms</span></div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">528<span style="font-size:0.9rem"> ms</span></div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">P99 Response</div><div class="kpi-value">730<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">214<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">354<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">P99 Response</div><div class="kpi-value">673<span style="font-size:0.9rem"> ms</span></div></div>
         </div>
 
         <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
@@ -1540,7 +1579,7 @@
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                     <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
                         <option value="ALL">All Transactions (Overall)</option>
-                        <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
+                        <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option><option value="14" title="Transaction Controller_T1">Transaction Controller_T1</option><option value="15" title="Transaction Controller_T2">Transaction Controller_T2</option>
                     </select>
                     <button class="chart-info-btn" onclick="openGraphModal('rt-over-time')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
@@ -1555,19 +1594,19 @@
                     <span>🧠 Performance Observation</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <span class="finding-badge-inline" onclick="showFinding('F-004');" style="cursor:pointer;">🔍 F-004</span>
+                    <span class="finding-badge-inline" onclick="showFinding('F-005');" style="cursor:pointer;">🔍 F-005</span>
                     <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🟡 Tail Latency Spikes</span>
                 </div>
             </div>
             
             <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
-                Latency averaged 235 ms with P95 at 528 ms and P99 at 730 ms (maximum: 2,143 ms).
+                Latency averaged 214 ms with P95 at 354 ms and P99 at 673 ms (maximum: 2,612 ms).
             </p>
             
             <div style="margin-bottom:0.55rem;">
                 <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
                 <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
-                    Tail latency (P99 at 730 ms) is 3.1x higher than average response time, indicating that isolated requests suffer disproportionate delay.
+                    Tail latency (P99 at 673 ms) is 3.1x higher than average response time, indicating that isolated requests suffer disproportionate delay.
                 </p>
             </div>
             
@@ -1596,10 +1635,10 @@
             <!-- Mini Summary KPIs -->
             <div style="display:flex; gap:1.25rem; flex-wrap:wrap; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.6rem 1rem; margin-bottom:0.85rem; font-size:0.8rem;">
                 <div><span style="color:var(--muted);">Critical:</span> <strong>4</strong></div>
-                <div><span style="color:var(--muted);">Avg Response:</span> <strong>186 ms</strong></div>
-                <div><span style="color:var(--muted);">P95 Response:</span> <strong>222 ms</strong></div>
+                <div><span style="color:var(--muted);">Avg Response:</span> <strong>172 ms</strong></div>
+                <div><span style="color:var(--muted);">P95 Response:</span> <strong>183 ms</strong></div>
                 <div><span style="color:var(--muted);">SLA Breaches:</span> <strong style="color:var(--red);">2</strong></div>
-                <div><span style="color:var(--muted);">Max Response:</span> <strong>1562 ms</strong></div>
+                <div><span style="color:var(--muted);">Max Response:</span> <strong>1841 ms</strong></div>
             </div>
 
             <!-- Interactive Transaction Toggle Chips -->
@@ -1646,32 +1685,42 @@
             
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
             <td><strong>TC02_US04_Navigate_To_Signon_Page</strong></td>
-            <td>185 ms</td>
-            <td>188 ms</td>
+            <td>169 ms</td>
+            <td>180 ms</td>
             <td style="color: var(--green);">0.00%</td>
             <td>50 ms</td>
-            <td style="color: var(--red); font-weight: 600;">+268.0%</td>
+            <td style="color: var(--red); font-weight: 600;">+252.0%</td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
             <td><strong>TC02_US01_Select_Fish_Category</strong></td>
-            <td>178 ms</td>
-            <td>182 ms</td>
+            <td>173 ms</td>
+            <td>183 ms</td>
             <td style="color: var(--green);">0.00%</td>
             <td>92 ms</td>
-            <td style="color: var(--red); font-weight: 600;">+95.7%</td>
+            <td style="color: var(--red); font-weight: 600;">+92.4%</td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
             <td><strong>TC02_US02_Select_Dogs_Category</strong></td>
-            <td>183 ms</td>
-            <td>185 ms</td>
+            <td>171 ms</td>
+            <td>181 ms</td>
             <td style="color: var(--green);">0.00%</td>
             <td>100 ms</td>
-            <td style="color: var(--yellow); font-weight: 600;">+82.0%</td>
+            <td style="color: var(--yellow); font-weight: 600;">+78.0%</td>
             <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
+        </tr>
+        
+        <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
+            <td><strong>TC01_US01_Launch_Catalog</strong></td>
+            <td>718 ms</td>
+            <td>702 ms</td>
+            <td style="color: var(--red);">100.00%</td>
+            <td>500 ms</td>
+            <td style="color: var(--red); font-weight: 600;">+40.2%</td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
         
         </tbody>
@@ -1692,21 +1741,21 @@
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Overall test error rate was 0.0% (0 failed samples out of 1,260 total).</li><li style="margin-bottom:0.35rem;">No transaction failures detected across any tested user flow.</li>
+                        <li style="margin-bottom:0.35rem;">The overall client-side error rate was 0.81%, with 168 5xx errors reported by Azure App Service, confirming server-side failures.</li><li style="margin-bottom:0.35rem;">T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2 all exhibited a 100.00% error rate, indicating critical functional defects.</li><li style="margin-bottom:0.35rem;">Other transactions, such as T-US02_Overall_Iteration, T-US04_Overall_Iteration, and T-US03_Overall_Iteration, reported 0.00% errors, suggesting their functional stability.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Continue monitoring error logs for intermittent timeouts during extended runs.</li>
+                        <li style="margin-bottom:0.35rem;">Immediately investigate and resolve the 100% error rates for T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2 as a top priority.</li><li style="margin-bottom:0.35rem;">Review server logs for the 168 5xx errors to understand their specific nature and impact on overall system reliability.</li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value pass">0.00<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">0 transaction failures</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">3</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value pass">0.81<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">56 transaction failures</div></div>
+            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">4</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
         </div>
 
         <!-- SLA Deviation & Breach Severity Card -->
@@ -1727,7 +1776,7 @@
                 <div style="position: relative; width: 160px; height: 160px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
                     <canvas id="slaDonut" width="160" height="160"></canvas>
                     <div style="position: absolute; text-align: center; pointer-events: none; width: 100%;">
-                        <div style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; line-height: 1;">70.0%</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #ef4444; line-height: 1;">60.0%</div>
                         <div style="font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; margin-top: 0.25rem;">SLA COMPLIANCE</div>
                     </div>
                 </div>
@@ -1737,8 +1786,8 @@
                     <!-- Passed Card -->
                     <div style="background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#10b981; margin-bottom:0.3rem;">● PASSED</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">7</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">70.0%</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">6</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#10b981; margin-top:0.1rem;">60.0%</div>
                         <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">Under SLA</div>
                     </div>
 
@@ -1761,9 +1810,9 @@
                     <!-- Critical Card -->
                     <div style="background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 0.85rem 1rem;">
                         <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:#ef4444; margin-bottom:0.3rem;">● CRITICAL</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">2</div>
-                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">20.0%</div>
-                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">2 breaches</div>
+                        <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.1;">3</div>
+                        <div style="font-size:0.75rem; font-weight:600; color:#ef4444; margin-top:0.1rem;">30.0%</div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.2rem;">3 breaches</div>
                     </div>
                 </div>
             </div>
@@ -1795,7 +1844,7 @@
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Global Acceptable Error Rate Threshold: <strong style="color:var(--text);">1.0%</strong>. Click any error type in the donut to drill into affected transactions.</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <span style="font-size:0.78rem; font-weight:700; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#10b981;">0 Total Errors</span>
+                    <span style="font-size:0.78rem; font-weight:700; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:0.3rem 0.75rem; border-radius:12px; color:#ef4444;">56 Total Errors</span>
                     <button class="chart-info-btn" onclick="openGraphModal('error-distribution')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
@@ -1806,7 +1855,7 @@
                     <div style="position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center;">
                         <canvas id="errorDonutChart" width="200" height="200"></canvas>
                         <div id="errorDonutCenter" style="position:absolute; text-align:center; pointer-events:none; width:100%;">
-                            <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1;">0</div>
+                            <div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1;">56</div>
                             <div style="font-size:0.65rem; font-weight:700; color:var(--muted); letter-spacing:0.04em; margin-top:0.2rem;">ERRORS</div>
                         </div>
                     </div>
@@ -1831,11 +1880,22 @@
             <div class="rec-card critical" style="margin-bottom: 1rem;">
                 <div class="rec-header">
                     <span class="rec-priority">SLA BREACH</span>
+                    <span class="rec-category">Target: 500 ms P90 / 1.0% Error</span>
+                </div>
+                <div class="rec-title">⚠️ TC01_US01_Launch_Catalog</div>
+                <div class="rec-desc">
+                    90th Percentile reached <strong>701 ms</strong> (Target: 500 ms) | Error Rate: <strong>100.00%</strong> (Target: 1.0%)
+                </div>
+                
+            </div>
+            <div class="rec-card critical" style="margin-bottom: 1rem;">
+                <div class="rec-header">
+                    <span class="rec-priority">SLA BREACH</span>
                     <span class="rec-category">Target: 92 ms P90 / 1.0% Error</span>
                 </div>
                 <div class="rec-title">⚠️ TC02_US01_Select_Fish_Category</div>
                 <div class="rec-desc">
-                    90th Percentile reached <strong>180 ms</strong> (Target: 92 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                    90th Percentile reached <strong>177 ms</strong> (Target: 92 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
                 </div>
                 
             </div>
@@ -1846,7 +1906,7 @@
                 </div>
                 <div class="rec-title">⚠️ TC02_US02_Select_Dogs_Category</div>
                 <div class="rec-desc">
-                    90th Percentile reached <strong>182 ms</strong> (Target: 100 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                    90th Percentile reached <strong>178 ms</strong> (Target: 100 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
                 </div>
                 
             </div>
@@ -1857,7 +1917,7 @@
                 </div>
                 <div class="rec-title">⚠️ TC02_US04_Navigate_To_Signon_Page</div>
                 <div class="rec-desc">
-                    90th Percentile reached <strong>184 ms</strong> (Target: 50 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
+                    90th Percentile reached <strong>176 ms</strong> (Target: 50 ms) | Error Rate: <strong>0.00%</strong> (Target: 1.0%)
                 </div>
                 
             </div>
@@ -1876,13 +1936,13 @@
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Host CPU averaged 60.7% and peaked at 91.4% under peak load concurrency.</li><li style="margin-bottom:0.35rem;">Host memory utilization remained stable at 69.3% with adequate headroom.</li>
+                        <li style="margin-bottom:0.35rem;">Server CPU utilization averaged 60.7% and peaked at 91.4%, indicating CPU saturation and a primary bottleneck.</li><li style="margin-bottom:0.35rem;">Memory utilization averaged 69.3% and peaked at 89.3%, suggesting limited memory headroom, though not confirmed as saturated.</li><li style="margin-bottom:0.35rem;">The reported Disk Read IOPS of 21908149 is an unusually high value that requires validation for accurate interpretation.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Review server CPU profile during peak test windows.</li>
+                        <li style="margin-bottom:0.35rem;">Identify and optimize CPU-intensive application components or consider scaling up/out the server instance to alleviate CPU saturation.</li><li style="margin-bottom:0.35rem;">Monitor memory usage more closely, including garbage collection metrics, to determine if the high utilization is impacting performance or leading to memory-related issues.</li><li style="margin-bottom:0.35rem;">Verify the accuracy and unit of the 'Disk Read IOPS' metric to properly assess disk I/O performance.</li>
                     </ul>
                 </div>
             </div>
@@ -1943,7 +2003,7 @@
                     <span>🧠 Infrastructure Observation</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <span class="finding-badge-inline" onclick="showFinding('F-005');" style="cursor:pointer;">🔍 F-005</span>
+                    <span class="finding-badge-inline" onclick="showFinding('F-006');" style="cursor:pointer;">🔍 F-006</span>
                     <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🔴 Resource Saturation</span>
                 </div>
             </div>
@@ -2053,33 +2113,33 @@
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">CPU %</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.92</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.54</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.52</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Memory %</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.96</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.94</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.53</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.49</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Throughput</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.96</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.54</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.53</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.98</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-1.00</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Resp Time</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.92</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.94</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.98</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.52</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.49</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-1.00</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                         </tr>
                     </tbody>
                 </table>
-                <p style="font-size:0.7rem; color:var(--muted); margin-top:0.6rem;">💡 <em>Calculated correlation between request volume and response latency: <strong>r = -0.98</strong>.</em></p>
+                <p style="font-size:0.7rem; color:var(--muted); margin-top:0.6rem;">💡 <em>Calculated correlation between request volume and response latency: <strong>r = -1.00</strong>.</em></p>
             </div>
 
             <!-- Chronological Event Progression Timeline -->
@@ -2091,7 +2151,7 @@
                     
         <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #3b82f6;">
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#3b82f6;">[</span>
-            <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 31 req/s</span>
+            <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 136 req/s</span>
         </div>
         <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #f59e0b;">
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#f59e0b;">0</span>
@@ -2130,7 +2190,7 @@
         <!-- Correlation Findings List -->
         <div class="section glass-panel">
             <h2>🔗 Client ↔ Server Correlation Findings</h2>
-            <div class="corr-finding critical"><span>🔴</span> CPU peaked at 91.4% — server is CPU-saturated. Response times will degrade under further load.</div><div class="corr-finding warning"><span>🟡</span> Transaction 'T-US02_Overall_Iteration' is 2.42x slower than average (568ms vs 235ms). Priority optimization target.</div><div class="corr-finding critical"><span>🔴</span> Azure App Service returned 168 5xx errors during the test window. Server-side failures detected.</div>
+            <div class="corr-finding critical"><span>🔴</span> CPU peaked at 91.4% — server is CPU-saturated. Response times will degrade under further load.</div><div class="corr-finding warning"><span>🟡</span> Transaction 'T-US01_Overall_Iteration' is 4.97x slower than average (1064ms vs 214ms). Priority optimization target.</div><div class="corr-finding critical"><span>🔴</span> Azure App Service returned 168 5xx errors during the test window. Server-side failures detected.</div>
         </div>
     </div>
 
@@ -2157,7 +2217,7 @@
 
     <!-- Footer -->
     <div class="report-footer">
-        ⚡ Generated by <strong>JmeterAI</strong> &nbsp;|&nbsp; 2026-08-20 08:11:06 UTC &nbsp;|&nbsp; Run ID: run_20260820_134106
+        ⚡ Generated by <strong>JmeterAI</strong> &nbsp;|&nbsp; 2026-08-24 11:22:00 UTC &nbsp;|&nbsp; Run ID: run_20260824_165200
     </div>
     <!-- Finding Drawer -->
     <div id="findingDrawerOverlay" onclick="closeFinding()"></div>
@@ -2290,14 +2350,14 @@
     Chart.defaults.font = chartFont;
 
     const overallTs = {
-        avg_rt: [213.18, 201.32, 198.96, 178.67, 178.16, 176.31],
-        p95_rt: [195, 362, 356, 186, 186, 180],
-        p99_rt: [1212, 421, 410, 203, 209, 188],
-        throughput: [30.6, 31.1, 31.9, 35.1, 35.3, 35.6],
-        errors: [0, 0, 0, 0, 0, 0]
+        avg_rt: [197.94, 171.28, 171.83, 170.9, 173.53, 172.66],
+        p95_rt: [185, 178, 179, 178, 184, 182],
+        p99_rt: [1000, 184, 187, 189, 197, 194],
+        throughput: [136.4, 190.3, 189.5, 189.5, 188.5, 188.8],
+        errors: [16, 20, 19, 19, 20, 18]
     };
 
-    const labelTsMap = {"0": {"ts_avg_rt": [593.35, 624.06, 583.82, 531.53, 528.53, 525.56], "ts_p95_rt": [562, 753, 710, 544, 541, 532], "ts_p99_rt": [562, 753, 710, 544, 541, 532], "ts_throughput": [1.7, 1.6, 1.7, 1.9, 1.9, 1.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US01_Overall_Iteration"}, "T-US01_Overall_Iteration": {"ts_avg_rt": [593.35, 624.06, 583.82, 531.53, 528.53, 525.56], "ts_p95_rt": [562, 753, 710, 544, 541, 532], "ts_p99_rt": [562, 753, 710, 544, 541, 532], "ts_throughput": [1.7, 1.6, 1.7, 1.9, 1.9, 1.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US01_Overall_Iteration"}, "1": {"ts_avg_rt": [636.75, 603.31, 598.53, 532.26, 531.39, 524.0], "ts_p95_rt": [557, 718, 922, 539, 553, 530], "ts_p99_rt": [557, 718, 922, 539, 553, 530], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.8, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "T-US02_Overall_Iteration": {"ts_avg_rt": [636.75, 603.31, 598.53, 532.26, 531.39, 524.0], "ts_p95_rt": [557, 718, 922, 539, 553, 530], "ts_p99_rt": [557, 718, 922, 539, 553, 530], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.8, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "2": {"ts_avg_rt": [419.42, 412.88, 386.27, 360.56, 359.36, 355.44], "ts_p95_rt": [383, 556, 372, 370, 364, 359], "ts_p99_rt": [384, 566, 529, 382, 396, 359], "ts_throughput": [2.4, 2.4, 2.6, 2.7, 2.8, 2.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "T-US03_Overall_Iteration": {"ts_avg_rt": [419.42, 412.88, 386.27, 360.56, 359.36, 355.44], "ts_p95_rt": [383, 556, 372, 370, 364, 359], "ts_p99_rt": [384, 566, 529, 382, 396, 359], "ts_throughput": [2.4, 2.4, 2.6, 2.7, 2.8, 2.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "3": {"ts_avg_rt": [414.96, 382.27, 413.12, 361.25, 360.52, 356.89], "ts_p95_rt": [373, 372, 540, 370, 368, 361], "ts_p99_rt": [382, 372, 541, 370, 382, 367], "ts_throughput": [2.4, 2.6, 2.4, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "T-US04_Overall_Iteration": {"ts_avg_rt": [414.96, 382.27, 413.12, 361.25, 360.52, 356.89], "ts_p95_rt": [373, 372, 540, 370, 368, 361], "ts_p99_rt": [382, 372, 541, 370, 382, 367], "ts_throughput": [2.4, 2.6, 2.4, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "4": {"ts_avg_rt": [237.35, 209.31, 197.88, 176.11, 175.53, 174.72], "ts_p95_rt": [179, 353, 357, 179, 179, 176], "ts_p99_rt": [179, 353, 357, 179, 179, 176], "ts_throughput": [1.7, 1.6, 1.7, 1.9, 1.9, 1.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US01_Launch_Catalog"}, "TC01_US01_Launch_Catalog": {"ts_avg_rt": [237.35, 209.31, 197.88, 176.11, 175.53, 174.72], "ts_p95_rt": [179, 353, 357, 179, 179, 176], "ts_p99_rt": [179, 353, 357, 179, 179, 176], "ts_throughput": [1.7, 1.6, 1.7, 1.9, 1.9, 1.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US01_Launch_Catalog"}, "5": {"ts_avg_rt": [279.56, 213.88, 196.12, 175.84, 176.39, 174.21], "ts_p95_rt": [201, 360, 344, 179, 183, 177], "ts_p99_rt": [201, 360, 344, 179, 183, 177], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.8, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "TC01_US02_Launch_Catalog": {"ts_avg_rt": [279.56, 213.88, 196.12, 175.84, 176.39, 174.21], "ts_p95_rt": [201, 360, 344, 179, 183, 177], "ts_p99_rt": [201, 360, 344, 179, 183, 177], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.8, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "6": {"ts_avg_rt": [237.71, 224.42, 185.08, 180.37, 181.07, 177.64], "ts_p95_rt": [186, 362, 181, 185, 186, 179], "ts_p99_rt": [186, 375, 184, 191, 221, 179], "ts_throughput": [2.4, 2.4, 2.6, 2.7, 2.8, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "TC01_US03_Launch_Homepage": {"ts_avg_rt": [237.71, 224.42, 185.08, 180.37, 181.07, 177.64], "ts_p95_rt": [186, 362, 181, 185, 186, 179], "ts_p99_rt": [186, 375, 184, 191, 221, 179], "ts_throughput": [2.4, 2.4, 2.6, 2.7, 2.8, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "7": {"ts_avg_rt": [224.17, 180.88, 233.67, 180.57, 180.15, 178.36], "ts_p95_rt": [188, 185, 357, 186, 184, 182], "ts_p99_rt": [191, 189, 364, 186, 185, 183], "ts_throughput": [2.4, 2.6, 2.4, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "TC01_US04_Launch_Catalog": {"ts_avg_rt": [224.17, 180.88, 233.67, 180.57, 180.15, 178.36], "ts_p95_rt": [188, 185, 357, 186, 184, 182], "ts_p99_rt": [191, 189, 364, 186, 185, 183], "ts_throughput": [2.4, 2.6, 2.4, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "8": {"ts_avg_rt": [178.0, 189.56, 177.0, 176.5, 175.63, 175.37], "ts_p95_rt": [180, 180, 188, 181, 181, 179], "ts_p99_rt": [180, 180, 188, 181, 181, 179], "ts_throughput": [1.7, 1.6, 1.7, 1.8, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "TC02_US01_Select_Fish_Category": {"ts_avg_rt": [178.0, 189.56, 177.0, 176.5, 175.63, 175.37], "ts_p95_rt": [180, 180, 188, 181, 181, 179], "ts_p99_rt": [180, 180, 188, 181, 181, 179], "ts_throughput": [1.7, 1.6, 1.7, 1.8, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "9": {"ts_avg_rt": [177.94, 190.62, 203.88, 178.11, 176.47, 173.84], "ts_p95_rt": [183, 185, 400, 185, 182, 176], "ts_p99_rt": [183, 185, 400, 185, 182, 176], "ts_throughput": [1.6, 1.6, 1.7, 1.8, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "TC02_US02_Select_Dogs_Category": {"ts_avg_rt": [177.94, 190.62, 203.88, 178.11, 176.47, 173.84], "ts_p95_rt": [183, 185, 400, 185, 182, 176], "ts_p99_rt": [183, 185, 400, 185, 182, 176], "ts_throughput": [1.6, 1.6, 1.7, 1.8, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "10": {"ts_avg_rt": [181.91, 188.46, 201.15, 180.11, 178.33, 177.71], "ts_p95_rt": [188, 181, 185, 188, 181, 181], "ts_p99_rt": [197, 184, 193, 190, 184, 182], "ts_throughput": [2.3, 2.4, 2.6, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "TC02_US03_Search_Keyword_Bulldog": {"ts_avg_rt": [181.91, 188.46, 201.15, 180.11, 178.33, 177.71], "ts_p95_rt": [188, 181, 185, 188, 181, 181], "ts_p99_rt": [197, 184, 193, 190, 184, 182], "ts_throughput": [2.3, 2.4, 2.6, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "11": {"ts_avg_rt": [190.79, 201.38, 179.46, 180.74, 180.32, 178.54], "ts_p95_rt": [185, 184, 182, 185, 185, 182], "ts_p99_rt": [201, 188, 183, 189, 199, 183], "ts_throughput": [2.4, 2.6, 2.4, 2.7, 2.8, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "TC02_US04_Navigate_To_Signon_Page": {"ts_avg_rt": [190.79, 201.38, 179.46, 180.74, 180.32, 178.54], "ts_p95_rt": [185, 184, 182, 185, 185, 182], "ts_p99_rt": [201, 188, 183, 189, 199, 183], "ts_throughput": [2.4, 2.6, 2.4, 2.7, 2.8, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "12": {"ts_avg_rt": [177.94, 225.44, 208.88, 178.95, 177.58, 175.32], "ts_p95_rt": [183, 397, 180, 188, 188, 178], "ts_p99_rt": [183, 397, 180, 188, 188, 178], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "TC03_US01_View_Product_Details": {"ts_avg_rt": [177.94, 225.44, 208.88, 178.95, 177.58, 175.32], "ts_p95_rt": [183, 397, 180, 188, 188, 178], "ts_p99_rt": [183, 397, 180, 188, 188, 178], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "13": {"ts_avg_rt": [179.33, 197.59, 199.69, 178.79, 178.21, 175.95], "ts_p95_rt": [185, 182, 345, 184, 186, 179], "ts_p99_rt": [185, 182, 345, 184, 186, 179], "ts_throughput": [1.5, 1.7, 1.6, 1.9, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}, "TC03_US02_Add_Item_To_Cart": {"ts_avg_rt": [179.33, 197.59, 199.69, 178.79, 178.21, 175.95], "ts_p95_rt": [185, 182, 345, 184, 186, 179], "ts_p99_rt": [185, 182, 345, 184, 186, 179], "ts_throughput": [1.5, 1.7, 1.6, 1.9, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}, "HTTP_Launch_Catalog": {"ts_avg_rt": [243.65, 197.83, 212.17, 177.92, 177.72, 176.14], "ts_p95_rt": [201, 353, 357, 185, 183, 180], "ts_p99_rt": [1212, 360, 364, 186, 187, 183], "ts_throughput": [5.7, 5.8, 5.8, 6.6, 6.4, 6.5], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Launch_Catalog"}, "HTTP_Select_Category_Fish": {"ts_avg_rt": [178.0, 189.56, 177.0, 176.5, 175.63, 175.37], "ts_p95_rt": [180, 180, 188, 181, 181, 179], "ts_p99_rt": [180, 180, 188, 181, 181, 179], "ts_throughput": [1.7, 1.6, 1.7, 1.8, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Select_Category_Fish"}, "HTTP_Launch_Homepage": {"ts_avg_rt": [237.71, 224.42, 185.08, 180.37, 181.07, 177.64], "ts_p95_rt": [186, 362, 181, 185, 186, 179], "ts_p99_rt": [186, 375, 184, 191, 221, 179], "ts_throughput": [2.4, 2.4, 2.6, 2.7, 2.8, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Launch_Homepage"}, "HTTP_View_Product_FI-SW-01": {"ts_avg_rt": [177.94, 225.44, 208.88, 178.95, 177.58, 175.32], "ts_p95_rt": [183, 397, 180, 188, 188, 178], "ts_p99_rt": [183, 397, 180, 188, 188, 178], "ts_throughput": [1.6, 1.6, 1.7, 1.9, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_View_Product_FI-SW-01"}, "HTTP_Signon_Form": {"ts_avg_rt": [190.79, 201.38, 179.46, 180.74, 180.32, 178.54], "ts_p95_rt": [185, 184, 182, 185, 185, 182], "ts_p99_rt": [201, 188, 183, 189, 199, 183], "ts_throughput": [2.4, 2.6, 2.4, 2.7, 2.8, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Signon_Form"}, "HTTP_Search_Bulldog": {"ts_avg_rt": [181.91, 188.46, 201.15, 180.11, 178.33, 177.71], "ts_p95_rt": [188, 181, 185, 188, 181, 181], "ts_p99_rt": [197, 184, 193, 190, 184, 182], "ts_throughput": [2.3, 2.4, 2.6, 2.8, 2.7, 2.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Search_Bulldog"}, "HTTP_Select_Category_Dogs": {"ts_avg_rt": [177.94, 190.62, 203.88, 178.11, 176.47, 173.84], "ts_p95_rt": [183, 185, 400, 185, 182, 176], "ts_p99_rt": [183, 185, 400, 185, 182, 176], "ts_throughput": [1.6, 1.6, 1.7, 1.8, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Select_Category_Dogs"}, "HTTP_Add_Item_EST-26": {"ts_avg_rt": [179.33, 197.59, 199.69, 178.79, 178.21, 175.95], "ts_p95_rt": [185, 182, 345, 184, 186, 179], "ts_p99_rt": [185, 182, 345, 184, 186, 179], "ts_throughput": [1.5, 1.7, 1.6, 1.9, 1.9, 1.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_Add_Item_EST-26"}};
+    const labelTsMap = {"0": {"ts_avg_rt": [1237.88, 1033.9, 1036.3, 1029.78, 1038.9, 1035.44], "ts_p95_rt": [1054, 1045, 1044, 1042, 1051, 1051], "ts_p99_rt": [1054, 1045, 1044, 1042, 1051, 1051], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [8, 10, 10, 9, 10, 9], "label": "T-US01_Overall_Iteration"}, "T-US01_Overall_Iteration": {"ts_avg_rt": [1237.88, 1033.9, 1036.3, 1029.78, 1038.9, 1035.44], "ts_p95_rt": [1054, 1045, 1044, 1042, 1051, 1051], "ts_p99_rt": [1054, 1045, 1044, 1042, 1051, 1051], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [8, 10, 10, 9, 10, 9], "label": "T-US01_Overall_Iteration"}, "1": {"ts_avg_rt": [572.18, 510.68, 511.45, 510.88, 517.28, 515.96], "ts_p95_rt": [1030, 525, 526, 528, 537, 534], "ts_p99_rt": [1346, 530, 537, 538, 550, 544], "ts_throughput": [7.1, 9.9, 9.6, 9.9, 9.6, 9.4], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "T-US02_Overall_Iteration": {"ts_avg_rt": [572.18, 510.68, 511.45, 510.88, 517.28, 515.96], "ts_p95_rt": [1030, 525, 526, 528, 537, 534], "ts_p99_rt": [1346, 530, 537, 538, 550, 544], "ts_throughput": [7.1, 9.9, 9.6, 9.9, 9.6, 9.4], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "2": {"ts_avg_rt": [372.28, 335.37, 336.63, 334.48, 340.43, 338.37], "ts_p95_rt": [359, 349, 350, 349, 361, 357], "ts_p99_rt": [872, 355, 357, 362, 378, 369], "ts_throughput": [21.1, 29.9, 29.5, 29.7, 29.2, 29.3], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "T-US03_Overall_Iteration": {"ts_avg_rt": [372.28, 335.37, 336.63, 334.48, 340.43, 338.37], "ts_p95_rt": [359, 349, 350, 349, 361, 357], "ts_p99_rt": [872, 355, 357, 362, 378, 369], "ts_throughput": [21.1, 29.9, 29.5, 29.7, 29.2, 29.3], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "3": {"ts_avg_rt": [376.7, 336.53, 337.46, 336.86, 340.02, 339.5], "ts_p95_rt": [361, 349, 349, 354, 360, 358], "ts_p99_rt": [873, 355, 353, 360, 369, 368], "ts_throughput": [10.8, 14.7, 14.9, 14.6, 14.8, 14.5], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "T-US04_Overall_Iteration": {"ts_avg_rt": [376.7, 336.53, 337.46, 336.86, 340.02, 339.5], "ts_p95_rt": [361, 349, 349, 354, 360, 358], "ts_p99_rt": [873, 355, 353, 360, 369, 368], "ts_throughput": [10.8, 14.7, 14.9, 14.6, 14.8, 14.5], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "4": {"ts_avg_rt": [887.88, 688.0, 690.4, 688.44, 690.5, 689.67], "ts_p95_rt": [696, 694, 699, 692, 702, 702], "ts_p99_rt": [696, 694, 699, 692, 702, 702], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [8, 10, 10, 9, 10, 9], "label": "TC01_US01_Launch_Catalog"}, "TC01_US01_Launch_Catalog": {"ts_avg_rt": [887.88, 688.0, 690.4, 688.44, 690.5, 689.67], "ts_p95_rt": [696, 694, 699, 692, 702, 702], "ts_p99_rt": [696, 694, 699, 692, 702, 702], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [8, 10, 10, 9, 10, 9], "label": "TC01_US01_Launch_Catalog"}, "5": {"ts_avg_rt": [228.56, 169.95, 170.22, 170.28, 171.44, 171.1], "ts_p95_rt": [688, 179, 177, 179, 183, 180], "ts_p99_rt": [1000, 182, 187, 187, 192, 192], "ts_throughput": [7.1, 9.9, 9.6, 9.9, 9.6, 9.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "TC01_US02_Launch_Catalog": {"ts_avg_rt": [228.56, 169.95, 170.22, 170.28, 171.44, 171.1], "ts_p95_rt": [688, 179, 177, 179, 183, 180], "ts_p99_rt": [1000, 182, 187, 187, 192, 192], "ts_throughput": [7.1, 9.9, 9.6, 9.9, 9.6, 9.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "6": {"ts_avg_rt": [203.95, 167.46, 168.27, 167.34, 170.13, 169.57], "ts_p95_rt": [186, 176, 179, 175, 185, 183], "ts_p99_rt": [706, 181, 184, 185, 193, 190], "ts_throughput": [21.1, 29.9, 29.5, 29.7, 29.2, 29.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "TC01_US03_Launch_Homepage": {"ts_avg_rt": [203.95, 167.46, 168.27, 167.34, 170.13, 169.57], "ts_p95_rt": [186, 176, 179, 175, 185, 183], "ts_p99_rt": [706, 181, 184, 185, 193, 190], "ts_throughput": [21.1, 29.9, 29.5, 29.7, 29.2, 29.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "7": {"ts_avg_rt": [206.93, 168.31, 168.36, 168.59, 170.45, 170.04], "ts_p95_rt": [188, 176, 175, 180, 183, 182], "ts_p99_rt": [703, 181, 178, 187, 195, 186], "ts_throughput": [10.8, 14.7, 14.9, 14.6, 14.8, 14.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "TC01_US04_Launch_Catalog": {"ts_avg_rt": [206.93, 168.31, 168.36, 168.59, 170.45, 170.04], "ts_p95_rt": [188, 176, 175, 180, 183, 182], "ts_p99_rt": [703, 181, 178, 187, 195, 186], "ts_throughput": [10.8, 14.7, 14.9, 14.6, 14.8, 14.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "8": {"ts_avg_rt": [175.0, 171.56, 172.4, 170.7, 174.22, 173.5], "ts_p95_rt": [183, 174, 176, 174, 181, 174], "ts_p99_rt": [183, 174, 176, 174, 181, 174], "ts_throughput": [0.8, 0.9, 1.0, 1.0, 0.9, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "TC02_US01_Select_Fish_Category": {"ts_avg_rt": [175.0, 171.56, 172.4, 170.7, 174.22, 173.5], "ts_p95_rt": [183, 174, 176, 174, 181, 174], "ts_p99_rt": [183, 174, 176, 174, 181, 174], "ts_throughput": [0.8, 0.9, 1.0, 1.0, 0.9, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "9": {"ts_avg_rt": [171.31, 169.5, 170.22, 169.14, 171.94, 171.91], "ts_p95_rt": [178, 179, 180, 176, 182, 182], "ts_p99_rt": [181, 181, 182, 181, 189, 188], "ts_throughput": [7.1, 9.6, 9.8, 9.7, 9.8, 9.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "TC02_US02_Select_Dogs_Category": {"ts_avg_rt": [171.31, 169.5, 170.22, 169.14, 171.94, 171.91], "ts_p95_rt": [178, 179, 180, 176, 182, 182], "ts_p99_rt": [181, 181, 182, 181, 189, 188], "ts_throughput": [7.1, 9.6, 9.8, 9.7, 9.8, 9.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "10": {"ts_avg_rt": [168.35, 167.88, 168.41, 167.15, 170.24, 168.76], "ts_p95_rt": [178, 177, 179, 175, 184, 180], "ts_p99_rt": [183, 180, 183, 182, 196, 190], "ts_throughput": [20.7, 29.6, 29.6, 29.6, 29.5, 29.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "TC02_US03_Search_Keyword_Bulldog": {"ts_avg_rt": [168.35, 167.88, 168.41, 167.15, 170.24, 168.76], "ts_p95_rt": [178, 177, 179, 175, 184, 180], "ts_p99_rt": [183, 180, 183, 182, 196, 190], "ts_throughput": [20.7, 29.6, 29.6, 29.6, 29.5, 29.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "11": {"ts_avg_rt": [169.75, 168.3, 169.05, 168.31, 169.62, 169.35], "ts_p95_rt": [181, 176, 178, 178, 180, 181], "ts_p99_rt": [184, 180, 182, 182, 186, 191], "ts_throughput": [10.4, 14.9, 14.7, 14.8, 14.7, 14.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "TC02_US04_Navigate_To_Signon_Page": {"ts_avg_rt": [169.75, 168.3, 169.05, 168.31, 169.62, 169.35], "ts_p95_rt": [181, 176, 178, 178, 180, 181], "ts_p99_rt": [184, 180, 182, 182, 186, 191], "ts_throughput": [10.4, 14.9, 14.7, 14.8, 14.7, 14.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "12": {"ts_avg_rt": [175.0, 174.56, 172.9, 171.5, 174.11, 172.6], "ts_p95_rt": [178, 179, 174, 174, 179, 175], "ts_p99_rt": [178, 179, 174, 174, 179, 175], "ts_throughput": [0.8, 0.9, 1.0, 1.0, 0.9, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "TC03_US01_View_Product_Details": {"ts_avg_rt": [175.0, 174.56, 172.9, 171.5, 174.11, 172.6], "ts_p95_rt": [178, 179, 174, 174, 179, 175], "ts_p99_rt": [178, 179, 174, 174, 179, 175], "ts_throughput": [0.8, 0.9, 1.0, 1.0, 0.9, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "13": {"ts_avg_rt": [172.24, 171.15, 171.16, 171.43, 173.6, 172.92], "ts_p95_rt": [178, 178, 180, 181, 189, 185], "ts_p99_rt": [183, 182, 184, 190, 192, 191], "ts_throughput": [6.7, 9.9, 9.8, 9.6, 9.8, 9.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}, "TC03_US02_Add_Item_To_Cart": {"ts_avg_rt": [172.24, 171.15, 171.16, 171.43, 173.6, 172.92], "ts_p95_rt": [178, 178, 180, 181, 189, 185], "ts_p99_rt": [183, 182, 184, 190, 192, 191], "ts_throughput": [6.7, 9.9, 9.8, 9.6, 9.8, 9.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}, "14": {"ts_avg_rt": [541.5, 342.9, 345.4, 345.44, 344.1, 343.89], "ts_p95_rt": [350, 348, 353, 351, 352, 353], "ts_p99_rt": [350, 348, 353, 351, 352, 353], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller_T1"}, "Transaction Controller_T1": {"ts_avg_rt": [541.5, 342.9, 345.4, 345.44, 344.1, 343.89], "ts_p95_rt": [350, 348, 353, 351, 352, 353], "ts_p99_rt": [350, 348, 353, 351, 352, 353], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "Transaction Controller_T1"}, "15": {"ts_avg_rt": [346.38, 345.1, 345.56, 342.7, 346.4, 345.78], "ts_p95_rt": [349, 351, 352, 350, 355, 354], "ts_p99_rt": [349, 351, 352, 350, 355, 354], "ts_throughput": [0.8, 1.0, 0.9, 1.0, 1.0, 0.9], "ts_errors": [8, 10, 9, 10, 10, 9], "label": "Transaction Controller_T2"}, "Transaction Controller_T2": {"ts_avg_rt": [346.38, 345.1, 345.56, 342.7, 346.4, 345.78], "ts_p95_rt": [349, 351, 352, 350, 355, 354], "ts_p99_rt": [349, 351, 352, 350, 355, 354], "ts_throughput": [0.8, 1.0, 0.9, 1.0, 1.0, 0.9], "ts_errors": [8, 10, 9, 10, 10, 9], "label": "Transaction Controller_T2"}, "HTTP_US01_Launch_Catalog_1": {"ts_avg_rt": [370.12, 171.4, 174.4, 175.22, 172.1, 172.2], "ts_p95_rt": [177, 173, 179, 182, 176, 176], "ts_p99_rt": [177, 173, 179, 182, 176, 176], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US01_Launch_Catalog_1"}, "HTTP_US04_Launch_Catalog": {"ts_avg_rt": [206.93, 168.31, 168.36, 168.59, 170.45, 170.04], "ts_p95_rt": [188, 176, 175, 180, 183, 182], "ts_p99_rt": [703, 181, 178, 187, 195, 186], "ts_throughput": [10.8, 14.7, 14.9, 14.6, 14.8, 14.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US04_Launch_Catalog"}, "HTTP_US03_Launch_Homepage": {"ts_avg_rt": [203.95, 167.46, 168.27, 167.34, 170.13, 169.57], "ts_p95_rt": [186, 176, 179, 175, 185, 183], "ts_p99_rt": [706, 181, 184, 185, 193, 190], "ts_throughput": [21.1, 29.9, 29.5, 29.7, 29.2, 29.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US03_Launch_Homepage"}, "HTTP_US02_Launch_Catalog": {"ts_avg_rt": [228.56, 169.95, 170.22, 170.28, 171.44, 171.1], "ts_p95_rt": [688, 179, 177, 179, 183, 180], "ts_p99_rt": [1000, 182, 187, 187, 192, 192], "ts_throughput": [7.1, 9.9, 9.6, 9.9, 9.6, 9.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US02_Launch_Catalog"}, "HTTP_US01_Launch_Catalog_2": {"ts_avg_rt": [171.38, 171.5, 171.0, 170.22, 172.0, 171.33], "ts_p95_rt": [173, 176, 174, 174, 176, 174], "ts_p99_rt": [173, 176, 174, 174, 176, 174], "ts_throughput": [0.8, 1.0, 1.0, 0.9, 1.0, 0.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US01_Launch_Catalog_2"}, "HTTP_US04_Signon_Form": {"ts_avg_rt": [169.75, 168.3, 169.05, 168.31, 169.62, 169.35], "ts_p95_rt": [181, 176, 178, 178, 180, 181], "ts_p99_rt": [184, 180, 182, 182, 186, 191], "ts_throughput": [10.4, 14.9, 14.7, 14.8, 14.7, 14.8], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US04_Signon_Form"}, "HTTP_US02_Select_Category_Dogs": {"ts_avg_rt": [171.31, 169.5, 170.22, 169.14, 171.94, 171.91], "ts_p95_rt": [178, 179, 180, 176, 182, 182], "ts_p99_rt": [181, 181, 182, 181, 189, 188], "ts_throughput": [7.1, 9.6, 9.8, 9.7, 9.8, 9.6], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US02_Select_Category_Dogs"}, "HTTP_US03_Search_Bulldog": {"ts_avg_rt": [168.35, 167.88, 168.41, 167.15, 170.23, 168.76], "ts_p95_rt": [178, 177, 179, 175, 184, 180], "ts_p99_rt": [183, 180, 183, 182, 196, 190], "ts_throughput": [20.7, 29.6, 29.6, 29.6, 29.5, 29.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US03_Search_Bulldog"}, "HTTP_US01_Launch_Catalog_Err500": {"ts_avg_rt": [173.88, 171.6, 173.67, 171.0, 173.5, 171.44], "ts_p95_rt": [177, 174, 178, 174, 180, 176], "ts_p99_rt": [177, 174, 178, 174, 180, 176], "ts_throughput": [0.8, 1.0, 0.9, 1.0, 1.0, 0.9], "ts_errors": [8, 10, 9, 10, 10, 9], "label": "HTTP_US01_Launch_Catalog_Err500"}, "HTTP_US02_Add_Item_EST-26": {"ts_avg_rt": [172.24, 171.15, 171.16, 171.43, 173.6, 172.92], "ts_p95_rt": [178, 178, 180, 181, 189, 185], "ts_p99_rt": [183, 182, 184, 190, 192, 191], "ts_throughput": [6.7, 9.9, 9.8, 9.6, 9.8, 9.7], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US02_Add_Item_EST-26"}, "HTTP_US01_Launch_Catalog_3": {"ts_avg_rt": [172.5, 173.5, 171.89, 171.7, 172.9, 174.33], "ts_p95_rt": [174, 176, 176, 178, 175, 181], "ts_p99_rt": [174, 176, 176, 178, 175, 181], "ts_throughput": [0.8, 1.0, 0.9, 1.0, 1.0, 0.9], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US01_Launch_Catalog_3"}, "HTTP_US01_Select_Category_Fish": {"ts_avg_rt": [175.0, 171.56, 172.4, 170.7, 174.22, 173.5], "ts_p95_rt": [183, 174, 176, 174, 181, 174], "ts_p99_rt": [183, 174, 176, 174, 181, 174], "ts_throughput": [0.8, 0.9, 1.0, 1.0, 0.9, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US01_Select_Category_Fish"}, "HTTP_US01_View_Product_FI-SW-01": {"ts_avg_rt": [175.0, 174.56, 172.9, 171.5, 174.11, 172.6], "ts_p95_rt": [178, 179, 174, 174, 179, 175], "ts_p99_rt": [178, 179, 174, 174, 179, 175], "ts_throughput": [0.8, 0.9, 1.0, 1.0, 0.9, 1.0], "ts_errors": [0, 0, 0, 0, 0, 0], "label": "HTTP_US01_View_Product_FI-SW-01"}};
     
     // Critical Transactions Tracking & Deterministic Colors
     const criticalTxSet = new Set();
@@ -2568,7 +2628,7 @@
     }
 
     // ── Hierarchical Transaction & Sub-Transaction Multi-View Line Chart Manager ──
-    const txRtHierarchyData = {"user_stories": [{"name": "US01_Browse_Catalog", "transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 194.1, "p90": 180, "p95": 195, "min_rt": 172, "max_rt": 1212, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "Transaction Controller_T1", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_1", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_2", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "Transaction Controller_T2", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_Err500", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_3", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 178.4, "p90": 180, "p95": 182, "min_rt": 171, "max_rt": 397, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_US01_Select_Category_Fish", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 189.7, "p90": 183, "p95": 188, "min_rt": 172, "max_rt": 732, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US01_View_Product_FI-SW-01", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}, {"name": "US02_Add_To_Cart", "transactions": [{"name": "TC01_US02_Launch_Catalog", "avg_rt": 200.5, "p90": 182, "p95": 201, "min_rt": 172, "max_rt": 1783, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US02_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 183.1, "p90": 182, "p95": 185, "min_rt": 172, "max_rt": 410, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_US02_Select_Category_Dogs", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 184.5, "p90": 184, "p95": 187, "min_rt": 172, "max_rt": 521, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_US02_Add_Item_EST-26", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}, {"name": "US03_Search_Products", "transactions": [{"name": "TC01_US03_Launch_Homepage", "avg_rt": 196.3, "p90": 185, "p95": 222, "min_rt": 175, "max_rt": 1562, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_US03_Launch_Homepage", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 184.4, "p90": 183, "p95": 188, "min_rt": 175, "max_rt": 737, "count": 156, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US03_Search_Bulldog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}, {"name": "US04_User_Sign_In", "transactions": [{"name": "TC01_US04_Launch_Catalog", "avg_rt": 194.9, "p90": 185, "p95": 190, "min_rt": 176, "max_rt": 1211, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US04_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 185.0, "p90": 184, "p95": 188, "min_rt": 176, "max_rt": 738, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_US04_Signon_Form", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}], "all_transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 194.1, "p90": 180, "p95": 195, "min_rt": 172, "max_rt": 1212, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "Transaction Controller_T1", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_1", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_2", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "Transaction Controller_T2", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_Err500", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_3", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 178.4, "p90": 180, "p95": 182, "min_rt": 171, "max_rt": 397, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_US01_Select_Category_Fish", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 189.7, "p90": 183, "p95": 188, "min_rt": 172, "max_rt": 732, "count": 106, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US01_View_Product_FI-SW-01", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC01_US02_Launch_Catalog", "avg_rt": 200.5, "p90": 182, "p95": 201, "min_rt": 172, "max_rt": 1783, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US02_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 183.1, "p90": 182, "p95": 185, "min_rt": 172, "max_rt": 410, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_US02_Select_Category_Dogs", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 184.5, "p90": 184, "p95": 187, "min_rt": 172, "max_rt": 521, "count": 105, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_US02_Add_Item_EST-26", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC01_US03_Launch_Homepage", "avg_rt": 196.3, "p90": 185, "p95": 222, "min_rt": 175, "max_rt": 1562, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_US03_Launch_Homepage", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 184.4, "p90": 183, "p95": 188, "min_rt": 175, "max_rt": 737, "count": 156, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US03_Search_Bulldog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC01_US04_Launch_Catalog", "avg_rt": 194.9, "p90": 185, "p95": 190, "min_rt": 176, "max_rt": 1211, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US04_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 185.0, "p90": 184, "p95": 188, "min_rt": 176, "max_rt": 738, "count": 157, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_US04_Signon_Form", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]};
+    const txRtHierarchyData = {"user_stories": [{"name": "US01_Browse_Catalog", "transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 717.8, "p90": 701, "p95": 702, "min_rt": 676, "max_rt": 2263, "count": 56, "errors": 56, "error_rate": 100.0, "target_rt": 500.0, "children": [{"name": "Transaction Controller_T1", "type": "transaction", "avg_rt": 372.5, "p90": 353, "p95": 355, "min_rt": 337, "max_rt": 1920, "count": 56, "errors": 0, "error_rate": 0.0}, {"name": "HTTP_US01_Launch_Catalog_1", "type": "request", "avg_rt": 200.7, "p90": 179, "p95": 184, "min_rt": 168, "max_rt": 1746, "count": 57, "errors": 0, "error_rate": 0.0}, {"name": "HTTP_US01_Launch_Catalog_2", "type": "request", "avg_rt": 171.2, "p90": 174, "p95": 176, "min_rt": 167, "max_rt": 179, "count": 56, "errors": 0, "error_rate": 0.0}, {"name": "Transaction Controller_T2", "type": "transaction", "avg_rt": 345.3, "p90": 354, "p95": 354, "min_rt": 337, "max_rt": 357, "count": 56, "errors": 56, "error_rate": 100.0}, {"name": "HTTP_US01_Launch_Catalog_Err500", "type": "request", "avg_rt": 172.5, "p90": 177, "p95": 178, "min_rt": 169, "max_rt": 185, "count": 56, "errors": 56, "error_rate": 100.0}, {"name": "HTTP_US01_Launch_Catalog_3", "type": "request", "avg_rt": 172.8, "p90": 180, "p95": 183, "min_rt": 167, "max_rt": 185, "count": 56, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 172.8, "p90": 177, "p95": 183, "min_rt": 167, "max_rt": 199, "count": 56, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_US01_Select_Category_Fish", "type": "request", "avg_rt": 172.8, "p90": 177, "p95": 183, "min_rt": 167, "max_rt": 199, "count": 56, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 173.4, "p90": 179, "p95": 180, "min_rt": 168, "max_rt": 185, "count": 56, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US01_View_Product_FI-SW-01", "type": "request", "avg_rt": 173.4, "p90": 179, "p95": 180, "min_rt": 168, "max_rt": 185, "count": 56, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US02_Add_To_Cart", "transactions": [{"name": "TC01_US02_Launch_Catalog", "avg_rt": 178.0, "p90": 178, "p95": 182, "min_rt": 165, "max_rt": 1830, "count": 557, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US02_Launch_Catalog", "type": "request", "avg_rt": 178.0, "p90": 178, "p95": 182, "min_rt": 165, "max_rt": 1830, "count": 557, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 170.6, "p90": 178, "p95": 181, "min_rt": 165, "max_rt": 193, "count": 556, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_US02_Select_Category_Dogs", "type": "request", "avg_rt": 170.6, "p90": 178, "p95": 181, "min_rt": 165, "max_rt": 193, "count": 556, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 172.1, "p90": 179, "p95": 182, "min_rt": 165, "max_rt": 231, "count": 555, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_US02_Add_Item_EST-26", "type": "request", "avg_rt": 172.1, "p90": 179, "p95": 182, "min_rt": 165, "max_rt": 231, "count": 555, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US03_Search_Products", "transactions": [{"name": "TC01_US03_Launch_Homepage", "avg_rt": 173.0, "p90": 176, "p95": 181, "min_rt": 160, "max_rt": 1841, "count": 1690, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_US03_Launch_Homepage", "type": "request", "avg_rt": 173.0, "p90": 176, "p95": 181, "min_rt": 160, "max_rt": 1841, "count": 1690, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 168.5, "p90": 175, "p95": 180, "min_rt": 161, "max_rt": 203, "count": 1687, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US03_Search_Bulldog", "type": "request", "avg_rt": 168.5, "p90": 175, "p95": 180, "min_rt": 161, "max_rt": 203, "count": 1687, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US04_User_Sign_In", "transactions": [{"name": "TC01_US04_Launch_Catalog", "avg_rt": 174.0, "p90": 177, "p95": 181, "min_rt": 162, "max_rt": 1819, "count": 845, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US04_Launch_Catalog", "type": "request", "avg_rt": 174.0, "p90": 177, "p95": 181, "min_rt": 162, "max_rt": 1819, "count": 845, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 169.0, "p90": 176, "p95": 180, "min_rt": 161, "max_rt": 212, "count": 843, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_US04_Signon_Form", "type": "request", "avg_rt": 169.0, "p90": 176, "p95": 180, "min_rt": 161, "max_rt": 212, "count": 843, "errors": 0, "error_rate": 0.0}]}]}], "all_transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 717.8, "p90": 701, "p95": 702, "min_rt": 676, "max_rt": 2263, "count": 56, "errors": 56, "error_rate": 100.0, "target_rt": 500.0, "children": [{"name": "Transaction Controller_T1", "type": "transaction", "avg_rt": 372.5, "p90": 353, "p95": 355, "min_rt": 337, "max_rt": 1920, "count": 56, "errors": 0, "error_rate": 0.0}, {"name": "HTTP_US01_Launch_Catalog_1", "type": "request", "avg_rt": 200.7, "p90": 179, "p95": 184, "min_rt": 168, "max_rt": 1746, "count": 57, "errors": 0, "error_rate": 0.0}, {"name": "HTTP_US01_Launch_Catalog_2", "type": "request", "avg_rt": 171.2, "p90": 174, "p95": 176, "min_rt": 167, "max_rt": 179, "count": 56, "errors": 0, "error_rate": 0.0}, {"name": "Transaction Controller_T2", "type": "transaction", "avg_rt": 345.3, "p90": 354, "p95": 354, "min_rt": 337, "max_rt": 357, "count": 56, "errors": 56, "error_rate": 100.0}, {"name": "HTTP_US01_Launch_Catalog_Err500", "type": "request", "avg_rt": 172.5, "p90": 177, "p95": 178, "min_rt": 169, "max_rt": 185, "count": 56, "errors": 56, "error_rate": 100.0}, {"name": "HTTP_US01_Launch_Catalog_3", "type": "request", "avg_rt": 172.8, "p90": 180, "p95": 183, "min_rt": 167, "max_rt": 185, "count": 56, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 172.8, "p90": 177, "p95": 183, "min_rt": 167, "max_rt": 199, "count": 56, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_US01_Select_Category_Fish", "type": "request", "avg_rt": 172.8, "p90": 177, "p95": 183, "min_rt": 167, "max_rt": 199, "count": 56, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 173.4, "p90": 179, "p95": 180, "min_rt": 168, "max_rt": 185, "count": 56, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US01_View_Product_FI-SW-01", "type": "request", "avg_rt": 173.4, "p90": 179, "p95": 180, "min_rt": 168, "max_rt": 185, "count": 56, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US02_Launch_Catalog", "avg_rt": 178.0, "p90": 178, "p95": 182, "min_rt": 165, "max_rt": 1830, "count": 557, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US02_Launch_Catalog", "type": "request", "avg_rt": 178.0, "p90": 178, "p95": 182, "min_rt": 165, "max_rt": 1830, "count": 557, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 170.6, "p90": 178, "p95": 181, "min_rt": 165, "max_rt": 193, "count": 556, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_US02_Select_Category_Dogs", "type": "request", "avg_rt": 170.6, "p90": 178, "p95": 181, "min_rt": 165, "max_rt": 193, "count": 556, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 172.1, "p90": 179, "p95": 182, "min_rt": 165, "max_rt": 231, "count": 555, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_US02_Add_Item_EST-26", "type": "request", "avg_rt": 172.1, "p90": 179, "p95": 182, "min_rt": 165, "max_rt": 231, "count": 555, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US03_Launch_Homepage", "avg_rt": 173.0, "p90": 176, "p95": 181, "min_rt": 160, "max_rt": 1841, "count": 1690, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_US03_Launch_Homepage", "type": "request", "avg_rt": 173.0, "p90": 176, "p95": 181, "min_rt": 160, "max_rt": 1841, "count": 1690, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 168.5, "p90": 175, "p95": 180, "min_rt": 161, "max_rt": 203, "count": 1687, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US03_Search_Bulldog", "type": "request", "avg_rt": 168.5, "p90": 175, "p95": 180, "min_rt": 161, "max_rt": 203, "count": 1687, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US04_Launch_Catalog", "avg_rt": 174.0, "p90": 177, "p95": 181, "min_rt": 162, "max_rt": 1819, "count": 845, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US04_Launch_Catalog", "type": "request", "avg_rt": 174.0, "p90": 177, "p95": 181, "min_rt": 162, "max_rt": 1819, "count": 845, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 169.0, "p90": 176, "p95": 180, "min_rt": 161, "max_rt": 212, "count": 843, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_US04_Signon_Form", "type": "request", "avg_rt": 169.0, "p90": 176, "p95": 180, "min_rt": 161, "max_rt": 212, "count": 843, "errors": 0, "error_rate": 0.0}]}]};
     let txRtChartPanels = [];
     let nextTxRtPanelId = 1;
 
@@ -2939,9 +2999,9 @@
 
     // SLA Deviation by Transaction Diverging Horizontal Bar Chart
     const tgToTcsMap = {"US01_Browse_Catalog": ["T-US01_Overall_Iteration", "TC01_US01_Launch_Catalog", "TC02_US01_Select_Fish_Category", "TC03_US01_View_Product_Details"], "US02_Add_To_Cart": ["T-US02_Overall_Iteration", "TC01_US02_Launch_Catalog", "TC02_US02_Select_Dogs_Category", "TC03_US02_Add_Item_To_Cart"], "US03_Search_Products": ["T-US03_Overall_Iteration", "TC01_US03_Launch_Homepage", "TC02_US03_Search_Keyword_Bulldog"], "US04_User_Sign_In": ["T-US04_Overall_Iteration", "TC01_US04_Launch_Catalog", "TC02_US04_Navigate_To_Signon_Page"]};
-    const txDevMap = {"TC01_US01_Launch_Catalog": {"label": "TC01_US01_Launch_Catalog", "dev_pct": -64.0, "p90": 180, "target": 500.0}, "TC01_US04_Launch_Catalog": {"label": "TC01_US04_Launch_Catalog", "dev_pct": -63.0, "p90": 185, "target": 500.0}, "TC02_US01_Select_Fish_Category": {"label": "TC02_US01_Select_Fish_Category", "dev_pct": 95.7, "p90": 180, "target": 92.0}, "TC01_US03_Launch_Homepage": {"label": "TC01_US03_Launch_Homepage", "dev_pct": -7.5, "p90": 185, "target": 200.0}, "TC03_US01_View_Product_Details": {"label": "TC03_US01_View_Product_Details", "dev_pct": -63.4, "p90": 183, "target": 500.0}, "TC02_US04_Navigate_To_Signon_Page": {"label": "TC02_US04_Navigate_To_Signon_Page", "dev_pct": 268.0, "p90": 184, "target": 50.0}, "TC02_US03_Search_Keyword_Bulldog": {"label": "TC02_US03_Search_Keyword_Bulldog", "dev_pct": -63.4, "p90": 183, "target": 500.0}, "TC01_US02_Launch_Catalog": {"label": "TC01_US02_Launch_Catalog", "dev_pct": -63.6, "p90": 182, "target": 500.0}, "TC02_US02_Select_Dogs_Category": {"label": "TC02_US02_Select_Dogs_Category", "dev_pct": 82.0, "p90": 182, "target": 100.0}, "TC03_US02_Add_Item_To_Cart": {"label": "TC03_US02_Add_Item_To_Cart", "dev_pct": -87.9, "p90": 184, "target": 1517.0}};
-    const initialDevLabels = ["TC02_US04_Navigate_To_Signon_Page", "TC02_US01_Select_Fish_Category", "TC02_US02_Select_Dogs_Category", "TC01_US03_Launch_Homepage", "TC01_US04_Launch_Catalog", "TC03_US01_View_Product_Details", "TC02_US03_Search_Keyword_Bulldog", "TC01_US02_Launch_Catalog", "TC01_US01_Launch_Catalog", "TC03_US02_Add_Item_To_Cart"];
-    const initialDevVals = [268.0, 95.7, 82.0, -7.5, -63.0, -63.4, -63.4, -63.6, -64.0, -87.9];
+    const txDevMap = {"TC01_US04_Launch_Catalog": {"label": "TC01_US04_Launch_Catalog", "dev_pct": -64.6, "p90": 177, "target": 500.0}, "TC01_US03_Launch_Homepage": {"label": "TC01_US03_Launch_Homepage", "dev_pct": -12.0, "p90": 176, "target": 200.0}, "TC01_US02_Launch_Catalog": {"label": "TC01_US02_Launch_Catalog", "dev_pct": -64.4, "p90": 178, "target": 500.0}, "TC02_US04_Navigate_To_Signon_Page": {"label": "TC02_US04_Navigate_To_Signon_Page", "dev_pct": 252.0, "p90": 176, "target": 50.0}, "TC02_US02_Select_Dogs_Category": {"label": "TC02_US02_Select_Dogs_Category", "dev_pct": 78.0, "p90": 178, "target": 100.0}, "TC02_US03_Search_Keyword_Bulldog": {"label": "TC02_US03_Search_Keyword_Bulldog", "dev_pct": -65.0, "p90": 175, "target": 500.0}, "TC03_US02_Add_Item_To_Cart": {"label": "TC03_US02_Add_Item_To_Cart", "dev_pct": -88.2, "p90": 179, "target": 1517.0}, "TC01_US01_Launch_Catalog": {"label": "TC01_US01_Launch_Catalog", "dev_pct": 40.2, "p90": 701, "target": 500.0}, "TC02_US01_Select_Fish_Category": {"label": "TC02_US01_Select_Fish_Category", "dev_pct": 92.4, "p90": 177, "target": 92.0}, "TC03_US01_View_Product_Details": {"label": "TC03_US01_View_Product_Details", "dev_pct": -64.2, "p90": 179, "target": 500.0}};
+    const initialDevLabels = ["TC02_US04_Navigate_To_Signon_Page", "TC02_US01_Select_Fish_Category", "TC02_US02_Select_Dogs_Category", "TC01_US01_Launch_Catalog", "TC01_US03_Launch_Homepage", "TC03_US01_View_Product_Details", "TC01_US02_Launch_Catalog", "TC01_US04_Launch_Catalog", "TC02_US03_Search_Keyword_Bulldog", "TC03_US02_Add_Item_To_Cart"];
+    const initialDevVals = [252.0, 92.4, 78.0, 40.2, -12.0, -64.2, -64.4, -64.6, -65.0, -88.2];
 
     const slaDevChartObj = new Chart(document.getElementById('chart-sla-deviation-exec'), {
         type: 'bar',
@@ -3058,7 +3118,7 @@
             datasets: [
                 {
                     label: 'Pass Samples',
-                    data: [106, 105, 156, 157],
+                    data: [0, 555, 1687, 843],
                     backgroundColor: 'rgba(16, 185, 129, 0.85)',
                     borderColor: '#059669',
                     borderWidth: 1.5,
@@ -3068,7 +3128,7 @@
                 },
                 {
                     label: 'Fail Samples',
-                    data: [0, 0, 0, 0],
+                    data: [56, 0, 0, 0],
                     backgroundColor: 'rgba(239, 68, 68, 0.85)',
                     borderColor: '#dc2626',
                     borderWidth: 1.5,
@@ -3169,7 +3229,7 @@
         data: {
             labels: ['Passed', 'Minor Breach', 'Moderate Breach', 'Critical Breach'],
             datasets: [{
-                data: [7, 0, 1, 2],
+                data: [6, 0, 1, 3],
                 backgroundColor: [
                     '#10b981',  // Passed - Emerald Green
                     '#f59e0b',  // Minor - Amber
@@ -3192,14 +3252,14 @@
     });
 
     // 3. Error Rate by Transaction (horizontal bar)
-    if ([].length > 0) {
+    if (["TC01_US01_Launch_Catalog"].length > 0) {
         new Chart(document.getElementById('errChart'), {
             type: 'bar',
             data: {
-                labels: [],
+                labels: ["TC01_US01_Launch_Catalog"],
                 datasets: [{
                     label: 'Error Rate (%)',
-                    data: [],
+                    data: [100.0],
                     backgroundColor: 'rgba(239,68,68,0.75)',
                     borderColor: '#ef4444',
                     borderWidth: 1,
@@ -3228,7 +3288,7 @@
             labels: ["<100ms", "100-250ms", "250-500ms", "500ms-1s", "1s-2s", "2s-5s", ">5s"],
             datasets: [{
                 label: 'Requests',
-                data: [0, 1260, 0, 0, 0, 0, 0],
+                data: [0, 6845, 0, 56, 0, 0, 0],
                 backgroundColor: [
                     'rgba(16,185,129,0.75)','rgba(59,130,246,0.75)','rgba(139,92,246,0.75)',
                     'rgba(245,158,11,0.75)','rgba(249,115,22,0.75)','rgba(239,68,68,0.75)','rgba(127,29,29,0.75)'
@@ -3252,12 +3312,12 @@
         new Chart(elTxChart, {
             type: 'bar',
             data: {
-                labels: ["TC01_US02_Launch_Catalog", "TC01_US03_Launch_Homepage", "TC01_US04_Launch_Catalog", "TC01_US01_Launch_Catalog", "TC03_US01_View_Product_Detai", "TC02_US04_Navigate_To_Signon", "TC03_US02_Add_Item_To_Cart", "TC02_US03_Search_Keyword_Bul"],
+                labels: ["TC01_US01_Launch_Catalog", "TC01_US02_Launch_Catalog", "TC01_US04_Launch_Catalog", "TC03_US01_View_Product_Detai", "TC01_US03_Launch_Homepage", "TC02_US01_Select_Fish_Catego", "TC03_US02_Add_Item_To_Cart", "TC02_US02_Select_Dogs_Catego"],
                 datasets: [
-                    { label: 'P50', data: [175, 178, 179, 175, 176, 179, 177, 178], backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 3 },
-                    { label: 'P90', data: [182, 185, 185, 180, 183, 184, 184, 183], backgroundColor: 'rgba(245,158,11,0.75)', borderRadius: 3 },
-                    { label: 'P95', data: [201, 222, 190, 195, 188, 188, 187, 188], backgroundColor: 'rgba(249,115,22,0.75)', borderRadius: 3 },
-                    { label: 'P99', data: [360, 375, 364, 357, 397, 209, 345, 205], backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 3 }
+                    { label: 'P50', data: [689, 169, 168, 172, 167, 171, 170, 169], backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 3 },
+                    { label: 'P90', data: [701, 178, 177, 179, 176, 177, 179, 178], backgroundColor: 'rgba(245,158,11,0.75)', borderRadius: 3 },
+                    { label: 'P95', data: [702, 182, 181, 180, 181, 183, 182, 181], backgroundColor: 'rgba(249,115,22,0.75)', borderRadius: 3 },
+                    { label: 'P99', data: [709, 199, 195, 183, 193, 189, 190, 185], backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 3 }
                 ]
             },
             options: {
@@ -3276,12 +3336,12 @@
     }
 
     // ── Error Distribution Donut / Pie Charts (Executive Summary & Error Tab) ──
-    const errDonutLabels = [];
-    const errDonutCounts = [];
-    const errDrillData = {};
+    const errDonutLabels = ["500"];
+    const errDonutCounts = [56];
+    const errDrillData = {"500": {"total": 56, "code": "500", "message": "", "failure_message": "", "transactions": {"HTTP_US01_Launch_Catalog_Err500": {"count": 50, "avg_rt": 172.6, "min_rt": 169, "max_rt": 185, "first_ts": 1787570525159, "last_ts": 1787570576077}}}};
     const errDonutColors = ['#ef4444','#f97316','#f59e0b','#8b5cf6','#3b82f6','#06b6d4','#10b981','#ec4899','#84cc16','#64748b'];
-    const startEpochMs = 1787213468000;
-    const displayTotalErrors = 0;
+    const startEpochMs = 1787570523000;
+    const displayTotalErrors = 56;
 
     function initErrorDonutInstances() {
         const configs = [
@@ -3440,11 +3500,11 @@
     }
 
     // ── Load & Capacity Hero Charts ──
-    const loadLabels = ["10s (4 VUs)", "20s (4 VUs)", "30s (4 VUs)", "40s (4 VUs)", "50s (4 VUs)", "1m (4 VUs)"];
-    const loadTpData = [30.6, 31.1, 31.9, 35.1, 35.3, 35.6];
-    const expectedTpData = [35.6, 35.6, 35.6, 35.6, 35.6, 35.6];
-    const loadP95Data = [195, 362, 356, 186, 186, 180];
-    const loadAvgData = [213.18, 201.32, 198.96, 178.67, 178.16, 176.31];
+    const loadLabels = ["10s (21 VUs)", "20s (21 VUs)", "30s (21 VUs)", "40s (21 VUs)", "50s (21 VUs)", "1m (21 VUs)"];
+    const loadTpData = [136.4, 190.3, 189.5, 189.5, 188.5, 188.8];
+    const expectedTpData = [190.3, 190.3, 190.3, 190.3, 190.3, 190.3];
+    const loadP95Data = [185, 178, 179, 178, 184, 182];
+    const loadAvgData = [197.94, 171.28, 171.83, 170.9, 173.53, 172.66];
     const slaRefData = [500.0, 500.0, 500.0, 500.0, 500.0, 500.0];
 
     // 1. Load vs Throughput (TPS vs VUs)
@@ -3641,8 +3701,8 @@
     });
 
     // ── Finding Drawer Logic ──
-    const findingsData = [{"id": "F-001", "category": "sla_breach", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation", "observation": "TC02_US04_Navigate_To_Signon_Page P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "184 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "268%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US04_Navigate_To_Signon_Page exceeds its P90 SLA target by 268%.", "why_it_matters": "TC02_US04_Navigate_To_Signon_Page is not meeting its 50 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US04_Navigate_To_Signon_Page execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-002", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation", "observation": "TC02_US02_Select_Dogs_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "182 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "82%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US02_Select_Dogs_Category exceeds its P90 SLA target by 82%.", "why_it_matters": "TC02_US02_Select_Dogs_Category is not meeting its 100 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US02_Select_Dogs_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation", "observation": "TC02_US01_Select_Fish_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "180 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "96%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US01_Select_Fish_Category exceeds its P90 SLA target by 96%.", "why_it_matters": "TC02_US01_Select_Fish_Category is not meeting its 92 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US01_Select_Fish_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "tail_latency", "severity": "Acceptable Deviation", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "364 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+100.5%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 3.1\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-005", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-006", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
-    const recsData = [{"id": "R-0", "triggered_by": [], "priority": "Low", "category": "Configuration", "title": "Maintain Current Performance", "why": "All metrics are within healthy thresholds.", "action": ["Consider running longer duration tests", "Test at higher concurrency to find limits"], "expected_impact": "Identify maximum safe throughput capacity", "validation": "N/A", "confidence": "High"}];
+    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "severity": "Slightly Deviated", "title": "TC01_US01_Launch_Catalog shows significant latency deviation", "observation": "TC01_US01_Launch_Catalog response time was significantly higher than the overall test baseline.", "evidence": [{"metric": "P90 Response Time", "value": "701 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+40.2%", "baseline": "", "source": "Calculated"}], "interpretation": "TC01_US01_Launch_Catalog is the dominant transaction-level latency contributor in this execution.", "why_it_matters": "TC01_US01_Launch_Catalog is the slowest transaction at 718 ms and significantly exceeds its 500 ms SLA target, making it a priority candidate for optimization.", "root_cause_assessment": "Server-side telemetry is required to determine whether the latency originates from database execution, application processing, authentication logic, or an external dependency.", "confidence": {"bottleneck_identification": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time", "Top Transactions by Response Time"]}, {"id": "F-002", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation", "observation": "TC02_US01_Select_Fish_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "177 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "92%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US01_Select_Fish_Category exceeds its P90 SLA target by 92%.", "why_it_matters": "TC02_US01_Select_Fish_Category is not meeting its 92 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US01_Select_Fish_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation", "observation": "TC02_US02_Select_Dogs_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "178 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "78%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US02_Select_Dogs_Category exceeds its P90 SLA target by 78%.", "why_it_matters": "TC02_US02_Select_Dogs_Category is not meeting its 100 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US02_Select_Dogs_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "sla_breach", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation", "observation": "TC02_US04_Navigate_To_Signon_Page P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "176 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "252%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US04_Navigate_To_Signon_Page exceeds its P90 SLA target by 252%.", "why_it_matters": "TC02_US04_Navigate_To_Signon_Page is not meeting its 50 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US04_Navigate_To_Signon_Page execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-005", "category": "tail_latency", "severity": "Acceptable Deviation", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "339 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+98.5%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 3.1\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-006", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-007", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}];
+    const recsData = [{"id": "R-001", "triggered_by": ["F-001", "F-002", "F-004"], "priority": "Critical", "category": "Backend", "title": "Resolve 100% Error Rate Transactions", "why": "Transactions T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2 are completely failing, indicating critical functional defects. This severely impacts system reliability and user experience, and inflates reported response times.", "action": ["Review server-side application logs and stack traces for T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2.", "Debug the application code and configuration for these specific transaction flows to identify and fix the root cause of the 100% error rate.", "Verify all external service integrations and database calls made by these transactions."], "expected_impact": "Significant improvement in system reliability, reduction in overall error rate, and a substantial decrease in the average response times for the affected transactions.", "validation": "Re-run the performance test and verify that T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, and Transaction Controller_T2 now have a 0% error rate and their response times are within acceptable limits.", "confidence": "Confirmed"}, {"id": "R-002", "triggered_by": ["F-003", "F-005", "F-006"], "priority": "High", "category": "Infrastructure", "title": "Optimize Server CPU Utilization", "why": "CPU utilization peaked at 91.4%, indicating server saturation. This is a direct bottleneck limiting throughput and increasing response times, affecting overall system performance and tail latency.", "action": ["Utilize application performance monitoring (APM) tools or profiling (e.g., Java Flight Recorder) to identify CPU-intensive code sections, algorithms, or database queries.", "Optimize identified CPU hotspots through code refactoring, algorithmic improvements, or more efficient resource usage.", "If software optimization is insufficient, consider scaling up the Azure App Service instance (e.g., to a higher tier or larger VM size) or implementing horizontal scaling to distribute the load."], "expected_impact": "Improved overall average response times, reduced tail latency, increased throughput capacity, and greater CPU headroom for future load.", "validation": "Re-run the performance test and observe a reduction in peak CPU utilization (e.g., below 80%) and an improvement in overall average and P99 response times.", "confidence": "Confirmed"}, {"id": "R-003", "triggered_by": ["F-005"], "priority": "Medium", "category": "Backend", "title": "Investigate Tail Latency Contributors", "why": "High P99 response times (673ms) and a maximum of 2612ms indicate significant variability and occasional very slow requests, impacting user experience.", "action": ["Implement detailed monitoring for application-level metrics such as garbage collection (GC) pauses, thread pool utilization, and database connection pool statistics.", "Analyze logs for long-running queries, external service call latencies, and any intermittent network issues during periods of high tail latency.", "Correlate these application and infrastructure metrics with client-side tail latency measurements to pinpoint specific causes."], "expected_impact": "Reduction in P99 and maximum response times, leading to a more consistent and predictable user experience.", "validation": "After implementing R-001 and R-002, re-evaluate tail latency. If still elevated, apply specific optimizations based on the investigation and verify P99 reduction in subsequent tests.", "confidence": "High"}, {"id": "R-004", "triggered_by": ["Data Quality Finding: Disk Read IOPS"], "priority": "Low", "category": "Infrastructure", "title": "Validate Disk Read IOPS Metric", "why": "The reported Disk Read IOPS value is unusually high and requires clarification to accurately assess disk I/O performance and potential bottlenecks.", "action": ["Contact the monitoring team or Azure support to confirm the unit, aggregation method, and typical range for the 'Disk Read IOPS' metric.", "Request additional disk I/O metrics such as average IOPS, disk latency, and queue depth to get a comprehensive view of disk performance."], "expected_impact": "Improved accuracy in infrastructure bottleneck identification and more reliable capacity planning related to disk I/O.", "validation": "Confirmation from the monitoring team regarding the metric's validity and provision of additional, consistent disk I/O telemetry.", "confidence": "Confirmed"}];
 
     function showFinding(fid) {
         const finding = findingsData.find(f => f.id === fid);

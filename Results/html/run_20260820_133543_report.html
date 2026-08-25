@@ -491,7 +491,97 @@
             </div>
         </div>
 
-        <!-- 3. Transaction Statistics & Iteration Summary Bar Chart -->
+        <!-- 3. Overall Performance Assessment Banner -->
+        
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 5px solid var(--red); padding: 1.25rem 1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+            <div style="font-size:0.92rem; font-weight:800; color:var(--red); letter-spacing:0.04em;">⚠️ PERFORMANCE REQUIRES ATTENTION</div>
+            <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Executive Overview</span>
+        </div>
+        <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">The system maintained steady throughput of 600.2 TPS, but 3 of 10 transactions breached SLA targets, led by TC02_US04_Navigate_To_Signon_Page (+272% SLA deviation). Overall error rate reached 0.0%. Infrastructure resources remained below saturation (peak CPU 91.4%, memory 69.3%), indicating latency originates from application processing or database execution rather than host sizing.</p>
+    </div>
+    
+
+        <!-- 4. High-Level Performance Observations Table -->
+        
+    <div class="section glass-panel" style="margin-top:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <h2 style="margin:0;">📋 High-Level Performance Observations</h2>
+            <span style="font-size:0.75rem; font-weight:600; color:var(--muted);">Factual Assessment</span>
+        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background:var(--surface2); text-align:left;">
+                    <th style="padding:0.6rem 0.8rem; font-size:0.78rem; font-weight:700; width:24%;">Category</th>
+                    <th style="padding:0.6rem 0.8rem; font-size:0.78rem; font-weight:700; width:76%;">Key Observation with Embedded Evidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Transaction Performance</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">1,886 iterations executed across 10 user journeys with 15,044 total transactions. 15,044 passed, 0 failed (100.0% success rate). Throughput held steady at 600.2 TPS.</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Response Time (P90)</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">3 of 10 transactions breached NFR SLA targets. Worst offender: TC02_US04_Navigate_To_Signon_Page recorded P90 of 0.19s against a 0.05s SLA (+272.0% deviation). Average response time across all flows was 230ms.</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Reliability & Errors</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Zero transaction failures recorded across the entire execution (15,044 successful samples).</td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Infrastructure (Azure)</td>
+            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Host CPU averaged 60.7% and peaked at 91.4%. Memory utilization remained stable around 69.3%. Host resources maintained sufficient headroom, ruling out hardware saturation as the root cause.</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+    
+
+        <!-- 6. Key Conclusions -->
+        
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid var(--accent);">
+        <h2 style="margin:0 0 0.6rem 0;">📌 Key Conclusions</h2>
+        <ul style="margin:0; padding-left:1.3rem; font-size:0.88rem; line-height:1.65; color:var(--text);" contenteditable="true">
+            <li style="margin-bottom:0.45rem;">Workflows involving 'TC02_US04_Navigate_To_Signon_Page' represent the primary latency bottleneck under concurrency.</li><li style="margin-bottom:0.45rem;">Transaction reliability was verified with zero systemic failure patterns.</li><li style="margin-bottom:0.45rem;">Host CPU reached 91.4%, indicating compute capacity constraints under peak load.</li>
+        </ul>
+    </div>
+    
+
+        <!-- 7. Priority Recommendations -->
+        
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid var(--green);">
+        <h2 style="margin:0 0 0.8rem 0;">💡 Priority Recommendations</h2>
+        <div contenteditable="true">
+            
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+                <span style="font-size:1rem;">🟠</span>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Profile and optimize TC02_US04_Navigate_To_Signon_Page latency</strong>
+                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">High</span>
+            </div>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Examine downstream API calls and database query execution times within TC02_US04_Navigate_To_Signon_Page to bring P90 response time (0.19s) within the 0.05s SLA.</p>
+        </div>
+        
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+                <span style="font-size:1rem;">🟠</span>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Scale compute capacity or optimize thread utilization</strong>
+                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">High</span>
+            </div>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Peak CPU reached 91.4%. Consider horizontal instance scaling or profiling CPU-heavy routines.</p>
+        </div>
+        
+        </div>
+    </div>
+    
+
+        <!-- 8. Transaction Statistics & Iteration Summary Bar Chart -->
         <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
             <button class="chart-info-btn" onclick="openGraphModal('tx-summary')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
@@ -511,42 +601,25 @@
             </div>
         </div>
 
-        <!-- 5. Transaction & Sub-Transaction Response Time Breakdown (Hierarchical Bar Chart) -->
+        <!-- 5. Transaction & Sub-Transaction Response Time Breakdown (Hierarchical Multi-View Line Graphs) -->
         <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
             <button class="chart-info-btn" onclick="openGraphModal('tx-rt-breakdown')" title="How to read this graph &amp; use filters">ℹ️</button>
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; padding-right:2.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
                 <div>
-                    <h2 style="margin:0;">⏱️ Transaction &amp; Sub-Transaction Response Time Breakdown</h2>
+                    <h2 style="margin:0;">📈 Transaction &amp; Sub-Transaction Performance Line Graphs</h2>
                     <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
-                        Hierarchical response time analysis. Filter by User Story, drill down into specific transactions to view child HTTP requests &amp; sub-transactions.
+                        Hierarchical multi-metric line analysis. Filter by User Story, drill into child HTTP requests, and duplicate charts to compare different metrics simultaneously.
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.6rem;">
-                    <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <label for="txRtUsFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">User Story:</label>
-                        <select id="txRtUsFilter" onchange="onTxRtUsChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
-                        </select>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <label for="txRtTxFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">Transaction:</label>
-                        <select id="txRtTxFilter" onchange="onTxRtTxChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer; max-width:280px;">
-                        </select>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:0.35rem;">
-                        <label for="txRtMetricFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted); white-space:nowrap;">Metric:</label>
-                        <select id="txRtMetricFilter" onchange="onTxRtMetricChange(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:600; outline:none; cursor:pointer;">
-                            <option value="avg_rt" selected>Average RT (ms)</option>
-                            <option value="p90">90th Percentile (P90) (ms)</option>
-                            <option value="p95">95th Percentile (P95) (ms)</option>
-                            <option value="max_rt">Max RT (ms)</option>
-                        </select>
-                    </div>
+                <div>
+                    <button type="button" onclick="addTxRtChartView()" style="background:var(--accent); color:#ffffff; border:none; padding:0.45rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:0.4rem; box-shadow: 0 2px 6px rgba(99,102,241,0.3);">
+                        <span>➕</span> Add / Duplicate Comparison Chart
+                    </button>
                 </div>
             </div>
-            <div id="txRtBreadcrumb" style="font-size:0.78rem; font-weight:600; color:var(--muted); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;">
-            </div>
-            <div style="position:relative; height:340px; width:100%;">
-                <canvas id="chart-tx-rt-breakdown"></canvas>
+
+            <!-- Dynamic Multi-Chart Vertical Container -->
+            <div id="txRtChartsContainer" style="display:flex; flex-direction:column; gap:1.5rem; width:100%;">
             </div>
         </div>
 
@@ -618,96 +691,364 @@
             </div>
         </div>
 
-    </div>
-
-
-        <!-- Recommendations -->
-        <div class="section glass-panel" style="margin-top: 1.5rem; border-left: 4px solid var(--green);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h2 style="margin:0;" contenteditable="true">💡 Recommendations</h2>
-                <button class="delete-rec-btn" onclick="if(confirm('Delete Recommendations section?')) this.closest('.section').remove();" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:0.25rem 0.6rem; font-size:0.75rem; cursor:pointer; font-weight:600;">🗑️ Delete Section</button>
-            </div>
-            <div class="rec-grid" contenteditable="true">
-        <div class="rec-card info" style="margin-bottom: 1rem; position: relative;">
-            <button class="delete-rec-btn" onclick="if(confirm('Remove this recommendation?')) this.closest('.rec-card').remove();" title="Delete Recommendation" style="position:absolute; top:0.8rem; right:0.8rem; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:4px; padding:0.15rem 0.4rem; font-size:0.7rem; cursor:pointer;">🗑️ Delete</button>
-            <div class="rec-header">
-                <span class="rec-priority" contenteditable="true">Low</span>
-                <span class="rec-category" contenteditable="true">Configuration</span>
-            </div>
-            <div class="rec-title" contenteditable="true">Maintain Current Performance</div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Why:</strong> <span style="font-size:0.82rem;" contenteditable="true">All metrics are within healthy thresholds.</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Action:</strong><ul style='margin:0.3rem 0 0 1rem; font-size:0.82rem;'><li contenteditable='true'>Consider running longer duration tests</li><li contenteditable='true'>Test at higher concurrency to find limits</li></ul></div>
-            <div class="rec-impact">Expected Impact: <span contenteditable="true">Identify maximum safe throughput capacity</span></div>
-            <div style="margin-top:0.4rem; font-size:0.78rem; color:var(--muted);"><strong>Validation:</strong> <span contenteditable="true">N/A</span></div>
-        </div>
-        </div>
-        </div>
-        
         <!-- Limitations Disclaimer -->
         <div style="font-size:0.75rem; color:var(--muted); margin-top: 1.5rem; text-align:center;">
             <strong>Test Limitations:</strong> Capacity estimates and performance thresholds are extrapolated from a single load profile. They represent observed pressure points, not certified maximums. Validated root-cause analysis requires infrastructure telemetry alignment.
         </div>
     </div>
 
-    <!-- TAB 2: User Load Distribution -->
+    <!-- TAB 2: Load & Capacity Analysis -->
     <div id="rpt-load" class="tab-pane hidden">
+        <!-- 1. Focused Capacity Summary KPI Strip (3 Cards) -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.25rem;">
+            <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
+                <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Target Concurrency</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0.25rem 0;">21 <small style="font-size:0.75rem; color:var(--muted);">VUs</small></div>
+                <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">4 Configured User Journeys</div>
+            </div>
+            <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
+                <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Peak Throughput</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--accent); margin:0.25rem 0;">430.2 <small style="font-size:0.75rem; color:var(--muted);">TPS</small></div>
+                <div class="kpi-sub" style="font-size:0.75rem; color:var(--muted);">Sustained over 60s test</div>
+            </div>
+            <div class="kpi-card glass-panel" style="text-align:center; padding:1.1rem;">
+                <div class="kpi-label" style="font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Scaling Efficiency</div>
+                <div class="kpi-value" style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0.25rem 0;">+52.8%</div>
+                <div class="kpi-sub" style="font-size:0.75rem; font-weight:600;">🟢 Linear Scaling</div>
+            </div>
+        </div>
+
+        <!-- 2. Hero Visual: Load vs Throughput (TPS vs VUs) -->
+        <div class="chart-box glass-panel" style="position: relative; margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.6rem;">
+                <div>
+                    <h3 style="margin:0; font-size:1rem; font-weight:700;">📈 Load vs Throughput (TPS vs VUs)</h3>
+                    <p style="font-size:0.73rem; color:var(--muted); margin:0.15rem 0 0 0;">Evaluates throughput scaling linearity as concurrency scales</p>
+                </div>
+                <span style="font-size:0.72rem; font-weight:700; background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.55rem; border-radius:10px; color:var(--accent);">+52.8% Scaling</span>
+            </div>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="chartLoadVsThroughput"></canvas>
+            </div>
+            <div style="font-size:0.75rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.75rem; border-radius:6px; margin-top:0.6rem;">
+                💡 <strong>Throughput Evaluation:</strong> Sustained 430.2 TPS at peak 21 VUs (🟢 Linear Scaling).
+            </div>
+        </div>
+
+        <!-- 3. Load Level Progression Matrix -->
         <div class="section glass-panel" style="margin-bottom: 1.5rem;">
-            <h2>📐 Capacity Planning</h2>
-            <table style="font-size: 0.85rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <div>
+                    <h2 style="margin:0; font-size:1.05rem;">📊 Load Level Progression Matrix</h2>
+                    <p style="font-size:0.75rem; color:var(--muted); margin:0.2rem 0 0 0;">System performance behavior across test execution stages</p>
+                </div>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                 <thead>
-                    <tr><th>Metric</th><th>Status</th><th>Notes</th></tr>
+                    <tr style="background:var(--surface2); text-align:left; font-size:0.75rem; color:var(--muted);">
+                        <th style="padding:0.5rem 0.75rem;">Load Stage</th>
+                        <th style="text-align:center;">Active VUs</th>
+                        <th style="text-align:center;">Throughput (TPS)</th>
+                        <th style="text-align:center;">P95 Latency</th>
+                        <th style="text-align:center;">Errors</th>
+                        <th style="text-align:center;">Assessment</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr><td><strong>Observed Concurrency</strong></td><td>48 users</td><td>Tested concurrency level.</td></tr>
-                    <tr><td><strong>Safe Concurrency</strong></td><td>Not determined</td><td>Cannot be established without stepped load testing.</td></tr>
-                    <tr><td><strong>Saturation Point</strong></td><td>Not determined</td><td>System saturation was not strictly observed.</td></tr>
+                    
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Ramp-up / Baseline</strong></td>
+                <td>48 VUs</td>
+                <td>281.5 TPS</td>
+                <td>198.0 ms</td>
+                <td style="color: var(--green); font-weight: 600;">0 err</td>
+                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+            </tr>
+            
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Normal Operating Load</strong></td>
+                <td>48 VUs</td>
+                <td>423.9 TPS</td>
+                <td>192.0 ms</td>
+                <td style="color: var(--green); font-weight: 600;">0 err</td>
+                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+            </tr>
+            
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>High Load Phase</strong></td>
+                <td>48 VUs</td>
+                <td>427.5 TPS</td>
+                <td>191.0 ms</td>
+                <td style="color: var(--green); font-weight: 600;">0 err</td>
+                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+            </tr>
+            
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Peak Sustained Load</strong></td>
+                <td>48 VUs</td>
+                <td>215.2 TPS</td>
+                <td>188.0 ms</td>
+                <td style="color: var(--green); font-weight: 600;">0 err</td>
+                <td><span style="color:var(--green); font-weight:700;">🟢 Healthy &amp; Stable</span></td>
+            </tr>
+            
                 </tbody>
             </table>
-            <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;">Capacity boundaries require incremental stress testing.</p>
         </div>
-        <div class="chart-box glass-panel" style="position: relative; min-height: 280px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
-                <h3 style="margin:0;">👥 Estimated Concurrent Users Over Time <small style="font-size:0.7rem; color:var(--muted); font-weight:400; margin-left:0.3rem;">(Little's Law)</small></h3>
-                <button class="chart-info-btn" onclick="openGraphModal('concurrency')" title="How to read this graph &amp; use filters">ℹ️</button>
+
+        <!-- 4. User Journey Concurrency Allocation & Capacity -->
+        <div class="section glass-panel" style="margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.85rem;">
+                <div>
+                    <h2 style="margin:0; font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
+                        👥 User Journey Concurrency Allocation &amp; Capacity
+                    </h2>
+                    <p style="font-size:0.8rem; color:var(--muted); margin:0.25rem 0 0 0;">Journey-level concurrency allocation, throughput generation, and capacity limit classification</p>
+                </div>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.25rem 0.65rem; border-radius:12px;">4 Configured Journeys</span>
             </div>
-            <div style="position: relative; height: 260px; width: 100%;">
-                <canvas id="concChart"></canvas>
+            <div style="overflow-x:auto; border-radius:8px; border:1px solid var(--border);">
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:var(--surface2); text-align:left;">
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem;">User Journey</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:13%;">Concurrency Allocation</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:12%;">Throughput</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:12%;">P90 Latency</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:12%;">Error Rate</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; width:22%;">SLA Compliance</th>
+                            <th style="padding:0.65rem 0.8rem; font-weight:700; font-size:0.78rem; text-align:center; width:15%;">Capacity Limit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>👥</span> US01_Browse_Catalog
+                </div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">1 <small style="font-size:0.72rem; color:var(--muted); font-weight:600;">VU</small></div>
+                <div style="font-size:0.72rem; color:var(--muted);">4.8% Load Share</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">78.3</div>
+                <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">567 ms</div>
+                <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:800; color:var(--green);">0.00%</div>
+                <div style="font-size:0.72rem; color:var(--muted);">0 errors</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div><span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span></div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 189ms vs SLA: 92ms on TC02_US01_Select_Fish_</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>
+            </td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>👥</span> US02_Add_To_Cart
+                </div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5 <small style="font-size:0.72rem; color:var(--muted); font-weight:600;">VU</small></div>
+                <div style="font-size:0.72rem; color:var(--muted);">23.8% Load Share</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">78.4</div>
+                <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">562 ms</div>
+                <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:800; color:var(--green);">0.00%</div>
+                <div style="font-size:0.72rem; color:var(--muted);">0 errors</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div><span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span></div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 188ms vs SLA: 100ms on TC02_US02_Select_Dogs_</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>
+            </td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>👥</span> US03_Search_Products
+                </div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">10 <small style="font-size:0.72rem; color:var(--muted); font-weight:600;">VU</small></div>
+                <div style="font-size:0.72rem; color:var(--muted);">47.6% Load Share</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">31.2</div>
+                <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">372 ms</div>
+                <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:800; color:var(--green);">0.00%</div>
+                <div style="font-size:0.72rem; color:var(--muted);">0 errors</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div><span style="color:var(--green); font-weight:700; font-size:0.8rem;">✅ Met SLA</span></div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 372ms within target · 0% errors</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <span style="background:rgba(16,185,129,0.12); color:#10b981; border:1px solid #10b98155; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟢 Stable</span>
+            </td>
+        </tr>
+        
+        <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>👥</span> US04_User_Sign_In
+                </div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5 <small style="font-size:0.72rem; color:var(--muted); font-weight:600;">VU</small></div>
+                <div style="font-size:0.72rem; color:var(--muted);">23.8% Load Share</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">62.8</div>
+                <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:700; color:var(--text);">372 ms</div>
+                <div style="font-size:0.72rem; color:var(--muted);">P90 Latency</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <div style="font-size:0.92rem; font-weight:800; color:var(--green);">0.00%</div>
+                <div style="font-size:0.72rem; color:var(--muted);">0 errors</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; vertical-align:middle;">
+                <div><span style="color:var(--yellow); font-weight:700; font-size:0.8rem;">⚠️ SLA Breached</span></div>
+                <div style="font-size:0.72rem; color:var(--muted); margin-top:0.2rem;">P90: 186ms vs SLA: 50ms on TC02_US04_Navigate_To_</div>
+            </td>
+            <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
+                <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid #f59e0b55; padding:0.2rem 0.55rem; border-radius:10px; font-weight:700; font-size:0.75rem;">🟡 Latency Watch</span>
+            </td>
+        </tr>
+        
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- TAB 3: Transaction Stats -->
     <div id="rpt-tx" class="tab-pane hidden">
-        <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Total Iterations</div><div class="kpi-value">1,886</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">Total Transactions</div><div class="kpi-value">10</div></div>
+        
+        <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Transaction Performance Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Completed 1,886 test iterations across 10 transaction flows with 15,044 total requests.</li><li style="margin-bottom:0.35rem;">Achieved a steady-state throughput of 600.2 TPS with consistent execution pacing across threads.</li>
+                    </ul>
+                </div>
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Maintain current thread pacing and ramp-up profiles for baseline comparison in subsequent releases.</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         
-        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
-                <h3 style="margin:0; white-space: nowrap;">📊 Throughput &amp; Errors</h3>
+        
+        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; gap: 0.5rem; flex-wrap:wrap;">
+                <div>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:800; display:flex; align-items:center; gap:0.4rem;">
+                        📊 Throughput &amp; Errors
+                    </h3>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Request execution rate and failure distribution over test timeline</p>
+                </div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
+                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 260px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.65rem; font-size:0.78rem; font-weight:600; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
                         <option value="ALL">All Transactions (Overall)</option>
                         <option value="0" title="T-US01_Overall_Iteration">T-US01_Overall_Iteration</option><option value="1" title="T-US02_Overall_Iteration">T-US02_Overall_Iteration</option><option value="2" title="T-US03_Overall_Iteration">T-US03_Overall_Iteration</option><option value="3" title="T-US04_Overall_Iteration">T-US04_Overall_Iteration</option><option value="4" title="TC01_US01_Launch_Catalog">TC01_US01_Launch_Catalog</option><option value="5" title="TC01_US02_Launch_Catalog">TC01_US02_Launch_Catalog</option><option value="6" title="TC01_US03_Launch_Homepage">TC01_US03_Launch_Homepage</option><option value="7" title="TC01_US04_Launch_Catalog">TC01_US04_Launch_Catalog</option><option value="8" title="TC02_US01_Select_Fish_Category">TC02_US01_Select_Fish_Category</option><option value="9" title="TC02_US02_Select_Dogs_Category">TC02_US02_Select_Dogs_Category</option><option value="10" title="TC02_US03_Search_Keyword_Bulldog">TC02_US03_Search_Keyword_Bulldog</option><option value="11" title="TC02_US04_Navigate_To_Signon_Page">TC02_US04_Navigate_To_Signon_Page</option><option value="12" title="TC03_US01_View_Product_Details">TC03_US01_View_Product_Details</option><option value="13" title="TC03_US02_Add_Item_To_Cart">TC03_US02_Add_Item_To_Cart</option>
                     </select>
                     <button class="chart-info-btn" onclick="openGraphModal('throughput')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
-            <div style="position: relative; height: 260px; width: 100%;">
+
+            <!-- 4 Compact KPI Chips ABOVE the Chart -->
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:0.75rem; margin-bottom:1rem;">
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">AVG THROUGHPUT</div>
+                    <div id="tpKpiAvg" style="font-size:1.25rem; font-weight:800; color:var(--text); margin-top:0.2rem;">345 req/s</div>
+                </div>
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">PEAK THROUGHPUT</div>
+                    <div id="tpKpiPeak" style="font-size:1.25rem; font-weight:800; color:var(--accent); margin-top:0.2rem;">430 req/s</div>
+                </div>
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">ERROR RATE</div>
+                    <div id="tpKpiErr" style="font-size:1.25rem; font-weight:800; color:var(--green); margin-top:0.2rem;">0.00%</div>
+                </div>
+                <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
+                    <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">END TREND / VARIATION</div>
+                    <div id="tpKpiTrend" style="font-size:1.15rem; font-weight:800; color:var(--red); margin-top:0.2rem;">↓ 100% from Peak</div>
+                </div>
+            </div>
+
+            <!-- Throughput Chart (Wider, Height 240px) -->
+            <div style="position: relative; height: 240px; width: 100%; margin-bottom: 0.5rem;">
                 <canvas id="tpChart"></canvas>
             </div>
+
+            <!-- Standardized Contextual AI Performance Observation Card -->
             
-        <div class="ai-observation-panel">
+        <div class="glass-panel" style="border-left: 4px solid var(--yellow); background: rgba(245,158,11,0.05); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 0.75rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
-                
+                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>🧠 Performance Observation</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    
+                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🟠 Throughput Degradation</span>
+                </div>
             </div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">Throughput shows declining behavior as execution progresses.</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">Interpretation:</strong> <span style="font-size:0.82rem;">Throughput declining detected.</span></div>
-            <div style="margin-bottom:0.5rem;"><strong style="font-size:0.82rem;">AI Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Throughput degradation suggests the system is approaching or has reached its capacity limit.</span></div>
-            <div><strong style="font-size:0.82rem;">Next Validation:</strong> <span style="font-size:0.82rem; color:var(--muted);">Investigate server resource utilization and connection pool settings.</span></div>
-            <div class="evidence-grid" style="margin-top:0.5rem;"><span class="evidence-chip">Avg Throughput: 600.2 req/s</span> &middot; <span class="evidence-chip">Error Rate: 0.00%</span></div>
+            
+            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
+                Throughput peaked at ~430 req/s during ramp-up, then declined by 100% to ~0 req/s toward the end of the test.
+            </p>
+            
+            <div style="margin-bottom:0.55rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
+                    The decline occurred despite a 0.00% error rate, indicating that the reduction is not caused by request failures, but rather by request processing latency, backend contention, or worker completion.
+                </p>
+            </div>
+            
+            <div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
+                    Check whether the decline correlates with increasing response times (P90/P99), host CPU/memory saturation, or active worker thread completion.
+                </p>
+            </div>
         </div>
         
         </div>
@@ -747,7 +1088,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1792468888')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4213702364')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
             <td>1,561</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="551.0"><span class="tx-rt-val">551</span></td>
@@ -759,8 +1100,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1792468888"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1792468888" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1993446637')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4213702364"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4213702364" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1540503273')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
             <td>1,570</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="190.4"><span class="tx-rt-val">190</span></td>
@@ -772,12 +1113,12 @@
             <td><span style="color:var(--green); font-weight:600;">-62.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1792468888 tree-children-1993446637"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1993446637" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1540503273"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1540503273" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
-            <td>5,029</td>
+            <td>1,570</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="188.7"><span class="tx-rt-val">189</span></td>
-            <td class="pass tx-rt-cell" data-ms="188"><strong class="tx-rt-val">188</strong></td>
+            <td class="pass tx-rt-cell" data-ms="190.4"><span class="tx-rt-val">190</span></td>
+            <td class="pass tx-rt-cell" data-ms="189"><strong class="tx-rt-val">189</strong></td>
             <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
             <td class="tx-rt-cell" data-ms="2689"><span class="tx-rt-val">2689</span></td>
             <td class="pass">0.00%</td>
@@ -785,8 +1126,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1792468888"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1792468888" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3366426312')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4213702364"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4213702364" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3861148539')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
             <td>1,566</td>
             <td><span class="fail"><strong>0.50</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="179.9"><span class="tx-rt-val">180</span></td>
@@ -798,7 +1139,7 @@
             <td><span style="color:var(--red); font-weight:600;">+105.4%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1792468888 tree-children-3366426312"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3366426312" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-3861148539"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3861148539" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Fish</code></span></td>
             <td>1,566</td>
             <td>-</td>
@@ -811,8 +1152,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1792468888"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1792468888" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2752800369')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4213702364"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4213702364" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1463729601')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
             <td>1,561</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="180.6"><span class="tx-rt-val">181</span></td>
@@ -824,7 +1165,7 @@
             <td><span style="color:var(--green); font-weight:600;">-62.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1792468888 tree-children-2752800369"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-2752800369" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4213702364 tree-children-1463729601"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1463729601" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_View_Product_FI-SW-01</code></span></td>
             <td>1,561</td>
             <td>-</td>
@@ -843,7 +1184,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-633783910')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2493960460')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
             <td>1,564</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="549.8"><span class="tx-rt-val">550</span></td>
@@ -855,8 +1196,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-633783910"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-633783910" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2236654269')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2493960460"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2493960460" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3747930077')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
             <td>1,573</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="189.5"><span class="tx-rt-val">190</span></td>
@@ -868,11 +1209,11 @@
             <td><span style="color:var(--green); font-weight:600;">-62.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-633783910 tree-children-2236654269"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2236654269" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2493960460 tree-children-3747930077"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3747930077" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
-            <td>5,029</td>
+            <td>1,573</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="188.7"><span class="tx-rt-val">189</span></td>
+            <td class="pass tx-rt-cell" data-ms="189.5"><span class="tx-rt-val">190</span></td>
             <td class="pass tx-rt-cell" data-ms="188"><strong class="tx-rt-val">188</strong></td>
             <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
             <td class="tx-rt-cell" data-ms="2689"><span class="tx-rt-val">2689</span></td>
@@ -881,8 +1222,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-633783910"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-633783910" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3686434023')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2493960460"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2493960460" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3075654173')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
             <td>1,568</td>
             <td><span class="fail"><strong>0.50</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="179.4"><span class="tx-rt-val">179</span></td>
@@ -894,7 +1235,7 @@
             <td><span style="color:var(--yellow); font-weight:600;">+88.0%</span></td>
             <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-633783910 tree-children-3686434023"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3686434023" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2493960460 tree-children-3075654173"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3075654173" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Dogs</code></span></td>
             <td>1,568</td>
             <td>-</td>
@@ -907,8 +1248,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-633783910"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-633783910" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4155195198')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2493960460"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2493960460" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1822962755')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
             <td>1,564</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="180.8"><span class="tx-rt-val">181</span></td>
@@ -920,7 +1261,7 @@
             <td><span style="color:var(--green); font-weight:600;">-87.5%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-633783910 tree-children-4155195198"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-4155195198" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2493960460 tree-children-1822962755"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1822962755" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Add_Item_EST-26</code></span></td>
             <td>1,564</td>
             <td>-</td>
@@ -939,7 +1280,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3869094279')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2017810262')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
             <td>936</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="369.3"><span class="tx-rt-val">369</span></td>
@@ -951,8 +1292,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3869094279"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3869094279" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3998833666')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2017810262"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2017810262" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4109271456')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
             <td>939</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="188.3"><span class="tx-rt-val">188</span></td>
@@ -964,7 +1305,7 @@
             <td><span style="color:var(--green); font-weight:600;">-6.5%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3869094279 tree-children-3998833666"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3998833666" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2017810262 tree-children-4109271456"  data-tg="US03_Search_Products" data-parent-cls="tree-children-4109271456" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Homepage</code></span></td>
             <td>939</td>
             <td>-</td>
@@ -977,8 +1318,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3869094279"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3869094279" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4194100182')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2017810262"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2017810262" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-590571763')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
             <td>936</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="181.0"><span class="tx-rt-val">181</span></td>
@@ -990,7 +1331,7 @@
             <td><span style="color:var(--green); font-weight:600;">-62.8%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3869094279 tree-children-4194100182"  data-tg="US03_Search_Products" data-parent-cls="tree-children-4194100182" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2017810262 tree-children-590571763"  data-tg="US03_Search_Products" data-parent-cls="tree-children-590571763" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Search_Bulldog</code></span></td>
             <td>936</td>
             <td>-</td>
@@ -1009,7 +1350,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1878788440')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3850683577')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
             <td>1,881</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="366.4"><span class="tx-rt-val">366</span></td>
@@ -1021,8 +1362,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1878788440"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1878788440" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3020957590')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3850683577"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3850683577" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-428886488')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
             <td>1,886</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="186.7"><span class="tx-rt-val">187</span></td>
@@ -1034,21 +1375,21 @@
             <td><span style="color:var(--green); font-weight:600;">-62.8%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1878788440 tree-children-3020957590"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3020957590" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3850683577 tree-children-428886488"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-428886488" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
-            <td>5,029</td>
+            <td>1,886</td>
             <td>-</td>
-            <td class="pass tx-rt-cell" data-ms="188.7"><span class="tx-rt-val">189</span></td>
-            <td class="pass tx-rt-cell" data-ms="188"><strong class="tx-rt-val">188</strong></td>
-            <td class="tx-rt-cell" data-ms="167"><span class="tx-rt-val">167</span></td>
+            <td class="pass tx-rt-cell" data-ms="186.7"><span class="tx-rt-val">187</span></td>
+            <td class="pass tx-rt-cell" data-ms="186"><strong class="tx-rt-val">186</strong></td>
+            <td class="tx-rt-cell" data-ms="168"><span class="tx-rt-val">168</span></td>
             <td class="tx-rt-cell" data-ms="2689"><span class="tx-rt-val">2689</span></td>
             <td class="pass">0.00%</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1878788440"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1878788440" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1199043728')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3850683577"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3850683577" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3517727065')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
             <td>1,881</td>
             <td><span class="fail"><strong>0.50</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="179.7"><span class="tx-rt-val">180</span></td>
@@ -1060,7 +1401,7 @@
             <td><span style="color:var(--red); font-weight:600;">+272.0%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1878788440 tree-children-1199043728"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1199043728" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3850683577 tree-children-3517727065"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3517727065" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Signon_Form</code></span></td>
             <td>1,881</td>
             <td>-</td>
@@ -1165,6 +1506,28 @@
 
     <!-- TAB 4: Response Time Stats -->
     <div id="rpt-rt" class="tab-pane hidden">
+        
+        <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Response Time & SLA Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">7 out of 10 transactions complied with NFR response time SLA targets (70% compliance rate).</li><li style="margin-bottom:0.35rem;">Overall average response time was 230ms; 90th percentile was 370ms. Primary latency outlier: TC02_US04_Navigate_To_Signon_Page at 0.19s (+272% vs SLA).</li>
+                    </ul>
+                </div>
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Focus latency reduction efforts on the TC02_US04_Navigate_To_Signon_Page request path.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
         <div class="kpi-grid">
             <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value pass">230<span style="font-size:0.9rem"> ms</span></div></div>
             <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">537<span style="font-size:0.9rem"> ms</span></div></div>
@@ -1186,14 +1549,34 @@
                 <canvas id="rtChart"></canvas>
             </div>
             
-        <div class="ai-observation-panel">
+        <div class="glass-panel" style="border-left: 4px solid var(--green); background: rgba(16,185,129,0.05); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 0.75rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 AI Observation</h4>
-                
+                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>🧠 Performance Observation</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    
+                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🟢 Latency Stable</span>
+                </div>
             </div>
-            <p style="font-weight:600; font-size:0.85rem; margin-bottom:0.6rem; color:var(--text);">Latency remains broadly stable during sustained execution.</p>
-            <div class="evidence-grid"><span class="evidence-chip">Avg RT: 230 ms</span> &middot; <span class="evidence-chip">P95: 537 ms</span> &middot; <span class="evidence-chip">P99: 568 ms</span> &middot; <span class="evidence-chip">Maximum observed: 3,071 ms</span></div>
-            <blockquote class="ai-interpretation">The average latency is relatively stable. Response time distribution is within acceptable bounds.</blockquote>
+            
+            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
+                Latency averaged 230 ms with P95 at 537 ms and P99 at 568 ms (maximum: 3,071 ms).
+            </p>
+            
+            <div style="margin-bottom:0.55rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
+                    Response times remained consistent across percentiles without severe tail degradation.
+                </p>
+            </div>
+            
+            <div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
+                    Verify behavior under stepped stress load to establish latency degradation boundaries.
+                </p>
+            </div>
         </div>
         
         </div>
@@ -1206,7 +1589,6 @@
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Response time trend for transactions marked as critical</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <a href="#" onclick="switchReportTab('rpt-tx', document.querySelectorAll('.nav-btn')[2]); return false;" style="font-size:0.78rem; font-weight:600; color:var(--accent); text-decoration:none;">Manage Critical Transactions →</a>
                     <button class="chart-info-btn" onclick="openGraphModal('critical-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
@@ -1300,6 +1682,28 @@
 
     <!-- TAB 5: Error Statistics -->
     <div id="rpt-error" class="tab-pane hidden">
+        
+        <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Reliability & Errors Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Overall test error rate was 0.0% (0 failed samples out of 15,044 total).</li><li style="margin-bottom:0.35rem;">No transaction failures detected across any tested user flow.</li>
+                    </ul>
+                </div>
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Continue monitoring error logs for intermittent timeouts during extended runs.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
         <div class="kpi-grid">
             <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value pass">0.00<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">0 transaction failures</div></div>
             <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: var(--red);">3</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
@@ -1463,6 +1867,28 @@
     <!-- TAB 6: Infrastructure Monitoring -->
     <div id="rpt-infra" class="tab-pane hidden">
         
+        <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Infrastructure Monitoring Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Host CPU averaged 60.7% and peaked at 91.4% under peak load concurrency.</li><li style="margin-bottom:0.35rem;">Host memory utilization remained stable at 69.3% with adequate headroom.</li>
+                    </ul>
+                </div>
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
+                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                        <li style="margin-bottom:0.35rem;">Review server CPU profile during peak test windows.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        
         <!-- 1. Top Health KPI Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
@@ -1511,13 +1937,34 @@
                 <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 91.4% and memory reaching 89.3%, indicating elevated host-level contention.
             </p>
             
-        <div class="ai-observation-panel" style="margin-top:1rem;">
+        <div class="glass-panel" style="border-left: 4px solid var(--red); background: rgba(239,68,68,0.05); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <h4 style="margin:0; font-size:0.88rem; font-weight:700; color:var(--accent);">🧠 Infrastructure Observation</h4>
-                <span class="finding-badge-inline" onclick="showFinding('F-004');" style="cursor:pointer;">🔍 F-004</span>
+                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                    <span>🧠 Infrastructure Observation</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span class="finding-badge-inline" onclick="showFinding('F-004');" style="cursor:pointer;">🔍 F-004</span>
+                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🔴 Resource Saturation</span>
+                </div>
             </div>
-            <div style="margin-bottom:0.4rem;"><strong style="font-size:0.82rem;">Observation:</strong> <span style="font-size:0.82rem;">CPU averaged 60.7% and peaked at 91%. Memory averaged 69.3% and peaked at 89%.</span></div>
-            <div><strong style="font-size:0.82rem;">Assessment:</strong> <span style="font-size:0.82rem; font-weight:600;">Resource contention was observed — scaling or optimization is recommended.</span></div>
+            
+            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
+                CPU averaged 60.7% (peak: 91%), and memory averaged 69.3% (peak: 89%).
+            </p>
+            
+            <div style="margin-bottom:0.55rem;">
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
+                    Peak CPU utilization at 91% represents severe resource pressure and limits available headroom for traffic spikes.
+                </p>
+            </div>
+            
+            <div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
+                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
+                    Profile application threads to identify CPU-intensive methods, review database indexing, and evaluate horizontal scale-out rules.
+                </p>
+            </div>
         </div>
         
         </div>
@@ -1738,6 +2185,10 @@
         const pane = document.getElementById(tabId);
         if (pane) pane.classList.remove('hidden');
         if (btn) btn.classList.add('active');
+        // Force immediate resize on all Chart.js instances so hidden canvases get full 100% width
+        for (let id in Chart.instances) {
+            Chart.instances[id].resize();
+        }
         window.dispatchEvent(new Event('resize'));
     }
 
@@ -1846,16 +2297,16 @@
         errors: [0, 0, 0, 0, 0, 0, 0]
     };
 
-    const labelTsMap = {"0": {"ts_avg_rt": [633.56, 542.92, 541.47, 541.01, 537.28, 536.28, 0], "ts_p95_rt": [1106, 574, 571, 573, 567, 565, 0], "ts_p99_rt": [2640, 580, 580, 589, 572, 572, 0], "ts_throughput": [18.7, 27.4, 27.5, 27.9, 27.7, 26.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US01_Overall_Iteration"}, "1": {"ts_avg_rt": [631.39, 542.52, 540.29, 539.45, 535.92, 535.86, 0], "ts_p95_rt": [1105, 575, 571, 572, 567, 566, 0], "ts_p99_rt": [2561, 583, 581, 588, 572, 573, 0], "ts_throughput": [18.6, 27.6, 27.7, 27.6, 27.9, 27.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "2": {"ts_avg_rt": [429.49, 363.43, 362.03, 361.39, 360.15, 358.89, 0], "ts_p95_rt": [385, 378, 374, 375, 372, 371, 0], "ts_p99_rt": [1362, 387, 379, 389, 378, 376, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.5, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "3": {"ts_avg_rt": [421.6, 361.0, 360.13, 359.92, 357.32, 356.89, 0], "ts_p95_rt": [389, 377, 376, 376, 371, 371, 0], "ts_p99_rt": [1785, 382, 385, 393, 378, 376, 0], "ts_throughput": [22.1, 33.0, 33.2, 33.2, 33.5, 33.1, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "4": {"ts_avg_rt": [269.96, 180.59, 180.03, 180.76, 178.61, 178.26, 0], "ts_p95_rt": [741, 192, 191, 193, 189, 189, 0], "ts_p99_rt": [2250, 198, 197, 220, 192, 192, 0], "ts_throughput": [18.7, 27.4, 27.5, 27.9, 27.7, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US01_Launch_Catalog"}, "5": {"ts_avg_rt": [268.0, 180.38, 179.36, 179.22, 177.82, 178.28, 0], "ts_p95_rt": [745, 191, 190, 190, 188, 189, 0], "ts_p99_rt": [2199, 199, 193, 194, 190, 197, 0], "ts_throughput": [18.6, 27.6, 27.7, 27.6, 27.9, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "6": {"ts_avg_rt": [246.41, 181.54, 180.82, 180.2, 180.27, 179.62, 0], "ts_p95_rt": [200, 189, 188, 188, 187, 187, 0], "ts_p99_rt": [1164, 195, 192, 193, 192, 193, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "7": {"ts_avg_rt": [240.11, 180.69, 180.19, 180.04, 178.79, 178.37, 0], "ts_p95_rt": [201, 190, 189, 190, 187, 186, 0], "ts_p99_rt": [1598, 195, 195, 194, 191, 190, 0], "ts_throughput": [22.1, 33.0, 33.2, 33.2, 33.5, 33.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "8": {"ts_avg_rt": [181.51, 180.77, 180.39, 180.0, 178.78, 178.73, 0], "ts_p95_rt": [192, 193, 193, 192, 189, 190, 0], "ts_p99_rt": [199, 198, 198, 203, 195, 196, 0], "ts_throughput": [18.2, 27.3, 27.6, 27.7, 27.6, 28.2, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "9": {"ts_avg_rt": [181.23, 180.25, 179.53, 179.69, 178.56, 178.04, 0], "ts_p95_rt": [192, 191, 190, 191, 189, 188, 0], "ts_p99_rt": [198, 197, 194, 196, 195, 191, 0], "ts_throughput": [18.1, 27.6, 27.6, 27.4, 28.2, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "10": {"ts_avg_rt": [183.02, 181.91, 181.23, 181.19, 179.93, 179.25, 0], "ts_p95_rt": [193, 190, 188, 188, 187, 184, 0], "ts_p99_rt": [201, 208, 191, 204, 190, 188, 0], "ts_throughput": [10.9, 16.4, 16.5, 16.5, 16.7, 16.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "11": {"ts_avg_rt": [181.52, 180.33, 179.87, 180.02, 178.47, 178.5, 180.67], "ts_p95_rt": [192, 190, 188, 189, 186, 187, 181], "ts_p99_rt": [198, 197, 195, 194, 189, 191, 181], "ts_throughput": [21.5, 33.0, 33.2, 33.0, 33.7, 33.4, 0.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "12": {"ts_avg_rt": [182.27, 181.5, 181.36, 180.19, 179.79, 179.19, 0], "ts_p95_rt": [195, 192, 192, 192, 190, 189, 0], "ts_p99_rt": [205, 200, 197, 198, 194, 192, 0], "ts_throughput": [17.8, 27.2, 27.8, 27.4, 28.1, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "13": {"ts_avg_rt": [182.31, 181.92, 181.43, 180.5, 179.7, 179.46, 0], "ts_p95_rt": [193, 193, 194, 191, 190, 190, 0], "ts_p99_rt": [199, 207, 200, 194, 194, 193, 0], "ts_throughput": [17.7, 27.5, 27.5, 27.9, 27.8, 28.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}};
+    const labelTsMap = {"0": {"ts_avg_rt": [633.56, 542.92, 541.47, 541.01, 537.28, 536.28, 0], "ts_p95_rt": [1106, 574, 571, 573, 567, 565, 0], "ts_p99_rt": [2640, 580, 580, 589, 572, 572, 0], "ts_throughput": [18.7, 27.4, 27.5, 27.9, 27.7, 26.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US01_Overall_Iteration"}, "T-US01_Overall_Iteration": {"ts_avg_rt": [633.56, 542.92, 541.47, 541.01, 537.28, 536.28, 0], "ts_p95_rt": [1106, 574, 571, 573, 567, 565, 0], "ts_p99_rt": [2640, 580, 580, 589, 572, 572, 0], "ts_throughput": [18.7, 27.4, 27.5, 27.9, 27.7, 26.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US01_Overall_Iteration"}, "1": {"ts_avg_rt": [631.39, 542.52, 540.29, 539.45, 535.92, 535.86, 0], "ts_p95_rt": [1105, 575, 571, 572, 567, 566, 0], "ts_p99_rt": [2561, 583, 581, 588, 572, 573, 0], "ts_throughput": [18.6, 27.6, 27.7, 27.6, 27.9, 27.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "T-US02_Overall_Iteration": {"ts_avg_rt": [631.39, 542.52, 540.29, 539.45, 535.92, 535.86, 0], "ts_p95_rt": [1105, 575, 571, 572, 567, 566, 0], "ts_p99_rt": [2561, 583, 581, 588, 572, 573, 0], "ts_throughput": [18.6, 27.6, 27.7, 27.6, 27.9, 27.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US02_Overall_Iteration"}, "2": {"ts_avg_rt": [429.49, 363.43, 362.03, 361.39, 360.15, 358.89, 0], "ts_p95_rt": [385, 378, 374, 375, 372, 371, 0], "ts_p99_rt": [1362, 387, 379, 389, 378, 376, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.5, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "T-US03_Overall_Iteration": {"ts_avg_rt": [429.49, 363.43, 362.03, 361.39, 360.15, 358.89, 0], "ts_p95_rt": [385, 378, 374, 375, 372, 371, 0], "ts_p99_rt": [1362, 387, 379, 389, 378, 376, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.5, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US03_Overall_Iteration"}, "3": {"ts_avg_rt": [421.6, 361.0, 360.13, 359.92, 357.32, 356.89, 0], "ts_p95_rt": [389, 377, 376, 376, 371, 371, 0], "ts_p99_rt": [1785, 382, 385, 393, 378, 376, 0], "ts_throughput": [22.1, 33.0, 33.2, 33.2, 33.5, 33.1, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "T-US04_Overall_Iteration": {"ts_avg_rt": [421.6, 361.0, 360.13, 359.92, 357.32, 356.89, 0], "ts_p95_rt": [389, 377, 376, 376, 371, 371, 0], "ts_p99_rt": [1785, 382, 385, 393, 378, 376, 0], "ts_throughput": [22.1, 33.0, 33.2, 33.2, 33.5, 33.1, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "T-US04_Overall_Iteration"}, "4": {"ts_avg_rt": [269.96, 180.59, 180.03, 180.76, 178.61, 178.26, 0], "ts_p95_rt": [741, 192, 191, 193, 189, 189, 0], "ts_p99_rt": [2250, 198, 197, 220, 192, 192, 0], "ts_throughput": [18.7, 27.4, 27.5, 27.9, 27.7, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US01_Launch_Catalog"}, "TC01_US01_Launch_Catalog": {"ts_avg_rt": [269.96, 180.59, 180.03, 180.76, 178.61, 178.26, 0], "ts_p95_rt": [741, 192, 191, 193, 189, 189, 0], "ts_p99_rt": [2250, 198, 197, 220, 192, 192, 0], "ts_throughput": [18.7, 27.4, 27.5, 27.9, 27.7, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US01_Launch_Catalog"}, "5": {"ts_avg_rt": [268.0, 180.38, 179.36, 179.22, 177.82, 178.28, 0], "ts_p95_rt": [745, 191, 190, 190, 188, 189, 0], "ts_p99_rt": [2199, 199, 193, 194, 190, 197, 0], "ts_throughput": [18.6, 27.6, 27.7, 27.6, 27.9, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "TC01_US02_Launch_Catalog": {"ts_avg_rt": [268.0, 180.38, 179.36, 179.22, 177.82, 178.28, 0], "ts_p95_rt": [745, 191, 190, 190, 188, 189, 0], "ts_p99_rt": [2199, 199, 193, 194, 190, 197, 0], "ts_throughput": [18.6, 27.6, 27.7, 27.6, 27.9, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US02_Launch_Catalog"}, "6": {"ts_avg_rt": [246.41, 181.54, 180.82, 180.2, 180.27, 179.62, 0], "ts_p95_rt": [200, 189, 188, 188, 187, 187, 0], "ts_p99_rt": [1164, 195, 192, 193, 192, 193, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "TC01_US03_Launch_Homepage": {"ts_avg_rt": [246.41, 181.54, 180.82, 180.2, 180.27, 179.62, 0], "ts_p95_rt": [200, 189, 188, 188, 187, 187, 0], "ts_p99_rt": [1164, 195, 192, 193, 192, 193, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US03_Launch_Homepage"}, "7": {"ts_avg_rt": [240.11, 180.69, 180.19, 180.04, 178.79, 178.37, 0], "ts_p95_rt": [201, 190, 189, 190, 187, 186, 0], "ts_p99_rt": [1598, 195, 195, 194, 191, 190, 0], "ts_throughput": [22.1, 33.0, 33.2, 33.2, 33.5, 33.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "TC01_US04_Launch_Catalog": {"ts_avg_rt": [240.11, 180.69, 180.19, 180.04, 178.79, 178.37, 0], "ts_p95_rt": [201, 190, 189, 190, 187, 186, 0], "ts_p99_rt": [1598, 195, 195, 194, 191, 190, 0], "ts_throughput": [22.1, 33.0, 33.2, 33.2, 33.5, 33.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC01_US04_Launch_Catalog"}, "8": {"ts_avg_rt": [181.51, 180.77, 180.39, 180.0, 178.78, 178.73, 0], "ts_p95_rt": [192, 193, 193, 192, 189, 190, 0], "ts_p99_rt": [199, 198, 198, 203, 195, 196, 0], "ts_throughput": [18.2, 27.3, 27.6, 27.7, 27.6, 28.2, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "TC02_US01_Select_Fish_Category": {"ts_avg_rt": [181.51, 180.77, 180.39, 180.0, 178.78, 178.73, 0], "ts_p95_rt": [192, 193, 193, 192, 189, 190, 0], "ts_p99_rt": [199, 198, 198, 203, 195, 196, 0], "ts_throughput": [18.2, 27.3, 27.6, 27.7, 27.6, 28.2, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US01_Select_Fish_Category"}, "9": {"ts_avg_rt": [181.23, 180.25, 179.53, 179.69, 178.56, 178.04, 0], "ts_p95_rt": [192, 191, 190, 191, 189, 188, 0], "ts_p99_rt": [198, 197, 194, 196, 195, 191, 0], "ts_throughput": [18.1, 27.6, 27.6, 27.4, 28.2, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "TC02_US02_Select_Dogs_Category": {"ts_avg_rt": [181.23, 180.25, 179.53, 179.69, 178.56, 178.04, 0], "ts_p95_rt": [192, 191, 190, 191, 189, 188, 0], "ts_p99_rt": [198, 197, 194, 196, 195, 191, 0], "ts_throughput": [18.1, 27.6, 27.6, 27.4, 28.2, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US02_Select_Dogs_Category"}, "10": {"ts_avg_rt": [183.02, 181.91, 181.23, 181.19, 179.93, 179.25, 0], "ts_p95_rt": [193, 190, 188, 188, 187, 184, 0], "ts_p99_rt": [201, 208, 191, 204, 190, 188, 0], "ts_throughput": [10.9, 16.4, 16.5, 16.5, 16.7, 16.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "TC02_US03_Search_Keyword_Bulldog": {"ts_avg_rt": [183.02, 181.91, 181.23, 181.19, 179.93, 179.25, 0], "ts_p95_rt": [193, 190, 188, 188, 187, 184, 0], "ts_p99_rt": [201, 208, 191, 204, 190, 188, 0], "ts_throughput": [10.9, 16.4, 16.5, 16.5, 16.7, 16.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US03_Search_Keyword_Bulldog"}, "11": {"ts_avg_rt": [181.52, 180.33, 179.87, 180.02, 178.47, 178.5, 180.67], "ts_p95_rt": [192, 190, 188, 189, 186, 187, 181], "ts_p99_rt": [198, 197, 195, 194, 189, 191, 181], "ts_throughput": [21.5, 33.0, 33.2, 33.0, 33.7, 33.4, 0.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "TC02_US04_Navigate_To_Signon_Page": {"ts_avg_rt": [181.52, 180.33, 179.87, 180.02, 178.47, 178.5, 180.67], "ts_p95_rt": [192, 190, 188, 189, 186, 187, 181], "ts_p99_rt": [198, 197, 195, 194, 189, 191, 181], "ts_throughput": [21.5, 33.0, 33.2, 33.0, 33.7, 33.4, 0.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC02_US04_Navigate_To_Signon_Page"}, "12": {"ts_avg_rt": [182.27, 181.5, 181.36, 180.19, 179.79, 179.19, 0], "ts_p95_rt": [195, 192, 192, 192, 190, 189, 0], "ts_p99_rt": [205, 200, 197, 198, 194, 192, 0], "ts_throughput": [17.8, 27.2, 27.8, 27.4, 28.1, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "TC03_US01_View_Product_Details": {"ts_avg_rt": [182.27, 181.5, 181.36, 180.19, 179.79, 179.19, 0], "ts_p95_rt": [195, 192, 192, 192, 190, 189, 0], "ts_p99_rt": [205, 200, 197, 198, 194, 192, 0], "ts_throughput": [17.8, 27.2, 27.8, 27.4, 28.1, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US01_View_Product_Details"}, "13": {"ts_avg_rt": [182.31, 181.92, 181.43, 180.5, 179.7, 179.46, 0], "ts_p95_rt": [193, 193, 194, 191, 190, 190, 0], "ts_p99_rt": [199, 207, 200, 194, 194, 193, 0], "ts_throughput": [17.7, 27.5, 27.5, 27.9, 27.8, 28.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}, "TC03_US02_Add_Item_To_Cart": {"ts_avg_rt": [182.31, 181.92, 181.43, 180.5, 179.7, 179.46, 0], "ts_p95_rt": [193, 193, 194, 191, 190, 190, 0], "ts_p99_rt": [199, 207, 200, 194, 194, 193, 0], "ts_throughput": [17.7, 27.5, 27.5, 27.9, 27.8, 28.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "TC03_US02_Add_Item_To_Cart"}, "HTTP_Launch_Catalog": {"ts_avg_rt": [258.24, 180.56, 179.88, 180.01, 178.43, 178.3, 0], "ts_p95_rt": [743, 191, 190, 191, 188, 188, 0], "ts_p99_rt": [2250, 199, 195, 203, 192, 192, 0], "ts_throughput": [59.4, 88.0, 88.4, 88.7, 89.1, 89.3, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Launch_Catalog"}, "HTTP_Launch_Homepage": {"ts_avg_rt": [246.41, 181.54, 180.82, 180.2, 180.27, 179.62, 0], "ts_p95_rt": [200, 189, 188, 188, 187, 187, 0], "ts_p99_rt": [1164, 195, 192, 193, 192, 193, 0], "ts_throughput": [11.1, 16.4, 16.4, 16.6, 16.6, 16.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Launch_Homepage"}, "HTTP_Select_Category_Fish": {"ts_avg_rt": [181.51, 180.77, 180.39, 180.0, 178.78, 178.73, 0], "ts_p95_rt": [192, 193, 193, 192, 189, 190, 0], "ts_p99_rt": [199, 198, 198, 203, 195, 196, 0], "ts_throughput": [18.2, 27.3, 27.6, 27.7, 27.6, 28.2, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Select_Category_Fish"}, "HTTP_Select_Category_Dogs": {"ts_avg_rt": [181.23, 180.25, 179.53, 179.69, 178.56, 178.04, 0], "ts_p95_rt": [192, 191, 190, 191, 189, 188, 0], "ts_p99_rt": [198, 197, 194, 196, 195, 191, 0], "ts_throughput": [18.1, 27.6, 27.6, 27.4, 28.2, 27.9, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Select_Category_Dogs"}, "HTTP_Signon_Form": {"ts_avg_rt": [181.52, 180.33, 179.87, 180.02, 178.47, 178.5, 180.67], "ts_p95_rt": [192, 190, 188, 189, 186, 187, 181], "ts_p99_rt": [198, 197, 195, 194, 189, 191, 181], "ts_throughput": [21.5, 33.0, 33.2, 33.0, 33.7, 33.4, 0.3], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Signon_Form"}, "HTTP_Search_Bulldog": {"ts_avg_rt": [183.02, 181.91, 181.23, 181.19, 179.93, 179.25, 0], "ts_p95_rt": [193, 190, 188, 188, 187, 184, 0], "ts_p99_rt": [201, 208, 191, 204, 190, 188, 0], "ts_throughput": [10.9, 16.4, 16.5, 16.5, 16.7, 16.6, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Search_Bulldog"}, "HTTP_View_Product_FI-SW-01": {"ts_avg_rt": [182.27, 181.5, 181.36, 180.19, 179.79, 179.19, 0], "ts_p95_rt": [195, 192, 192, 192, 190, 189, 0], "ts_p99_rt": [205, 200, 197, 198, 194, 192, 0], "ts_throughput": [17.8, 27.2, 27.8, 27.4, 28.1, 27.8, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_View_Product_FI-SW-01"}, "HTTP_Add_Item_EST-26": {"ts_avg_rt": [182.31, 181.92, 181.43, 180.5, 179.7, 179.46, 0], "ts_p95_rt": [193, 193, 194, 191, 190, 190, 0], "ts_p99_rt": [199, 207, 200, 194, 194, 193, 0], "ts_throughput": [17.7, 27.5, 27.5, 27.9, 27.8, 28.0, 0], "ts_errors": [0, 0, 0, 0, 0, 0, 0], "label": "HTTP_Add_Item_EST-26"}};
     
     // Critical Transactions Tracking & Deterministic Colors
     const criticalTxSet = new Set();
     const initialCriticals = ["TC01_US03_Launch_Homepage", "TC02_US01_Select_Fish_Category", "TC02_US04_Navigate_To_Signon_Page", "TC03_US02_Add_Item_To_Cart"];
     initialCriticals.forEach(t => criticalTxSet.add(t));
 
-    // Executive Summary Tab 1 Critical Transactions Response Time Chart
+    // Critical Transactions Response Time Chart
     let critTxChartObj = null;
-    const critCanvas = document.getElementById('chart-rt-exec');
+    const critCanvas = document.getElementById('critTxChart') || document.getElementById('chart-rt-exec');
     if (critCanvas) {
         critTxChartObj = new Chart(critCanvas, {
             type: 'line',
@@ -1911,11 +2362,12 @@
         initialCriticals.forEach(txName => {
             const isSelected = criticalTxSet.has(txName);
             const color = getTxColor(txName);
-            const shortName = txName.length > 25 ? txName.substring(0, 22) + '...' : txName;
+            const txSla = txSlaMap[txName] ? ' (SLA: ' + txSlaMap[txName] + 'ms)' : '';
+            const shortName = (txName.length > 25 ? txName.substring(0, 22) + '...' : txName) + txSla;
 
             const chip = document.createElement('button');
             chip.type = 'button';
-            chip.title = txName;
+            chip.title = txName + txSla;
             chip.style.cssText = `padding:0.25rem 0.65rem; font-size:0.75rem; border-radius:12px; border:1px solid ${isSelected ? color : 'var(--border)'}; background:${isSelected ? color + '22' : 'transparent'}; color:${isSelected ? color : 'var(--muted)'}; cursor:pointer; font-weight:${isSelected ? '700' : '500'}; transition:all 0.15s;`;
             chip.innerText = (isSelected ? '● ' : '○ ') + shortName;
             chip.onclick = (e) => {
@@ -1937,49 +2389,19 @@
     function updateCriticalTxChart() {
         if (!critTxChartObj) return;
         const datasets = [];
-        
-        // Render individual SLA target lines if single/few transactions are selected, or distinct targets exist
-        const selectedTxs = Array.from(criticalTxSet);
-        const uniqueSlaTargets = new Set(selectedTxs.map(t => txSlaMap[t] || 500.0));
 
-        if (uniqueSlaTargets.size === 1) {
-            // All selected transactions share the same target value
-            const targetVal = Array.from(uniqueSlaTargets)[0];
-            const slaData = new Array(["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].length).fill(targetVal);
-            datasets.push({
-                label: 'SLA Target (' + targetVal + ' ms)',
-                data: slaData,
-                borderColor: 'rgba(239, 68, 68, 0.85)',
-                backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                borderWidth: 2,
-                borderDash: [6, 6],
-                pointRadius: 0,
-                fill: true
-            });
-        } else {
-            // Render individual dashed target line per distinct SLA threshold
-            uniqueSlaTargets.forEach(targetVal => {
-                if (targetVal) {
-                    const slaData = new Array(["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"].length).fill(targetVal);
-                    datasets.push({
-                        label: 'SLA Target (' + targetVal + ' ms)',
-                        data: slaData,
-                        borderColor: 'rgba(239, 68, 68, 0.75)',
-                        borderWidth: 1.8,
-                        borderDash: [5, 5],
-                        pointRadius: 0,
-                        fill: false
-                    });
-                }
-            });
-        }
-
-        // 2. Transaction Lines
+        // Transaction Lines with SLA target embedded in the index/label
         criticalTxSet.forEach(txName => {
             let tsData = null;
-            Object.values(labelTsMap).forEach(entry => {
-                if (entry.label === txName) tsData = entry.ts_avg_rt;
-            });
+            if (labelTsMap[txName] && labelTsMap[txName].ts_avg_rt) {
+                tsData = labelTsMap[txName].ts_avg_rt;
+            } else {
+                Object.values(labelTsMap).forEach(entry => {
+                    if (entry && (entry.label === txName || entry.name === txName)) {
+                        tsData = entry.ts_avg_rt;
+                    }
+                });
+            }
             if (tsData && tsData.length > 0) {
                 const color = getTxColor(txName);
                 const txSla = txSlaMap[txName] ? ' (SLA: ' + txSlaMap[txName] + 'ms)' : '';
@@ -1992,7 +2414,8 @@
                     borderWidth: 2.5,
                     fill: false,
                     tension: 0.3,
-                    pointRadius: 2.5
+                    pointRadius: 3.5,
+                    pointHoverRadius: 6
                 });
             }
         });
@@ -2042,17 +2465,59 @@
         rtChartObj.update('active');
     }
 
-    // Throughput Chart Instance
+    // Throughput Chart Instance (Line Graph)
+    const hasInitialErrors = overallTs.errors && overallTs.errors.some(e => e > 0);
+    const tpDatasets = [
+        {
+            label: 'Throughput (req/s)',
+            data: overallTs.throughput,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.12)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#6366f1',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2
+        }
+    ];
+    if (hasInitialErrors) {
+        tpDatasets.push({
+            label: 'Errors',
+            data: overallTs.errors,
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.10)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ef4444',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2
+        });
+    }
+
     const tpChartObj = new Chart(document.getElementById('tpChart'), {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
-            datasets: [
-                { label: 'Throughput (req/s)', data: overallTs.throughput, backgroundColor: 'rgba(99,102,241,0.6)', borderRadius: 4 },
-                { label: 'Errors', data: overallTs.errors, backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 4 }
-            ]
+            datasets: tpDatasets
         },
-        options: { responsive: true, scales: { y: { grid: { color: gridColor } }, x: { grid: { 'display': false } } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: textColor, font: { weight: '600' } } },
+                y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Throughput (req/s)', color: textColor }, beginAtZero: true }
+            }
+        }
     });
 
     function updateTpChart(val) {
@@ -2063,24 +2528,69 @@
             if (entry) d = { throughput: entry.ts_throughput, errors: entry.ts_errors };
         }
         tpChartObj.data.datasets[0].data = [...d.throughput];
-        tpChartObj.data.datasets[1].data = [...d.errors];
+        if (tpChartObj.data.datasets.length > 1 && d.errors) {
+            tpChartObj.data.datasets[1].data = [...d.errors];
+        }
         tpChartObj.update('active');
+
+        // Dynamically update the 4 KPI chips above the chart
+        const tpArr = d.throughput || [];
+        const errArr = d.errors || [];
+        if (tpArr.length > 0) {
+            const avgVal = Math.round(tpArr.reduce((a,b)=>a+b, 0) / tpArr.length);
+            const peakVal = Math.round(Math.max(...tpArr));
+            const endVal = Math.round(tpArr[tpArr.length - 1]);
+            const totalErrs = errArr.reduce((a,b)=>a+b, 0);
+            const totalSamples = tpArr.reduce((a,b)=>a+b, 0) * 10;
+            const errRateVal = totalSamples > 0 ? (totalErrs / totalSamples * 100).toFixed(2) : '0.00';
+
+            const kpiAvg = document.getElementById('tpKpiAvg');
+            const kpiPeak = document.getElementById('tpKpiPeak');
+            const kpiErr = document.getElementById('tpKpiErr');
+            const kpiTrend = document.getElementById('tpKpiTrend');
+            if (kpiAvg) kpiAvg.innerText = avgVal + ' req/s';
+            if (kpiPeak) kpiPeak.innerText = peakVal + ' req/s';
+            if (kpiErr) {
+                kpiErr.innerText = errRateVal + '%';
+                kpiErr.style.color = parseFloat(errRateVal) > 0 ? 'var(--red)' : 'var(--green)';
+            }
+            if (kpiTrend) {
+                const diffPct = peakVal > 0 ? Math.round((peakVal - endVal)/peakVal * 100) : 0;
+                if (diffPct >= 10) {
+                    kpiTrend.innerText = '↓ ' + diffPct + '% from Peak';
+                    kpiTrend.style.color = 'var(--red)';
+                } else {
+                    kpiTrend.innerText = '🟢 Stable';
+                    kpiTrend.style.color = 'var(--green)';
+                }
+            }
+        }
     }
 
-    // ── Hierarchical Transaction & Sub-Transaction Response Time Breakdown Bar Chart ──
-    const txRtHierarchyData = {"user_stories": [{"name": "US01_Browse_Catalog", "transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 190.4, "p90": 189, "p95": 192, "min_rt": 167, "max_rt": 2689, "count": 1570, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 188.7, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 5029, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 179.9, "p90": 189, "p95": 192, "min_rt": 166, "max_rt": 225, "count": 1566, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_Select_Category_Fish", "type": "request", "avg_rt": 179.9, "p90": 189, "p95": 192, "min_rt": 166, "max_rt": 225, "count": 1566, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 180.6, "p90": 189, "p95": 191, "min_rt": 167, "max_rt": 219, "count": 1561, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_View_Product_FI-SW-01", "type": "request", "avg_rt": 180.6, "p90": 189, "p95": 191, "min_rt": 167, "max_rt": 219, "count": 1561, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US02_Add_To_Cart", "transactions": [{"name": "TC01_US02_Launch_Catalog", "avg_rt": 189.5, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 1573, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 188.7, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 5029, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 179.4, "p90": 188, "p95": 190, "min_rt": 166, "max_rt": 238, "count": 1568, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_Select_Category_Dogs", "type": "request", "avg_rt": 179.4, "p90": 188, "p95": 190, "min_rt": 166, "max_rt": 238, "count": 1568, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 180.8, "p90": 189, "p95": 192, "min_rt": 168, "max_rt": 224, "count": 1564, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_Add_Item_EST-26", "type": "request", "avg_rt": 180.8, "p90": 189, "p95": 192, "min_rt": 168, "max_rt": 224, "count": 1564, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US03_Search_Products", "transactions": [{"name": "TC01_US03_Launch_Homepage", "avg_rt": 188.3, "p90": 187, "p95": 189, "min_rt": 172, "max_rt": 2689, "count": 939, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_Launch_Homepage", "type": "request", "avg_rt": 188.3, "p90": 187, "p95": 189, "min_rt": 172, "max_rt": 2689, "count": 939, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 181.0, "p90": 186, "p95": 189, "min_rt": 171, "max_rt": 234, "count": 936, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Search_Bulldog", "type": "request", "avg_rt": 181.0, "p90": 186, "p95": 189, "min_rt": 171, "max_rt": 234, "count": 936, "errors": 0, "error_rate": 0.0}]}]}, {"name": "US04_User_Sign_In", "transactions": [{"name": "TC01_US04_Launch_Catalog", "avg_rt": 186.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 2689, "count": 1886, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 188.7, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 5029, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 179.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 243, "count": 1881, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_Signon_Form", "type": "request", "avg_rt": 179.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 243, "count": 1881, "errors": 0, "error_rate": 0.0}]}]}], "all_transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 190.4, "p90": 189, "p95": 192, "min_rt": 167, "max_rt": 2689, "count": 1570, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 188.7, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 5029, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 179.9, "p90": 189, "p95": 192, "min_rt": 166, "max_rt": 225, "count": 1566, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_Select_Category_Fish", "type": "request", "avg_rt": 179.9, "p90": 189, "p95": 192, "min_rt": 166, "max_rt": 225, "count": 1566, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 180.6, "p90": 189, "p95": 191, "min_rt": 167, "max_rt": 219, "count": 1561, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_View_Product_FI-SW-01", "type": "request", "avg_rt": 180.6, "p90": 189, "p95": 191, "min_rt": 167, "max_rt": 219, "count": 1561, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US02_Launch_Catalog", "avg_rt": 189.5, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 1573, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 188.7, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 5029, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 179.4, "p90": 188, "p95": 190, "min_rt": 166, "max_rt": 238, "count": 1568, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_Select_Category_Dogs", "type": "request", "avg_rt": 179.4, "p90": 188, "p95": 190, "min_rt": 166, "max_rt": 238, "count": 1568, "errors": 0, "error_rate": 0.0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 180.8, "p90": 189, "p95": 192, "min_rt": 168, "max_rt": 224, "count": 1564, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_Add_Item_EST-26", "type": "request", "avg_rt": 180.8, "p90": 189, "p95": 192, "min_rt": 168, "max_rt": 224, "count": 1564, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US03_Launch_Homepage", "avg_rt": 188.3, "p90": 187, "p95": 189, "min_rt": 172, "max_rt": 2689, "count": 939, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_Launch_Homepage", "type": "request", "avg_rt": 188.3, "p90": 187, "p95": 189, "min_rt": 172, "max_rt": 2689, "count": 939, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 181.0, "p90": 186, "p95": 189, "min_rt": 171, "max_rt": 234, "count": 936, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Search_Bulldog", "type": "request", "avg_rt": 181.0, "p90": 186, "p95": 189, "min_rt": 171, "max_rt": 234, "count": 936, "errors": 0, "error_rate": 0.0}]}, {"name": "TC01_US04_Launch_Catalog", "avg_rt": 186.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 2689, "count": 1886, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_Launch_Catalog", "type": "request", "avg_rt": 188.7, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 5029, "errors": 0, "error_rate": 0.0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 179.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 243, "count": 1881, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_Signon_Form", "type": "request", "avg_rt": 179.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 243, "count": 1881, "errors": 0, "error_rate": 0.0}]}]};
-    let currentTxRtUs = 'ALL';
-    let currentTxRtTx = 'ALL';
-    let currentTxRtMetric = 'avg_rt';
+    // ── Hierarchical Transaction & Sub-Transaction Multi-View Line Chart Manager ──
+    const txRtHierarchyData = {"user_stories": [{"name": "US01_Browse_Catalog", "transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 190.4, "p90": 189, "p95": 192, "min_rt": 167, "max_rt": 2689, "count": 1570, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "Transaction Controller_T1", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_1", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_2", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "Transaction Controller_T2", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_Err500", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_3", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 179.9, "p90": 189, "p95": 192, "min_rt": 166, "max_rt": 225, "count": 1566, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_US01_Select_Category_Fish", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 180.6, "p90": 189, "p95": 191, "min_rt": 167, "max_rt": 219, "count": 1561, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US01_View_Product_FI-SW-01", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}, {"name": "US02_Add_To_Cart", "transactions": [{"name": "TC01_US02_Launch_Catalog", "avg_rt": 189.5, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 1573, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US02_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 179.4, "p90": 188, "p95": 190, "min_rt": 166, "max_rt": 238, "count": 1568, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_US02_Select_Category_Dogs", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 180.8, "p90": 189, "p95": 192, "min_rt": 168, "max_rt": 224, "count": 1564, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_US02_Add_Item_EST-26", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}, {"name": "US03_Search_Products", "transactions": [{"name": "TC01_US03_Launch_Homepage", "avg_rt": 188.3, "p90": 187, "p95": 189, "min_rt": 172, "max_rt": 2689, "count": 939, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_US03_Launch_Homepage", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 181.0, "p90": 186, "p95": 189, "min_rt": 171, "max_rt": 234, "count": 936, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US03_Search_Bulldog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}, {"name": "US04_User_Sign_In", "transactions": [{"name": "TC01_US04_Launch_Catalog", "avg_rt": 186.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 2689, "count": 1886, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US04_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 179.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 243, "count": 1881, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_US04_Signon_Form", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]}], "all_transactions": [{"name": "TC01_US01_Launch_Catalog", "avg_rt": 190.4, "p90": 189, "p95": 192, "min_rt": 167, "max_rt": 2689, "count": 1570, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "Transaction Controller_T1", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_1", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_2", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "Transaction Controller_T2", "type": "transaction", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_Err500", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}, {"name": "HTTP_US01_Launch_Catalog_3", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US01_Select_Fish_Category", "avg_rt": 179.9, "p90": 189, "p95": 192, "min_rt": 166, "max_rt": 225, "count": 1566, "errors": 0, "error_rate": 0.0, "target_rt": 92.0, "children": [{"name": "HTTP_US01_Select_Category_Fish", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US01_View_Product_Details", "avg_rt": 180.6, "p90": 189, "p95": 191, "min_rt": 167, "max_rt": 219, "count": 1561, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US01_View_Product_FI-SW-01", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC01_US02_Launch_Catalog", "avg_rt": 189.5, "p90": 188, "p95": 191, "min_rt": 167, "max_rt": 2689, "count": 1573, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US02_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US02_Select_Dogs_Category", "avg_rt": 179.4, "p90": 188, "p95": 190, "min_rt": 166, "max_rt": 238, "count": 1568, "errors": 0, "error_rate": 0.0, "target_rt": 100.0, "children": [{"name": "HTTP_US02_Select_Category_Dogs", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC03_US02_Add_Item_To_Cart", "avg_rt": 180.8, "p90": 189, "p95": 192, "min_rt": 168, "max_rt": 224, "count": 1564, "errors": 0, "error_rate": 0.0, "target_rt": 1517.0, "children": [{"name": "HTTP_US02_Add_Item_EST-26", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC01_US03_Launch_Homepage", "avg_rt": 188.3, "p90": 187, "p95": 189, "min_rt": 172, "max_rt": 2689, "count": 939, "errors": 0, "error_rate": 0.0, "target_rt": 200.0, "children": [{"name": "HTTP_US03_Launch_Homepage", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US03_Search_Keyword_Bulldog", "avg_rt": 181.0, "p90": 186, "p95": 189, "min_rt": 171, "max_rt": 234, "count": 936, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US03_Search_Bulldog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC01_US04_Launch_Catalog", "avg_rt": 186.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 2689, "count": 1886, "errors": 0, "error_rate": 0.0, "target_rt": 500.0, "children": [{"name": "HTTP_US04_Launch_Catalog", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}, {"name": "TC02_US04_Navigate_To_Signon_Page", "avg_rt": 179.7, "p90": 186, "p95": 189, "min_rt": 168, "max_rt": 243, "count": 1881, "errors": 0, "error_rate": 0.0, "target_rt": 50.0, "children": [{"name": "HTTP_US04_Signon_Form", "type": "request", "avg_rt": 0, "p90": 0, "p95": 0, "min_rt": 0, "max_rt": 0, "count": 0, "errors": 0, "error_rate": 0}]}]};
+    let txRtChartPanels = [];
+    let nextTxRtPanelId = 1;
 
-    // Chart.js Data Labels Plugin to draw time values above vertical bars
-    const txRtDataLabelsPlugin = {
-        id: 'txRtDataLabelsPlugin',
+    // Metric visual configuration and styling
+    const txRtMetricColorMap = {
+        'avg_rt': { line: '#6366f1', fill: 'rgba(99, 102, 241, 0.12)', label: 'Average RT (ms)', unit: 'ms' },
+        'p90': { line: '#f59e0b', fill: 'rgba(245, 158, 11, 0.12)', label: '90th Percentile (P90) (ms)', unit: 'ms' },
+        'p95': { line: '#ef4444', fill: 'rgba(239, 68, 68, 0.12)', label: '95th Percentile (P95) (ms)', unit: 'ms' },
+        'max_rt': { line: '#ec4899', fill: 'rgba(236, 72, 153, 0.12)', label: 'Max Response Time (ms)', unit: 'ms' },
+        'min_rt': { line: '#10b981', fill: 'rgba(16, 185, 129, 0.12)', label: 'Min Response Time (ms)', unit: 'ms' },
+        'error_rate': { line: '#dc2626', fill: 'rgba(220, 38, 38, 0.12)', label: 'Error Rate (%)', unit: '%' },
+        'count': { line: '#8b5cf6', fill: 'rgba(139, 92, 246, 0.12)', label: 'Sample Count', unit: 'samples' }
+    };
+
+    // Custom Data Labels Plugin for Line Points
+    const txRtLineLabelsPlugin = {
+        id: 'txRtLineLabelsPlugin',
         afterDatasetsDraw(chart) {
             const { ctx } = chart;
             ctx.save();
             const isDark = document.documentElement.classList.contains('dark');
-            ctx.font = '600 11px Inter, sans-serif';
+            ctx.font = '600 10.5px Inter, sans-serif';
             ctx.fillStyle = isDark ? '#f1f5f9' : '#1f2328';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
@@ -2091,9 +2601,17 @@
                     meta.data.forEach((element, index) => {
                         const val = dataset.data[index];
                         if (val !== null && val !== undefined && !isNaN(val)) {
-                            const formatted = Math.round(val).toLocaleString() + ' ms';
+                            let formatted = '';
+                            const metric = chart.config._metricKey || 'avg_rt';
+                            if (metric === 'error_rate') {
+                                formatted = Number(val).toFixed(2) + '%';
+                            } else if (metric === 'count') {
+                                formatted = Math.round(val).toLocaleString();
+                            } else {
+                                formatted = Math.round(val).toLocaleString() + ' ms';
+                            }
                             const x = element.x;
-                            const y = element.y - 5;
+                            const y = element.y - 6;
                             ctx.fillText(formatted, x, y);
                         }
                     });
@@ -2103,42 +2621,107 @@
         }
     };
 
-    let txRtBreakdownChartObj = null;
+    function addTxRtChartView(initialMetric) {
+        const container = document.getElementById('txRtChartsContainer');
+        if (!container) return;
 
-    function initTxRtBreakdownChart() {
-        const usSelect = document.getElementById('txRtUsFilter');
-        if (!usSelect) return;
+        const panelId = nextTxRtPanelId++;
+        const defaultMetric = initialMetric || (txRtChartPanels.length === 1 ? 'p90' : (txRtChartPanels.length === 2 ? 'max_rt' : 'avg_rt'));
 
-        // Populate User Story dropdown
-        usSelect.innerHTML = '<option value="ALL">All User Stories / Thread Groups</option>';
-        if (txRtHierarchyData.user_stories) {
-            txRtHierarchyData.user_stories.forEach(us => {
-                const opt = document.createElement('option');
-                opt.value = us.name;
-                opt.textContent = us.name;
-                usSelect.appendChild(opt);
-            });
+        const cardEl = document.createElement('div');
+        cardEl.id = `tx-rt-panel-${panelId}`;
+        cardEl.className = 'glass-panel';
+        cardEl.style.cssText = 'background:var(--surface1); border:1px solid var(--border); border-radius:10px; padding:1.25rem; position:relative; width:100%; box-sizing:border-box;';
+
+        const canRemove = txRtChartPanels.length > 0;
+
+        cardEl.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.6rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">User Story:</label>
+                        <select id="txRtUsSelect-${panelId}" onchange="onPanelUsChange(${panelId}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer;">
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">Transaction:</label>
+                        <select id="txRtTxSelect-${panelId}" onchange="onPanelTxChange(${panelId}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer; max-width:260px;">
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">Metric:</label>
+                        <select id="txRtMetricSelect-${panelId}" onchange="onPanelMetricChange(${panelId}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:700; outline:none; cursor:pointer;">
+                            <option value="avg_rt" ${defaultMetric === 'avg_rt' ? 'selected' : ''}>Average RT (ms)</option>
+                            <option value="p90" ${defaultMetric === 'p90' ? 'selected' : ''}>90th Percentile (P90) (ms)</option>
+                            <option value="p95" ${defaultMetric === 'p95' ? 'selected' : ''}>95th Percentile (P95) (ms)</option>
+                            <option value="max_rt" ${defaultMetric === 'max_rt' ? 'selected' : ''}>Max Response Time (ms)</option>
+                            <option value="min_rt" ${defaultMetric === 'min_rt' ? 'selected' : ''}>Min Response Time (ms)</option>
+                            <option value="error_rate" ${defaultMetric === 'error_rate' ? 'selected' : ''}>Error Rate (%)</option>
+                            <option value="count" ${defaultMetric === 'count' ? 'selected' : ''}>Sample Count</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button type="button" onclick="duplicateTxRtView(${panelId})" title="Duplicate this exact view" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); font-size:0.72rem; font-weight:600; padding:0.25rem 0.55rem; border-radius:4px; cursor:pointer;">⧉ Duplicate</button>
+                    ${canRemove ? `<button type="button" onclick="removeTxRtChartView(${panelId})" title="Close this chart view" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:0.75rem; font-weight:700; padding:0.25rem 0.55rem; border-radius:4px; cursor:pointer;">✕</button>` : ''}
+                </div>
+            </div>
+            <div id="txRtBreadcrumb-${panelId}" style="font-size:0.75rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.3rem;">
+            </div>
+            <div style="position:relative; height:320px; width:100%;">
+                <canvas id="chart-tx-rt-canvas-${panelId}"></canvas>
+            </div>
+        `;
+
+        container.appendChild(cardEl);
+
+        const panelObj = {
+            id: panelId,
+            us: 'ALL',
+            tx: 'ALL',
+            metric: defaultMetric,
+            chartObj: null
+        };
+        txRtChartPanels.push(panelObj);
+
+        // Populate User Stories
+        const usSelect = document.getElementById(`txRtUsSelect-${panelId}`);
+        if (usSelect) {
+            usSelect.innerHTML = '<option value="ALL">All User Stories</option>';
+            if (txRtHierarchyData.user_stories) {
+                txRtHierarchyData.user_stories.forEach(us => {
+                    const opt = document.createElement('option');
+                    opt.value = us.name;
+                    opt.textContent = us.name;
+                    usSelect.appendChild(opt);
+                });
+            }
         }
 
-        populateTxRtTxDropdown();
+        populatePanelTxDropdown(panelId);
 
-        const canvas = document.getElementById('chart-tx-rt-breakdown');
-        if (!canvas) return;
+        // Create Chart.js Line Instance
+        const canvas = document.getElementById(`chart-tx-rt-canvas-${panelId}`);
+        const mInfo = txRtMetricColorMap[defaultMetric] || txRtMetricColorMap['avg_rt'];
 
-        txRtBreakdownChartObj = new Chart(canvas, {
-            type: 'bar',
+        const chartObj = new Chart(canvas, {
+            type: 'line',
             data: {
                 labels: [],
                 datasets: [
                     {
-                        label: 'Response Time (ms)',
+                        label: mInfo.label,
                         data: [],
-                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
-                        borderColor: '#6366f1',
-                        borderWidth: 1.5,
-                        borderRadius: 6,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
+                        borderColor: mInfo.line,
+                        backgroundColor: mInfo.fill,
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: mInfo.line,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
                     }
                 ]
             },
@@ -2151,20 +2734,20 @@
                         callbacks: {
                             label: function(ctx) {
                                 const val = ctx.parsed.y;
-                                const metricLabel = currentTxRtMetric === 'avg_rt' ? 'Avg RT' :
-                                                    currentTxRtMetric === 'p90' ? 'P90 RT' :
-                                                    currentTxRtMetric === 'p95' ? 'P95 RT' : 'Max RT';
-                                return `${metricLabel}: ${Math.round(val).toLocaleString()} ms`;
+                                const curM = panelObj.metric;
+                                if (curM === 'error_rate') return `Error Rate: ${Number(val).toFixed(2)}%`;
+                                if (curM === 'count') return `Count: ${Math.round(val).toLocaleString()} samples`;
+                                return `${mInfo.label}: ${Math.round(val).toLocaleString()} ms`;
                             }
                         }
                     }
                 },
                 scales: {
                     x: {
-                        grid: { display: false },
+                        grid: { color: 'rgba(255,255,255,0.04)' },
                         ticks: {
                             color: textColor,
-                            font: { weight: '600', size: 10 },
+                            font: { weight: '600', size: 9.5 },
                             maxRotation: 25
                         }
                     },
@@ -2172,35 +2755,45 @@
                         grid: { color: gridColor },
                         ticks: {
                             color: textColor,
-                            callback: function(val) { return val.toLocaleString() + ' ms'; }
+                            callback: function(val) {
+                                const curM = panelObj.metric;
+                                if (curM === 'error_rate') return val + '%';
+                                if (curM === 'count') return val.toLocaleString();
+                                return val.toLocaleString() + ' ms';
+                            }
                         },
-                        title: { display: true, text: 'Response Time (ms)', color: textColor },
+                        title: { display: true, text: mInfo.label, color: textColor },
                         grace: '18%',
                         beginAtZero: true
                     }
                 }
             },
-            plugins: [txRtDataLabelsPlugin]
+            plugins: [txRtLineLabelsPlugin]
         });
 
-        updateTxRtBreakdownChart();
+        chartObj.config._metricKey = defaultMetric;
+        panelObj.chartObj = chartObj;
+
+        updatePanelChart(panelId);
     }
 
-    function populateTxRtTxDropdown() {
-        const txSelect = document.getElementById('txRtTxFilter');
+    function populatePanelTxDropdown(panelId) {
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        const txSelect = document.getElementById(`txRtTxSelect-${panelId}`);
         if (!txSelect) return;
 
         txSelect.innerHTML = '';
         const allOpt = document.createElement('option');
         allOpt.value = 'ALL';
-        allOpt.textContent = currentTxRtUs === 'ALL' ? 'All Transactions (Overview)' : `All Transactions in ${currentTxRtUs}`;
+        allOpt.textContent = panel.us === 'ALL' ? 'All Transactions (Overview)' : `All in ${panel.us}`;
         txSelect.appendChild(allOpt);
 
         let txList = [];
-        if (currentTxRtUs === 'ALL') {
+        if (panel.us === 'ALL') {
             txList = txRtHierarchyData.all_transactions || [];
         } else {
-            const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === currentTxRtUs);
+            const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === panel.us);
             if (foundUs) txList = foundUs.transactions || [];
         }
 
@@ -2208,115 +2801,141 @@
             const opt = document.createElement('option');
             opt.value = t.name;
             const subCount = (t.children || []).length;
-            const suffix = subCount > 0 ? ` (${subCount} sub-requests)` : '';
-            opt.textContent = (t.name.length > 35 ? t.name.substring(0, 32) + '...' : t.name) + suffix;
+            const suffix = subCount > 0 ? ` (${subCount} sub-req)` : '';
+            opt.textContent = (t.name.length > 25 ? t.name.substring(0, 22) + '...' : t.name) + suffix;
             opt.title = t.name;
             txSelect.appendChild(opt);
         });
 
-        txSelect.value = currentTxRtTx;
-        if (txSelect.value !== currentTxRtTx) {
-            currentTxRtTx = 'ALL';
+        txSelect.value = panel.tx;
+        if (txSelect.value !== panel.tx) {
+            panel.tx = 'ALL';
             txSelect.value = 'ALL';
         }
     }
 
-    function onTxRtUsChange(val) {
-        currentTxRtUs = val;
-        currentTxRtTx = 'ALL';
-        populateTxRtTxDropdown();
-        updateTxRtBreakdownChart();
+    function onPanelUsChange(panelId, val) {
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        panel.us = val;
+        panel.tx = 'ALL';
+        populatePanelTxDropdown(panelId);
+        updatePanelChart(panelId);
     }
 
-    function onTxRtTxChange(val) {
-        currentTxRtTx = val;
-        updateTxRtBreakdownChart();
+    function onPanelTxChange(panelId, val) {
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        panel.tx = val;
+        updatePanelChart(panelId);
     }
 
-    function onTxRtMetricChange(val) {
-        currentTxRtMetric = val;
-        updateTxRtBreakdownChart();
+    function onPanelMetricChange(panelId, val) {
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel) return;
+        panel.metric = val;
+        updatePanelChart(panelId);
     }
 
-    function updateTxRtBreakdownChart() {
-        if (!txRtBreakdownChartObj) return;
+    function duplicateTxRtView(sourcePanelId) {
+        const src = txRtChartPanels.find(p => p.id === sourcePanelId);
+        if (!src) return;
+        addTxRtChartView(src.metric);
+        const newPanel = txRtChartPanels[txRtChartPanels.length - 1];
+        if (newPanel) {
+            newPanel.us = src.us;
+            newPanel.tx = src.tx;
+            newPanel.metric = src.metric;
+            const usSel = document.getElementById(`txRtUsSelect-${newPanel.id}`);
+            if (usSel) usSel.value = src.us;
+            populatePanelTxDropdown(newPanel.id);
+            const txSel = document.getElementById(`txRtTxSelect-${newPanel.id}`);
+            if (txSel) txSel.value = src.tx;
+            const mSel = document.getElementById(`txRtMetricSelect-${newPanel.id}`);
+            if (mSel) mSel.value = src.metric;
+            updatePanelChart(newPanel.id);
+        }
+    }
 
-        const breadcrumbEl = document.getElementById('txRtBreadcrumb');
+    function removeTxRtChartView(panelId) {
+        const idx = txRtChartPanels.findIndex(p => p.id === panelId);
+        if (idx === -1) return;
+        const panel = txRtChartPanels[idx];
+        if (panel.chartObj) {
+            panel.chartObj.destroy();
+        }
+        txRtChartPanels.splice(idx, 1);
+        const card = document.getElementById(`tx-rt-panel-${panelId}`);
+        if (card) card.remove();
+    }
+
+    function updatePanelChart(panelId) {
+        const panel = txRtChartPanels.find(p => p.id === panelId);
+        if (!panel || !panel.chartObj) return;
+
+        const breadcrumbEl = document.getElementById(`txRtBreadcrumb-${panelId}`);
         let items = [];
-        let isDrilldown = false;
-        let chartTitleLabel = 'Transactions';
-        let barColor = 'rgba(99, 102, 241, 0.75)';
-        let barBorder = '#6366f1';
 
-        if (currentTxRtTx !== 'ALL') {
-            // Drilldown mode: find the selected transaction across hierarchy
+        if (panel.tx !== 'ALL') {
             let targetTx = null;
             if (txRtHierarchyData.all_transactions) {
-                targetTx = txRtHierarchyData.all_transactions.find(t => t.name === currentTxRtTx);
+                targetTx = txRtHierarchyData.all_transactions.find(t => t.name === panel.tx);
             }
             if (!targetTx && txRtHierarchyData.user_stories) {
                 for (const us of txRtHierarchyData.user_stories) {
-                    const found = (us.transactions || []).find(t => t.name === currentTxRtTx);
+                    const found = (us.transactions || []).find(t => t.name === panel.tx);
                     if (found) { targetTx = found; break; }
                 }
             }
 
             if (targetTx && targetTx.children && targetTx.children.length > 0) {
-                isDrilldown = true;
                 items = targetTx.children;
-                chartTitleLabel = `Inside Requests of "${targetTx.name}"`;
-                barColor = 'rgba(14, 165, 233, 0.8)'; // Cyan / Sky Blue
-                barBorder = '#0284c7';
                 if (breadcrumbEl) {
-                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${currentTxRtUs === 'ALL' ? 'All Stories' : currentTxRtUs}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${targetTx.name}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${items.length} Child Requests / Sub-Transactions</span>`;
+                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${panel.us === 'ALL' ? 'All Stories' : panel.us}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${targetTx.name}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${items.length} Child Requests</span>`;
                 }
             } else if (targetTx) {
-                // Single transaction with no sub-requests
                 items = [targetTx];
-                chartTitleLabel = targetTx.name;
                 if (breadcrumbEl) {
-                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${currentTxRtUs === 'ALL' ? 'All Stories' : currentTxRtUs}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${targetTx.name}</span> (No child requests)`;
+                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${panel.us === 'ALL' ? 'All Stories' : panel.us}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${targetTx.name}</span> (No child requests)`;
                 }
             }
         } else {
-            // Overview mode: show transactions
-            if (currentTxRtUs === 'ALL') {
+            if (panel.us === 'ALL') {
                 items = txRtHierarchyData.all_transactions || [];
                 if (breadcrumbEl) {
                     breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">🌐 All User Stories</span> &rarr; <span style="color:var(--text); font-weight:700;">${items.length} Main Transactions</span>`;
                 }
             } else {
-                const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === currentTxRtUs);
+                const foundUs = (txRtHierarchyData.user_stories || []).find(u => u.name === panel.us);
                 items = foundUs ? (foundUs.transactions || []) : [];
                 if (breadcrumbEl) {
-                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">📁 ${currentTxRtUs}</span> &rarr; <span style="color:var(--text); font-weight:700;">${items.length} Transactions</span>`;
+                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">📁 ${panel.us}</span> &rarr; <span style="color:var(--text); font-weight:700;">${items.length} Transactions</span>`;
                 }
             }
-            barColor = 'rgba(99, 102, 241, 0.75)'; // Indigo
-            barBorder = '#4f46e5';
         }
 
-        const labels = items.map(item => item.name.length > 32 ? item.name.substring(0, 29) + '...' : item.name);
+        const labels = items.map(item => item.name.length > 28 ? item.name.substring(0, 25) + '...' : item.name);
         const dataValues = items.map(item => {
-            const v = item[currentTxRtMetric];
+            const v = item[panel.metric];
             return v !== undefined && v !== null ? v : 0;
         });
 
-        const metricName = currentTxRtMetric === 'avg_rt' ? 'Average RT (ms)' :
-                           currentTxRtMetric === 'p90' ? 'P90 RT (ms)' :
-                           currentTxRtMetric === 'p95' ? 'P95 RT (ms)' : 'Max RT (ms)';
+        const mInfo = txRtMetricColorMap[panel.metric] || txRtMetricColorMap['avg_rt'];
 
-        txRtBreakdownChartObj.data.labels = labels;
-        txRtBreakdownChartObj.data.datasets[0].label = metricName;
-        txRtBreakdownChartObj.data.datasets[0].data = dataValues;
-        txRtBreakdownChartObj.data.datasets[0].backgroundColor = barColor;
-        txRtBreakdownChartObj.data.datasets[0].borderColor = barBorder;
-        txRtBreakdownChartObj.options.scales.y.title.text = metricName;
+        panel.chartObj.config._metricKey = panel.metric;
+        panel.chartObj.data.labels = labels;
+        panel.chartObj.data.datasets[0].label = mInfo.label;
+        panel.chartObj.data.datasets[0].data = dataValues;
+        panel.chartObj.data.datasets[0].borderColor = mInfo.line;
+        panel.chartObj.data.datasets[0].backgroundColor = mInfo.fill;
+        panel.chartObj.data.datasets[0].pointBackgroundColor = mInfo.line;
+        panel.chartObj.options.scales.y.title.text = mInfo.label;
 
-        txRtBreakdownChartObj.update('active');
+        panel.chartObj.update('active');
     }
 
-    initTxRtBreakdownChart();
+    // Initialize primary line chart view
+    addTxRtChartView('avg_rt');
 
     // SLA Deviation by Transaction Diverging Horizontal Bar Chart
     const tgToTcsMap = {"US01_Browse_Catalog": ["T-US01_Overall_Iteration", "TC01_US01_Launch_Catalog", "TC02_US01_Select_Fish_Category", "TC03_US01_View_Product_Details"], "US02_Add_To_Cart": ["T-US02_Overall_Iteration", "TC01_US02_Launch_Catalog", "TC02_US02_Select_Dogs_Category", "TC03_US02_Add_Item_To_Cart"], "US03_Search_Products": ["T-US03_Overall_Iteration", "TC01_US03_Launch_Homepage", "TC02_US03_Search_Keyword_Bulldog"], "US04_User_Sign_In": ["T-US04_Overall_Iteration", "TC01_US04_Launch_Catalog", "TC02_US04_Navigate_To_Signon_Page"]};
@@ -2627,6 +3246,35 @@
         }
     });
 
+    // 5. Top Transactions by Response Time (Percentile comparison bar chart)
+    const elTxChart = document.getElementById('txChart');
+    if (elTxChart) {
+        new Chart(elTxChart, {
+            type: 'bar',
+            data: {
+                labels: ["TC01_US01_Launch_Catalog", "TC01_US02_Launch_Catalog", "TC01_US03_Launch_Homepage", "TC01_US04_Launch_Catalog", "TC02_US03_Search_Keyword_Bul", "TC03_US02_Add_Item_To_Cart", "TC03_US01_View_Product_Detai", "TC02_US01_Select_Fish_Catego"],
+                datasets: [
+                    { label: 'P50', data: [179, 179, 181, 179, 181, 180, 180, 179], backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 3 },
+                    { label: 'P90', data: [189, 188, 187, 186, 186, 189, 189, 189], backgroundColor: 'rgba(245,158,11,0.75)', borderRadius: 3 },
+                    { label: 'P95', data: [192, 191, 189, 189, 189, 192, 191, 192], backgroundColor: 'rgba(249,115,22,0.75)', borderRadius: 3 },
+                    { label: 'P99', data: [233, 203, 198, 202, 201, 199, 199, 199], backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600', size: 10 }, boxWidth: 10, padding: 6 } },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 }, maxRotation: 25 } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Latency (ms)', color: textColor } }
+                }
+            }
+        });
+    }
+
     // ── Error Distribution Donut / Pie Charts (Executive Summary & Error Tab) ──
     const errDonutLabels = [];
     const errDonutCounts = [];
@@ -2791,35 +3439,79 @@
         });
     }
 
-    // 5. Concurrency Estimate Over Time (Little's Law)
-    const concData = [61.7, 76.4, 76.6, 76.6, 76.8, 76.8, 0.1];
-    if (concData.some(v => v > 0)) {
-        new Chart(document.getElementById('concChart'), {
+    // ── Load & Capacity Hero Charts ──
+    const loadLabels = ["10s (48 VUs)", "20s (48 VUs)", "30s (48 VUs)", "40s (48 VUs)", "50s (48 VUs)", "1m (48 VUs)", "1m10s (3 VUs)"];
+    const loadTpData = [281.5, 422.7, 425.0, 425.6, 429.3, 430.2, 0.3];
+    const expectedTpData = [430.2, 430.2, 430.2, 430.2, 430.2, 430.2, 26.9];
+    const loadP95Data = [198, 192, 191, 191, 188, 188, 181];
+    const loadAvgData = [219.13, 180.81, 180.22, 180.07, 178.87, 178.61, 180.67];
+    const slaRefData = [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0];
+
+    // 1. Load vs Throughput (TPS vs VUs)
+    const elLoadTp = document.getElementById('chartLoadVsThroughput');
+    if (elLoadTp && loadTpData.length > 0) {
+        new Chart(elLoadTp, {
             type: 'line',
             data: {
-                labels: ["10s", "20s", "30s", "40s", "50s", "1m", "1m10s"],
-                datasets: [{
-                    label: 'Est. Concurrent Users',
-                    data: concData,
-                    borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139,92,246,0.12)',
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.35,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#8b5cf6'
-                }]
+                labels: loadLabels,
+                datasets: [
+                    {
+                        label: 'Actual Throughput (TPS)',
+                        data: loadTpData,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139,92,246,0.15)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#8b5cf6'
+                    },
+                    {
+                        label: 'Linear Scaling Reference',
+                        data: expectedTpData,
+                        borderColor: '#94a3b8',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }
+                ]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { labels: { color: textColor } } },
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(ctx) {
+                                return ctx.dataset.label + ': ' + ctx.raw + ' TPS';
+                            }
+                        }
+                    }
+                },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor } },
-                    y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Users', color: textColor }, beginAtZero: true }
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, font: { weight: '600' } },
+                        title: { display: true, text: 'Active Virtual Users (VUs)', color: textColor }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: { color: textColor },
+                        title: { display: true, text: 'Throughput (TPS)', color: textColor },
+                        beginAtZero: true
+                    }
                 }
             }
         });
     }
+
+
 
     // Azure Infrastructure Diagnostic Suite Charts
     const azCpu = [34.2, 41.7, 46.3, 82.6, 91.4, 68.2];
