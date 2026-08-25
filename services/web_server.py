@@ -25,7 +25,7 @@ import urllib.parse
 import subprocess
 import threading
 import time
-from http.server import SimpleHTTPRequestHandler, HTTPServer
+from http.server import SimpleHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from pathlib import Path
 
 # Force UTF-8
@@ -77,12 +77,6 @@ try:
 except Exception:
     pass
 
-# Auto-recompile all HTML reports with updated template on server start
-try:
-    from python_files.recompile_all import run as _recompile_run
-    _recompile_run()
-except Exception as _re_err:
-    print(f"[Init] Report recompilation warning: {_re_err}", flush=True)
 
 
 class PlatformRequestHandler(SimpleHTTPRequestHandler):
@@ -395,28 +389,66 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({"runs": runs})
             return
 
-        # ── /api/trend/hierarchy ──
-        if path == "/api/trend/hierarchy":
+        # ── /api/comparison/runs (GET) ──
+        if path == "/api/comparison/runs":
             try:
-                from python_files.trend_engine import get_hierarchy_tree
-                tree = get_hierarchy_tree()
-                self._send_json({"success": True, **tree})
-            except Exception as te_err:
-                self._send_json({"success": False, "message": str(te_err)}, 500)
+                from python_files.comparison_engine import get_available_runs
+                runs = get_available_runs()
+                self._send_json({"success": True, "runs": runs})
+            except Exception as cr_err:
+                self._send_json({"success": False, "message": str(cr_err)}, 500)
             return
 
-        # ── /api/trend/analysis ──
+        # ── /api/comparison/data (GET) ──
+        if path == "/api/comparison/data":
+            try:
+                query = urllib.parse.parse_qs(parsed.query)
+                run_a = query.get("run_a", query.get("baseline_id", [""]))[0]
+                run_b = query.get("run_b", query.get("current_id", [""]))[0]
+                proj = query.get("project", [""])[0]
+                story = query.get("user_story", [""])[0]
+                i_type = query.get("item_type", ["TRANSACTIONS_ONLY"])[0]
+
+                from python_files.comparison_engine import build_run_comparison
+                data = build_run_comparison(
+                    run_a_id=run_a,
+                    run_b_id=run_b,
+                    project=proj,
+                    user_story=story,
+                    item_type_filter=i_type
+                )
+                self._send_json(data)
+            except Exception as ce_err:
+                self._send_json({"success": False, "message": str(ce_err)}, 500)
+            return
+
+        # ── /api/trend/hierarchy (GET) ──
+        if path in ("/api/trend/hierarchy", "/api/comparison/hierarchy"):
+            try:
+                from python_files.trend_engine import get_hierarchy_tree
+                tree_data = get_hierarchy_tree()
+                self._send_json({"success": True, **tree_data})
+            except Exception as h_err:
+                self._send_json({"success": False, "message": str(h_err)}, 500)
+            return
+
+        # ── /api/trend/analysis (GET) ──
         if path == "/api/trend/analysis":
             try:
                 query = urllib.parse.parse_qs(parsed.query)
                 proj = query.get("project", [""])[0]
                 story = query.get("user_story", [""])[0]
-                tx = query.get("transaction", [""])[0]
+                i_type = query.get("item_type", ["TRANSACTIONS_ONLY"])[0]
                 limit_val = int(query.get("limit", [10])[0])
 
-                from python_files.trend_engine import get_trend_analysis
-                data = get_trend_analysis(project=proj, user_story=story, transaction=tx, limit=limit_val)
-                self._send_json({"success": True, **data})
+                from python_files.trend_engine import build_trend_analysis
+                data = build_trend_analysis(
+                    project=proj,
+                    user_story=story,
+                    item_type_filter=i_type,
+                    limit=limit_val
+                )
+                self._send_json(data)
             except Exception as te_err:
                 self._send_json({"success": False, "message": str(te_err)}, 500)
             return
@@ -773,6 +805,111 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({"success": False, "message": str(te_err)}, 500)
             return
 
+        # ── /api/comparison/data (POST) ──
+        if path == "/api/comparison/data":
+            try:
+                run_a = body.get("run_a", body.get("baseline_id", ""))
+                run_b = body.get("run_b", body.get("current_id", ""))
+                proj = body.get("project", "")
+                story = body.get("user_story", "")
+                i_type = body.get("item_type", "TRANSACTIONS_ONLY")
+
+                from python_files.comparison_engine import build_run_comparison
+                data = build_run_comparison(
+                    run_a_id=run_a,
+                    run_b_id=run_b,
+                    project=proj,
+                    user_story=story,
+                    item_type_filter=i_type
+                )
+                self._send_json(data)
+            except Exception as ce_err:
+                self._send_json({"success": False, "message": str(ce_err)}, 500)
+            return
+
+        # ── /api/comparison/generate-report ──
+        if path == "/api/comparison/generate-report":
+            try:
+                run_a = body.get("run_a", body.get("baseline_id", ""))
+                run_b = body.get("run_b", body.get("current_id", ""))
+                proj = body.get("project", "")
+                story = body.get("user_story", "")
+                i_type = body.get("item_type", "TRANSACTIONS_ONLY")
+
+                from python_files.comparison_engine import build_run_comparison, generate_run_comparison_html
+                comp_data = build_run_comparison(
+                    run_a_id=run_a,
+                    run_b_id=run_b,
+                    project=proj,
+                    user_story=story,
+                    item_type_filter=i_type
+                )
+                html_doc = generate_run_comparison_html(comp_data)
+                
+                # Save report
+                ts_str = time.strftime("%Y%m%d_%H%M%S")
+                proj_slug = "".join(c for c in proj if c.isalnum() or c in "_-") or "Project"
+                report_name = f"comparison_{proj_slug}_{ts_str}.html"
+                
+                _RESULTS_HTML_DIR.mkdir(parents=True, exist_ok=True)
+                _PUBLISHED_DIR.mkdir(parents=True, exist_ok=True)
+                
+                html_out_path = _RESULTS_HTML_DIR / report_name
+                html_out_path.write_text(html_doc, encoding="utf-8")
+                
+                pub_out_path = _PUBLISHED_DIR / report_name
+                pub_out_path.write_text(html_doc, encoding="utf-8")
+
+                self._send_json({
+                    "success": True,
+                    "report_file": report_name,
+                    "url": f"/Results/html/{report_name}",
+                    "published_url": f"/Results/Published/{report_name}"
+                })
+            except Exception as cg_err:
+                self._send_json({"success": False, "message": str(cg_err)}, 500)
+            return
+
+        # ── /api/trend/generate-report ──
+        if path == "/api/trend/generate-report":
+            try:
+                proj = body.get("project", "")
+                story = body.get("user_story", "")
+                i_type = body.get("item_type", "TRANSACTIONS_ONLY")
+                limit_val = int(body.get("limit", 10))
+
+                from python_files.trend_engine import build_trend_analysis, generate_trend_dashboard_html
+                trend_data = build_trend_analysis(
+                    project=proj,
+                    user_story=story,
+                    item_type_filter=i_type,
+                    limit=limit_val
+                )
+                html_doc = generate_trend_dashboard_html(trend_data)
+                
+                ts_str = time.strftime("%Y%m%d_%H%M%S")
+                proj_slug = "".join(c for c in proj if c.isalnum() or c in "_-") or "Project"
+                report_name = f"trend_{proj_slug}_{ts_str}.html"
+                
+                _RESULTS_HTML_DIR.mkdir(parents=True, exist_ok=True)
+                _PUBLISHED_DIR.mkdir(parents=True, exist_ok=True)
+                
+                html_out_path = _RESULTS_HTML_DIR / report_name
+                html_out_path.write_text(html_doc, encoding="utf-8")
+                
+                pub_out_path = _PUBLISHED_DIR / report_name
+                pub_out_path.write_text(html_doc, encoding="utf-8")
+
+                self._send_json({
+                    "success": True,
+                    "report_file": report_name,
+                    "url": f"/Results/html/{report_name}",
+                    "published_url": f"/Results/Published/{report_name}"
+                })
+            except Exception as tg_err:
+                self._send_json({"success": False, "message": str(tg_err)}, 500)
+            return
+
         self._send_json({"success": False, "message": f"Unknown endpoint: {path}"}, 404)
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -839,16 +976,30 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({"success": False, "message": f"Upload error: {e}"}, 500)
 
 
-def start_server(port: int = 8080):
-    httpd = HTTPServer(("", port), PlatformRequestHandler)
-    print(f"\n  ⚡ JmeterAI Web Dashboard → http://localhost:{port}/")
-    print(f"  Press Ctrl+C to stop.\n", flush=True)
+class ThreadedHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = True
+    daemon_threads = True
 
+
+def start_server(port: int = 8080):
+    httpd = None
     try:
+        httpd = ThreadedHTTPServer(("", port), PlatformRequestHandler)
+        print(f"\n  ⚡ JmeterAI Web Dashboard → http://localhost:{port}/")
+        print(f"  Press Ctrl+C to stop.\n", flush=True)
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\n  [SERVER] Stopped.")
-        httpd.server_close()
+        print("\n  [SERVER] Stopped.", flush=True)
+    except Exception as err:
+        import traceback
+        print(f"\n  [SERVER ERROR] {err}", flush=True)
+        traceback.print_exc()
+    finally:
+        if httpd:
+            try:
+                httpd.server_close()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Performance Release Comparison & Trend Report — JPetStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b1120;
+            --surface: #1e293b;
+            --border: #334155;
+            --primary: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.5; padding: 2.5rem; }
+        .header-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+        .header-title { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: space-between; }
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .meta-item { background: rgba(15, 23, 42, 0.6); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .meta-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
+        .meta-val { font-size: 1rem; font-weight: 600; color: #fff; margin-top: 0.2rem; }
+        
+        .flow-ribbon { display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+        .rel-node { background: #0f172a; border: 2px solid var(--border); padding: 0.5rem 1rem; border-radius: 10px; text-align: center; min-width: 90px; position: relative; }
+        .rel-node.node-baseline { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
+        .rel-node.node-current { border-color: #f43f5e; background: rgba(244, 63, 94, 0.1); }
+        .rel-code { font-weight: 800; font-size: 1.1rem; color: #fff; }
+        .rel-meta { font-size: 0.75rem; color: var(--text-muted); }
+        .rel-tag { position: absolute; top: -10px; right: -5px; background: #38bdf8; color: #000; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .node-current .rel-tag { background: #f43f5e; color: #fff; }
+        .rel-arrow { font-size: 1.2rem; color: var(--text-muted); font-weight: bold; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+        .kpi-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .kpi-value { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0.3rem 0; }
+        .kpi-sub { font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; }
+        .delta-up { color: var(--danger); font-weight: 700; }
+        .delta-down { color: var(--success); font-weight: 700; }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; }
+        h2 { color: var(--primary); font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: #0f172a; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+        
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .badge-good, .badge-pass { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+        .badge-warning, .badge-low, .badge-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+        .badge-critical, .badge-high { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+
+        .bullet-box { background: rgba(56, 189, 248, 0.08); border-left: 4px solid var(--primary); padding: 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .bullet-box ul { margin-left: 1.25rem; }
+        .bullet-box li { margin-bottom: 0.4rem; color: #e2e8f0; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <!-- A. Comparison Header -->
+    <div class="header-card">
+        <div class="header-title">
+            <span>⚡ Performance Release Comparison & Trend Analysis</span>
+            <span class="badge badge-good">Load Test / Performance Benchmark</span>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-item"><div class="meta-label">Project</div><div class="meta-val">JPetStore</div></div>
+            <div class="meta-item"><div class="meta-label">User Story Scope</div><div class="meta-val">All User Stories</div></div>
+            <div class="meta-item"><div class="meta-label">Environment</div><div class="meta-val">QA</div></div>
+            <div class="meta-item"><div class="meta-label">Baseline Release</div><div class="meta-val">R2</div></div>
+            <div class="meta-item"><div class="meta-label">Current Release</div><div class="meta-val">R2</div></div>
+            <div class="meta-item"><div class="meta-label">Releases Compared</div><div class="meta-val">3</div></div>
+            <div class="meta-item"><div class="meta-label">Transactions</div><div class="meta-val">22</div></div>
+            <div class="meta-item"><div class="meta-label">Comparison Period</div><div class="meta-val">2026-08-20 → 2026-08-20</div></div>
+        </div>
+
+        <!-- Visual Release Flow Ribbon -->
+        <div class="flow-ribbon">
+            
+        <div class="rel-node ">
+            <div class="rel-code">R1</div>
+            <div class="rel-meta">48 Users</div>
+            
+        </div>
+        <div class="rel-arrow">→</div>
+        <div class="rel-node node-current">
+            <div class="rel-code">R2</div>
+            <div class="rel-meta">4 Users</div>
+            <div class="rel-tag">Current</div>
+        </div>
+        <div class="rel-arrow">→</div>
+        <div class="rel-node ">
+            <div class="rel-code">R3</div>
+            <div class="rel-meta">16 Users</div>
+            
+        </div>
+        
+        </div>
+    </div>
+
+    <!-- B. Executive Summary -->
+    <div class="card">
+        <h2>Executive Comparison Summary</h2>
+        <div class="bullet-box">
+            <h3 style="color:#38bdf8; font-size:0.95rem; margin-bottom:0.6rem; text-transform:uppercase;">Key Executive Observations</h3>
+            <ul>
+                <li>Average response time decreased from **234.99ms in R2** to **234.99ms in R2 (+0.00%)**.</li><li>SLA compliance moved from **86.4%** to **86.4%** (+0.0 percentage points).</li><li>**HTTP_Add_Item_EST-26** recorded the largest overall degradation at **+0.00%**.</li><li>The largest release-to-release increase occurred between **R1 → R2 (+2.29%)**.</li><li>Critical SLA breaches changed from **0 in R2** to **0 in R2**.</li>
+            </ul>
+        </div>
+
+        <!-- 8 Hero KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Avg Response Time</div>
+                <div class="kpi-value">234.99 ms</div>
+                <div class="kpi-sub delta-down">
+                    ↓ 0.00% from R2 (234.99 ms)
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">SLA Pass Rate</div>
+                <div class="kpi-value">86.4%</div>
+                <div class="kpi-sub delta-down">
+                    +0.0 pts from R2 (86.4%)
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">P95 Response Time</div>
+                <div class="kpi-value">528.00 ms</div>
+                <div class="kpi-sub delta-down">
+                    +0.00% from baseline
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">SLA Breaches (Current)</div>
+                <div class="kpi-value" style="color: #ef4444;">3</div>
+                <div class="kpi-sub" style="color:#94a3b8;">Out of 22 analyzed transactions</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">Critical SLA Breaches</div>
+                <div class="kpi-value" style="color: #10b981;">0</div>
+                <div class="kpi-sub" style="color:#94a3b8;">High business risk transactions</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">Most Degraded Transaction</div>
+                <div class="kpi-value" style="font-size:1.1rem; color:#ef4444;">HTTP_Add_Item_EST-26</div>
+                <div class="kpi-sub delta-up">+0.00% degradation</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">Overall Health Status</div>
+                <div class="kpi-value"><span class="badge badge-warning">Warning</span></div>
+                <div class="kpi-sub" style="color:#94a3b8;">Deterministic multi-run health grade</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- C. Release Health Summary -->
+    <div class="card">
+        <h2>Release Performance Health Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Release</th>
+                    <th>Run ID</th>
+                    <th style="text-align:center;">Users</th>
+                    <th style="text-align:right;">SLA Pass %</th>
+                    <th style="text-align:right;">Avg RT</th>
+                    <th style="text-align:right;">P95 RT</th>
+                    <th style="text-align:center;">Critical Breaches</th>
+                    <th style="text-align:center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>R1</strong></td>
+            <td>run_20260820_133543</td>
+            <td style="text-align:center;">48</td>
+            <td style="text-align:right;">86.4%</td>
+            <td style="text-align:right;">229.73 ms</td>
+            <td style="text-align:right;">537.00 ms</td>
+            <td style="text-align:center;">0</td>
+            <td style="text-align:center;"><span class="badge badge-warning">Warning</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>R2</strong></td>
+            <td>run_20260820_134106</td>
+            <td style="text-align:center;">4</td>
+            <td style="text-align:right;">86.4%</td>
+            <td style="text-align:right;">234.99 ms</td>
+            <td style="text-align:right;">528.00 ms</td>
+            <td style="text-align:center;">0</td>
+            <td style="text-align:center;"><span class="badge badge-warning">Warning</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>R3</strong></td>
+            <td>run_20260820_134619</td>
+            <td style="text-align:center;">16</td>
+            <td style="text-align:right;">86.4%</td>
+            <td style="text-align:right;">230.17 ms</td>
+            <td style="text-align:right;">546.00 ms</td>
+            <td style="text-align:center;">0</td>
+            <td style="text-align:center;"><span class="badge badge-warning">Warning</span></td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <!-- D. Release-to-Release Transitions (Waterfall) -->
+    <div class="card">
+        <h2>Release-to-Release Change Analysis (Step Deltas)</h2>
+        <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">Release evolution spanned 2 consecutive release cycles with net performance change of +0.00%.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Release Transition</th>
+                    <th style="text-align:right;">Previous RT</th>
+                    <th style="text-align:right;">Current RT</th>
+                    <th style="text-align:right;">Step Delta %</th>
+                    <th style="text-align:right;">SLA Compliance Shift</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>R1 → R2</strong></td>
+            <td style="text-align:right;">229.73 ms</td>
+            <td style="text-align:right;">234.99 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#ef4444;">+2.29%</td>
+            <td style="text-align:right;">86.4% → 86.4% (+0.0 pts)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>R2 → R3</strong></td>
+            <td style="text-align:right;">234.99 ms</td>
+            <td style="text-align:right;">230.17 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#10b981;">-2.05%</td>
+            <td style="text-align:right;">86.4% → 86.4% (+0.0 pts)</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <!-- E. Transaction Performance Heatmap -->
+    <div class="card">
+        <h2>Transaction Performance Heatmap Matrix</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Transaction</th>
+                    <th>R1</th><th>R2</th><th>R3</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>HTTP_Add_Item_EST-26</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.79 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.48 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.80 ms</td></tr><tr><td><strong>HTTP_Launch_Catalog</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>188.74 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>196.29 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>186.74 ms</td></tr><tr><td><strong>HTTP_Launch_Homepage</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>188.28 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>196.29 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>186.52 ms</td></tr><tr><td><strong>HTTP_Search_Bulldog</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.97 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.43 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.83 ms</td></tr><tr><td><strong>HTTP_Select_Category_Dogs</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>179.44 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>183.10 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>183.01 ms</td></tr><tr><td><strong>HTTP_Select_Category_Fish</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>179.93 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>178.43 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>181.77 ms</td></tr><tr><td><strong>HTTP_Signon_Form</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>179.67 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>185.03 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.16 ms</td></tr><tr><td><strong>HTTP_View_Product_FI-SW-01</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.61 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>189.72 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>182.29 ms</td></tr><tr><td><strong>T-US01_Overall_Iteration</strong></td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>551.04 ms</td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>562.25 ms</td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>551.96 ms</td></tr><tr><td><strong>T-US02_Overall_Iteration</strong></td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>549.83 ms</td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>568.10 ms</td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>556.94 ms</td></tr><tr><td><strong>T-US03_Overall_Iteration</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>369.27 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>380.85 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>367.35 ms</td></tr><tr><td><strong>T-US04_Overall_Iteration</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>366.40 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>379.97 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>364.65 ms</td></tr><tr><td><strong>TC01_US01_Launch_Catalog</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>190.41 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>194.09 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>187.82 ms</td></tr><tr><td><strong>TC01_US02_Launch_Catalog</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>189.53 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>200.52 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>189.09 ms</td></tr><tr><td><strong>TC01_US03_Launch_Homepage</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>188.28 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>196.29 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>186.52 ms</td></tr><tr><td><strong>TC01_US04_Launch_Catalog</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>186.70 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>194.94 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.47 ms</td></tr><tr><td><strong>TC02_US01_Select_Fish_Category</strong></td><td style='background:rgba(239, 68, 68, 0.35); text-align:right; font-size:0.85rem;'>179.93 ms</td><td style='background:rgba(245, 158, 11, 0.25); text-align:right; font-size:0.85rem;'>178.43 ms</td><td style='background:rgba(239, 68, 68, 0.35); text-align:right; font-size:0.85rem;'>181.77 ms</td></tr><tr><td><strong>TC02_US02_Select_Dogs_Category</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>179.44 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>183.10 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>183.01 ms</td></tr><tr><td><strong>TC02_US03_Search_Keyword_Bulldog</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.97 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.43 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.83 ms</td></tr><tr><td><strong>TC02_US04_Navigate_To_Signon_Page</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>179.67 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>185.03 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.16 ms</td></tr><tr><td><strong>TC03_US01_View_Product_Details</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.61 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>189.72 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>182.29 ms</td></tr><tr><td><strong>TC03_US02_Add_Item_To_Cart</strong></td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>180.79 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.48 ms</td><td style='background:rgba(16, 185, 129, 0.15); text-align:right; font-size:0.85rem;'>184.80 ms</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- F. Transaction Comparison Table -->
+    <div class="card">
+        <h2>Detailed Transaction Performance Comparison</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Transaction / Story</th>
+                    <th style="text-align:right;">Baseline RT (R2)</th>
+                    <th style="text-align:right;">Current RT (R2)</th>
+                    <th style="text-align:right;">Change %</th>
+                    <th style="text-align:right;">SLA Target</th>
+                    <th style="text-align:right;">Breach %</th>
+                    <th style="text-align:center;">Best</th>
+                    <th style="text-align:center;">Worst</th>
+                    <th style="text-align:center;">Severity</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>HTTP_Add_Item_EST-26</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">184.48 ms</td>
+            <td style="text-align:right;">184.48 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.2%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_Launch_Catalog</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">196.29 ms</td>
+            <td style="text-align:right;">196.29 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.0%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_Launch_Homepage</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">196.29 ms</td>
+            <td style="text-align:right;">196.29 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.0%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_Search_Bulldog</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">184.43 ms</td>
+            <td style="text-align:right;">184.43 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.4%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_Select_Category_Dogs</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">183.10 ms</td>
+            <td style="text-align:right;">183.10 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.6%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_Select_Category_Fish</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">178.43 ms</td>
+            <td style="text-align:right;">178.43 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-64.0%</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_Signon_Form</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">185.03 ms</td>
+            <td style="text-align:right;">185.03 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.2%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>HTTP_View_Product_FI-SW-01</strong><br><small style="color:#64748b;">Overall Scenario</small></td>
+            <td style="text-align:right;">189.72 ms</td>
+            <td style="text-align:right;">189.72 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.4%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>T-US01_Overall_Iteration</strong><br><small style="color:#64748b;">US01_Browse_Catalog</small></td>
+            <td style="text-align:right;">562.25 ms</td>
+            <td style="text-align:right;">562.25 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">+8.8%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-low">LOW</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>T-US02_Overall_Iteration</strong><br><small style="color:#64748b;">US02_Add_To_Cart</small></td>
+            <td style="text-align:right;">568.10 ms</td>
+            <td style="text-align:right;">568.10 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">+10.8%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-low">LOW</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>T-US03_Overall_Iteration</strong><br><small style="color:#64748b;">US03_Search_Products</small></td>
+            <td style="text-align:right;">380.85 ms</td>
+            <td style="text-align:right;">380.85 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-25.8%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>T-US04_Overall_Iteration</strong><br><small style="color:#64748b;">US04_User_Sign_In</small></td>
+            <td style="text-align:right;">379.97 ms</td>
+            <td style="text-align:right;">379.97 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-26.0%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC01_US01_Launch_Catalog</strong><br><small style="color:#64748b;">US01_Browse_Catalog</small></td>
+            <td style="text-align:right;">194.09 ms</td>
+            <td style="text-align:right;">194.09 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-64.0%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC01_US02_Launch_Catalog</strong><br><small style="color:#64748b;">US02_Add_To_Cart</small></td>
+            <td style="text-align:right;">200.52 ms</td>
+            <td style="text-align:right;">200.52 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.6%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>🔥 TC01_US03_Launch_Homepage</strong><br><small style="color:#64748b;">US03_Search_Products</small></td>
+            <td style="text-align:right;">196.29 ms</td>
+            <td style="text-align:right;">196.29 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">200 ms</td>
+            <td style="text-align:right;">-7.5%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC01_US04_Launch_Catalog</strong><br><small style="color:#64748b;">US04_User_Sign_In</small></td>
+            <td style="text-align:right;">194.94 ms</td>
+            <td style="text-align:right;">194.94 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.0%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>🔥 TC02_US01_Select_Fish_Category</strong><br><small style="color:#64748b;">US01_Browse_Catalog</small></td>
+            <td style="text-align:right;">178.43 ms</td>
+            <td style="text-align:right;">178.43 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">92 ms</td>
+            <td style="text-align:right;">+95.7%</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;"><span class="badge badge-moderate">MODERATE</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC02_US02_Select_Dogs_Category</strong><br><small style="color:#64748b;">US02_Add_To_Cart</small></td>
+            <td style="text-align:right;">183.10 ms</td>
+            <td style="text-align:right;">183.10 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.6%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC02_US03_Search_Keyword_Bulldog</strong><br><small style="color:#64748b;">US03_Search_Products</small></td>
+            <td style="text-align:right;">184.43 ms</td>
+            <td style="text-align:right;">184.43 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.4%</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>🔥 TC02_US04_Navigate_To_Signon_Page</strong><br><small style="color:#64748b;">US04_User_Sign_In</small></td>
+            <td style="text-align:right;">185.03 ms</td>
+            <td style="text-align:right;">185.03 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.2%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>TC03_US01_View_Product_Details</strong><br><small style="color:#64748b;">US01_Browse_Catalog</small></td>
+            <td style="text-align:right;">189.72 ms</td>
+            <td style="text-align:right;">189.72 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">500 ms</td>
+            <td style="text-align:right;">-63.4%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R2</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>🔥 TC03_US02_Add_Item_To_Cart</strong><br><small style="color:#64748b;">US02_Add_To_Cart</small></td>
+            <td style="text-align:right;">184.48 ms</td>
+            <td style="text-align:right;">184.48 ms</td>
+            <td style="text-align:right; font-weight:bold; color:#94a3b8;">0.00%</td>
+            <td style="text-align:right;">1517 ms</td>
+            <td style="text-align:right;">-87.9%</td>
+            <td style="text-align:center;">R1</td>
+            <td style="text-align:center;">R3</td>
+            <td style="text-align:center;"><span class="badge badge-pass">PASS</span></td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <!-- G. Deterministic Conclusions -->
+    <div class="card">
+        <h2>Deterministic Conclusions</h2>
+        <table>
+            <tbody>
+                
+    <tr><td>Slowest Transaction</td><td><strong>T-US02_Overall_Iteration</strong></td></tr>
+    <tr><td>Fastest Transaction</td><td><strong>HTTP_Select_Category_Fish</strong></td></tr>
+    <tr><td>Most Degraded Transaction</td><td style="color:#ef4444;"><strong>HTTP_Add_Item_EST-26 (+0.00%)</strong></td></tr>
+    <tr><td>Most Improved Transaction</td><td style="color:#10b981;"><strong>None (-0.00%)</strong></td></tr>
+    <tr><td>Highest SLA Breach</td><td style="color:#f43f5e;"><strong>TC02_US01_Select_Fish_Category (+95.65%)</strong></td></tr>
+    <tr><td>Best Release</td><td style="color:#10b981;"><strong>R1</strong></td></tr>
+    <tr><td>Worst Release</td><td style="color:#ef4444;"><strong>R2</strong></td></tr>
+    <tr><td>SLA Pass Rate Baseline vs Current</td><td><strong>86.4% → 86.4%</strong></td></tr>
+    <tr><td>Overall Performance Delta</td><td><strong>+0.00%</strong></td></tr>
+    
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

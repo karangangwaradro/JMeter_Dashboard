@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
+import sys
 import json
 import importlib
 from pathlib import Path
 
 _ROOT_DIR = Path(__file__).parent.parent.resolve()
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
 
 
 def run():
@@ -67,14 +69,21 @@ def run():
                 ts = re_parsed.get("time_series", {})
                 if re_parsed.get("labels"):
                     parsed["labels"] = re_parsed["labels"]
+                if re_parsed.get("labels_by_tg"):
+                    parsed["labels_by_tg"] = re_parsed["labels_by_tg"]
+                if re_parsed.get("error_details") is not None:
+                    parsed["error_details"] = re_parsed["error_details"]
                 if ts:
                     parsed["time_series"] = ts
                     print(f"[Recompile]   JTL re-parsed: {len(ts.get('label_ts_map', {}))} transaction series", flush=True)
                 if re_parsed.get("summary"):
                     parsed["summary"] = re_parsed["summary"]
-                    print(f"[Recompile]   Summary updated: Total Iterations={re_parsed['summary'].get('total_iterations')}, Error Rate={re_parsed['summary'].get('error_rate')}%", flush=True)
+                    print(f"[Recompile]   Summary updated: Total Iterations={re_parsed['summary'].get('total_iterations')}, Error Rate={re_parsed['summary'].get('error_rate')}%, Errors={re_parsed['summary'].get('errors')}", flush=True)
             except Exception as e:
                 print(f"[Recompile]   JTL re-parse error: {e}", flush=True)
+
+        # Persist cleaned/updated parsed result back to JSON
+        res_file.write_text(json.dumps(parsed, indent=2), encoding="utf-8")
 
         out_file = rg_module.generate_report(parsed, azure_data, ai_insights, report_path, jmx_name, users)
         print(f"[Recompile]   Done: {report_path.exists()}", flush=True)

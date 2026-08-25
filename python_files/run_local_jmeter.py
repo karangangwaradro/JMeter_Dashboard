@@ -349,7 +349,10 @@ def run_local_jmeter(jmx_name: str = None, users: int = 1, duration: str = "0", 
         LIVE_STATE["active"] = False
         return {"success": False, "error": f"JTL result file not found: {jtl_file}"}
 
-    parsed = parse_jtl(jtl_file)
+    import importlib
+    import python_files.jtl_parser as jtl_p_mod
+    importlib.reload(jtl_p_mod)
+    parsed = jtl_p_mod.parse_jtl(jtl_file)
     parsed["execution_time"] = execution_time_str
     parsed["jmx_name"]      = jmx_name
     parsed["users"]          = total_users

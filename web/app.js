@@ -73,6 +73,14 @@ function switchTab(tabId) {
     } else if (tabId === "tab-reports") {
         loadRuns();
         loadReports();
+    } else if (tabId === "tab-compare") {
+        if (typeof fetchAndRenderRunComparison === "function") {
+            fetchAndRenderRunComparison();
+        }
+    } else if (tabId === "tab-trend") {
+        if (typeof fetchAndRenderTrend === "function") {
+            fetchAndRenderTrend();
+        }
     }
 }
 

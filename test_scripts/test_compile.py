@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Quick test script to verify the report generator compiles without errors."""
 import sys
-sys.path.insert(0, r"D:\BlazemeterMCPZIP\JmeterAI")
+from pathlib import Path
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 import json
-from pathlib import Path
 
 try:
     from python_files.organize_results import organize
@@ -12,7 +14,7 @@ try:
 except Exception:
     pass
 
-results_dir = Path(r"D:\BlazemeterMCPZIP\JmeterAI\Results")
+results_dir = _ROOT / "Results"
 json_dir = results_dir / "json"
 html_dir = results_dir / "html"
 

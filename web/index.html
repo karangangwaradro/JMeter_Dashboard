@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JmeterAI — Local Performance Engineering & Azure Observability</title>
+    <title>PerfAI — Local Performance Engineering & Azure Observability</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="compare.css">
     <link rel="stylesheet" href="trend.css">
 </head>
 
@@ -33,7 +34,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1>JmeterAI</h1>
+                    <h1>PerfAI</h1>
                 </div>
             </div>
         </div>
@@ -102,20 +103,22 @@
                         </svg>
                         SLA Validation
                     </a>
-                    <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                            <polyline points="17 6 23 6 23 12"></polyline>
-                        </svg>
-                        Trend Analysis
-                    </a>
                     <a href="#" data-tab="tab-compare" onclick="switchTab('tab-compare')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
                             <line x1="12" y1="20" x2="12" y2="4"></line>
                             <line x1="6" y1="20" x2="6" y2="14"></line>
                         </svg>
-                        Compare Runs
+                        Compare Runs (2-Run Deep Dive)
+                    </a>
+                    <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                        Historical Trend Analysis
                     </a>
                     <a href="#" data-tab="tab-reports" onclick="switchTab('tab-reports')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -419,162 +422,608 @@
                 </div>
             </section>
 
-            <!-- 5. TREND ANALYSIS VIEW -->
-            <section id="tab-trend" class="tab-content hidden trend-container">
-                <div class="glass-container" style="padding: 1.5rem;">
-                    <h2>📈 Performance Trend Analysis</h2>
-                    <p style="color:#94a3b8; font-size:0.9rem; margin-top:0.2rem;">Historical performance intelligence across projects, user stories, and transactions.</p>
-                    
-                    <!-- Hierarchical Filters -->
-                    <div class="filter-bar" style="margin-top: 1.25rem;">
-                        <div class="filter-group">
-                            <label>Project</label>
-                            <select id="trend-project-select" class="filter-select"></select>
+            <!-- 5. DEDICATED COMPARE RUNS WORKSPACE (Run A vs Run B Deep Dive) -->
+            <section id="tab-compare" class="tab-content hidden compare-workspace">
+
+                <!-- A. Run A vs Run B Selector Header -->
+                <div class="compare-header-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2 style="font-size: 1.45rem; font-weight: 800; color: #0284c7; margin: 0;">⚖️ Run
+                                Comparison Engineering Report</h2>
+                            <p style="color: #64748b; font-size: 0.88rem; margin: 0.25rem 0 0 0;">Deep-dive comparative
+                                analysis between exactly two test executions (Run A vs Run B).</p>
                         </div>
-                        <div class="filter-group">
-                            <label>User Story</label>
-                            <select id="trend-story-select" class="filter-select"></select>
+                        <button class="btn secondary-btn" onclick="exportRunComparisonHTML()"
+                            title="Generate Standalone HTML Comparison Report">
+                            📄 Export Comparison Report
+                        </button>
+                    </div>
+
+                    <!-- Run Selectors with Swap Button -->
+                    <div class="compare-selector-bar">
+                        <div class="run-select-box">
+                            <label>Run A (Baseline)</label>
+                            <select id="comp-run-a-select" class="trend-select"
+                                onchange="fetchAndRenderRunComparison()"></select>
                         </div>
-                        <div class="filter-group">
-                            <label>Transaction</label>
-                            <select id="trend-tx-select" class="filter-select"></select>
+
+                        <button class="swap-runs-btn" onclick="swapComparisonRuns()" title="Swap Run A and Run B">
+                            ⇄
+                        </button>
+
+                        <div class="run-select-box">
+                            <label>Run B (Target / New)</label>
+                            <select id="comp-run-b-select" class="trend-select"
+                                onchange="fetchAndRenderRunComparison()"></select>
                         </div>
-                        <div class="filter-group" style="max-width: 140px;">
-                            <label>Time Range / Runs</label>
-                            <select id="trend-limit-select" class="filter-select" onchange="fetchAndRenderTrendData()">
-                                <option value="5">Last 5 Tests</option>
-                                <option value="10" selected>Last 10 Tests</option>
-                                <option value="20">Last 20 Tests</option>
-                                <option value="50">Last 50 Tests</option>
+                    </div>
+
+                    <!-- Secondary Filters -->
+                    <div class="compare-filter-row">
+                        <div class="trend-ctrl-group">
+                            <label>User Story Scope</label>
+                            <select id="comp-run-story-select" class="trend-select"
+                                onchange="fetchAndRenderRunComparison()">
+                                <option value="">All User Stories</option>
+                            </select>
+                        </div>
+                        <div class="trend-ctrl-group">
+                            <label>Hierarchy Scope</label>
+                            <select id="comp-run-type-select" class="trend-select"
+                                onchange="fetchAndRenderRunComparison()">
+                                <option value="TRANSACTIONS_ONLY" selected>Transactions Only (Main &amp; Sub TX)
+                                </option>
+                                <option value="">All Levels (Main, Sub &amp; Requests)</option>
+                                <option value="MAIN_TRANSACTION">Main Transactions Only</option>
+                                <option value="SUB_TRANSACTION">Sub-Transactions Only</option>
+                                <option value="HTTP_REQUEST">HTTP Requests Only</option>
                             </select>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Health Score Banner -->
-                    <div class="health-score-card" style="margin-top: 1.5rem;">
-                        <div class="score-display">
-                            <div class="score-circle" id="health-score-circle">
-                                <div class="score-circle-inner">
-                                    <div class="score-num" id="health-score-num">--</div>
-                                    <div class="score-label">HEALTH</div>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 style="margin:0; font-size:1.2rem; color:#f8fafc;">Performance Health Index</h3>
-                                <p style="margin:0.2rem 0 0 0; font-size:0.82rem; color:#94a3b8;">Weighted composite across RT, P95, Throughput, Error Rate & SLA</p>
-                            </div>
-                        </div>
-
-                        <div class="health-breakdown-grid">
-                            <div class="breakdown-item">
-                                <div class="breakdown-title">Response Time</div>
-                                <div class="breakdown-val" id="hb-rt">--</div>
-                            </div>
-                            <div class="breakdown-item">
-                                <div class="breakdown-title">P95 Latency</div>
-                                <div class="breakdown-val" id="hb-p95">--</div>
-                            </div>
-                            <div class="breakdown-item">
-                                <div class="breakdown-title">Throughput</div>
-                                <div class="breakdown-val" id="hb-tp">--</div>
-                            </div>
-                            <div class="breakdown-item">
-                                <div class="breakdown-title">Error Rate</div>
-                                <div class="breakdown-val" id="hb-err">--</div>
-                            </div>
-                            <div class="breakdown-item">
-                                <div class="breakdown-title">SLA Pass</div>
-                                <div class="breakdown-val" id="hb-sla">--</div>
-                            </div>
-                        </div>
+                <!-- B. Executive Comparison Summary & Overall Performance -->
+                <div class="scorecard-container">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a;">Executive Comparison Summary</h3>
+                        <span class="badge badge-good">2-Run Exact Delta</span>
                     </div>
 
-                    <!-- Multi-Metric Trend Charts Grid -->
-                    <div class="trend-charts-grid" style="margin-top: 1.5rem;">
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <span class="chart-title">Avg Response Time (ms)</span>
-                                <span class="chart-delta-badge badge-improved">↓ Lower is Better</span>
-                            </div>
-                            <svg id="chart-svg-rt" class="sparkline-svg"></svg>
+                    <!-- Factual AI Findings -->
+                    <div class="exec-insights-box" style="margin-top: 1rem;">
+                        <h3>💡 Grounded Comparative Findings</h3>
+                        <ul id="compare-ai-bullets">
+                            <li>Loading comparative analysis...</li>
+                        </ul>
+                    </div>
+
+                    <!-- 1. Overall Performance Split Cards -->
+                    <div style="margin-top: 1.25rem;">
+                        <div
+                            style="font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.5rem; text-transform: uppercase;">
+                            1. Overall Performance — Run A vs Run B</div>
+                        <div id="comp-overall-cards-container" class="split-perf-grid">
+                            <!-- Populated dynamically -->
                         </div>
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <span class="chart-title">P95 Response Time (ms)</span>
-                                <span class="chart-delta-badge badge-degraded">↓ SLA Target: &lt;2s</span>
-                            </div>
-                            <svg id="chart-svg-p95" class="sparkline-svg"></svg>
-                        </div>
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <span class="chart-title">Throughput (Req/sec)</span>
-                                <span class="chart-delta-badge badge-improved">↑ Higher is Better</span>
-                            </div>
-                            <svg id="chart-svg-tp" class="sparkline-svg"></svg>
-                        </div>
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <span class="chart-title">Error Rate (%)</span>
-                                <span class="chart-delta-badge badge-improved">↓ Target: 0%</span>
-                            </div>
-                            <svg id="chart-svg-err" class="sparkline-svg"></svg>
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-overall">Analyzing overall metrics...</span>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- 6. COMPARE RUNS VIEW -->
-            <section id="tab-compare" class="tab-content hidden trend-container">
-                <div class="glass-container" style="padding: 1.5rem;">
-                    <h2>📊 Multi-Run Comparative Analysis</h2>
-                    <p style="color:#94a3b8; font-size:0.9rem; margin-top:0.2rem;">Select arbitrary performance runs to generate comparative regression matrix.</p>
+                <!-- C. Core Visualization Cards Grid -->
+                <div class="compare-visuals-grid">
 
-                    <!-- Run Selector Grid -->
-                    <div style="margin-top: 1.25rem;">
-                        <h3 style="font-size: 0.95rem; color: #f8fafc;">Select Test Runs to Compare</h3>
-                        <div class="run-selector-grid" id="compare-runs-grid">
-                            <!-- Populated dynamically -->
+                    <!-- Hero Visualization: Response Time Change % (Hero Diverging Chart) -->
+                    <div class="compare-graph-card" style="grid-column: 1 / -1;">
+                        <div class="compare-graph-header">
+                            <div>
+                                <div class="compare-graph-title">📉 Response Time Change % (Hero Diverging Chart)</div>
+                                <div class="compare-graph-sub">Improvement on left (green) | Degradation on right (red)
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:1rem;">
+                                <div style="display:flex; gap:0.5rem; font-size:0.75rem; font-weight:700;">
+                                    <span style="color:#059669;">← Improved</span>
+                                    <span style="color:#dc2626;">Degraded →</span>
+                                </div>
+                                <div style="display:flex; gap:0.35rem;">
+                                    <button class="btn view-mode-btn sort-btn-tx active" data-mode="degradation"
+                                        onclick="setDivergingSortMode('degradation')">Degradation</button>
+                                    <button class="btn view-mode-btn sort-btn-tx" data-mode="delta_pct"
+                                        onclick="setDivergingSortMode('delta_pct')">% Change</button>
+                                    <button class="btn view-mode-btn sort-btn-tx" data-mode="hierarchy"
+                                        onclick="setDivergingSortMode('hierarchy')">Hierarchy</button>
+                                </div>
+                            </div>
                         </div>
-                        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
-                            <button class="primary-btn" onclick="executeRunComparison()">
-                                ⚡ Compare Selected Runs
-                            </button>
-                            <button class="secondary-btn" onclick="generateComparisonReportFile()">
-                                📄 Generate Comparison Report HTML
-                            </button>
+                        <div id="comp-diverging-rt-container" style="max-height: 340px; overflow-y: auto;"></div>
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-diverging">Analyzing percentage changes...</span>
                         </div>
                     </div>
 
-                    <!-- Side-by-Side Matrix Table -->
-                    <div style="margin-top: 2rem;">
-                        <h3 style="font-size: 1.1rem; color: #38bdf8;">Comparative Performance Matrix</h3>
+                    <!-- 2. SLA Compliance Comparison (100% Stacked Bar) -->
+                    <div class="compare-graph-card">
+                        <div class="compare-graph-header">
+                            <div>
+                                <div class="compare-graph-title">🎯 SLA Compliance Comparison</div>
+                                <div class="compare-graph-sub">100% stacked bars comparing pass rate % vs breach %</div>
+                            </div>
+                            <span class="badge badge-good">Target: 100%</span>
+                        </div>
+                        <div id="comp-sla-stacked-container" style="margin-top: 0.5rem;"></div>
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-sla-stacked">Analyzing compliance...</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. SLA Status Transition Matrix (4-Quadrant) -->
+                    <div class="compare-graph-card">
+                        <div class="compare-graph-header">
+                            <div>
+                                <div class="compare-graph-title">🔄 5. SLA Status Transition Matrix</div>
+                                <div class="compare-graph-sub">Regression state transitions between executions</div>
+                            </div>
+                        </div>
+                        <div class="sla-trans-matrix-grid">
+                            <div class="sla-trans-box">
+                                <div class="sla-trans-title" style="color:#059669;">Pass → Pass</div>
+                                <div class="sla-trans-count" id="trans-cnt-pass-pass" style="color:#059669;">0</div>
+                                <div class="sla-trans-desc">Persistent Passes</div>
+                            </div>
+                            <div class="sla-trans-box">
+                                <div class="sla-trans-title" style="color:#dc2626;">Pass → Breach</div>
+                                <div class="sla-trans-count" id="trans-cnt-pass-fail" style="color:#dc2626;">0</div>
+                                <div class="sla-trans-desc" style="color:#dc2626; font-weight:bold;">New SLA Breaches
+                                </div>
+                            </div>
+                            <div class="sla-trans-box">
+                                <div class="sla-trans-title" style="color:#059669;">Breach → Pass</div>
+                                <div class="sla-trans-count" id="trans-cnt-fail-pass" style="color:#059669;">0</div>
+                                <div class="sla-trans-desc" style="color:#059669; font-weight:bold;">Resolved Breaches
+                                </div>
+                            </div>
+                            <div class="sla-trans-box">
+                                <div class="sla-trans-title" style="color:#d97706;">Breach → Breach</div>
+                                <div class="sla-trans-count" id="trans-cnt-fail-fail" style="color:#d97706;">0</div>
+                                <div class="sla-trans-desc">Persistent Breaches</div>
+                            </div>
+                        </div>
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-sla-transition">Analyzing transitions...</span>
+                        </div>
+                    </div>
+
+                    <!-- Throughput & Error Rate Comparison (Full Width) -->
+                    <div class="compare-graph-card" style="grid-column: 1 / -1;">
+                        <div class="compare-graph-header">
+                            <div>
+                                <div class="compare-graph-title">⚡ Throughput (TPS) &amp; Error Rate Comparison</div>
+                                <div class="compare-graph-sub">Side-by-side transaction throughput and functional
+                                    failures</div>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div>
+                                <div
+                                    style="font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
+                                    <span>Throughput (Run A vs Run B)</span>
+                                    <span style="font-size:0.75rem; color:#64748b;">(Blue = Run A, Green = Run B)</span>
+                                </div>
+                                <div id="comp-tps-container" style="max-height: 260px; overflow-y: auto;"></div>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
+                                    <span>Error Rate % (Run A vs Run B)</span>
+                                    <span style="font-size:0.75rem; color:#64748b;">(Blue = Run A, Red = Run B)</span>
+                                </div>
+                                <div id="comp-err-container" style="max-height: 260px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-throughput">Analyzing throughput &amp; errors...</span>
+                        </div>
+                    </div>
+
+                    <!-- 8. Percentile Distribution Progression -->
+                    <div class="compare-graph-card" style="grid-column: 1 / -1;">
+                        <div class="compare-graph-header">
+                            <div>
+                                <div class="compare-graph-title">📐 8. Percentile Distribution Progression (P50 → P90 →
+                                    P95 → P99)</div>
+                                <div class="compare-graph-sub">Tail latency comparisons to identify latency outliers and
+                                    regressions</div>
+                            </div>
+                        </div>
                         <div class="table-container">
-                            <table class="compare-matrix-table">
+                            <table class="data-table">
                                 <thead>
-                                    <tr id="compare-table-header">
-                                        <th>Metric</th>
+                                    <tr>
+                                        <th>Transaction</th>
+                                        <th style="text-align:right;">P50 (Median)</th>
+                                        <th style="text-align:right;">P90 Latency</th>
+                                        <th style="text-align:right;">P95 Latency</th>
+                                        <th style="text-align:right;">P99 Tail Latency</th>
                                     </tr>
                                 </thead>
-                                <tbody id="compare-table-body">
+                                <tbody id="comp-pct-tbody">
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">Select runs above and click "Compare Selected Runs"</td>
+                                        <td colspan="5" class="text-center text-muted">Loading percentiles...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- Load Normalization Callout -->
-                        <div class="insight-callout" id="compare-insight-callout">
-                            Select test runs above to analyze contextual load vs performance changes.
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-percentiles">Analyzing percentile distributions...</span>
                         </div>
                     </div>
+
+                    <!-- 9. Transaction Performance Heatmap Matrix -->
+                    <div class="compare-graph-card" style="grid-column: 1 / -1;">
+                        <div class="compare-graph-header">
+                            <div>
+                                <div class="compare-graph-title">▦ 9. Transaction Performance Heatmap Matrix</div>
+                                <div class="compare-graph-sub">High-density visual status scan across all metrics</div>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="matrix-scan-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hierarchy Item</th>
+                                        <th style="text-align:center;">Avg RT</th>
+                                        <th style="text-align:center;">P95 Latency</th>
+                                        <th style="text-align:center;">Throughput (TPS)</th>
+                                        <th style="text-align:center;">Error Rate</th>
+                                        <th style="text-align:center;">SLA Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comp-matrix-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Loading matrix...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="graph-observation-strip">
+                            <span class="graph-obs-tag">Observation</span>
+                            <span id="comp-obs-matrix">Scanning health matrix...</span>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- D. Transaction-Level Detailed Comparison Table -->
+                <div class="glass-container">
+                    <h3 style="margin:0; font-size:1.1rem; color:#0f172a;">📋 Detailed Transaction Performance
+                        Comparison Table</h3>
+                    <p style="margin:0.2rem 0 1rem 0; color:#64748b; font-size:0.85rem;">Granular side-by-side metric
+                        differences, throughput, SLA margins, and state transitions.</p>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Hierarchy Item</th>
+                                    <th>User Story</th>
+                                    <th style="text-align:right;">Run A RT</th>
+                                    <th style="text-align:right;">Run B RT</th>
+                                    <th style="text-align:right;">RT Change %</th>
+                                    <th style="text-align:right;">TPS (A / B)</th>
+                                    <th style="text-align:right;">SLA Target</th>
+                                    <th style="text-align:center;">Run A</th>
+                                    <th style="text-align:center;">Run B</th>
+                                    <th style="text-align:center;">Status Change</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compare-main-tbody">
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted">Loading transaction comparisons...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- E. Comparison Rankings (5 Tabs) -->
+                <div class="glass-container">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                        <div>
+                            <h3 style="margin:0; font-size:1.1rem; color:#0f172a;">🏆 Comparison Rankings</h3>
+                            <p style="margin:0.2rem 0 0 0; color:#64748b; font-size:0.85rem;">Biggest degradation, top
+                                improvements, largest SLA breaches, and throughput shifts.</p>
+                        </div>
+                        <div class="rankings-tab-bar">
+                            <button class="rankings-tab-btn compare-rank-btn active" data-tab="biggest_degradation"
+                                onclick="switchCompareRankingsTab('biggest_degradation')">📉 Biggest
+                                Degradation</button>
+                            <button class="rankings-tab-btn compare-rank-btn" data-tab="biggest_improvement"
+                                onclick="switchCompareRankingsTab('biggest_improvement')">🚀 Biggest
+                                Improvement</button>
+                            <button class="rankings-tab-btn compare-rank-btn" data-tab="largest_sla_breach"
+                                onclick="switchCompareRankingsTab('largest_sla_breach')">⚠️ Largest SLA Breach</button>
+                            <button class="rankings-tab-btn compare-rank-btn" data-tab="largest_throughput_change"
+                                onclick="switchCompareRankingsTab('largest_throughput_change')">⚡ Throughput
+                                Change</button>
+                            <button class="rankings-tab-btn compare-rank-btn" data-tab="highest_error_increase"
+                                onclick="switchCompareRankingsTab('highest_error_increase')">🔥 Error Increase</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container" style="margin-top:1rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">Rank</th>
+                                    <th>Transaction</th>
+                                    <th>Type</th>
+                                    <th style="text-align:right;">Comparative Change Metric</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compare-rank-tbody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Loading rankings...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- 6. DEDICATED HISTORICAL TREND ANALYSIS WORKSPACE -->
+            <section id="tab-trend" class="tab-content hidden trend-workspace">
+
+                <!-- A. Trend Controls & Context Header -->
+                <div class="trend-header-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2 style="font-size: 1.45rem; font-weight: 800; color: #0284c7; margin: 0;">📈 Historical
+                                Trend Analysis Dashboard</h2>
+                            <p style="color: #64748b; font-size: 0.88rem; margin: 0.25rem 0 0 0;">High-level historical
+                                patterns and directional health across multiple releases (R1 → Rn).</p>
+                        </div>
+                        <button class="btn secondary-btn" onclick="exportTrendDashboardHTML()"
+                            title="Generate Standalone Trend Dashboard Report">
+                            📄 Export Trend Dashboard
+                        </button>
+                    </div>
+
+                    <!-- Toolbar Filters -->
+                    <div class="trend-toolbar">
+                        <div class="trend-ctrl-group">
+                            <label>Project</label>
+                            <select id="trend-project-select" class="trend-select"
+                                onchange="onTrendProjectChange()"></select>
+                        </div>
+                        <div class="trend-ctrl-group">
+                            <label>User Story Scope</label>
+                            <select id="trend-story-select" class="trend-select" onchange="fetchAndRenderTrend()">
+                                <option value="">All User Stories</option>
+                            </select>
+                        </div>
+                        <div class="trend-ctrl-group">
+                            <label>Hierarchy Scope</label>
+                            <select id="trend-type-select" class="trend-select" onchange="fetchAndRenderTrend()">
+                                <option value="TRANSACTIONS_ONLY" selected>Transactions Only (Main &amp; Sub TX)
+                                </option>
+                                <option value="">All Levels (Main, Sub &amp; Requests)</option>
+                                <option value="MAIN_TRANSACTION">Main Transactions Only</option>
+                                <option value="SUB_TRANSACTION">Sub-Transactions Only</option>
+                                <option value="HTTP_REQUEST">HTTP Requests Only</option>
+                            </select>
+                        </div>
+                        <div class="trend-ctrl-group" style="max-width: 140px;">
+                            <label>Max Releases</label>
+                            <select id="trend-limit-select" class="trend-select" onchange="fetchAndRenderTrend()">
+                                <option value="5">Last 5 Runs</option>
+                                <option value="10" selected>Last 10 Runs</option>
+                                <option value="20">Last 20 Runs</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Visual Release Node Ribbon -->
+                    <div id="trend-release-ribbon" class="release-flow-ribbon">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- B. Management KPI Cards (4 Cards) -->
+                <div class="trend-kpi-grid">
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Current Response Time</div>
+                        <div class="trend-kpi-value" id="trend-kpi-current-rt">--</div>
+                        <div class="trend-kpi-delta" id="trend-kpi-delta">--</div>
+                    </div>
+
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Current SLA Pass Rate</div>
+                        <div class="trend-kpi-value" id="trend-kpi-sla-pass">--</div>
+                        <div class="trend-kpi-delta delta-neutral" id="trend-kpi-sla-status">Status: Good</div>
+                    </div>
+
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Best Performing Release</div>
+                        <div class="trend-kpi-value" id="trend-kpi-best-rel" style="color:#059669;">--</div>
+                        <div class="trend-kpi-delta delta-improved">Lowest overall latency</div>
+                    </div>
+
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Worst Performing Release</div>
+                        <div class="trend-kpi-value" id="trend-kpi-worst-rel" style="color:#dc2626;">--</div>
+                        <div class="trend-kpi-delta delta-degraded">Highest overall latency</div>
+                    </div>
+                </div>
+
+                <!-- C. Executive Trend Observations -->
+                <div class="exec-insights-box">
+                    <h3>💡 Executive Trend Observations</h3>
+                    <ul id="trend-ai-bullets">
+                        <li>Loading historical trend patterns...</li>
+                    </ul>
+                </div>
+
+                <!-- D. 5 Hero Visual Charts -->
+                <div class="trend-visuals-grid">
+
+                    <!-- Graph 1: Multi-Series Historical Performance Trend Explorer (Large Full-Width) -->
+                    <div class="chart-panel-card" style="grid-column: 1 / -1; padding: 1.5rem;">
+                        <div class="chart-panel-header" style="flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+                            <div>
+                                <div class="chart-panel-title" style="font-size: 1.15rem;">📈 Multi-Series Performance
+                                    Trend Explorer</div>
+                                <div class="chart-panel-sub">Compare multi-release progression for overall scenario,
+                                    specific user stories, or individual transactions across metrics</div>
+                            </div>
+
+                            <!-- Interactive Multi-Select & Metric Controls -->
+                            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+
+                                <!-- Metric Selector -->
+                                <div style="display:flex; align-items:center; gap:0.4rem;">
+                                    <span
+                                        style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Metric:</span>
+                                    <select id="trend-explorer-metric-select" class="trend-select"
+                                        style="padding:0.4rem 0.75rem; font-size:0.82rem; font-weight:600;"
+                                        onchange="onTrendExplorerMetricChange()">
+                                        <option value="avg_rt" selected>Average RT (ms)</option>
+                                        <option value="p95">P95 Latency (ms)</option>
+                                        <option value="p90">P90 Latency (ms)</option>
+                                        <option value="tps">Throughput (TPS)</option>
+                                        <option value="error_rate">Error Rate (%)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Multi-Select Dropdown Button & Floating Panel -->
+                                <div class="trend-multiselect-wrap">
+                                    <button type="button" id="trend-multiselect-btn" class="btn view-mode-btn"
+                                        style="background:#ffffff; border:1px solid #cbd5e1; font-weight:700; color:#0f172a; padding:0.4rem 0.85rem;"
+                                        onclick="toggleTrendMultiSelectDropdown()">
+                                        <span>➕ Select Series</span>
+                                        <span id="trend-selected-count-badge" class="badge"
+                                            style="background:#0284c7; color:#ffffff; font-size:0.7rem; padding:2px 6px;">1</span>
+                                        <span style="font-size:0.7rem; color:#64748b;">▼</span>
+                                    </button>
+
+                                    <!-- Dropdown Floating Menu -->
+                                    <div id="trend-multiselect-dropdown" class="trend-multiselect-dropdown hidden">
+                                        <div class="trend-ms-search-bar">
+                                            <input type="text" id="trend-ms-search-input"
+                                                placeholder="Search user stories or transactions..."
+                                                oninput="filterTrendMultiSelectOptions(this.value)">
+                                        </div>
+                                        <div class="trend-ms-quick-actions">
+                                            <button type="button" onclick="quickSelectTrendSeries('overall')">Overall
+                                                Only</button>
+                                            <button type="button" onclick="quickSelectTrendSeries('all_stories')">All
+                                                Stories</button>
+                                            <button type="button" onclick="quickSelectTrendSeries('top_tx')">Top 5
+                                                Tx</button>
+                                            <button type="button" onclick="quickSelectTrendSeries('clear')">Clear
+                                                All</button>
+                                        </div>
+                                        <div id="trend-ms-options-list" class="trend-ms-options-list">
+                                            <!-- Dynamically populated options with checkboxes -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Active Series Chips Bar (Legend) -->
+                        <div id="trend-active-chips-container" class="trend-chips-container"
+                            style="margin-bottom: 1rem;">
+                            <!-- Dynamically populated active tags with color dot and remove x -->
+                        </div>
+
+                        <!-- 360px High Dynamic Trend Canvas -->
+                        <div id="trend-chart-rt" class="chart-canvas-area"
+                            style="min-height: 360px; height: 360px; position: relative;"></div>
+                    </div>
+
+                    <!-- Graph 2: SLA Compliance Trend -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">🎯 SLA Compliance Trend</div>
+                                <div class="chart-panel-sub">Percentage of transactions passing SLA thresholds per
+                                    release</div>
+                            </div>
+                            <span class="badge badge-good">↑ Target: 100%</span>
+                        </div>
+                        <div id="trend-chart-sla" class="chart-canvas-area"></div>
+                    </div>
+
+                    <!-- Graph 3: Heatmap Matrix -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">▦ Transaction Performance Heatmap Matrix</div>
+                                <div class="chart-panel-sub">Release matrix with color-coded response times per
+                                    transaction</div>
+                            </div>
+                        </div>
+                        <div id="trend-heatmap-container" style="overflow-x:auto; max-height:280px;"></div>
+                    </div>
+
+                    <!-- Graph 5: Severity Distribution Evolution Stack -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">🛡️ SLA Severity Distribution Evolution</div>
+                                <div class="chart-panel-sub">Pass, Low, Moderate, High, and Critical transaction counts
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:0.4rem; font-size:0.72rem;">
+                                <span style="color:#059669;">■ Pass</span>
+                                <span style="color:#d97706;">■ Low</span>
+                                <span style="color:#ea580c;">■ Mod</span>
+                                <span style="color:#dc2626;">■ High</span>
+                                <span style="color:#991b1b;">■ Crit</span>
+                            </div>
+                        </div>
+                        <div id="trend-chart-sev-stack" style="margin-top:0.5rem;"></div>
+                    </div>
+
+                    <!-- Graph 6: Baseline vs Current Summary -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">📊 Baseline vs Current Summary</div>
+                                <div class="chart-panel-sub">First release vs latest release comparative shift</div>
+                            </div>
+                            <div style="display:flex; gap:0.5rem; font-size:0.75rem;">
+                                <span style="color:#0284c7;">■ Baseline</span>
+                                <span style="color:#dc2626;">■ Current</span>
+                            </div>
+                        </div>
+                        <div id="trend-bar-compare-container" style="max-height:280px; overflow-y:auto;"></div>
+                    </div>
+
+                </div>
+
             </section>
 
         </main>
     </div>
 
     <script src="app.js"></script>
+    <script src="compare.js"></script>
     <script src="trend.js"></script>
 </body>
 

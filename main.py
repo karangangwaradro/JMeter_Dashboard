@@ -32,7 +32,15 @@ def main():
     url = "http://localhost:8080/"
 
     def open_browser():
-        time.sleep(1.2)
+        import urllib.request
+        for _ in range(30):
+            time.sleep(0.3)
+            try:
+                with urllib.request.urlopen(url, timeout=1) as resp:
+                    if resp.status == 200:
+                        break
+            except Exception:
+                pass
         webbrowser.open(url)
 
     threading.Thread(target=open_browser, daemon=True).start()

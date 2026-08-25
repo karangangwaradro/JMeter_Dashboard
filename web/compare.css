@@ -1,0 +1,346 @@
+/* compare.css — Complete Styling for Professional 2-Run Comparison Workspace */
+
+.compare-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+/* Header & Controls */
+.compare-header-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color, #cfd7e0);
+    border-radius: var(--border-radius-md, 10px);
+    padding: 1.6rem;
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(15, 23, 42, 0.05));
+}
+
+.compare-selector-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.run-select-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 220px;
+}
+
+.run-select-box label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.swap-runs-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #0284c7;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    align-self: center;
+    margin-top: 1rem;
+}
+
+.swap-runs-btn:hover {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    transform: rotate(180deg);
+}
+
+.compare-filter-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Visual Cards Grid */
+.compare-visuals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 1.5rem;
+}
+
+.compare-graph-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color, #cfd7e0);
+    border-radius: var(--border-radius-md, 10px);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(15, 23, 42, 0.05));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.compare-graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.compare-graph-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.compare-graph-sub {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 0.15rem;
+}
+
+/* Compact Observation Strip directly underneath every graph */
+.graph-observation-strip {
+    background: #f8fafc;
+    border-top: 1px dashed #cbd5e1;
+    border-radius: 0 0 8px 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 1.25rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #1e293b;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.graph-obs-tag {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #0284c7;
+    background: #e0f2fe;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* 1. Overall Performance Split Cards */
+.split-perf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.85rem;
+}
+
+.split-perf-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.85rem;
+    text-align: center;
+}
+
+.split-perf-lbl {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.split-perf-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0.25rem 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.split-perf-delta {
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+/* 2. Grouped Horizontal Bars */
+.grouped-bar-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 85px;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+}
+
+.grouped-bar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+    height: 18px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.bar-fill-a {
+    height: 6px;
+    background: #0284c7;
+    border-radius: 2px;
+}
+
+.bar-fill-b {
+    height: 6px;
+    background: #dc2626;
+    border-radius: 2px;
+}
+
+/* 3. Hero Diverging Chart (Improvement on left, Degradation on right) */
+.diverging-chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.diverging-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr 70px;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+}
+
+.diverging-left-lane {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 14px;
+    border-right: 2px solid #94a3b8;
+    padding-right: 2px;
+}
+
+.diverging-right-lane {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 14px;
+    padding-left: 2px;
+}
+
+.diverging-bar-imp {
+    background: #059669;
+    height: 12px;
+    border-radius: 3px 0 0 3px;
+}
+
+.diverging-bar-deg {
+    background: #dc2626;
+    height: 12px;
+    border-radius: 0 3px 3px 0;
+}
+
+/* 4. SLA 100% Stacked Bar */
+.sla-stacked-bar-track {
+    height: 28px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 0.6rem;
+}
+
+.sla-stack-pass {
+    background: #059669;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sla-stack-breach {
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 5. 4-Quadrant SLA Status Transition Matrix */
+.sla-trans-matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+}
+
+.sla-trans-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.sla-trans-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.sla-trans-count {
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.sla-trans-desc {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 0.15rem;
+}
+
+/* 10. Transaction Performance Heatmap Matrix */
+.matrix-scan-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.matrix-scan-table th, .matrix-scan-table td {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.state-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    text-align: center;
+}
+
+.state-pill-imp { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.state-pill-deg { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.state-pill-unch { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+.delta-improved { color: #059669 !important; }
+.delta-degraded { color: #dc2626 !important; }
+.delta-neutral { color: #64748b !important; }

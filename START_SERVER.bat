@@ -33,10 +33,15 @@ if exist "venv\Scripts\activate.bat" (
     python -m pip install -q -r requirements.txt 2>nul
 )
 
-REM 4. Ensure config/.env exists
+REM 4. Ensure config\.env exists
 if not exist "config\.env" (
     echo [3/3] Creating default config\.env...
     copy "config\.env.template" "config\.env" >nul
+)
+
+REM 5. Free port 8080 if previously occupied
+for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr /r ":8080 .*LISTENING"') do (
+    taskkill /F /PID %%a >nul 2>&1
 )
 
 echo.
