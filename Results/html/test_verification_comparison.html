@@ -1,976 +1,1394 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Performance Comparison Report — run_20260820_154034 vs run_20260820_161201</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<style>
-:root {
-    --bg: #f5f6f8;
-    --card: #fff;
-    --text: #171a1f;
-    --muted: #69707d;
-    --line: #e5e7eb;
-    --blue: #2563eb;
-    --green: #159447;
-    --red: #d92d20;
-    --amber: #b7791f;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); font: 14px Inter, Segoe UI, Arial, sans-serif; color: var(--text); }
-.wrap { max-width: 1440px; margin: auto; padding: 28px 34px 60px; }
-.top { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-h1 { font-size: 26px; margin: 0 0 5px; letter-spacing: -0.5px; }
-h2 { font-size: 17px; margin: 0 0 16px; font-weight: 750; }
-h3 { font-size: 13px; margin: 0 0 3px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-p { margin: 0; color: var(--muted); }
-.meta { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 13px; }
-.pill { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font-size: 11px; color: #59616d; font-weight: 600; }
-.status { background: #fff7e6; color: #9a6500; border: 1px solid #f4dfad; border-radius: 7px; padding: 8px 14px; font-weight: 700; font-size: 12px; }
-button { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; cursor: pointer; margin-top: 9px; font-weight: 600; font-size: 12px; }
-button:hover { background: #f9fafb; }
-.kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 24px 0 16px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 16px; }
-.klabel { font-size: 11px; color: var(--muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; }
-.kpi-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; background: #f9fafb; padding: 6px 8px; border-radius: 6px; }
-.side-tag { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-.side-val { font-size: 15px; font-weight: 800; font-family: monospace; }
-.side-val.run-a { color: var(--blue); }
-.side-val.run-b { color: var(--text); }
-.delta { font-size: 12px; font-weight: 800; }
-.up { color: var(--red); }
-.down { color: var(--green); }
-.grid2 { display: grid; grid-template-columns: 1.35fr 0.65fr; gap: 16px; margin-bottom: 16px; }
-.grid2-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
-.chart { height: 300px; position: relative; }
-.chart.small { height: 220px; }
-.legendline { display: flex; gap: 15px; font-size: 11px; color: var(--muted); margin: 5px 0 14px; font-weight: 600; }
-.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-.section { margin: 29px 0 11px; }
-.section h2 { margin-bottom: 3px; }
-.section p { font-size: 12px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
-th { font-size: 10px; color: var(--muted); text-transform: uppercase; background: #fafafa; font-weight: 700; letter-spacing: 0.03em; }
-td { font-size: 12px; }
-.right { text-align: right; }
-.tag { font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 4px; display: inline-block; }
-.pass, .tag.good { background: #eaf8ef; color: var(--green); border: 1px solid #a7f3d0; }
-.fail, .tag.bad { background: #fff0ef; color: var(--red); border: 1px solid #fecaca; }
-.warn, .tag.mid { background: #fff7e6; color: var(--amber); border: 1px solid #fde68a; }
-.heat { font-weight: 700; text-align: center !important; font-size: 12px; }
-.heat.good { background: #eaf8ef; color: var(--green); }
-.heat.mid { background: #fff7e6; color: var(--amber); }
-.heat.bad { background: #fff0ef; color: var(--red); }
-.rank { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
-.rank:last-child { border: 0; }
-.num { font-weight: 800; width: 22px; font-size: 13px; color: var(--muted); }
-b { font-size: 13px; }
-.bar { height: 7px; background: #eef0f3; border-radius: 20px; flex: 1; overflow: hidden; }
-.fill { height: 100%; border-radius: 20px; }
-.fill.red { background: var(--red); }
-.fill.green { background: var(--green); }
-.insights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.insight { background: #fafafa; border: 1px solid var(--line); padding: 16px; border-radius: 8px; }
-.insight b { display: block; margin-bottom: 5px; }
-.insight span { font-size: 12px; color: var(--muted); line-height: 1.5; }
-details { margin-top: 16px; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 13px 15px; }
-summary { cursor: pointer; font-weight: 650; font-size: 14px; }
-footer { text-align: center; color: #9ca3af; font-size: 11px; margin-top: 36px; }
-@media(max-width:1100px){ .kpis { grid-template-columns: repeat(3, 1fr); } .grid2, .grid2-equal, .grid3, .insights { grid-template-columns: 1fr; } }
-@media(max-width:650px){ .kpis { grid-template-columns: repeat(2, 1fr); } .top { flex-direction: column; } }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Performance Comparison Report — run_20260820_154034 vs run_20260820_161201</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #f5f6f8;
+            --card: #fff;
+            --text: #171a1f;
+            --muted: #69707d;
+            --line: #e5e7eb;
+            --blue: #2563eb;
+            --green: #159447;
+            --red: #d92d20;
+            --amber: #b7791f;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            font: 14px Inter, Segoe UI, Arial, sans-serif;
+            color: var(--text);
+        }
+
+        .wrap {
+            max-width: 1440px;
+            margin: auto;
+            padding: 28px 34px 60px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin: 0 0 5px;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-size: 17px;
+            margin: 0 0 16px;
+            font-weight: 750;
+        }
+
+        h3 {
+            font-size: 13px;
+            margin: 0 0 3px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .meta {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 13px;
+        }
+
+        .pill {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 11px;
+            color: #59616d;
+            font-weight: 600;
+        }
+
+        .status {
+            background: #fff7e6;
+            color: #9a6500;
+            border: 1px solid #f4dfad;
+            border-radius: 7px;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        button {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-top: 9px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        button:hover {
+            background: #f9fafb;
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin: 24px 0 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 16px;
+        }
+
+        .klabel {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .kpi-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+
+        .side-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .side-val {
+            font-size: 15px;
+            font-weight: 800;
+            font-family: monospace;
+        }
+
+        .side-val.run-a {
+            color: var(--blue);
+        }
+
+        .side-val.run-b {
+            color: var(--text);
+        }
+
+        .delta {
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .up {
+            color: var(--red);
+        }
+
+        .down {
+            color: var(--green);
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1.35fr 0.65fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .grid2-equal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart {
+            height: 300px;
+            position: relative;
+        }
+
+        .chart.small {
+            height: 220px;
+        }
+
+        .legendline {
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+            color: var(--muted);
+            margin: 5px 0 14px;
+            font-weight: 600;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .section {
+            margin: 29px 0 11px;
+        }
+
+        .section h2 {
+            margin-bottom: 3px;
+        }
+
+        .section p {
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            background: #fafafa;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        td {
+            font-size: 12px;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .tag {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .pass,
+        .tag.good {
+            background: #eaf8ef;
+            color: var(--green);
+            border: 1px solid #a7f3d0;
+        }
+
+        .fail,
+        .tag.bad {
+            background: #fff0ef;
+            color: var(--red);
+            border: 1px solid #fecaca;
+        }
+
+        .warn,
+        .tag.mid {
+            background: #fff7e6;
+            color: var(--amber);
+            border: 1px solid #fde68a;
+        }
+
+        .heat {
+            font-weight: 700;
+            text-align: center !important;
+            font-size: 12px;
+        }
+
+        .heat.good {
+            background: #eaf8ef;
+            color: var(--green);
+        }
+
+        .heat.mid {
+            background: #fff7e6;
+            color: var(--amber);
+        }
+
+        .heat.bad {
+            background: #fff0ef;
+            color: var(--red);
+        }
+
+        .rank {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .rank:last-child {
+            border: 0;
+        }
+
+        .num {
+            font-weight: 800;
+            width: 22px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        b {
+            font-size: 13px;
+        }
+
+        .bar {
+            height: 7px;
+            background: #eef0f3;
+            border-radius: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            border-radius: 20px;
+        }
+
+        .fill.red {
+            background: var(--red);
+        }
+
+        .fill.green {
+            background: var(--green);
+        }
+
+        .insights {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .insight {
+            background: #fafafa;
+            border: 1px solid var(--line);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .insight b {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .insight span {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        details {
+            margin-top: 16px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 13px 15px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 650;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 11px;
+            margin-top: 36px;
+        }
+
+        @media(max-width:1100px) {
+            .kpis {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .grid2,
+            .grid2-equal,
+            .grid3,
+            .insights {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:650px) {
+            .kpis {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .top {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="wrap">
+    <div class="wrap">
 
-<div class="top">
-  <div>
-    <h1>Performance Comparison Report</h1>
-    <p>JPetStore · All User Stories</p>
-    <div class="meta">
-      <span class="pill">Baseline (Run A): run_20260820_154034 (16 users)</span>
-      <span class="pill">Target (Run B): run_20260820_161201 (106 users)</span>
-      <span class="pill">QA</span>
-      <span class="pill">JMeter</span>
-    </div>
-  </div>
-  <div>
-    <div class="status">🟡 PASS WITH OBSERVATIONS — PROCEED WITH MONITORING</div><br>
-    <button onclick="window.print()">Print / Save PDF</button>
-  </div>
-</div>
-
-<div class="kpis">
-  
-        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-            <div class="klabel">Response Time</div>
-            <div class="kpi-split">
-                <div>
-                    <div class="side-tag">Run A</div>
-                    <div class="side-val run-a">271.4 ms</div>
-                </div>
-                <div>
-                    <div class="side-tag">Run B</div>
-                    <div class="side-val run-b">288.9 ms</div>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="delta up">+6.4%</span>
-                <span class="tag bad" style="font-size:9px;">Degraded</span>
-            </div>
-        </div>
-        
-        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-            <div class="klabel">P95 Latency</div>
-            <div class="kpi-split">
-                <div>
-                    <div class="side-tag">Run A</div>
-                    <div class="side-val run-a">295.8 ms</div>
-                </div>
-                <div>
-                    <div class="side-tag">Run B</div>
-                    <div class="side-val run-b">360.7 ms</div>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="delta up">+21.9%</span>
-                <span class="tag bad" style="font-size:9px;">Degraded</span>
-            </div>
-        </div>
-        
-        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-            <div class="klabel">SLA Compliance</div>
-            <div class="kpi-split">
-                <div>
-                    <div class="side-tag">Run A</div>
-                    <div class="side-val run-a">57.1%</div>
-                </div>
-                <div>
-                    <div class="side-tag">Run B</div>
-                    <div class="side-val run-b">57.1%</div>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="delta down">+0.0 pp</span>
-                <span class="tag good" style="font-size:9px;">57% Pass Rate</span>
-            </div>
-        </div>
-        
-        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-            <div class="klabel">Error Rate</div>
-            <div class="kpi-split">
-                <div>
-                    <div class="side-tag">Run A</div>
-                    <div class="side-val run-a">0.0%</div>
-                </div>
-                <div>
-                    <div class="side-tag">Run B</div>
-                    <div class="side-val run-b">0.0%</div>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="delta down">+0.00 pp</span>
-                <span class="tag good" style="font-size:9px;">Healthy</span>
-            </div>
-        </div>
-        
-        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-            <div class="klabel">Throughput</div>
-            <div class="kpi-split">
-                <div>
-                    <div class="side-tag">Run A</div>
-                    <div class="side-val run-a">114.8 TPS</div>
-                </div>
-                <div>
-                    <div class="side-tag">Run B</div>
-                    <div class="side-val run-b">678.5 TPS</div>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="delta down">+490.7%</span>
-                <span class="tag good" style="font-size:9px;">Higher</span>
-            </div>
-        </div>
-        
-    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div class="klabel">Transactions Comparison</div>
-        <div class="kpi-split">
+        <div class="top">
             <div>
-                <div class="side-tag">Total Items</div>
-                <div class="side-val">14</div>
+                <h1>Performance Comparison Report</h1>
+                <p>JPetStore · All User Stories</p>
+                <div class="meta">
+                    <span class="pill">Baseline (Run A): run_20260820_154034 (16 users)</span>
+                    <span class="pill">Target (Run B): run_20260820_161201 (106 users)</span>
+                    <span class="pill">QA</span>
+                    <span class="pill">JMeter</span>
+                </div>
             </div>
             <div>
-                <div class="side-tag">Degraded</div>
-                <div class="side-val" style="color:#d92d20;">12</div>
+                <div class="status">🟡 PASS WITH OBSERVATIONS — PROCEED WITH MONITORING</div><br>
+                <button onclick="window.print()">Print / Save PDF</button>
             </div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="delta down" style="color:#159447;">0 Improved</span>
-            <span class="tag" style="background:#f3f4f6; color:#69707d; font-size:9px;">2 Stable</span>
+
+        <div class="kpis">
+
+            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="klabel">Response Time</div>
+                <div class="kpi-split">
+                    <div>
+                        <div class="side-tag">Run A</div>
+                        <div class="side-val run-a">271.4 ms</div>
+                    </div>
+                    <div>
+                        <div class="side-tag">Run B</div>
+                        <div class="side-val run-b">288.9 ms</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="delta up">+6.4%</span>
+                    <span class="tag bad" style="font-size:9px;">Degraded</span>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="klabel">P95 Latency</div>
+                <div class="kpi-split">
+                    <div>
+                        <div class="side-tag">Run A</div>
+                        <div class="side-val run-a">295.8 ms</div>
+                    </div>
+                    <div>
+                        <div class="side-tag">Run B</div>
+                        <div class="side-val run-b">360.7 ms</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="delta up">+21.9%</span>
+                    <span class="tag bad" style="font-size:9px;">Degraded</span>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="klabel">SLA Compliance</div>
+                <div class="kpi-split">
+                    <div>
+                        <div class="side-tag">Run A</div>
+                        <div class="side-val run-a">57.1%</div>
+                    </div>
+                    <div>
+                        <div class="side-tag">Run B</div>
+                        <div class="side-val run-b">57.1%</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="delta down">+0.0 pp</span>
+                    <span class="tag good" style="font-size:9px;">57% Pass Rate</span>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="klabel">Error Rate</div>
+                <div class="kpi-split">
+                    <div>
+                        <div class="side-tag">Run A</div>
+                        <div class="side-val run-a">0.0%</div>
+                    </div>
+                    <div>
+                        <div class="side-tag">Run B</div>
+                        <div class="side-val run-b">0.0%</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="delta down">+0.00 pp</span>
+                    <span class="tag good" style="font-size:9px;">Healthy</span>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="klabel">Throughput</div>
+                <div class="kpi-split">
+                    <div>
+                        <div class="side-tag">Run A</div>
+                        <div class="side-val run-a">114.8 TPS</div>
+                    </div>
+                    <div>
+                        <div class="side-tag">Run B</div>
+                        <div class="side-val run-b">678.5 TPS</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="delta down">+490.7%</span>
+                    <span class="tag good" style="font-size:9px;">Higher</span>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="klabel">Transactions Comparison</div>
+                <div class="kpi-split">
+                    <div>
+                        <div class="side-tag">Total Items</div>
+                        <div class="side-val">14</div>
+                    </div>
+                    <div>
+                        <div class="side-tag">Degraded</div>
+                        <div class="side-val" style="color:#d92d20;">12</div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="delta down" style="color:#159447;">0 Improved</span>
+                    <span class="tag" style="background:#f3f4f6; color:#69707d; font-size:9px;">2 Stable</span>
+                </div>
+            </div>
+
         </div>
+
+        <div class="section">
+            <h2>Executive view</h2>
+            <p>Side-by-side comparative overview: Run A (Baseline) vs Run B (Current)</p>
+        </div>
+        <div class="grid2">
+            <div class="card">
+                <h2>Performance movement (Run A vs Run B)</h2>
+                <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A
+                        (Baseline)</span><span><i class="dot" style="background:#d92d20"></i>Run B (Current)</span>
+                </div>
+                <div class="chart"><canvas id="movement"></canvas></div>
+            </div>
+            <div class="card">
+                <h2>Overall SLA Compliance (Run A vs Run B)</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:4px;">
+                    <div>
+                        <div
+                            style="font-size:11px; font-weight:700; color:#2563eb; text-align:center; margin-bottom:4px;">
+                            RUN A (BASELINE)</div>
+                        <div class="chart small" style="height:170px;"><canvas id="slaDonutA"></canvas></div>
+                        <p style="text-align:center; font-weight:700; margin-top:4px; font-size:12px; color:#2563eb;">
+                            57.1% Pass</p>
+                    </div>
+                    <div>
+                        <div
+                            style="font-size:11px; font-weight:700; color:#171a1f; text-align:center; margin-bottom:4px;">
+                            RUN B (CURRENT)</div>
+                        <div class="chart small" style="height:170px;"><canvas id="slaDonutB"></canvas></div>
+                        <p style="text-align:center; font-weight:700; margin-top:4px; font-size:12px; color:#159447;">
+                            57.1% (+0.0 pp)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid3">
+            <div class="card">
+                <h3>Largest Regression</h3>
+                <div style="font-size:18px; font-weight:750; margin:6px 0; color:#d92d20;">
+                    TC03_US01_View_Product_Details</div>
+                <p><strong>Run A:</strong> 183ms → <strong>Run B:</strong> 200ms <span
+                        style='color:#d92d20;font-weight:700;'>(+9.0%)</span></p>
+            </div>
+            <div class="card">
+                <h3>Highest Error Concentration</h3>
+                <div style="font-size:18px; font-weight:750; margin:6px 0;">None</div>
+                <p>Zero errors detected across runs</p>
+            </div>
+            <div class="card">
+                <h3>Best Improvement</h3>
+                <div style="font-size:18px; font-weight:750; margin:6px 0; color:#159447;">None</div>
+                <p>No improvements recorded</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Response time analysis</h2>
+            <p>Side-by-side central tendency and tail latency comparison.</p>
+        </div>
+        <div class="grid2-equal">
+            <div class="card">
+                <h2>Average response time by transaction</h2>
+                <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A
+                        (Baseline)</span><span><i class="dot" style="background:#d92d20"></i>Run B (Current)</span>
+                </div>
+                <div class="chart"><canvas id="avg"></canvas></div>
+            </div>
+            <div class="card">
+                <h2>P95 response time by transaction</h2>
+                <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A P95</span><span><i
+                            class="dot" style="background:#d92d20"></i>Run B P95</span></div>
+                <div class="chart"><canvas id="p95"></canvas></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>SLA analysis</h2>
+            <p>Comparative targets, deviations, and status transitions.</p>
+        </div>
+        <div class="grid2">
+            <div class="card">
+                <h2>SLA deviation by transaction (Run A vs Run B)</h2>
+                <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A Dev %</span><span><i
+                            class="dot" style="background:#d92d20"></i>Run B Dev %</span></div>
+                <div class="chart"><canvas id="deviation"></canvas></div>
+            </div>
+            <div class="card">
+                <h2>SLA Pass/Fail Ratio (Run A vs Run B)</h2>
+                <div class="chart small"><canvas id="slaOutcome"></canvas></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+            <h2>Comparative SLA Detail Table</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th class="right">SLA Target</th>
+                        <th class="right">Run A P95</th>
+                        <th class="right">Run B P95</th>
+                        <th class="right">P95 Shift</th>
+                        <th style="text-align:center;">Run A Status</th>
+                        <th style="text-align:center;">Run B Status</th>
+                        <th style="text-align:center;">SLA Transition</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US01_Overall_Iteration</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">599 ms</td>
+                        <td class="right" style="font-weight:700;">727 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+21.4%</td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US01_Launch_Catalog</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">211 ms</td>
+                        <td class="right" style="font-weight:700;">265 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+25.6%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US01_Select_Fish_Category</td>
+                        <td class="right" style="color:#69707d;">92 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">203 ms</td>
+                        <td class="right" style="font-weight:700;">249 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+22.7%</td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC03_US01_View_Product_Details</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">205 ms</td>
+                        <td class="right" style="font-weight:700;">266 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+29.8%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US02_Overall_Iteration</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">608 ms</td>
+                        <td class="right" style="font-weight:700;">725 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+19.2%</td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US02_Launch_Catalog</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">209 ms</td>
+                        <td class="right" style="font-weight:700;">275 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+31.6%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US02_Select_Dogs_Category</td>
+                        <td class="right" style="color:#69707d;">100 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">206 ms</td>
+                        <td class="right" style="font-weight:700;">246 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+19.4%</td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC03_US02_Add_Item_To_Cart</td>
+                        <td class="right" style="color:#69707d;">1517 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">212 ms</td>
+                        <td class="right" style="font-weight:700;">264 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+24.5%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US03_Overall_Iteration</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">436 ms</td>
+                        <td class="right" style="font-weight:700;">494 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+13.3%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US03_Launch_Homepage</td>
+                        <td class="right" style="color:#69707d;">200 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">221 ms</td>
+                        <td class="right" style="font-weight:700;">255 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+15.4%</td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US03_Search_Keyword_Bulldog</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">212 ms</td>
+                        <td class="right" style="font-weight:700;">272 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+28.3%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US04_Overall_Iteration</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">407 ms</td>
+                        <td class="right" style="font-weight:700;">502 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+23.3%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US04_Launch_Catalog</td>
+                        <td class="right" style="color:#69707d;">500 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">208 ms</td>
+                        <td class="right" style="font-weight:700;">272 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+30.8%</td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag pass">PASS</span></td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US04_Navigate_To_Signon_Page</td>
+                        <td class="right" style="color:#69707d;">50 ms</td>
+                        <td class="right" style="color:#2563eb; font-weight:600;">204 ms</td>
+                        <td class="right" style="font-weight:700;">238 ms</td>
+                        <td class="right" style="font-weight:800; color:#d92d20;">+16.7%</td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Error analysis</h2>
+            <p>Comparative failure rates and error distribution across executions.</p>
+        </div>
+        <div class="grid2">
+            <div class="card">
+                <h2>Error rate — Run A vs Run B</h2>
+                <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A Error %</span><span><i
+                            class="dot" style="background:#d92d20"></i>Run B Error %</span></div>
+                <div class="chart"><canvas id="errors"></canvas></div>
+            </div>
+            <div class="card">
+                <h2>Run B error composition</h2>
+                <div class="chart small"><canvas id="errorDonut"></canvas></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Regression &amp; improvement ranking</h2>
+            <p>Comparative latency shifts ranked by severity and improvement magnitude.</p>
+        </div>
+        <div class="grid2-equal">
+            <div class="card">
+                <h2>Top regressions (Run A → Run B)</h2>
+
+                <div class="rank">
+                    <span class="num">#1</span>
+                    <div style="min-width:180px;">
+                        <b>TC03_US01_View_Product_Details</b>
+                        <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 183ms → Run B: 200ms
+                        </div>
+                    </div>
+                    <div class="bar">
+                        <div class="fill red" style="width:100.0%"></div>
+                    </div>
+                    <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+9.0%</span>
+                </div>
+
+                <div class="rank">
+                    <span class="num">#2</span>
+                    <div style="min-width:180px;">
+                        <b>TC01_US04_Launch_Catalog</b>
+                        <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 190ms → Run B: 206ms
+                        </div>
+                    </div>
+                    <div class="bar">
+                        <div class="fill red" style="width:94.0%"></div>
+                    </div>
+                    <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+8.5%</span>
+                </div>
+
+                <div class="rank">
+                    <span class="num">#3</span>
+                    <div style="min-width:180px;">
+                        <b>TC02_US02_Select_Dogs_Category</b>
+                        <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 183ms → Run B: 197ms
+                        </div>
+                    </div>
+                    <div class="bar">
+                        <div class="fill red" style="width:87.4%"></div>
+                    </div>
+                    <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+7.9%</span>
+                </div>
+
+                <div class="rank">
+                    <span class="num">#4</span>
+                    <div style="min-width:180px;">
+                        <b>TC03_US02_Add_Item_To_Cart</b>
+                        <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 185ms → Run B: 200ms
+                        </div>
+                    </div>
+                    <div class="bar">
+                        <div class="fill red" style="width:86.6%"></div>
+                    </div>
+                    <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+7.8%</span>
+                </div>
+
+                <div class="rank">
+                    <span class="num">#5</span>
+                    <div style="min-width:180px;">
+                        <b>T-US04_Overall_Iteration</b>
+                        <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 375ms → Run B: 404ms
+                        </div>
+                    </div>
+                    <div class="bar">
+                        <div class="fill red" style="width:86.6%"></div>
+                    </div>
+                    <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+7.8%</span>
+                </div>
+
+            </div>
+            <div class="card">
+                <h2>Top improvements (Run A → Run B)</h2>
+                <div style="padding:14px; color:#69707d; text-align:center;">No improved transactions recorded.</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Comparative transaction heatmap</h2>
+            <p>Quick side-by-side scan of metric shifts across all transactions.</p>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th style="text-align:center;">Avg Response (A → B)</th>
+                        <th style="text-align:center;">P95 Latency (A → B)</th>
+                        <th style="text-align:center;">SLA Deviation (A → B)</th>
+                        <th style="text-align:center;">Error Rate (A → B)</th>
+                        <th style="text-align:center;">SLA Transition</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US01_Overall_Iteration</td>
+                        <td class="heat bad">558ms → 602ms (+8%)</td>
+                        <td class="heat bad">599ms → 727ms (+21%)</td>
+                        <td class="heat bad">+12% → +20%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US01_Launch_Catalog</td>
+                        <td class="heat bad">192ms → 205ms (+7%)</td>
+                        <td class="heat bad">211ms → 265ms (+26%)</td>
+                        <td class="heat good">-62% → -59%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US01_Select_Fish_Category</td>
+                        <td class="heat bad">183ms → 198ms (+8%)</td>
+                        <td class="heat bad">203ms → 249ms (+23%)</td>
+                        <td class="heat bad">+99% → +115%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC03_US01_View_Product_Details</td>
+                        <td class="heat bad">183ms → 200ms (+9%)</td>
+                        <td class="heat bad">205ms → 266ms (+30%)</td>
+                        <td class="heat good">-63% → -60%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US02_Overall_Iteration</td>
+                        <td class="heat bad">560ms → 602ms (+7%)</td>
+                        <td class="heat bad">608ms → 725ms (+19%)</td>
+                        <td class="heat bad">+12% → +20%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US02_Launch_Catalog</td>
+                        <td class="heat bad">192ms → 205ms (+7%)</td>
+                        <td class="heat bad">209ms → 275ms (+32%)</td>
+                        <td class="heat good">-62% → -59%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US02_Select_Dogs_Category</td>
+                        <td class="heat bad">183ms → 197ms (+8%)</td>
+                        <td class="heat bad">206ms → 246ms (+19%)</td>
+                        <td class="heat bad">+83% → +97%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC03_US02_Add_Item_To_Cart</td>
+                        <td class="heat bad">185ms → 200ms (+8%)</td>
+                        <td class="heat bad">212ms → 264ms (+25%)</td>
+                        <td class="heat good">-88% → -87%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US03_Overall_Iteration</td>
+                        <td class="heat mid">407ms → 414ms (+2%)</td>
+                        <td class="heat bad">436ms → 494ms (+13%)</td>
+                        <td class="heat good">-19% → -17%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US03_Launch_Homepage</td>
+                        <td class="heat mid">210ms → 212ms (+1%)</td>
+                        <td class="heat bad">221ms → 255ms (+15%)</td>
+                        <td class="heat bad">+5% → +6%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US03_Search_Keyword_Bulldog</td>
+                        <td class="heat mid">197ms → 202ms (+3%)</td>
+                        <td class="heat bad">212ms → 272ms (+28%)</td>
+                        <td class="heat good">-61% → -60%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">T-US04_Overall_Iteration</td>
+                        <td class="heat bad">375ms → 404ms (+8%)</td>
+                        <td class="heat bad">407ms → 502ms (+23%)</td>
+                        <td class="heat good">-25% → -19%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC01_US04_Launch_Catalog</td>
+                        <td class="heat bad">190ms → 206ms (+8%)</td>
+                        <td class="heat bad">208ms → 272ms (+31%)</td>
+                        <td class="heat good">-62% → -59%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-weight:700;">TC02_US04_Navigate_To_Signon_Page</td>
+                        <td class="heat bad">185ms → 198ms (+7%)</td>
+                        <td class="heat bad">204ms → 238ms (+17%)</td>
+                        <td class="heat bad">+269% → +296%</td>
+                        <td class="heat good">0.0% → 0.0%</td>
+                        <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Stakeholder comparative conclusion</h2>
+        </div>
+        <div class="insights">
+            <div class="insight"><b>Comparative Decision</b><span>Proceed with caution. Monitor key transactions
+                    post-release.</span></div>
+            <div class="insight"><b>Investigation Priority</b><span>Start with TC03_US01_View_Product_Details. It
+                    regressed from 183ms to 200ms (+9.0%).</span></div>
+            <div class="insight"><b>Positive Signal</b><span>No notable improvements detected between runs.</span></div>
+        </div>
+
+        <details>
+            <summary>Detailed / raw comparative metrics</summary>
+            <div style="margin-top:12px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction</th>
+                            <th>User Story</th>
+                            <th class="right">Run A RT</th>
+                            <th class="right">Run B RT</th>
+                            <th class="right">Change %</th>
+                            <th class="right">TPS (A / B)</th>
+                            <th class="right">SLA Target</th>
+                            <th style="text-align:center;">Run A</th>
+                            <th style="text-align:center;">Run B</th>
+                            <th style="text-align:center;">Transition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td style="font-weight:700;">T-US01_Overall_Iteration</td>
+                            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
+                            <td class="right" style="color:#2563eb;">558.3 ms</td>
+                            <td class="right" style="font-weight:700;">601.7 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
+                            <td class="right">8.6 / 79.3</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC01_US01_Launch_Catalog</td>
+                            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
+                            <td class="right" style="color:#2563eb;">192.1 ms</td>
+                            <td class="right" style="font-weight:700;">205.0 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+6.7%</td>
+                            <td class="right">8.7 / 79.8</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC02_US01_Select_Fish_Category</td>
+                            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
+                            <td class="right" style="color:#2563eb;">183.4 ms</td>
+                            <td class="right" style="font-weight:700;">197.7 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
+                            <td class="right">8.6 / 79.5</td>
+                            <td class="right">92 ms</td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC03_US01_View_Product_Details</td>
+                            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
+                            <td class="right" style="color:#2563eb;">183.0 ms</td>
+                            <td class="right" style="font-weight:700;">199.5 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+9.0%</td>
+                            <td class="right">8.6 / 79.3</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">T-US02_Overall_Iteration</td>
+                            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
+                            <td class="right" style="color:#2563eb;">559.9 ms</td>
+                            <td class="right" style="font-weight:700;">601.6 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.5%</td>
+                            <td class="right">8.6 / 79.2</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC01_US02_Launch_Catalog</td>
+                            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
+                            <td class="right" style="color:#2563eb;">191.8 ms</td>
+                            <td class="right" style="font-weight:700;">205.2 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.0%</td>
+                            <td class="right">8.6 / 79.8</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC02_US02_Select_Dogs_Category</td>
+                            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
+                            <td class="right" style="color:#2563eb;">182.9 ms</td>
+                            <td class="right" style="font-weight:700;">197.4 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.9%</td>
+                            <td class="right">8.6 / 79.5</td>
+                            <td class="right">100 ms</td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC03_US02_Add_Item_To_Cart</td>
+                            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
+                            <td class="right" style="color:#2563eb;">185.1 ms</td>
+                            <td class="right" style="font-weight:700;">199.6 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
+                            <td class="right">8.6 / 79.2</td>
+                            <td class="right">1517 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">T-US03_Overall_Iteration</td>
+                            <td style="color:#69707d; font-size:11px;">US03_Search_Products</td>
+                            <td class="right" style="color:#2563eb;">407.0 ms</td>
+                            <td class="right" style="font-weight:700;">413.7 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+1.7%</td>
+                            <td class="right">2.5 / 2.4</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Unchanged</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC01_US03_Launch_Homepage</td>
+                            <td style="color:#69707d; font-size:11px;">US03_Search_Products</td>
+                            <td class="right" style="color:#2563eb;">210.1 ms</td>
+                            <td class="right" style="font-weight:700;">212.5 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+1.1%</td>
+                            <td class="right">2.5 / 2.4</td>
+                            <td class="right">200 ms</td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC02_US03_Search_Keyword_Bulldog</td>
+                            <td style="color:#69707d; font-size:11px;">US03_Search_Products</td>
+                            <td class="right" style="color:#2563eb;">196.9 ms</td>
+                            <td class="right" style="font-weight:700;">201.8 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+2.5%</td>
+                            <td class="right">2.5 / 2.4</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">T-US04_Overall_Iteration</td>
+                            <td style="color:#69707d; font-size:11px;">US04_User_Sign_In</td>
+                            <td class="right" style="color:#2563eb;">374.9 ms</td>
+                            <td class="right" style="font-weight:700;">404.2 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
+                            <td class="right">12.8 / 11.9</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC01_US04_Launch_Catalog</td>
+                            <td style="color:#69707d; font-size:11px;">US04_User_Sign_In</td>
+                            <td class="right" style="color:#2563eb;">190.2 ms</td>
+                            <td class="right" style="font-weight:700;">206.4 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+8.5%</td>
+                            <td class="right">12.9 / 11.9</td>
+                            <td class="right">500 ms</td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
+                        </tr>
+
+                        <tr>
+                            <td style="font-weight:700;">TC02_US04_Navigate_To_Signon_Page</td>
+                            <td style="color:#69707d; font-size:11px;">US04_User_Sign_In</td>
+                            <td class="right" style="color:#2563eb;">184.7 ms</td>
+                            <td class="right" style="font-weight:700;">198.1 ms</td>
+                            <td class="right" style="font-weight:800; color:#d92d20;">+7.3%</td>
+                            <td class="right">12.8 / 11.9</td>
+                            <td class="right">50 ms</td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
+                            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+        <footer>Generated by PerfPilot Performance Comparison Engine · Side-by-Side Comparative Report</footer>
     </div>
-    
-</div>
 
-<div class="section"><h2>Executive view</h2><p>Side-by-side comparative overview: Run A (Baseline) vs Run B (Current)</p></div>
-<div class="grid2">
-  <div class="card">
-    <h2>Performance movement (Run A vs Run B)</h2>
-    <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A (Baseline)</span><span><i class="dot" style="background:#d92d20"></i>Run B (Current)</span></div>
-    <div class="chart"><canvas id="movement"></canvas></div>
-  </div>
-  <div class="card">
-    <h2>Overall SLA Compliance (Run A vs Run B)</h2>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:4px;">
-        <div>
-            <div style="font-size:11px; font-weight:700; color:#2563eb; text-align:center; margin-bottom:4px;">RUN A (BASELINE)</div>
-            <div class="chart small" style="height:170px;"><canvas id="slaDonutA"></canvas></div>
-            <p style="text-align:center; font-weight:700; margin-top:4px; font-size:12px; color:#2563eb;">57.1% Pass</p>
-        </div>
-        <div>
-            <div style="font-size:11px; font-weight:700; color:#171a1f; text-align:center; margin-bottom:4px;">RUN B (CURRENT)</div>
-            <div class="chart small" style="height:170px;"><canvas id="slaDonutB"></canvas></div>
-            <p style="text-align:center; font-weight:700; margin-top:4px; font-size:12px; color:#159447;">57.1% (+0.0 pp)</p>
-        </div>
-    </div>
-  </div>
-</div>
+    <script>
+        Chart.defaults.font.family = "Inter, Segoe UI, Arial, sans-serif";
+        Chart.defaults.font.size = 11;
+        Chart.defaults.color = "#69707d";
+        const L = ["T-US01_Overall_Ite\u2026", "TC01_US01_Launch_C\u2026", "TC02_US01_Select_F\u2026", "TC03_US01_View_Pro\u2026", "T-US02_Overall_Ite\u2026", "TC01_US02_Launch_C\u2026", "TC02_US02_Select_D\u2026", "TC03_US02_Add_Item\u2026", "T-US03_Overall_Ite\u2026", "TC01_US03_Launch_H\u2026", "TC02_US03_Search_K\u2026", "T-US04_Overall_Ite\u2026", "TC01_US04_Launch_C\u2026", "TC02_US04_Navigate\u2026"];
+        const base = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, usePointStyle: true } } },
+            scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: '#eef0f3' }, ticks: { font: { size: 10 } } } }
+        };
 
-<div class="grid3">
-  <div class="card">
-    <h3>Largest Regression</h3>
-    <div style="font-size:18px; font-weight:750; margin:6px 0; color:#d92d20;">TC03_US01_View_Product_Details</div>
-    <p><strong>Run A:</strong> 183ms → <strong>Run B:</strong> 200ms <span style='color:#d92d20;font-weight:700;'>(+9.0%)</span></p>
-  </div>
-  <div class="card">
-    <h3>Highest Error Concentration</h3>
-    <div style="font-size:18px; font-weight:750; margin:6px 0;">None</div>
-    <p>Zero errors detected across runs</p>
-  </div>
-  <div class="card">
-    <h3>Best Improvement</h3>
-    <div style="font-size:18px; font-weight:750; margin:6px 0; color:#159447;">None</div>
-    <p>No improvements recorded</p>
-  </div>
-</div>
+        const bar = (id, a, b, titleY, lblA, lblB) => new Chart(document.getElementById(id), {
+            type: 'bar',
+            data: {
+                labels: L,
+                datasets: [
+                    { label: lblA || 'Run A (Baseline)', data: a, backgroundColor: '#2563eb', borderRadius: 3 },
+                    { label: lblB || 'Run B (Current)', data: b, backgroundColor: '#d92d20', borderRadius: 3 }
+                ]
+            },
+            options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: titleY } } } }
+        });
 
-<div class="section"><h2>Response time analysis</h2><p>Side-by-side central tendency and tail latency comparison.</p></div>
-<div class="grid2-equal">
-  <div class="card">
-    <h2>Average response time by transaction</h2>
-    <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A (Baseline)</span><span><i class="dot" style="background:#d92d20"></i>Run B (Current)</span></div>
-    <div class="chart"><canvas id="avg"></canvas></div>
-  </div>
-  <div class="card">
-    <h2>P95 response time by transaction</h2>
-    <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A P95</span><span><i class="dot" style="background:#d92d20"></i>Run B P95</span></div>
-    <div class="chart"><canvas id="p95"></canvas></div>
-  </div>
-</div>
+        bar('avg', [558.3, 192.1, 183.4, 183.0, 559.9, 191.8, 182.9, 185.1, 407.0, 210.1, 196.9, 374.9, 190.2, 184.7], [601.7, 205.0, 197.7, 199.5, 601.6, 205.2, 197.4, 199.6, 413.7, 212.5, 201.8, 404.2, 206.4, 198.1], 'ms', 'Run A (Baseline)', 'Run B (Current)');
+        bar('p95', [599.0, 211.0, 203.0, 205.0, 608.0, 209.0, 206.0, 212.0, 436.0, 221.0, 212.0, 407.0, 208.0, 204.0], [727.0, 265.0, 249.0, 266.0, 725.0, 275.0, 246.0, 264.0, 494.0, 255.0, 272.0, 502.0, 272.0, 238.0], 'ms', 'Run A P95', 'Run B P95');
 
-<div class="section"><h2>SLA analysis</h2><p>Comparative targets, deviations, and status transitions.</p></div>
-<div class="grid2">
-  <div class="card">
-    <h2>SLA deviation by transaction (Run A vs Run B)</h2>
-    <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A Dev %</span><span><i class="dot" style="background:#d92d20"></i>Run B Dev %</span></div>
-    <div class="chart"><canvas id="deviation"></canvas></div>
-  </div>
-  <div class="card">
-    <h2>SLA Pass/Fail Ratio (Run A vs Run B)</h2>
-    <div class="chart small"><canvas id="slaOutcome"></canvas></div>
-  </div>
-</div>
+        new Chart(document.getElementById('movement'), {
+            type: 'line',
+            data: {
+                labels: L,
+                datasets: [
+                    { label: 'Run A (Baseline)', data: [558.3, 192.1, 183.4, 183.0, 559.9, 191.8, 182.9, 185.1, 407.0, 210.1, 196.9, 374.9, 190.2, 184.7], borderColor: '#2563eb', backgroundColor: '#2563eb20', tension: 0.3, pointRadius: 3 },
+                    { label: 'Run B (Current)', data: [601.7, 205.0, 197.7, 199.5, 601.6, 205.2, 197.4, 199.6, 413.7, 212.5, 201.8, 404.2, 206.4, 198.1], borderColor: '#d92d20', backgroundColor: '#d92d2020', tension: 0.3, pointRadius: 3 }
+                ]
+            },
+            options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: 'Average ms' } } } }
+        });
 
-<div class="card" style="margin-bottom:16px;">
-  <h2>Comparative SLA Detail Table</h2>
-  <table>
-    <thead><tr>
-        <th>Transaction</th>
-        <th class="right">SLA Target</th>
-        <th class="right">Run A P95</th>
-        <th class="right">Run B P95</th>
-        <th class="right">P95 Shift</th>
-        <th style="text-align:center;">Run A Status</th>
-        <th style="text-align:center;">Run B Status</th>
-        <th style="text-align:center;">SLA Transition</th>
-    </tr></thead>
-    <tbody>
-      
-        <tr>
-            <td style="font-weight:700;">T-US01_Overall_Iteration</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">599 ms</td>
-            <td class="right" style="font-weight:700;">727 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+21.4%</td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US01_Launch_Catalog</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">211 ms</td>
-            <td class="right" style="font-weight:700;">265 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+25.6%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US01_Select_Fish_Category</td>
-            <td class="right" style="color:#69707d;">92 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">203 ms</td>
-            <td class="right" style="font-weight:700;">249 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+22.7%</td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC03_US01_View_Product_Details</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">205 ms</td>
-            <td class="right" style="font-weight:700;">266 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+29.8%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US02_Overall_Iteration</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">608 ms</td>
-            <td class="right" style="font-weight:700;">725 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+19.2%</td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US02_Launch_Catalog</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">209 ms</td>
-            <td class="right" style="font-weight:700;">275 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+31.6%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US02_Select_Dogs_Category</td>
-            <td class="right" style="color:#69707d;">100 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">206 ms</td>
-            <td class="right" style="font-weight:700;">246 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+19.4%</td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC03_US02_Add_Item_To_Cart</td>
-            <td class="right" style="color:#69707d;">1517 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">212 ms</td>
-            <td class="right" style="font-weight:700;">264 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+24.5%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US03_Overall_Iteration</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">436 ms</td>
-            <td class="right" style="font-weight:700;">494 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+13.3%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US03_Launch_Homepage</td>
-            <td class="right" style="color:#69707d;">200 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">221 ms</td>
-            <td class="right" style="font-weight:700;">255 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+15.4%</td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US03_Search_Keyword_Bulldog</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">212 ms</td>
-            <td class="right" style="font-weight:700;">272 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+28.3%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US04_Overall_Iteration</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">407 ms</td>
-            <td class="right" style="font-weight:700;">502 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+23.3%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US04_Launch_Catalog</td>
-            <td class="right" style="color:#69707d;">500 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">208 ms</td>
-            <td class="right" style="font-weight:700;">272 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+30.8%</td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag pass">PASS</span></td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US04_Navigate_To_Signon_Page</td>
-            <td class="right" style="color:#69707d;">50 ms</td>
-            <td class="right" style="color:#2563eb; font-weight:600;">204 ms</td>
-            <td class="right" style="font-weight:700;">238 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+16.7%</td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag fail">FAIL</span></td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach 🔴</span></td>
-        </tr>
-        
-    </tbody>
-  </table>
-</div>
+        new Chart(document.getElementById('slaDonutA'), {
+            type: 'doughnut',
+            data: { labels: ['Within SLA', 'Breach'], datasets: [{ data: [57.1, 42.9], backgroundColor: ['#2563eb', '#e2e8f0'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
+        });
 
-<div class="section"><h2>Error analysis</h2><p>Comparative failure rates and error distribution across executions.</p></div>
-<div class="grid2">
-  <div class="card">
-    <h2>Error rate — Run A vs Run B</h2>
-    <div class="legendline"><span><i class="dot" style="background:#2563eb"></i>Run A Error %</span><span><i class="dot" style="background:#d92d20"></i>Run B Error %</span></div>
-    <div class="chart"><canvas id="errors"></canvas></div>
-  </div>
-  <div class="card">
-    <h2>Run B error composition</h2>
-    <div class="chart small"><canvas id="errorDonut"></canvas></div>
-  </div>
-</div>
+        new Chart(document.getElementById('slaDonutB'), {
+            type: 'doughnut',
+            data: { labels: ['Within SLA', 'Breach'], datasets: [{ data: [57.1, 42.9], backgroundColor: ['#159447', '#fecaca'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
+        });
 
-<div class="section"><h2>Regression &amp; improvement ranking</h2><p>Comparative latency shifts ranked by severity and improvement magnitude.</p></div>
-<div class="grid2-equal">
-  <div class="card">
-    <h2>Top regressions (Run A → Run B)</h2>
-    
-        <div class="rank">
-            <span class="num">#1</span>
-            <div style="min-width:180px;">
-                <b>TC03_US01_View_Product_Details</b>
-                <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 183ms → Run B: 200ms</div>
-            </div>
-            <div class="bar"><div class="fill red" style="width:100.0%"></div></div>
-            <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+9.0%</span>
-        </div>
-        
-        <div class="rank">
-            <span class="num">#2</span>
-            <div style="min-width:180px;">
-                <b>TC01_US04_Launch_Catalog</b>
-                <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 190ms → Run B: 206ms</div>
-            </div>
-            <div class="bar"><div class="fill red" style="width:94.0%"></div></div>
-            <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+8.5%</span>
-        </div>
-        
-        <div class="rank">
-            <span class="num">#3</span>
-            <div style="min-width:180px;">
-                <b>TC02_US02_Select_Dogs_Category</b>
-                <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 183ms → Run B: 197ms</div>
-            </div>
-            <div class="bar"><div class="fill red" style="width:87.4%"></div></div>
-            <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+7.9%</span>
-        </div>
-        
-        <div class="rank">
-            <span class="num">#4</span>
-            <div style="min-width:180px;">
-                <b>TC03_US02_Add_Item_To_Cart</b>
-                <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 185ms → Run B: 200ms</div>
-            </div>
-            <div class="bar"><div class="fill red" style="width:86.6%"></div></div>
-            <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+7.8%</span>
-        </div>
-        
-        <div class="rank">
-            <span class="num">#5</span>
-            <div style="min-width:180px;">
-                <b>T-US04_Overall_Iteration</b>
-                <div style="font-size:11px; color:#69707d; font-family:monospace;">Run A: 375ms → Run B: 404ms</div>
-            </div>
-            <div class="bar"><div class="fill red" style="width:86.6%"></div></div>
-            <span class="up" style="font-weight:800; min-width:60px; text-align:right;">+7.8%</span>
-        </div>
-        
-  </div>
-  <div class="card">
-    <h2>Top improvements (Run A → Run B)</h2>
-    <div style="padding:14px; color:#69707d; text-align:center;">No improved transactions recorded.</div>
-  </div>
-</div>
+        new Chart(document.getElementById('deviation'), {
+            type: 'bar',
+            data: {
+                labels: L,
+                datasets: [
+                    { label: 'Run A Dev %', data: [12, -62, 99, -63, 12, -62, 83, -88, -19, 5, -61, -25, -62, 269], backgroundColor: '#2563eb', borderRadius: 3 },
+                    { label: 'Run B Dev %', data: [20, -59, 115, -60, 20, -59, 97, -87, -17, 6, -60, -19, -59, 296], backgroundColor: '#d92d20', borderRadius: 3 }
+                ]
+            },
+            options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: 'Deviation % from SLA' } } } }
+        });
 
-<div class="section"><h2>Comparative transaction heatmap</h2><p>Quick side-by-side scan of metric shifts across all transactions.</p></div>
-<div class="card">
-<table>
-<thead><tr>
-    <th>Transaction</th>
-    <th style="text-align:center;">Avg Response (A → B)</th>
-    <th style="text-align:center;">P95 Latency (A → B)</th>
-    <th style="text-align:center;">SLA Deviation (A → B)</th>
-    <th style="text-align:center;">Error Rate (A → B)</th>
-    <th style="text-align:center;">SLA Transition</th>
-</tr></thead>
-<tbody>
-  
-        <tr>
-            <td style="font-weight:700;">T-US01_Overall_Iteration</td>
-            <td class="heat bad">558ms → 602ms (+8%)</td>
-            <td class="heat bad">599ms → 727ms (+21%)</td>
-            <td class="heat bad">+12% → +20%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US01_Launch_Catalog</td>
-            <td class="heat bad">192ms → 205ms (+7%)</td>
-            <td class="heat bad">211ms → 265ms (+26%)</td>
-            <td class="heat good">-62% → -59%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US01_Select_Fish_Category</td>
-            <td class="heat bad">183ms → 198ms (+8%)</td>
-            <td class="heat bad">203ms → 249ms (+23%)</td>
-            <td class="heat bad">+99% → +115%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC03_US01_View_Product_Details</td>
-            <td class="heat bad">183ms → 200ms (+9%)</td>
-            <td class="heat bad">205ms → 266ms (+30%)</td>
-            <td class="heat good">-63% → -60%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US02_Overall_Iteration</td>
-            <td class="heat bad">560ms → 602ms (+7%)</td>
-            <td class="heat bad">608ms → 725ms (+19%)</td>
-            <td class="heat bad">+12% → +20%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US02_Launch_Catalog</td>
-            <td class="heat bad">192ms → 205ms (+7%)</td>
-            <td class="heat bad">209ms → 275ms (+32%)</td>
-            <td class="heat good">-62% → -59%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US02_Select_Dogs_Category</td>
-            <td class="heat bad">183ms → 197ms (+8%)</td>
-            <td class="heat bad">206ms → 246ms (+19%)</td>
-            <td class="heat bad">+83% → +97%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC03_US02_Add_Item_To_Cart</td>
-            <td class="heat bad">185ms → 200ms (+8%)</td>
-            <td class="heat bad">212ms → 264ms (+25%)</td>
-            <td class="heat good">-88% → -87%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US03_Overall_Iteration</td>
-            <td class="heat mid">407ms → 414ms (+2%)</td>
-            <td class="heat bad">436ms → 494ms (+13%)</td>
-            <td class="heat good">-19% → -17%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US03_Launch_Homepage</td>
-            <td class="heat mid">210ms → 212ms (+1%)</td>
-            <td class="heat bad">221ms → 255ms (+15%)</td>
-            <td class="heat bad">+5% → +6%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US03_Search_Keyword_Bulldog</td>
-            <td class="heat mid">197ms → 202ms (+3%)</td>
-            <td class="heat bad">212ms → 272ms (+28%)</td>
-            <td class="heat good">-61% → -60%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US04_Overall_Iteration</td>
-            <td class="heat bad">375ms → 404ms (+8%)</td>
-            <td class="heat bad">407ms → 502ms (+23%)</td>
-            <td class="heat good">-25% → -19%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US04_Launch_Catalog</td>
-            <td class="heat bad">190ms → 206ms (+8%)</td>
-            <td class="heat bad">208ms → 272ms (+31%)</td>
-            <td class="heat good">-62% → -59%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag good">Pass → Pass</span></td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US04_Navigate_To_Signon_Page</td>
-            <td class="heat bad">185ms → 198ms (+7%)</td>
-            <td class="heat bad">204ms → 238ms (+17%)</td>
-            <td class="heat bad">+269% → +296%</td>
-            <td class="heat good">0.0% → 0.0%</td>
-            <td style="text-align:center;"><span class="tag mid">Persistent Breach</span></td>
-        </tr>
-        
-</tbody>
-</table>
-</div>
+        new Chart(document.getElementById('slaOutcome'), {
+            type: 'bar',
+            data: {
+                labels: ['Run A (Baseline)', 'Run B (Current)'],
+                datasets: [
+                    { label: 'Pass', data: [8, 8], backgroundColor: '#159447', stack: 'stack1' },
+                    { label: 'Breach', data: [6, 6], backgroundColor: '#d92d20', stack: 'stack1' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, stacked: true } } }
+        });
 
-<div class="section"><h2>Stakeholder comparative conclusion</h2></div>
-<div class="insights">
-<div class="insight"><b>Comparative Decision</b><span>Proceed with caution. Monitor key transactions post-release.</span></div>
-<div class="insight"><b>Investigation Priority</b><span>Start with TC03_US01_View_Product_Details. It regressed from 183ms to 200ms (+9.0%).</span></div>
-<div class="insight"><b>Positive Signal</b><span>No notable improvements detected between runs.</span></div>
-</div>
+        new Chart(document.getElementById('errors'), {
+            type: 'line',
+            data: {
+                labels: L,
+                datasets: [
+                    { label: 'Run A Error %', data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], borderColor: '#2563eb', tension: 0.3, pointRadius: 3 },
+                    { label: 'Run B Error %', data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], borderColor: '#d92d20', tension: 0.3, pointRadius: 3 }
+                ]
+            },
+            options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: 'Error %' } } } }
+        });
 
-<details><summary>Detailed / raw comparative metrics</summary>
-<div style="margin-top:12px;">
-<table>
-<thead><tr><th>Transaction</th><th>User Story</th><th class="right">Run A RT</th><th class="right">Run B RT</th><th class="right">Change %</th><th class="right">TPS (A / B)</th><th class="right">SLA Target</th><th style="text-align:center;">Run A</th><th style="text-align:center;">Run B</th><th style="text-align:center;">Transition</th></tr></thead>
-<tbody>
-  
-        <tr>
-            <td style="font-weight:700;">T-US01_Overall_Iteration</td>
-            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
-            <td class="right" style="color:#2563eb;">558.3 ms</td>
-            <td class="right" style="font-weight:700;">601.7 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
-            <td class="right">8.6 / 79.3</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US01_Launch_Catalog</td>
-            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
-            <td class="right" style="color:#2563eb;">192.1 ms</td>
-            <td class="right" style="font-weight:700;">205.0 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+6.7%</td>
-            <td class="right">8.7 / 79.8</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US01_Select_Fish_Category</td>
-            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
-            <td class="right" style="color:#2563eb;">183.4 ms</td>
-            <td class="right" style="font-weight:700;">197.7 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
-            <td class="right">8.6 / 79.5</td>
-            <td class="right">92 ms</td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC03_US01_View_Product_Details</td>
-            <td style="color:#69707d; font-size:11px;">US01_Browse_Catalog</td>
-            <td class="right" style="color:#2563eb;">183.0 ms</td>
-            <td class="right" style="font-weight:700;">199.5 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+9.0%</td>
-            <td class="right">8.6 / 79.3</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US02_Overall_Iteration</td>
-            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
-            <td class="right" style="color:#2563eb;">559.9 ms</td>
-            <td class="right" style="font-weight:700;">601.6 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.5%</td>
-            <td class="right">8.6 / 79.2</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US02_Launch_Catalog</td>
-            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
-            <td class="right" style="color:#2563eb;">191.8 ms</td>
-            <td class="right" style="font-weight:700;">205.2 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.0%</td>
-            <td class="right">8.6 / 79.8</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US02_Select_Dogs_Category</td>
-            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
-            <td class="right" style="color:#2563eb;">182.9 ms</td>
-            <td class="right" style="font-weight:700;">197.4 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.9%</td>
-            <td class="right">8.6 / 79.5</td>
-            <td class="right">100 ms</td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC03_US02_Add_Item_To_Cart</td>
-            <td style="color:#69707d; font-size:11px;">US02_Add_To_Cart</td>
-            <td class="right" style="color:#2563eb;">185.1 ms</td>
-            <td class="right" style="font-weight:700;">199.6 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
-            <td class="right">8.6 / 79.2</td>
-            <td class="right">1517 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US03_Overall_Iteration</td>
-            <td style="color:#69707d; font-size:11px;">US03_Search_Products</td>
-            <td class="right" style="color:#2563eb;">407.0 ms</td>
-            <td class="right" style="font-weight:700;">413.7 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+1.7%</td>
-            <td class="right">2.5 / 2.4</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Unchanged</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US03_Launch_Homepage</td>
-            <td style="color:#69707d; font-size:11px;">US03_Search_Products</td>
-            <td class="right" style="color:#2563eb;">210.1 ms</td>
-            <td class="right" style="font-weight:700;">212.5 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+1.1%</td>
-            <td class="right">2.5 / 2.4</td>
-            <td class="right">200 ms</td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US03_Search_Keyword_Bulldog</td>
-            <td style="color:#69707d; font-size:11px;">US03_Search_Products</td>
-            <td class="right" style="color:#2563eb;">196.9 ms</td>
-            <td class="right" style="font-weight:700;">201.8 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+2.5%</td>
-            <td class="right">2.5 / 2.4</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">T-US04_Overall_Iteration</td>
-            <td style="color:#69707d; font-size:11px;">US04_User_Sign_In</td>
-            <td class="right" style="color:#2563eb;">374.9 ms</td>
-            <td class="right" style="font-weight:700;">404.2 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.8%</td>
-            <td class="right">12.8 / 11.9</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC01_US04_Launch_Catalog</td>
-            <td style="color:#69707d; font-size:11px;">US04_User_Sign_In</td>
-            <td class="right" style="color:#2563eb;">190.2 ms</td>
-            <td class="right" style="font-weight:700;">206.4 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+8.5%</td>
-            <td class="right">12.9 / 11.9</td>
-            <td class="right">500 ms</td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center;"><span class="tag pass">Pass</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Degraded</td>
-        </tr>
-        
-        <tr>
-            <td style="font-weight:700;">TC02_US04_Navigate_To_Signon_Page</td>
-            <td style="color:#69707d; font-size:11px;">US04_User_Sign_In</td>
-            <td class="right" style="color:#2563eb;">184.7 ms</td>
-            <td class="right" style="font-weight:700;">198.1 ms</td>
-            <td class="right" style="font-weight:800; color:#d92d20;">+7.3%</td>
-            <td class="right">12.8 / 11.9</td>
-            <td class="right">50 ms</td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center;"><span class="tag fail">Breach</span></td>
-            <td style="text-align:center; font-size:11px; font-weight:700;">Persistent Breach</td>
-        </tr>
-        
-</tbody>
-</table>
-</div>
-</details>
-
-<footer>Generated by JmeterAI Performance Comparison Engine · Side-by-Side Comparative Report</footer>
-</div>
-
-<script>
-Chart.defaults.font.family = "Inter, Segoe UI, Arial, sans-serif";
-Chart.defaults.font.size = 11;
-Chart.defaults.color = "#69707d";
-const L = ["T-US01_Overall_Ite\u2026", "TC01_US01_Launch_C\u2026", "TC02_US01_Select_F\u2026", "TC03_US01_View_Pro\u2026", "T-US02_Overall_Ite\u2026", "TC01_US02_Launch_C\u2026", "TC02_US02_Select_D\u2026", "TC03_US02_Add_Item\u2026", "T-US03_Overall_Ite\u2026", "TC01_US03_Launch_H\u2026", "TC02_US03_Search_K\u2026", "T-US04_Overall_Ite\u2026", "TC01_US04_Launch_C\u2026", "TC02_US04_Navigate\u2026"];
-const base = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, usePointStyle: true } } },
-    scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: '#eef0f3' }, ticks: { font: { size: 10 } } } }
-};
-
-const bar = (id, a, b, titleY, lblA, lblB) => new Chart(document.getElementById(id), {
-    type: 'bar',
-    data: {
-        labels: L,
-        datasets: [
-            { label: lblA || 'Run A (Baseline)', data: a, backgroundColor: '#2563eb', borderRadius: 3 },
-            { label: lblB || 'Run B (Current)', data: b, backgroundColor: '#d92d20', borderRadius: 3 }
-        ]
-    },
-    options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: titleY } } } }
-});
-
-bar('avg', [558.3, 192.1, 183.4, 183.0, 559.9, 191.8, 182.9, 185.1, 407.0, 210.1, 196.9, 374.9, 190.2, 184.7], [601.7, 205.0, 197.7, 199.5, 601.6, 205.2, 197.4, 199.6, 413.7, 212.5, 201.8, 404.2, 206.4, 198.1], 'ms', 'Run A (Baseline)', 'Run B (Current)');
-bar('p95', [599.0, 211.0, 203.0, 205.0, 608.0, 209.0, 206.0, 212.0, 436.0, 221.0, 212.0, 407.0, 208.0, 204.0], [727.0, 265.0, 249.0, 266.0, 725.0, 275.0, 246.0, 264.0, 494.0, 255.0, 272.0, 502.0, 272.0, 238.0], 'ms', 'Run A P95', 'Run B P95');
-
-new Chart(document.getElementById('movement'), {
-    type: 'line',
-    data: {
-        labels: L,
-        datasets: [
-            { label: 'Run A (Baseline)', data: [558.3, 192.1, 183.4, 183.0, 559.9, 191.8, 182.9, 185.1, 407.0, 210.1, 196.9, 374.9, 190.2, 184.7], borderColor: '#2563eb', backgroundColor: '#2563eb20', tension: 0.3, pointRadius: 3 },
-            { label: 'Run B (Current)', data: [601.7, 205.0, 197.7, 199.5, 601.6, 205.2, 197.4, 199.6, 413.7, 212.5, 201.8, 404.2, 206.4, 198.1], borderColor: '#d92d20', backgroundColor: '#d92d2020', tension: 0.3, pointRadius: 3 }
-        ]
-    },
-    options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: 'Average ms' } } } }
-});
-
-new Chart(document.getElementById('slaDonutA'), {
-    type: 'doughnut',
-    data: { labels: ['Within SLA', 'Breach'], datasets: [{ data: [57.1, 42.9], backgroundColor: ['#2563eb', '#e2e8f0'], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
-});
-
-new Chart(document.getElementById('slaDonutB'), {
-    type: 'doughnut',
-    data: { labels: ['Within SLA', 'Breach'], datasets: [{ data: [57.1, 42.9], backgroundColor: ['#159447', '#fecaca'], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
-});
-
-new Chart(document.getElementById('deviation'), {
-    type: 'bar',
-    data: {
-        labels: L,
-        datasets: [
-            { label: 'Run A Dev %', data: [12, -62, 99, -63, 12, -62, 83, -88, -19, 5, -61, -25, -62, 269], backgroundColor: '#2563eb', borderRadius: 3 },
-            { label: 'Run B Dev %', data: [20, -59, 115, -60, 20, -59, 97, -87, -17, 6, -60, -19, -59, 296], backgroundColor: '#d92d20', borderRadius: 3 }
-        ]
-    },
-    options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: 'Deviation % from SLA' } } } }
-});
-
-new Chart(document.getElementById('slaOutcome'), {
-    type: 'bar',
-    data: {
-        labels: ['Run A (Baseline)', 'Run B (Current)'],
-        datasets: [
-            { label: 'Pass', data: [8, 8], backgroundColor: '#159447', stack: 'stack1' },
-            { label: 'Breach', data: [6, 6], backgroundColor: '#d92d20', stack: 'stack1' }
-        ]
-    },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, stacked: true } } }
-});
-
-new Chart(document.getElementById('errors'), {
-    type: 'line',
-    data: {
-        labels: L,
-        datasets: [
-            { label: 'Run A Error %', data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], borderColor: '#2563eb', tension: 0.3, pointRadius: 3 },
-            { label: 'Run B Error %', data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], borderColor: '#d92d20', tension: 0.3, pointRadius: 3 }
-        ]
-    },
-    options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, title: { display: true, text: 'Error %' } } } }
-});
-
-new Chart(document.getElementById('errorDonut'), {
-    type: 'doughnut',
-    data: { labels: ["Zero Errors in Run B"], datasets: [{ data: [1], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
-});
-</script>
+        new Chart(document.getElementById('errorDonut'), {
+            type: 'doughnut',
+            data: { labels: ["Zero Errors in Run B"], datasets: [{ data: [1], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+        });
+    </script>
 </body>
+
 </html>

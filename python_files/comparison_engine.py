@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-comparison_engine.py — Dedicated 2-Run Performance Comparison Engine for JmeterAI.
+comparison_engine.py — Dedicated 2-Run Performance Comparison Engine for PerfPilot.
 
 Primary Purpose:
   Detailed engineering comparison between EXACTLY TWO JMeter test runs (Run A vs Run B).

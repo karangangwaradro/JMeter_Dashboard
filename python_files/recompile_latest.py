@@ -9,7 +9,7 @@ if str(_ROOT) not in sys.path:
 
 from python_files.report_generator import generate_report
 
-results_dir = Path("D:/BlazemeterMCPZIP/JmeterAI/Results")
+results_dir = Path("D:/BlazemeterMCPZIP/PerfPilot/Results")
 json_dir    = results_dir / "json"
 html_dir    = results_dir / "html"
 

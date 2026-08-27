@@ -24,15 +24,15 @@
 2026-08-03 18:50:13,844 INFO o.a.j.JMeter: Default Locale=English (EN)
 2026-08-03 18:50:13,844 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
 2026-08-03 18:50:13,844 INFO o.a.j.JMeter: JMeterHome=D:\apache-jmeter-5.6.3
-2026-08-03 18:50:13,844 INFO o.a.j.JMeter: user.dir  =D:\BlazemeterMCPZIP\JmeterAI
-2026-08-03 18:50:13,848 INFO o.a.j.JMeter: PWD       =D:\BlazemeterMCPZIP\JmeterAI
+2026-08-03 18:50:13,844 INFO o.a.j.JMeter: user.dir  =D:\BlazemeterMCPZIP\PerfPilot
+2026-08-03 18:50:13,848 INFO o.a.j.JMeter: PWD       =D:\BlazemeterMCPZIP\PerfPilot
 2026-08-03 18:50:13,861 INFO o.a.j.JMeter: IP: 192.168.128.232 Name: AICPL-L224 FullName: AICPL-L224
-2026-08-03 18:50:13,885 INFO o.a.j.s.FileServer: Default base='D:\BlazemeterMCPZIP\JmeterAI'
-2026-08-03 18:50:13,891 INFO o.a.j.s.FileServer: Set new base='D:\BlazemeterMCPZIP\JmeterAI\Tests'
+2026-08-03 18:50:13,885 INFO o.a.j.s.FileServer: Default base='D:\BlazemeterMCPZIP\PerfPilot'
+2026-08-03 18:50:13,891 INFO o.a.j.s.FileServer: Set new base='D:\BlazemeterMCPZIP\PerfPilot\Tests'
 2026-08-03 18:50:14,254 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
 2026-08-03 18:50:14,316 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
 2026-08-03 18:50:14,320 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-08-03 18:50:14,324 INFO o.a.j.s.SaveService: Loading file: D:\BlazemeterMCPZIP\JmeterAI\Tests\Pagination_Release_Initial_Loading_4.jmx
+2026-08-03 18:50:14,324 INFO o.a.j.s.SaveService: Loading file: D:\BlazemeterMCPZIP\PerfPilot\Tests\Pagination_Release_Initial_Loading_4.jmx
 2026-08-03 18:50:14,389 INFO o.a.j.p.h.c.CacheManager: Will only cache the following methods: [GET]
 2026-08-03 18:50:14,393 INFO o.a.j.p.h.c.CookieManager: Settings: Delete null: true Check: true Allow variable: true Save: false Prefix: COOKIE_
 2026-08-03 18:50:14,496 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
@@ -97,7 +97,7 @@
 2026-08-03 18:50:17,563 INFO c.b.j.c.ParallelSampler: Starting up to 6 threads
 2026-08-03 18:50:17,563 INFO c.b.j.c.ParallelSampler: Starting up to 6 threads
 2026-08-03 18:50:17,563 INFO c.b.j.c.ParallelSampler: Starting up to 6 threads
-2026-08-03 18:50:17,574 INFO o.a.j.s.FileServer: Stored: D:\BlazemeterMCPZIP\JmeterAI\Tests\Gloster_params_4.csv
+2026-08-03 18:50:17,574 INFO o.a.j.s.FileServer: Stored: D:\BlazemeterMCPZIP\PerfPilot\Tests\Gloster_params_4.csv
 2026-08-03 18:50:18,264 ERROR o.a.j.v.b.g.TextGraphiteMetricsSender: Error writing to Graphite: Connection refused: no further information
 java.net.ConnectException: Connection refused: no further information
 	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[?:?]
@@ -3654,7 +3654,7 @@ java.net.ConnectException: Connection refused: no further information
 2026-08-03 18:51:17,710 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Email_filing_In_Suggested_Location 1-1
 2026-08-03 18:51:17,710 INFO o.a.j.t.JMeterThread: Thread finished: Email_filing_In_Suggested_Location 1-1
 2026-08-03 18:51:17,730 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
-2026-08-03 18:51:17,736 INFO o.a.j.s.FileServer: Close: D:\BlazemeterMCPZIP\JmeterAI\Tests\Gloster_params_4.csv
+2026-08-03 18:51:17,736 INFO o.a.j.s.FileServer: Close: D:\BlazemeterMCPZIP\PerfPilot\Tests\Gloster_params_4.csv
 2026-08-03 18:51:17,748 INFO o.a.j.v.b.BackendListener: Worker ended
 2026-08-03 18:51:17,751 ERROR o.a.j.v.b.g.TextGraphiteMetricsSender: Error writing to Graphite: Connection refused: no further information
 java.net.ConnectException: Connection refused: no further information

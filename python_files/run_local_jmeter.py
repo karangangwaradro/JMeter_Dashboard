@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_local_jmeter.py — Local JMeter Test Runner for JmeterAI.
+run_local_jmeter.py — Local JMeter Test Runner for PerfPilot.
 
 Runs a JMX test plan using the locally installed Apache JMeter CLI.
 Parses the resulting .jtl file and returns structured results.

@@ -1,4 +1,4 @@
-# JMeter AI Dashboard & Performance Analytics
+# PerfPilot Dashboard & Performance Analytics
 
 An automated performance testing, telemetry correlation, AI diagnostics, and interactive reporting platform for Apache JMeter tests.
 
@@ -20,7 +20,7 @@ An automated performance testing, telemetry correlation, AI diagnostics, and int
 ## 📁 Repository Structure
 
 ```
-JmeterAI/
+PerfPilot/
 ├── python_files/           # Backend modules & analytics engines (see python_files/README.md)
 │   ├── run_local_jmeter.py # Test runner & process orchestrator
 │   ├── jtl_parser.py       # Dedicated JTL / CSV parser engine
@@ -50,4 +50,4 @@ JmeterAI/
 
 ## 📖 Module Documentation
 
-For a detailed functional overview, data flow pipeline, and input/output specifications of every Python engine, see the **[Python Modules & Architecture Guide](file:///d:/BlazemeterMCPZIP/JmeterAI/python_files/README.md)**.
+For a detailed functional overview, data flow pipeline, and input/output specifications of every Python engine, see the **[Python Modules & Architecture Guide](file:///d:/BlazemeterMCPZIP/PerfPilot/python_files/README.md)**.

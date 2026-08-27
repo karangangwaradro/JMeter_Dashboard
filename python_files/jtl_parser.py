@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-jtl_parser.py — JMeter JTL / CSV Results Parser for JmeterAI.
+jtl_parser.py — JMeter JTL / CSV Results Parser for PerfPilot.
 
 Parses Apache JMeter JTL log files (CSV format) into structured performance metrics,
 transaction breakdowns, error diagnostics, and time-series datasets for reporting and analytics.
@@ -109,21 +109,29 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
             failure_msg = str(get_col(r, "failureMessage", "")).strip()
             
             # Check if this row is a Transaction Controller container rollup
-            # (JMeter sets "Number of samples in transaction : N, number of failing samples : M" for container rollups)
+            # (JMeter sets "Number of samples in transaction : N, number of failing/failed samples : M" for container rollups)
             f_lower = failure_msg.lower()
             r_lower = resp_msg.lower()
+            lbl_lower = label.lower()
+            url_val = str(get_col(r, "URL", "")).strip()
+            data_type = str(get_col(r, "dataType", "")).strip()
+
             is_tc_rollup = (
-                "number of samples in transaction" in f_lower or
-                "number of samples in transaction" in r_lower or
                 "samples in transaction" in f_lower or
                 "samples in transaction" in r_lower or
-                "number of failing samples" in f_lower or
-                "number of failing samples" in r_lower or
+                "failed samples" in f_lower or
+                "failed samples" in r_lower or
                 "failing samples" in f_lower or
                 "failing samples" in r_lower or
-                "transaction failed:" in f_lower or
-                "transaction failed:" in r_lower or
-                (not resp_code and not failure_msg and ("transaction" in r_lower or "controller" in label.lower() or label.upper().startswith("TC") or label.upper().startswith("T-")))
+                "transaction failed" in f_lower or
+                "transaction failed" in r_lower or
+                lbl_lower.startswith("tc") or
+                lbl_lower.startswith("t-") or
+                "transaction controller" in lbl_lower or
+                "overall_iteration" in lbl_lower or
+                "controller" in lbl_lower or
+                url_val in ("", "null", "None") or
+                not data_type
             )
 
             # ONLY track actual HTTP request errors or assertion failures (avoiding duplicate transaction container rollups)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-trend_engine.py — Lightweight Historical Trend Analysis Engine for JmeterAI.
+trend_engine.py — Lightweight Historical Trend Analysis Engine for PerfPilot.
 
 Primary Purpose:
   Identifies high-level directional patterns across 3 to 20+ releases (R1 -> R2 -> R3... Rn).

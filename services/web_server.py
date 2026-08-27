@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-web_server.py — Local Web Server for JmeterAI.
+web_server.py — Local Web Server for PerfPilot.
 
 Serves the web/ SPA dashboard and exposes REST API endpoints:
   - GET  /api/status            → System health (JMeter, Azure, AI status)
@@ -985,7 +985,7 @@ def start_server(port: int = 8080):
     httpd = None
     try:
         httpd = ThreadedHTTPServer(("", port), PlatformRequestHandler)
-        print(f"\n  ⚡ JmeterAI Web Dashboard → http://localhost:{port}/")
+        print(f"\n  ⚡ PerfPilot Web Dashboard → http://localhost:{port}/")
         print(f"  Press Ctrl+C to stop.\n", flush=True)
         httpd.serve_forever()
     except KeyboardInterrupt:

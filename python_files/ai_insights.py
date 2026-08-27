@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ai_insights.py — AI-Powered Performance Analysis for JmeterAI.
+ai_insights.py — AI-Powered Performance Analysis for PerfPilot.
 
 Uses Gemini API to generate deep performance optimization insights
 from combined client-side and server-side metrics.

@@ -1,4 +1,4 @@
-// app.js — Frontend Application Logic for JmeterAI SPA
+// app.js — Frontend Application Logic for PerfPilot SPA
 
 let activePollingInterval = null;
 

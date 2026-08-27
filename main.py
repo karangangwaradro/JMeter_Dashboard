@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-main.py — Entry point for JmeterAI.
+main.py — Entry point for PerfPilot.
 
 Boots the web server on port 8080 and auto-opens the dashboard UI in the browser.
 
@@ -25,7 +25,7 @@ from services import web_server
 def main():
     print()
     print("  ╔══════════════════════════════════════════════════════╗")
-    print("  ║   ⚡ JmeterAI — Local Performance Testing Utility    ║")
+    print("  ║   ⚡ PerfPilot — Local Performance Testing Utility    ║")
     print("  ╚══════════════════════════════════════════════════════╝")
     print()
 

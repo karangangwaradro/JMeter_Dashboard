@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-apdex_calculator.py — Apdex (Application Performance Index) Calculator for JmeterAI.
+apdex_calculator.py — Apdex (Application Performance Index) Calculator for PerfPilot.
 
 Formula:
   Apdex = ( Satisfied_Count + (Tolerating_Count / 2) ) / Total_Samples

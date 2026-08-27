@@ -3,7 +3,7 @@ cd /d "%~dp0"
 
 echo.
 echo =======================================================
-echo   ⚡ JmeterAI — Local Performance Testing Platform
+echo   ⚡ PerfPilot — Local Performance Testing Platform
 echo =======================================================
 echo.
 
@@ -45,7 +45,7 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr /r ":8080 .*LISTENING"
 )
 
 echo.
-echo Launching JmeterAI Web Dashboard Server...
+echo Launching PerfPilot Web Dashboard Server...
 echo Web UI will be available at: http://localhost:8080/
 echo.
 

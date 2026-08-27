@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-sla_manager.py — SLA Threshold & Hierarchy Manager for JmeterAI.
+sla_manager.py — SLA Threshold & Hierarchy Manager for PerfPilot.
 
 Manages SLA target files (.csv & .xlsx), extracts Transaction Controllers
 and their child HTTP Samplers from .jmx files, and checks SLA breaches (Target RT & 90th Percentile).

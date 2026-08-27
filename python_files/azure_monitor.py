@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-azure_monitor.py — Azure Monitor Metrics Collector for JmeterAI.
+azure_monitor.py — Azure Monitor Metrics Collector for PerfPilot.
 
 Collects server-side infrastructure metrics from Azure Monitor
 during a test execution window. Supports VMs, App Services, and AKS.

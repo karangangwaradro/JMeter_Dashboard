@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-findings_engine.py — Structured Performance Findings Generator for JmeterAI.
+findings_engine.py — Structured Performance Findings Generator for PerfPilot.
 
 Produces structured Finding objects (F-001, F-002, ...) with evidence chains,
 interpretations, and linked Recommendations (R-001 → F-001) from test data.
