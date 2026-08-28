@@ -493,12 +493,12 @@
 
         <!-- 3. Overall Performance Assessment Banner -->
         
-    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 5px solid var(--red); padding: 1.25rem 1.5rem;">
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 5px solid var(--accent); padding: 1.25rem 1.5rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-            <div style="font-size:0.92rem; font-weight:800; color:var(--red); letter-spacing:0.04em;">⚠️ PERFORMANCE REQUIRES ATTENTION</div>
+            <div style="font-size:0.92rem; font-weight:800; color:var(--text); letter-spacing:0.04em;"></div>
             <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Executive Overview</span>
         </div>
-        <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">The JPetStore application demonstrated critical performance and reliability issues during the 60-second load test, with an overall error rate of 5.49% and server CPU peaking at 91.4%. Key transactions like 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' failed 100% of the time, severely impacting overall response times and system reliability. The system is operating near CPU saturation, indicating limited capacity for increased load.</p>
+        <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">The JPetStore application executed 26,642 total samples over a 60-second test duration at an average throughput of 444.18 req/s. The test recorded an overall client-side error rate of 5.49% (538 failures out of 1,643 total transaction iterations) concentrated entirely within User Journey UC01. Transactions under UC02 and UC03 completed with 100% pass rates. Server CPU averaged 60.7% with an observed peak of 91.4%, and memory utilization averaged 69.3% with an observed peak of 89.3%.</p>
     </div>
     
 
@@ -507,7 +507,7 @@
     <div class="section glass-panel" style="margin-top:1.25rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
             <h2 style="margin:0;">📋 High-Level Performance Observations</h2>
-            <span style="font-size:0.75rem; font-weight:600; color:var(--muted);">Factual Assessment</span>
+            <span style="font-size:0.75rem; font-weight:600; color:var(--muted);">AI Assessment</span>
         </div>
         <table style="width:100%; border-collapse:collapse;">
             <thead>
@@ -519,23 +519,23 @@
             <tbody>
                 
         <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Transaction Performance</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Three critical transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) failed 100% of the time.</td>
+            <td style="font-weight:700; width:26%; vertical-align:top; font-size:0.85rem; color:var(--text); padding:0.75rem 0.8rem;">1. Transaction Statistics</td>
+            <td style="width:74%; vertical-align:top; font-size:0.85rem; line-height:1.6; color:var(--text); padding:0.75rem 0.8rem;" contenteditable="true">a. UC01 Launch & Catalog: Overall 538 iterations were executed under load out of which 0 passed, 538 failed (100% failure rate).<br>b. UC02 Search & View Item: Overall 552 iterations were executed under load out of which 552 passed, 0 failed (100% pass rate).<br>c. UC03 Cart & Checkout Flow: Overall 553 iterations were executed under load out of which 553 passed, 0 failed (100% pass rate).</td>
         </tr>
         
         <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Response Time (P90)</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Overall Average Response Time was 241.32ms, but P99 reached 1049ms, indicating significant tail latency.</td>
+            <td style="font-weight:700; width:26%; vertical-align:top; font-size:0.85rem; color:var(--text); padding:0.75rem 0.8rem;">2. Response Time Statistics</td>
+            <td style="width:74%; vertical-align:top; font-size:0.85rem; line-height:1.6; color:var(--text); padding:0.75rem 0.8rem;" contenteditable="true">a. 3 transactions violated the defined SLA target due to execution errors and retry latencies. Refer Response Time stats tab for more details.<br>b. The avg response time of UC01 Overall Iteration was 1067 ms (ranges from 165 ms to 2835 ms).<br>c. The avg response time of UC02 Overall Iteration was 214 ms (P90 = 245 ms, P95 = 563 ms).<br>d. The avg response time of UC03 Overall Iteration was 210 ms (P90 = 240 ms, P95 = 258 ms).</td>
         </tr>
         
         <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Reliability & Errors</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Overall error rate of 5.49% was observed client-side, with 168 5xx errors reported by Azure App Service.</td>
+            <td style="font-weight:700; width:26%; vertical-align:top; font-size:0.85rem; color:var(--text); padding:0.75rem 0.8rem;">3. Errors Reported from Performance Tool</td>
+            <td style="width:74%; vertical-align:top; font-size:0.85rem; line-height:1.6; color:var(--text); padding:0.75rem 0.8rem;" contenteditable="true">a. TC01_US01_Launch_Catalog: 538 out of 538 failures (100% error rate). Failures occurred at launch initiation.<br>b. Transaction Controller_T2: 538 out of 538 failures (100% error rate).<br>c. Azure App Service reported 168 server-side 5xx errors during the test window.</td>
         </tr>
         
         <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">Infrastructure (Azure)</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">Server CPU peaked at 91.4% and averaged 60.7%. Memory peaked at 89.3%.</td>
+            <td style="font-weight:700; width:26%; vertical-align:top; font-size:0.85rem; color:var(--text); padding:0.75rem 0.8rem;">4. Server Utilization & Azure Monitoring</td>
+            <td style="width:74%; vertical-align:top; font-size:0.85rem; line-height:1.6; color:var(--text); padding:0.75rem 0.8rem;" contenteditable="true">a. Server CPU averaged 60.7% with an observed peak of 91.4% during peak throughput.<br>b. Server Memory averaged 69.3% with an observed peak of 89.3%.<br>c. Disk Read IOPS averaged 21.9M operations and Network In averaged 1.2 MB/min.</td>
         </tr>
         
             </tbody>
@@ -548,7 +548,7 @@
     <div class="section glass-panel" style="margin-top:1.25rem; border-left: 4px solid var(--accent);">
         <h2 style="margin:0 0 0.6rem 0;">📌 Key Conclusions</h2>
         <ul style="margin:0; padding-left:1.3rem; font-size:0.88rem; line-height:1.65; color:var(--text);" contenteditable="true">
-            <li style="margin-bottom:0.45rem;">The application experienced a critical 5.49% overall error rate, with three major transactions ('T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', 'Transaction Controller_T2') failing 100% of the time.</li><li style="margin-bottom:0.45rem;">Server CPU utilization peaked at 91.4%, indicating the system is CPU-bound and will degrade under further load.</li><li style="margin-bottom:0.45rem;">Tail latency is significant, with P99 response times (1049ms) being over 4x the average (241.32ms), suggesting inconsistent performance for a subset of users.</li>
+            <li style="margin-bottom:0.45rem;">Overall 1,643 user journey iterations were executed under load, with 1,105 passed and 538 failed (5.49% error rate).</li><li style="margin-bottom:0.45rem;">Failures were 100% isolated to User Story UC01 ('T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2'), while UC02 and UC03 completed with 0 errors.</li><li style="margin-bottom:0.45rem;">Average response time across successful transactions was 212 ms, with overall test P90 at 351 ms and P99 tail latency at 1049 ms.</li><li style="margin-bottom:0.45rem;">Server CPU reached an observed peak of 91.4% (60.7% average) and memory reached 89.3% peak (69.3% average), indicating reduced compute headroom during load.</li>
         </ul>
     </div>
     
@@ -562,19 +562,19 @@
         <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
                 <span style="font-size:1rem;">🔴</span>
-                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Resolve 100% Failing Transactions</strong>
-                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">Critical</span>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Investigate UC01 Launch Catalog Failures</strong>
+                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">High</span>
             </div>
-            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Immediately investigate and fix the root cause of the 100% error rates for 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' by reviewing logs, configurations, and code.</p>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Review application gateway routing, catalog initialization scripts, and 5xx exception logs for TC01_US01_Launch_Catalog.</p>
         </div>
         
         <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
-                <span style="font-size:1rem;">🔴</span>
-                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Address CPU Saturation</strong>
-                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">Critical</span>
+                <span style="font-size:1rem;">🟠</span>
+                <strong style="font-size:0.9rem; color:var(--text);" contenteditable="true">Monitor Host Compute Headroom</strong>
+                <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface); border:1px solid var(--border); color:var(--muted); margin-left:auto;">Medium</span>
             </div>
-            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Profile the application to optimize CPU-intensive operations and consider scaling up or out the Azure App Service plan to provide more compute resources.</p>
+            <p style="margin:0; font-size:0.85rem; line-height:1.55; color:var(--muted);" contenteditable="true">Investigate CPU spikes above 90% and evaluate App Service scale-out rules under prolonged concurrency.</p>
         </div>
         
         </div>
@@ -586,7 +586,7 @@
             <button class="chart-info-btn" onclick="openGraphModal('tx-summary')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
                 <div>
-                    <h2 style="margin:0;">📊 Transaction Statistics &amp; Iteration Summary</h2>
+                    <h2 style="margin:0;">📊 Iteration Statistics</h2>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Total vs passed and failed request sample counts per test script</p>
                 </div>
                 <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
@@ -606,7 +606,7 @@
             <button class="chart-info-btn" onclick="openGraphModal('tx-rt-breakdown')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
                 <div>
-                    <h2 style="margin:0;">📈 Transaction &amp; Sub-Transaction Performance Line Graphs</h2>
+                    <h2 style="margin:0;">📈 Transaction Statistics</h2>
                     <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
                         Hierarchical multi-metric line analysis. Filter by User Story, drill into child HTTP requests, and duplicate charts to compare different metrics simultaneously.
                     </div>
@@ -629,7 +629,15 @@
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; padding-right:2.5rem;">
                 <div>
                     <h2 style="margin:0;">🎯 SLA Deviation by Transaction (% from Target SLA)</h2>
-                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Diverging diagnostic chart normalized as (P90 Response Time &divide; Target SLA - 1) &times; 100%. Sorted by worst breach.</div>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem; display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem 1rem;">
+                        <span>Normalized as <code>(P90 &divide; Target SLA - 1) &times; 100%</code>. Sorted by worst breach.</span>
+                        <span style="display:inline-flex; align-items:center; gap:0.6rem; font-weight:600; font-size:0.75rem;">
+                            <span style="color:#ef4444;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ef4444;margin-right:3px;"></span>&gt;100% (Red)</span>
+                            <span style="color:#f97316;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f97316;margin-right:3px;"></span>50-100% (Amber)</span>
+                            <span style="color:#eab308;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#eab308;margin-right:3px;"></span>0-50% (Yellow)</span>
+                            <span style="color:#10b981;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:3px;"></span>&le;0% Met Target (Green)</span>
+                        </span>
+                    </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                     <label for="usDevFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
@@ -833,7 +841,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">26.9</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">8.9</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -864,7 +872,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">14.3% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">27.2</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">9.1</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -895,7 +903,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">54.5</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">18.2</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -926,7 +934,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">54.7</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">18.2</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -957,20 +965,20 @@
         
         <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Transaction Performance Insights &amp; Recommendations</h3>
-                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Transaction Performance AI Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">AI Generated</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">The test processed 26,642 samples with a throughput of 444.18 req/s over 60 seconds.</li><li style="margin-bottom:0.35rem;">Three specific transactions ('T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', 'Transaction Controller_T2') failed 100% of the time, significantly impacting overall reliability.</li><li style="margin-bottom:0.35rem;">Transaction 'T-US01_Overall_Iteration' was 4.42x slower than the overall average (1067ms vs 241ms), primarily due to its 100% error rate.</li>
+                        <li style="margin-bottom:0.35rem;">UC02 and UC03 completed all 1,105 iterations successfully with consistent throughput of ~444 req/s.</li><li style="margin-bottom:0.35rem;">UC01 failed 100% of its 538 iterations at the launch catalog step, impacting total test reliability.</li><li style="margin-bottom:0.35rem;">Iteration distribution remained balanced across all 3 user story thread groups (~540 iterations each).</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Prioritize debugging and fixing the 100% failing transactions to restore core application functionality.</li><li style="margin-bottom:0.35rem;">After resolving errors, re-evaluate transaction performance against SLAs to identify true latency bottlenecks.</li>
+                        <li style="margin-bottom:0.35rem;">Fix the functional failure in UC01 catalog launch to achieve full scenario test coverage.</li><li style="margin-bottom:0.35rem;">Re-run load test with all 3 user stories passing to evaluate true steady-state throughput.</li>
                     </ul>
                 </div>
             </div>
@@ -998,19 +1006,19 @@
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:0.75rem; margin-bottom:1rem;">
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">AVG THROUGHPUT</div>
-                    <div id="tpKpiAvg" style="font-size:1.25rem; font-weight:800; color:var(--text); margin-top:0.2rem;">281 req/s</div>
+                    <div id="tpKpiAvg" style="font-size:1.25rem; font-weight:800; color:var(--text); margin-top:0.2rem;">444 req/s</div>
                 </div>
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">PEAK THROUGHPUT</div>
-                    <div id="tpKpiPeak" style="font-size:1.25rem; font-weight:800; color:var(--accent); margin-top:0.2rem;">299 req/s</div>
+                    <div id="tpKpiPeak" style="font-size:1.25rem; font-weight:800; color:var(--accent); margin-top:0.2rem;">0 req/s</div>
                 </div>
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">ERROR RATE</div>
-                    <div id="tpKpiErr" style="font-size:1.25rem; font-weight:800; color:var(--red); margin-top:0.2rem;">5.49%</div>
+                    <div id="tpKpiErr" style="font-size:1.25rem; font-weight:800; color:var(--green); margin-top:0.2rem;">0.00%</div>
                 </div>
                 <div class="glass-panel" style="background:var(--surface1); border:1px solid var(--border); padding:0.75rem; text-align:center; border-radius:8px;">
                     <div style="font-size:0.7rem; font-weight:700; color:var(--muted); text-transform:uppercase;">END TREND / VARIATION</div>
-                    <div id="tpKpiTrend" style="font-size:1.15rem; font-weight:800; color:var(--green); margin-top:0.2rem;">🟢 Stable (±5%)</div>
+                    <div id="tpKpiTrend" style="font-size:1.15rem; font-weight:800; color:var(--text); margin-top:0.2rem;">Stable</div>
                 </div>
             </div>
 
@@ -1021,36 +1029,6 @@
 
             <!-- Standardized Contextual AI Performance Observation Card -->
             
-        <div class="glass-panel" style="border-left: 4px solid var(--green); background: rgba(16,185,129,0.05); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 0.75rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-                    <span>🧠 Performance Observation</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    
-                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🟢 Stable Throughput</span>
-                </div>
-            </div>
-            
-            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
-                Throughput remained stable at an average of 281 req/s (peak: 299 req/s) with no significant anomaly.
-            </p>
-            
-            <div style="margin-bottom:0.55rem;">
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
-                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
-                    Workload execution proceeded smoothly without evidence of capacity bottlenecks or processing stalls.
-                </p>
-            </div>
-            
-            <div>
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
-                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
-                    Conduct stepped load testing with increased concurrency to identify the ultimate saturation ceiling.
-                </p>
-            </div>
-        </div>
-        
         </div>
 
         <div class="section glass-panel">
@@ -1088,7 +1066,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-321305272')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1372962447')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
             <td>536</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="1067.0"><span class="tx-rt-val">1067</span></td>
@@ -1100,8 +1078,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-321305272"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-321305272" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4040116448')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-966696694')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
             <td>538</td>
             <td><span class="fail"><strong>0.00</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="715.7"><span class="tx-rt-val">716</span></td>
@@ -1113,7 +1091,7 @@
             <td><span style="color:var(--yellow); font-weight:600;">+45.8%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-321305272 tree-children-4040116448"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4040116448" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_1</code></span></td>
             <td>544</td>
             <td>-</td>
@@ -1126,7 +1104,7 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-321305272 tree-children-4040116448"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4040116448" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_2</code></span></td>
             <td>543</td>
             <td>-</td>
@@ -1139,7 +1117,7 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-321305272 tree-children-4040116448"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4040116448" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_Err500</code></span></td>
             <td>543</td>
             <td>-</td>
@@ -1152,7 +1130,7 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-321305272 tree-children-4040116448"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4040116448" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_3</code></span></td>
             <td>538</td>
             <td>-</td>
@@ -1165,8 +1143,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-321305272"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-321305272" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-311753640')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4030556995')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
             <td>537</td>
             <td><span class="fail"><strong>0.50</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="175.2"><span class="tx-rt-val">175</span></td>
@@ -1178,7 +1156,7 @@
             <td><span style="color:var(--red); font-weight:600;">+97.8%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-321305272 tree-children-311753640"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-311753640" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-4030556995"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4030556995" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Select_Category_Fish</code></span></td>
             <td>537</td>
             <td>-</td>
@@ -1191,8 +1169,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-321305272"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-321305272" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3050456969')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1134486219')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
             <td>536</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="176.2"><span class="tx-rt-val">176</span></td>
@@ -1204,7 +1182,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-321305272 tree-children-3050456969"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3050456969" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-1134486219"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1134486219" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_View_Product_FI-SW-01</code></span></td>
             <td>536</td>
             <td>-</td>
@@ -1223,7 +1201,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4038918496')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3100956969')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
             <td>544</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="531.5"><span class="tx-rt-val">532</span></td>
@@ -1235,8 +1213,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4038918496"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-4038918496" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1155450717')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1034189100')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
             <td>544</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="181.8"><span class="tx-rt-val">182</span></td>
@@ -1248,7 +1226,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4038918496 tree-children-1155450717"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1155450717" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-1034189100"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1034189100" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Launch_Catalog</code></span></td>
             <td>544</td>
             <td>-</td>
@@ -1261,8 +1239,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4038918496"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-4038918496" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3179283042')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3337989914')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
             <td>544</td>
             <td><span class="fail"><strong>0.50</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="174.3"><span class="tx-rt-val">174</span></td>
@@ -1274,7 +1252,7 @@
             <td><span style="color:var(--yellow); font-weight:600;">+81.0%</span></td>
             <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4038918496 tree-children-3179283042"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3179283042" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-3337989914"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3337989914" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Select_Category_Dogs</code></span></td>
             <td>544</td>
             <td>-</td>
@@ -1287,8 +1265,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-4038918496"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-4038918496" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1602251475')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2735157779')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
             <td>544</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="175.4"><span class="tx-rt-val">175</span></td>
@@ -1300,7 +1278,7 @@
             <td><span style="color:var(--green); font-weight:600;">-88.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-4038918496 tree-children-1602251475"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1602251475" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-2735157779"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2735157779" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Add_Item_EST-26</code></span></td>
             <td>544</td>
             <td>-</td>
@@ -1319,7 +1297,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-831556596')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3080663765')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
             <td>1,632</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="352.4"><span class="tx-rt-val">352</span></td>
@@ -1331,8 +1309,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-831556596"  data-tg="US03_Search_Products" data-parent-cls="tree-children-831556596" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-172252367')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3080663765"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3080663765" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-533417186')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
             <td>1,636</td>
             <td><span class="pass"><strong>0.98</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="178.6"><span class="tx-rt-val">179</span></td>
@@ -1344,7 +1322,7 @@
             <td><span style="color:var(--green); font-weight:600;">-9.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-831556596 tree-children-172252367"  data-tg="US03_Search_Products" data-parent-cls="tree-children-172252367" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3080663765 tree-children-533417186"  data-tg="US03_Search_Products" data-parent-cls="tree-children-533417186" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US03_Launch_Homepage</code></span></td>
             <td>1,636</td>
             <td>-</td>
@@ -1357,8 +1335,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-831556596"  data-tg="US03_Search_Products" data-parent-cls="tree-children-831556596" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-997469255')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3080663765"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3080663765" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2694986713')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
             <td>1,632</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="173.8"><span class="tx-rt-val">174</span></td>
@@ -1370,7 +1348,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-831556596 tree-children-997469255"  data-tg="US03_Search_Products" data-parent-cls="tree-children-997469255" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3080663765 tree-children-2694986713"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2694986713" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US03_Search_Bulldog</code></span></td>
             <td>1,632</td>
             <td>-</td>
@@ -1389,7 +1367,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2433933799')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-937799748')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
             <td>1,637</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="351.2"><span class="tx-rt-val">351</span></td>
@@ -1401,8 +1379,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2433933799"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2433933799" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-498248215')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-937799748"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-937799748" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2043401207')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
             <td>1,643</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="177.9"><span class="tx-rt-val">178</span></td>
@@ -1414,7 +1392,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2433933799 tree-children-498248215"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-498248215" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-937799748 tree-children-2043401207"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2043401207" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US04_Launch_Catalog</code></span></td>
             <td>1,643</td>
             <td>-</td>
@@ -1427,8 +1405,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2433933799"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2433933799" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2421161565')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-937799748"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-937799748" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3342637634')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
             <td>1,637</td>
             <td><span class="fail"><strong>0.49</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="173.3"><span class="tx-rt-val">173</span></td>
@@ -1440,7 +1418,7 @@
             <td><span style="color:var(--red); font-weight:600;">+262.0%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2433933799 tree-children-2421161565"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2421161565" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-937799748 tree-children-3342637634"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3342637634" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US04_Signon_Form</code></span></td>
             <td>1,637</td>
             <td>-</td>
@@ -1548,20 +1526,20 @@
         
         <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Response Time & SLA Insights &amp; Recommendations</h3>
-                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Response Time & SLA AI Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">AI Generated</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">The average response time was 241.32ms, but P99 reached 1049ms and the maximum was 2835ms, indicating significant response time variability.</li><li style="margin-bottom:0.35rem;">Transaction 'T-US02_Overall_Iteration' showed an elevated P95 of 563ms despite having 0% errors, suggesting performance degradation even for successful requests.</li><li style="margin-bottom:0.35rem;">The wide gap between average and tail latencies points to intermittent performance issues or resource contention affecting a subset of requests.</li>
+                        <li style="margin-bottom:0.35rem;">Successful user flows (UC02, UC03) demonstrated stable average latency between 210 ms and 214 ms.</li><li style="margin-bottom:0.35rem;">Overall P90 was 351 ms, with P99 reaching 1049 ms driven by tail outliers in UC01 error responses.</li><li style="margin-bottom:0.35rem;">Max response time of 2835 ms was observed during peak load.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Address the CPU saturation and functional errors first, as they are major contributors to tail latency.</li><li style="margin-bottom:0.35rem;">Implement distributed tracing to pinpoint the exact components contributing to the high P99 response times for successful transactions.</li>
+                        <li style="margin-bottom:0.35rem;">Implement distributed tracing on catalog lookup endpoints to identify tail latency contributors.</li><li style="margin-bottom:0.35rem;">Verify SLA compliance after resolving UC01 failure blockers.</li>
                     </ul>
                 </div>
             </div>
@@ -1588,36 +1566,6 @@
                 <canvas id="rtChart"></canvas>
             </div>
             
-        <div class="glass-panel" style="border-left: 4px solid var(--red); background: rgba(239,68,68,0.05); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 0.75rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-                    <span>🧠 Performance Observation</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <span class="finding-badge-inline" onclick="showFinding('F-005');" style="cursor:pointer;">🔍 F-005</span>
-                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🔴 Severe Latency Tail</span>
-                </div>
-            </div>
-            
-            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
-                Latency averaged 241 ms with P95 at 524 ms and P99 at 1049 ms (maximum: 2,835 ms).
-            </p>
-            
-            <div style="margin-bottom:0.55rem;">
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
-                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
-                    Tail latency (P99 at 1049 ms) is 4.3x higher than average response time, indicating that isolated requests suffer disproportionate delay.
-                </p>
-            </div>
-            
-            <div>
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
-                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
-                    Analyze slow database queries, garbage collection pauses, and downstream thread contention during P99 spikes.
-                </p>
-            </div>
-        </div>
-        
         </div>
 
         <!-- Critical Transaction Response Time Card -->
@@ -1690,7 +1638,7 @@
             <td style="color: var(--green);">0.00%</td>
             <td>50 ms</td>
             <td style="color: var(--red); font-weight: 600;">+262.0%</td>
-            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Critical Breach (>100%)</span></td>
         </tr>
         
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
@@ -1699,8 +1647,8 @@
             <td>191 ms</td>
             <td style="color: var(--green);">0.00%</td>
             <td>92 ms</td>
-            <td style="color: var(--red); font-weight: 600;">+97.8%</td>
-            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+            <td style="color: #f97316; font-weight: 600;">+97.8%</td>
+            <td><span style="color: #f97316; font-weight:700;">Significant Breach (50-100%)</span></td>
         </tr>
         
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
@@ -1709,8 +1657,8 @@
             <td>191 ms</td>
             <td style="color: var(--green);">0.00%</td>
             <td>100 ms</td>
-            <td style="color: var(--yellow); font-weight: 600;">+81.0%</td>
-            <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
+            <td style="color: #f97316; font-weight: 600;">+81.0%</td>
+            <td><span style="color: #f97316; font-weight:700;">Significant Breach (50-100%)</span></td>
         </tr>
         
         <tr style="background: var(--surface1); border-bottom: 1px solid var(--border);">
@@ -1720,7 +1668,7 @@
             <td style="color: var(--red);">100.00%</td>
             <td>500 ms</td>
             <td style="color: var(--red); font-weight: 600;">+45.8%</td>
-            <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
+            <td><span style="color: var(--red); font-weight:700;">Error SLA Breached</span></td>
         </tr>
         
         </tbody>
@@ -1734,20 +1682,20 @@
         
         <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Reliability & Errors Insights &amp; Recommendations</h3>
-                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Reliability & Errors AI Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">AI Generated</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">An overall client-side error rate of 5.49% was recorded, which is critically high.</li><li style="margin-bottom:0.35rem;">Specific transactions 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' failed 100% of their samples.</li><li style="margin-bottom:0.35rem;">Azure App Service reported 168 5xx errors, confirming server-side issues, though this count is lower than the total client-side errors.</li>
+                        <li style="margin-bottom:0.35rem;">Total 538 transaction-level errors recorded, all isolated to UC01 catalog launch steps.</li><li style="margin-bottom:0.35rem;">Azure App Service recorded 168 HTTP 5xx responses during the execution window.</li><li style="margin-bottom:0.35rem;">UC02 and UC03 maintained a 0.00% error rate across all samples.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Immediately investigate and resolve the root causes of the 100% failing transactions.</li><li style="margin-bottom:0.35rem;">Reconcile the discrepancy between client-side and server-side error counts by analyzing server logs for non-5xx errors or application exceptions.</li>
+                        <li style="margin-bottom:0.35rem;">Inspect App Service HTTP 500 error logs to identify backend exception traces.</li><li style="margin-bottom:0.35rem;">Add response assertions in JMeter to capture detailed failure payloads.</li>
                     </ul>
                 </div>
             </div>
@@ -1929,20 +1877,20 @@
         
         <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Infrastructure Monitoring Insights &amp; Recommendations</h3>
-                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 Infrastructure Monitoring AI Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">AI Generated</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Server CPU utilization peaked at 91.4% and averaged 60.7%, indicating the system is CPU-bound under the current load.</li><li style="margin-bottom:0.35rem;">Memory utilization reached a peak of 89.3%, suggesting high memory consumption by the application.</li><li style="margin-bottom:0.35rem;">Disk Read IOPS were high at 21908149, but without context, it's difficult to assess if this is a bottleneck.</li>
+                        <li style="margin-bottom:0.35rem;">Host CPU utilization averaged 60.7% and reached an observed peak of 91.4%.</li><li style="margin-bottom:0.35rem;">Memory utilization averaged 69.3% with an observed peak of 89.3%.</li><li style="margin-bottom:0.35rem;">Network and disk I/O operated within standard cloud instance thresholds.</li>
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        <li style="margin-bottom:0.35rem;">Profile the application to identify and optimize CPU-intensive code sections to reduce CPU load.</li><li style="margin-bottom:0.35rem;">Consider scaling up the Azure App Service plan or scaling out to multiple instances to provide more CPU capacity.</li><li style="margin-bottom:0.35rem;">Monitor memory usage more closely, including GC activity, to determine if high memory is impacting performance or indicates a leak.</li>
+                        <li style="margin-bottom:0.35rem;">Review memory heap dumps and GC pause durations to ensure memory headroom remains stable.</li><li style="margin-bottom:0.35rem;">Configure auto-scale triggers on App Service when CPU exceeds 75% for more than 2 minutes.</li>
                     </ul>
                 </div>
             </div>
@@ -1953,14 +1901,14 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK CPU UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">91.4%</div>
-                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High CPU Pressure</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0%</div>
+                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Healthy</div>
             </div>
 
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK MEMORY UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">89.3%</div>
-                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High Memory Pressure</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0%</div>
+                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Healthy</div>
             </div>
 
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
@@ -1977,7 +1925,7 @@
         </div>
 
         <!-- 2. Main Resource Utilization (CPU & Memory) - Full Width -->
-        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: block;">
+        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: none;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
                 <div>
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🖥️ Azure Resource Utilization (CPU &amp; Memory)</h3>
@@ -1994,39 +1942,9 @@
             </div>
             
             <p style="margin-top:0.8rem; font-size:0.78rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.8rem; border-radius:6px; border-left:3px solid var(--accent);">
-                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 91.4% and memory reaching 89.3%, indicating elevated host-level contention.
+                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 0% and memory reaching 0%, indicating elevated host-level contention.
             </p>
             
-        <div class="glass-panel" style="border-left: 4px solid var(--red); background: rgba(239,68,68,0.05); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 1rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                <div style="font-weight:800; font-size:0.92rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-                    <span>🧠 Infrastructure Observation</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <span class="finding-badge-inline" onclick="showFinding('F-006');" style="cursor:pointer;">🔍 F-006</span>
-                    <span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--text);">🔴 Resource Saturation</span>
-                </div>
-            </div>
-            
-            <p style="font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 0.55rem 0;" contenteditable="true">
-                CPU averaged 60.7% (peak: 91%), and memory averaged 69.3% (peak: 89%).
-            </p>
-            
-            <div style="margin-bottom:0.55rem;">
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Why it matters:</div>
-                <p style="font-size:0.84rem; line-height:1.55; color:var(--text); margin:0;" contenteditable="true">
-                    Peak CPU utilization at 91% represents severe resource pressure and limits available headroom for traffic spikes.
-                </p>
-            </div>
-            
-            <div>
-                <div style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:0.15rem;">Recommended validation:</div>
-                <p style="font-size:0.84rem; line-height:1.55; color:var(--muted); margin:0;" contenteditable="true">
-                    Profile application threads to identify CPU-intensive methods, review database indexing, and evaluate horizontal scale-out rules.
-                </p>
-            </div>
-        </div>
-        
         </div>
 
         <!-- 3. Dual Charts Grid: Workload vs Resource & Performance Impact -->
@@ -2112,28 +2030,28 @@
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">CPU %</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.49</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.39</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Memory %</td>
-                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.47</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.38</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Throughput</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.49</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.47</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.98</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Resp Time</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.39</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.38</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.98</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                         </tr>
@@ -2153,14 +2071,6 @@
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#3b82f6;">[</span>
             <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 210 req/s</span>
         </div>
-        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #f59e0b;">
-            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#f59e0b;">0</span>
-            <span>⚠️ <strong>CPU Saturation:</strong> Host CPU utilization reached 83%</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #8b5cf6;">
-            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#8b5cf6;">s</span>
-            <span>⚠️ <strong>Memory Pressure:</strong> Host memory utilization climbed to 89%</span>
-        </div>
                 </div>
             </div>
         </div>
@@ -2174,11 +2084,11 @@
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:0.85rem; font-size:0.78rem;">
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#ef4444; margin-bottom:0.2rem;">🔴 Primary Signal</div>
-                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>91.4%</strong> peak pressure during high-throughput interval.</p>
+                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>0%</strong> peak pressure during high-throughput interval.</p>
                 </div>
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#f59e0b; margin-bottom:0.2rem;">Associated Signals</div>
-                    <p style="margin:0; color:var(--text);">Memory reached <strong>89.3%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
+                    <p style="margin:0; color:var(--text);">Memory reached <strong>0%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
                 </div>
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#3b82f6; margin-bottom:0.2rem;">🔍 Likely Root Cause</div>
@@ -3003,6 +2913,15 @@
     const initialDevLabels = ["TC02_US04_Navigate_To_Signon_Page", "TC02_US01_Select_Fish_Category", "TC02_US02_Select_Dogs_Category", "TC01_US01_Launch_Catalog", "TC01_US03_Launch_Homepage", "TC01_US02_Launch_Catalog", "TC01_US04_Launch_Catalog", "TC02_US03_Search_Keyword_Bulldog", "TC03_US01_View_Product_Details", "TC03_US02_Add_Item_To_Cart"];
     const initialDevVals = [262.0, 97.8, 81.0, 45.8, -9.0, -63.6, -63.6, -63.6, -63.6, -88.0];
 
+    function getSlaDevColor(val) {
+        if (val > 100) return { bg: '#ef4444', border: '#dc2626' }; // Red (> 100% breach)
+        if (val > 50)  return { bg: '#f97316', border: '#ea580c' }; // Amber (50% - 100% breach)
+        if (val > 0)   return { bg: '#eab308', border: '#ca8a04' }; // Yellow (0% - 50% breach)
+        return { bg: '#10b981', border: '#059669' };                // Green (<= 0% met target)
+    }
+
+    const initialDevColors = initialDevVals.map(getSlaDevColor);
+
     const slaDevChartObj = new Chart(document.getElementById('chart-sla-deviation-exec'), {
         type: 'bar',
         data: {
@@ -3011,8 +2930,8 @@
                 {
                     label: 'SLA Deviation (%)',
                     data: initialDevVals,
-                    backgroundColor: initialDevVals.map(val => val > 0 ? '#ef4444' : '#10b981'),
-                    borderColor: initialDevVals.map(val => val > 0 ? '#dc2626' : '#059669'),
+                    backgroundColor: initialDevColors.map(c => c.bg),
+                    borderColor: initialDevColors.map(c => c.border),
                     borderWidth: 1,
                     borderRadius: 4,
                     barPercentage: 0.65
@@ -3029,7 +2948,8 @@
                     callbacks: {
                         label: function(ctx) {
                             const val = ctx.parsed.x;
-                            return (val > 0 ? '+' : '') + val + '% deviation from SLA';
+                            const status = val > 100 ? ' (Critical Breach)' : (val > 50 ? ' (Significant Breach)' : (val > 0 ? ' (Minor Breach)' : ' (Met SLA)'));
+                            return (val > 0 ? '+' : '') + val + '% deviation from SLA' + status;
                         }
                     }
                 }
@@ -3069,11 +2989,12 @@
 
         const newLabels = filteredItems.map(item => item.label.length > 35 ? item.label.substring(0, 32) + '...' : item.label);
         const newVals   = filteredItems.map(item => item.dev_pct);
+        const newColors = newVals.map(getSlaDevColor);
 
         slaDevChartObj.data.labels = newLabels;
         slaDevChartObj.data.datasets[0].data = newVals;
-        slaDevChartObj.data.datasets[0].backgroundColor = newVals.map(v => v > 0 ? '#ef4444' : '#10b981');
-        slaDevChartObj.data.datasets[0].borderColor = newVals.map(v => v > 0 ? '#dc2626' : '#059669');
+        slaDevChartObj.data.datasets[0].backgroundColor = newColors.map(c => c.bg);
+        slaDevChartObj.data.datasets[0].borderColor = newColors.map(c => c.border);
         slaDevChartObj.update('active');
     }
 
@@ -3215,8 +3136,8 @@
         data: {
             labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
             datasets: [
-                { label: 'CPU %', data: [34.2, 41.7, 46.3, 82.6, 91.4, 68.2], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
-                { label: 'Memory %', data: [52.4, 55.7, 61.2, 74.8, 89.3, 82.7], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
+                { label: 'CPU %', data: [], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'Memory %', data: [], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gridColor }, min: 0, max: 100 }, x: { grid: { display: false } } } }
@@ -3574,8 +3495,8 @@
 
 
     // Azure Infrastructure Diagnostic Suite Charts
-    const azCpu = [34.2, 41.7, 46.3, 82.6, 91.4, 68.2];
-    const azMem = [52.4, 55.7, 61.2, 74.8, 89.3, 82.7];
+    const azCpu = [];
+    const azMem = [];
     const azDiskQ = [];
     const azDiskRead = [];
     const azDiskWrite = [];
@@ -3701,7 +3622,7 @@
     });
 
     // ── Finding Drawer Logic ──
-    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "severity": "Slightly Deviated", "title": "TC01_US01_Launch_Catalog shows significant latency deviation", "observation": "TC01_US01_Launch_Catalog response time was significantly higher than the overall test baseline.", "evidence": [{"metric": "P90 Response Time", "value": "729 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+45.8%", "baseline": "", "source": "Calculated"}], "interpretation": "TC01_US01_Launch_Catalog is the dominant transaction-level latency contributor in this execution.", "why_it_matters": "TC01_US01_Launch_Catalog is the slowest transaction at 716 ms and significantly exceeds its 500 ms SLA target, making it a priority candidate for optimization.", "root_cause_assessment": "Server-side telemetry is required to determine whether the latency originates from database execution, application processing, authentication logic, or an external dependency.", "confidence": {"bottleneck_identification": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time", "Top Transactions by Response Time"]}, {"id": "F-002", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation", "observation": "TC02_US01_Select_Fish_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "182 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "98%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US01_Select_Fish_Category exceeds its P90 SLA target by 98%.", "why_it_matters": "TC02_US01_Select_Fish_Category is not meeting its 92 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US01_Select_Fish_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation", "observation": "TC02_US02_Select_Dogs_Category P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "181 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "81%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US02_Select_Dogs_Category exceeds its P90 SLA target by 81%.", "why_it_matters": "TC02_US02_Select_Dogs_Category is not meeting its 100 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US02_Select_Dogs_Category execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "sla_breach", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation", "observation": "TC02_US04_Navigate_To_Signon_Page P90 response time exceeded the defined SLA target.", "evidence": [{"metric": "P90 Response Time", "value": "181 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "262%", "baseline": "", "source": "SLA Engine"}], "interpretation": "TC02_US04_Navigate_To_Signon_Page exceeds its P90 SLA target by 262%.", "why_it_matters": "TC02_US04_Navigate_To_Signon_Page is not meeting its 50 ms response time SLA, which indicates a performance degradation for this user flow.", "root_cause_assessment": "Profile the TC02_US04_Navigate_To_Signon_Page execution path to identify slow database queries, external service calls, or computational bottlenecks.", "confidence": {"sla_violation": "High", "specific_root_cause": "Low"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-005", "category": "tail_latency", "severity": "Slightly Deviated", "title": "Elevated response-time variability observed", "observation": "P99 tail latency indicates occasional high-response-time outliers.", "evidence": [{"metric": "P90 Response Time", "value": "351 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}, {"metric": "Deviation", "value": "+198.9%", "baseline": "", "source": "Calculated"}], "interpretation": "P99 is 4.3\u00d7 the average, indicating that a small subset of requests experiences substantially higher response times.", "why_it_matters": "Tail latency affects user-perceived performance for a subset of requests and may indicate garbage collection pauses, connection pool exhaustion, or intermittent backend issues.", "root_cause_assessment": "Correlate P99 spikes with server-side telemetry (GC pauses, thread contention, database lock waits) to identify the intermittent cause.", "confidence": {"tail_latency_detected": "High", "specific_cause": "Low"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution", "Estimated Concurrent Users Over Time"]}, {"id": "F-006", "category": "infrastructure_correlation", "severity": "Critical Deviation", "title": "CPU utilization reached 91% peak", "observation": "Server CPU averaged 60.7% and peaked at 91.4% during the test execution.", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "The server experienced CPU saturation under this workload, which directly impacts response times.", "why_it_matters": "CPU at 91% leaves minimal headroom for traffic spikes. The server is at capacity.", "root_cause_assessment": "Workload-driven CPU contention. Determine if the bottleneck is application processing, inefficient algorithms, or insufficient compute resources.", "confidence": {"cpu_pressure": "High", "correlation_to_latency": "Medium"}, "evidence_sources": ["Azure Resource Utilization", "Workload vs CPU Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-007", "category": "infrastructure_correlation", "severity": "Slightly Deviated", "title": "Memory utilization reached 89% peak", "observation": "Server memory averaged 69.3% and peaked at 89.3%.", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}], "interpretation": "Memory pressure at 89% indicates elevated memory consumption.", "why_it_matters": "High memory utilization can trigger garbage collection pauses, swapping, and ultimately out-of-memory failures.", "root_cause_assessment": "Monitor for memory leaks during sustained load. Check heap usage, object retention, and cache sizing.", "confidence": {"memory_pressure": "High", "memory_leak": "Low"}, "evidence_sources": ["Azure Resource Utilization", "Infrastructure Correlation Matrix"]}, {"id": "F-008", "category": "error_anomaly", "severity": "Critical Deviation", "title": "Overall error rate at 5.49%", "observation": "The test recorded an overall error rate of 5.49%.", "evidence": [{"metric": "Error Rate", "value": "5.49%", "baseline": "< 1% acceptable", "source": "Executive Summary KPIs"}], "interpretation": "Significant server-side failures are occurring under load.", "why_it_matters": "Errors directly impact user experience and may indicate server instability under the tested workload.", "root_cause_assessment": "Examine error response codes and failure messages in the Error Distribution section.", "confidence": {"error_occurrence": "High", "specific_root_cause": "Medium"}, "evidence_sources": ["Error Distribution & Analysis", "Error Rate by Transaction"]}];
+    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "evidence_class": "DERIVED", "severity": "Slightly Deviated", "title": "TC01_US01_Launch_Catalog latency deviation (729 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "729 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+45.8%", "baseline": "", "source": "Calculated"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The high latency is directly attributable to the 100.00% error rate for this transaction. The transaction is failing, not just slow.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time"], "likely_cause": "The high latency is directly attributable to the 100.00% error rate for this transaction. The transaction is failing, not just slow."}, {"id": "F-002", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation (182 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "182 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "98%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The reported SLA deviation is a consequence of the 100.00% error rate. The transaction is failing entirely, making its response time metrics less relevant than its functional failure.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The reported SLA deviation is a consequence of the 100.00% error rate. The transaction is failing entirely, making its response time metrics less relevant than its functional failure."}, {"id": "F-003", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation (181 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "181 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "81%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "While not failing, the elevated P95 for this transaction, in conjunction with the overall high CPU utilization (max 91.4%), suggests potential resource contention contributing to increased processing time.", "confidence": {"ai_confidence": "High"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "While not failing, the elevated P95 for this transaction, in conjunction with the overall high CPU utilization (max 91.4%), suggests potential resource contention contributing to increased processing time."}, {"id": "F-004", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation (181 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "181 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "262%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "Direct functional failure within the 'Transaction Controller_T2' workflow. This indicates a critical application defect or misconfiguration.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "Direct functional failure within the 'Transaction Controller_T2' workflow. This indicates a critical application defect or misconfiguration."}, {"id": "F-005", "category": "tail_latency", "evidence_class": "DERIVED", "severity": "Slightly Deviated", "title": "Elevated tail latency (P99: 1049 ms)", "observation": "", "evidence": [{"metric": "P99 Response Time", "value": "1049 ms", "baseline": "241 ms Avg RT", "source": "Response Time Distribution"}, {"metric": "P90 Response Time", "value": "351 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The significant difference between average and P99/Max response times suggests intermittent resource contention (especially CPU nearing saturation) and the impact of failing transactions (which can contribute to higher measured durations before erroring out or retrying).", "confidence": {"ai_confidence": "High"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution"], "likely_cause": "The significant difference between average and P99/Max response times suggests intermittent resource contention (especially CPU nearing saturation) and the impact of failing transactions (which can contribute to higher measured durations before erroring out or retrying)."}, {"id": "F-006", "category": "error_anomaly", "evidence_class": "MEASURED", "severity": "Critical Deviation", "title": "Overall error rate at 5.49%", "observation": "", "evidence": [{"metric": "Error Rate", "value": "5.49%", "baseline": "< 1% acceptable", "source": "Executive Summary KPIs"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The application is CPU-bound under the current load. This could be due to inefficient code, excessive processing, or an undersized virtual machine/App Service plan.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Error Distribution & Analysis", "Overall Summary"], "likely_cause": "The application is CPU-bound under the current load. This could be due to inefficient code, excessive processing, or an undersized virtual machine/App Service plan."}];
     const recsData = [{"id": "R-001", "triggered_by": ["F-001", "F-002", "F-004", "root_cause_assessment_0"], "priority": "Critical", "category": "Backend", "title": "Resolve 100% Failing Transactions", "why": "The 100% error rates for 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' represent critical functional failures that severely impact application reliability and skew performance metrics. These must be addressed immediately.", "action": ["Review application logs, server-side exceptions, and stack traces for 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2'.", "Verify endpoint configurations, request payloads, and backend service dependencies for these transactions.", "Perform unit and integration tests for the affected workflows in a controlled environment."], "expected_impact": "Significant improvement in overall system reliability and a reduction in the total error rate. Accurate performance metrics can then be collected for these transactions.", "validation": "Re-run the load test and verify that 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' no longer exhibit 100% error rates and complete successfully.", "confidence": "Confirmed"}, {"id": "R-002", "triggered_by": ["F-006", "root_cause_assessment_1"], "priority": "Critical", "category": "Infrastructure", "title": "Address CPU Saturation", "why": "The server CPU peaked at 91.4%, indicating the application is CPU-bound. This will lead to performance degradation and limit scalability under increased load.", "action": ["Profile the application code to identify and optimize CPU-intensive operations, especially those related to the high-latency transactions.", "Consider scaling up the Azure App Service plan (e.g., to a higher tier with more vCPUs) or scaling out to multiple instances to distribute the load."], "expected_impact": "Improved overall response times, increased throughput capacity, and reduced tail latency due to less resource contention.", "validation": "Re-run the load test and observe CPU utilization remaining below 80% peak under the same load. Monitor for improved average and P95/P99 response times.", "confidence": "Confirmed"}, {"id": "R-003", "triggered_by": ["F-005", "root_cause_assessment_2"], "priority": "High", "category": "Backend", "title": "Investigate Tail Latency Sources", "why": "High P99 and Max response times indicate inconsistent performance and potential intermittent bottlenecks affecting a subset of users. This impacts user experience.", "action": ["After resolving critical errors and CPU saturation, analyze application-level traces (e.g., distributed tracing) for requests contributing to tail latency.", "Monitor thread pool usage, database connection pool statistics, and garbage collection logs to identify intermittent delays."], "expected_impact": "More consistent user experience with reduced occurrences of very slow responses.", "validation": "Re-run the load test and observe a significant reduction in the P99 response time, bringing it closer to the average response time.", "confidence": "High"}, {"id": "R-004", "triggered_by": ["F-007", "data_quality_findings_0"], "priority": "Medium", "category": "Backend", "title": "Monitor and Optimize Memory Usage", "why": "High memory utilization (89.3% peak) suggests the application is consuming a significant amount of memory, which could lead to performance issues (e.g., frequent garbage collection) or out-of-memory errors under higher loads.", "action": ["Implement detailed memory monitoring, including garbage collection statistics (pause times, frequency) and heap usage.", "If GC activity is high or memory continues to climb, perform a heap dump analysis to identify potential memory leaks or inefficient data structures.", "Review application caching strategies and data retention policies."], "expected_impact": "Improved application stability, reduced GC overhead, and more headroom for future growth.", "validation": "Monitor memory utilization and GC metrics during subsequent load tests to ensure stable memory usage and minimal GC impact.", "confidence": "Medium"}];
 
     function showFinding(fid) {
@@ -3768,7 +3689,7 @@
     // ── Graph Guide Modal Logic ──
     const graphGuides = {
         'tx-summary': {
-            title: '📊 Transaction Statistics &amp; Iteration Summary',
+            title: '📊 Iteration Statistics',
             what: 'Shows total request samples split into Passed (green) and Failed (red) executions for each test script.',
             howToRead: [
                 'Taller green bars indicate high execution volume with successful assertions.',

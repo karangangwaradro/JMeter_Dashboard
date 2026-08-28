@@ -743,3 +743,93 @@ select:focus {
 .tg-toggle input:checked+.tg-toggle-slider::before {
     transform: translateX(20px);
 }
+
+/* ── Modal Overlays & Cards ─────────────────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1.25rem;
+    animation: modalFadeIn 0.15s ease-out;
+}
+
+.modal-overlay.hidden {
+    display: none !important;
+}
+
+.modal-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #cfd7e0);
+    border-radius: var(--border-radius-md, 10px);
+    width: 100%;
+    max-width: 540px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #cfd7e0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recompile-ai-option-card {
+    background: var(--bg-subtle, #f8fafc);
+    border: 1.5px solid var(--border-color, #cfd7e0);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: var(--transition-smooth);
+}
+
+.recompile-ai-option-card:hover {
+    border-color: var(--primary-color, #0284c7);
+}
+
+.recompile-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.recompile-checkbox-label input[type="checkbox"] {
+    margin-top: 0.2rem;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color, #0284c7);
+    cursor: pointer;
+}
+
+.spinner-inline {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(2, 132, 199, 0.2);
+    border-top-color: var(--primary-color, #0284c7);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalScaleIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}

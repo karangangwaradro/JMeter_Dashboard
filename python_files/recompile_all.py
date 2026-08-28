@@ -8,7 +8,7 @@ if str(_ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(_ROOT_DIR))
 
 
-def run():
+def run(regen_ai: bool = False):
     import python_files.report_generator as rg_module
     importlib.reload(rg_module)
 
@@ -35,7 +35,7 @@ def run():
     res_set = set(json_dir.glob("*_result.json"))
     res_set.update(results_dir.glob("*_result.json"))
     result_files = sorted([f for f in res_set if f.is_file()])
-    print(f"[Recompile] Found {len(result_files)} result files.", flush=True)
+    print(f"[Recompile] Found {len(result_files)} result files. (Regenerate AI: {regen_ai})", flush=True)
 
     for res_file in result_files:
         fname = res_file.name
@@ -82,6 +82,36 @@ def run():
             except Exception as e:
                 print(f"[Recompile]   JTL re-parse error: {e}", flush=True)
 
+        # Regenerate live AI insights if requested
+        if regen_ai:
+            try:
+                from python_files.ai_insights import generate_insights
+                from python_files.sla_manager import load_sla_targets
+                sla_targets, default_rt, default_err = load_sla_targets(jmx_name)
+                infra_summary = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
+                if not infra_summary and isinstance(azure_data, dict) and "metrics" in azure_data:
+                    from python_files.azure_collector import AzureMetricsCollector
+                    infra_summary = AzureMetricsCollector._summarize_metrics(azure_data)
+
+                print(f"[Recompile]   Regenerating AI insights...", flush=True)
+                fresh_ai = generate_insights(
+                    test_name=jmx_name,
+                    summary=parsed.get("summary", {}),
+                    labels=parsed.get("labels", {}),
+                    time_series=parsed.get("time_series", {}),
+                    infra=infra_summary,
+                    correlation=parsed.get("correlation", {}),
+                    sla_targets=sla_targets,
+                    default_rt=default_rt,
+                    default_err=default_err
+                )
+                if fresh_ai and fresh_ai.get("source") != "none":
+                    parsed["ai_insights"] = fresh_ai
+                    ai_insights = fresh_ai
+                    print(f"[Recompile]   AI insights updated.", flush=True)
+            except Exception as ai_err:
+                print(f"[Recompile]   AI regeneration error: {ai_err}", flush=True)
+
         # Persist cleaned/updated parsed result back to JSON
         res_file.write_text(json.dumps(parsed, indent=2), encoding="utf-8")
 
@@ -91,6 +121,8 @@ def run():
         for r_item in runs_data.get("runs", []):
             if r_item.get("id") == f"run_{timestamp}":
                 r_item["report_file"] = report_path.name
+                if ai_insights and ai_insights.get("source") != "none":
+                    r_item["has_ai_insights"] = True
 
     runs_path.write_text(json.dumps(runs_data, indent=2), encoding="utf-8")
     print("[Recompile] All reports compiled!", flush=True)
@@ -98,4 +130,5 @@ def run():
 
 # Allow direct script execution
 if __name__ == "__main__":
-    run()
+    regen_flag = "--ai" in sys.argv
+    run(regen_ai=regen_flag)

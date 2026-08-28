@@ -11,6 +11,7 @@ Generates a premium standalone HTML performance report with:
 """
 
 import json
+import re
 from pathlib import Path
 from datetime import datetime
 
@@ -272,14 +273,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
     def _find_matching_ldata(name, tg_specific, all_lbls):
         """Find matching sample data in thread-group specific labels or all labels, supporting normalized name matching."""
-        if not name:
-            return None, name
         if name in tg_specific:
             return tg_specific[name], name
         if name in all_lbls:
             return all_lbls[name], name
-
-        import re
         simplified = re.sub(r'US\d+_|TC\d+_|_\d+$|_Err\d+$', '', name).strip('_')
         if simplified in tg_specific:
             return tg_specific[simplified], simplified
@@ -418,7 +415,6 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     matched_table_children[c_spec] = labels[c_spec]
 
             if not matched_table_children:
-                import re
                 clean_name_t = re.sub(r'TC\d+|_|T\d+', ' ', lname)
                 split_words_t = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\d|\W|$)|\d+', clean_name_t)
                 keywords_t = [w.lower() for w in split_words_t if len(w) >= 3 and w.lower() not in ("tc01", "tc02", "tc03", "t01", "t02", "t03", "t04")]
@@ -470,10 +466,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         avg_val = t_data.get("avg_rt", 0)
         p95_val = t_data.get("p95", 0)
         
-        sev_label = "Critical Deviation" if dev_pct > 90 else "Slightly Deviated" if dev_pct > 60 else "Acceptable Deviation"
-        sev_color = "var(--red)" if dev_pct > 90 else "var(--yellow)"
+        sev_label = "Critical Breach (>100%)" if dev_pct > 100 else "Significant Breach (50-100%)" if dev_pct > 50 else "Minor Breach (0-50%)" if dev_pct > 0 else "Met SLA"
+        sev_color = "var(--red)" if dev_pct > 100 else "#f97316" if dev_pct > 50 else "#eab308" if dev_pct > 0 else "var(--green)"
         if err_val > t_err_target:
-            sev_label = "Critical Deviation"
+            sev_label = "Error SLA Breached"
             sev_color = "var(--red)"
             
         critical_tx_rows += f"""
@@ -1035,10 +1031,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>"""
     # AI Insights
     ai_source = ai_insights.get("source", "none") if ai_insights else "none"
-    ai_badge = "🤖 AI Generated" if ai_source == "gemini" else "📊 System Calculated" if ai_source == "rule_based" else "⚠️ No Analysis"
-    ai_badge_color = "#3b82f6" if ai_source == "gemini" else "#6b7280"
+    ai_badge = "🤖 AI Generated" if ai_source in ("gemini", "github_ai", "gemini_2.0") else "⚠️ No AI Analysis"
+    ai_badge_color = "#3b82f6" if ai_source in ("gemini", "github_ai", "gemini_2.0") else "#6b7280"
 
-    exec_summary = ai_insights.get("executive_summary", "No analysis available.") if ai_insights else "AI insights not generated."
+    exec_summary = ai_insights.get("executive_summary", "No AI analysis available.") if ai_insights else "AI insights not generated."
     root_cause = ai_insights.get("root_cause", "N/A") if ai_insights else "N/A"
     bottleneck = ai_insights.get("bottleneck_analysis", "N/A") if ai_insights else "N/A"
     tail_analysis = ai_insights.get("tail_latency_analysis", "N/A") if ai_insights else "N/A"
@@ -1062,7 +1058,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 <div class="rec-impact">Expected Impact: <span contenteditable="true">{rec.get('expected_impact', 'TBD')}</span></div>
             </div>"""
     else:
-        recs_html = '<div class="rec-card info"><div class="rec-title" contenteditable="true">No specific recommendations</div><div class="rec-desc" contenteditable="true">Test metrics are within healthy thresholds.</div></div>'
+        recs_html = '<div class="rec-card info"><div class="rec-title" contenteditable="true">No AI recommendations available</div><div class="rec-desc" contenteditable="true">AI analysis was either not run or did not generate recommendations for this test.</div></div>'
 
     # Roadmap
     roadmap_html = ""
@@ -1443,11 +1439,21 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
         '''
 
+    def _clean_client_text(text: str) -> str:
+        if not text:
+            return ""
+        # Remove (F-012), (R-001), [F-012], F-012:, etc.
+        cleaned = re.sub(r'\s*\([FR]-\d+\)', '', str(text))
+        cleaned = re.sub(r'\s*\[[FR]-\d+\]', '', cleaned)
+        cleaned = re.sub(r'\b[FR]-\d+\b:?\s*', '', cleaned)
+        return re.sub(r'\s{2,}', ' ', cleaned).strip()
+
     # 5. Priority Actions
     priority_actions_html = ""
     for i, f in enumerate(all_findings[:5], start=1):
         sev_icon, _ = SEVERITY_BADGES.get(f["severity"], ("⚪", ""))
-        priority_actions_html += f'<div class="roadmap-step"><span class="step-num">{i}</span><span>{sev_icon} Investigate <strong>{f["id"]}</strong> — {f["title"]}</span></div>'
+        title_clean = _clean_client_text(f.get("title", ""))
+        priority_actions_html += f'<div class="roadmap-step"><span class="step-num">{i}</span><span>{sev_icon} Investigate <strong>{title_clean}</strong></span></div>'
 
     if not priority_actions_html:
         priority_actions_html = '<div class="roadmap-step"><span class="step-num">1</span><span>🟢 No critical findings — maintain current performance baseline.</span></div>'
@@ -1464,25 +1470,29 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     def _build_tab_insight_panel(intel_data: dict, tab_title: str) -> str:
         if not intel_data:
             return ""
-        obs_items = "".join([f'<li style="margin-bottom:0.35rem;">{obs}</li>' for obs in intel_data.get("observations", [])])
-        rec_items = "".join([f'<li style="margin-bottom:0.35rem;">{rec}</li>' for rec in intel_data.get("recommendations", [])])
+        obs_list = [_clean_client_text(obs) for obs in intel_data.get("observations", []) if _clean_client_text(obs)]
+        rec_list = [_clean_client_text(rec) for rec in intel_data.get("recommendations", []) if _clean_client_text(rec)]
+        if not obs_list and not rec_list:
+            return ""
+        obs_items = "".join([f'<li style="margin-bottom:0.35rem;">{obs}</li>' for obs in obs_list])
+        rec_items = "".join([f'<li style="margin-bottom:0.35rem;">{rec}</li>' for rec in rec_list])
         return f"""
         <div class="section glass-panel" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem; border-left: 4px solid var(--accent);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 {tab_title} Insights &amp; Recommendations</h3>
-                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Evidence-Backed</span>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 {tab_title} AI Insights &amp; Recommendations</h3>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">AI Generated</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        {obs_items}
+                        {obs_items if obs_items else '<li style="color:var(--muted);">No AI observations generated</li>'}
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
                     <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
-                        {rec_items}
+                        {rec_items if rec_items else '<li style="color:var(--muted);">No AI recommendations generated</li>'}
                     </ul>
                 </div>
             </div>
@@ -1495,19 +1505,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     tab_infra_panel_html = _build_tab_insight_panel(tab_infra_intel, "Infrastructure Monitoring")
 
     # Executive Summary Blocks
-    exec_assessment_badge = exec_intel.get("assessment_badge", "⚠️ PERFORMANCE REQUIRES ATTENTION")
-    exec_assessment_color = exec_intel.get("assessment_color", "var(--red)")
-    exec_assessment_text = exec_intel.get("assessment_text", "")
+    exec_assessment_badge = exec_intel.get("assessment_badge", "")
+    exec_assessment_color = exec_intel.get("assessment_color", "var(--accent)")
+    exec_assessment_text = _clean_client_text(exec_intel.get("assessment_text", ""))
     
     exec_assessment_html = f"""
-    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 5px solid {exec_assessment_color}; padding: 1.25rem 1.5rem;">
+    <div class="section glass-panel" style="margin-top:1.25rem; border-left: 5px solid {exec_assessment_color if exec_assessment_color else 'var(--accent)'}; padding: 1.25rem 1.5rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-            <div style="font-size:0.92rem; font-weight:800; color:{exec_assessment_color}; letter-spacing:0.04em;">{exec_assessment_badge}</div>
+            <div style="font-size:0.92rem; font-weight:800; color:{exec_assessment_color if exec_assessment_color else 'var(--text)'}; letter-spacing:0.04em;">{exec_assessment_badge}</div>
             <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">Executive Overview</span>
         </div>
         <p style="font-size:0.92rem; line-height:1.65; margin:0; color:var(--text);" contenteditable="true">{exec_assessment_text}</p>
     </div>
-    """
+    """ if exec_assessment_text else ""
 
     kpis_dict = exec_intel.get("kpis", {})
     exec_kpi_strip_html = f"""
@@ -1538,17 +1548,18 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     # Observations Table
     obs_rows = ""
     for row in exec_intel.get("observations_table", []):
+        obs_text = str(row.get('observation', '')).replace('\n', '<br>')
         obs_rows += f"""
         <tr style="border-bottom:1px solid var(--border);">
-            <td style="font-weight:700; width:24%; vertical-align:top; font-size:0.85rem; color:var(--text);">{row.get('category', '')}</td>
-            <td style="width:76%; vertical-align:top; font-size:0.85rem; line-height:1.55; color:var(--text);" contenteditable="true">{row.get('observation', '')}</td>
+            <td style="font-weight:700; width:26%; vertical-align:top; font-size:0.85rem; color:var(--text); padding:0.75rem 0.8rem;">{row.get('category', '')}</td>
+            <td style="width:74%; vertical-align:top; font-size:0.85rem; line-height:1.6; color:var(--text); padding:0.75rem 0.8rem;" contenteditable="true">{obs_text}</td>
         </tr>
         """
     exec_obs_table_html = f"""
     <div class="section glass-panel" style="margin-top:1.25rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
             <h2 style="margin:0;">📋 High-Level Performance Observations</h2>
-            <span style="font-size:0.75rem; font-weight:600; color:var(--muted);">Factual Assessment</span>
+            <span style="font-size:0.75rem; font-weight:600; color:var(--muted);">AI Assessment</span>
         </div>
         <table style="width:100%; border-collapse:collapse;">
             <thead>
@@ -1562,7 +1573,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </tbody>
         </table>
     </div>
-    """
+    """ if obs_rows else ""
 
     # Conclusions & Priority Recommendations
     concl_items = "".join([f'<li style="margin-bottom:0.45rem;">{c}</li>' for c in exec_intel.get("conclusions", [])])
@@ -1573,7 +1584,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             {concl_items}
         </ul>
     </div>
-    """
+    """ if concl_items else ""
 
     p_recs_html = ""
     for r in exec_intel.get("priority_recommendations", []):
@@ -1599,7 +1610,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             {p_recs_html}
         </div>
     </div>
-    """
+    """ if p_recs_html else ""
 
     # Build list of critical transactions for initial chart render
     critical_tx_list = [
@@ -2028,6 +2039,16 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {{
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\\/script>');
+        }}
+    </script>
+    <script>
+        if (typeof Chart === 'undefined') {{
+            document.write('<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js"><\\/script>');
+        }}
+    </script>
     <style>
         :root {{
             --bg-grad: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #dbeafe 100%);
@@ -2529,7 +2550,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <button class="chart-info-btn" onclick="openGraphModal('tx-summary')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
                 <div>
-                    <h2 style="margin:0;">📊 Transaction Statistics &amp; Iteration Summary</h2>
+                    <h2 style="margin:0;">📊 Iteration Statistics</h2>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Total vs passed and failed request sample counts per test script</p>
                 </div>
                 <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
@@ -2549,7 +2570,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <button class="chart-info-btn" onclick="openGraphModal('tx-rt-breakdown')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem; padding-right:2.5rem;">
                 <div>
-                    <h2 style="margin:0;">📈 Transaction &amp; Sub-Transaction Performance Line Graphs</h2>
+                    <h2 style="margin:0;">📈 Transaction Statistics</h2>
                     <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
                         Hierarchical multi-metric line analysis. Filter by User Story, drill into child HTTP requests, and duplicate charts to compare different metrics simultaneously.
                     </div>
@@ -2572,7 +2593,15 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; padding-right:2.5rem;">
                 <div>
                     <h2 style="margin:0;">🎯 SLA Deviation by Transaction (% from Target SLA)</h2>
-                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Diverging diagnostic chart normalized as (P90 Response Time &divide; Target SLA - 1) &times; 100%. Sorted by worst breach.</div>
+                    <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem; display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem 1rem;">
+                        <span>Normalized as <code>(P90 &divide; Target SLA - 1) &times; 100%</code>. Sorted by worst breach.</span>
+                        <span style="display:inline-flex; align-items:center; gap:0.6rem; font-weight:600; font-size:0.75rem;">
+                            <span style="color:#ef4444;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ef4444;margin-right:3px;"></span>&gt;100% (Red)</span>
+                            <span style="color:#f97316;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f97316;margin-right:3px;"></span>50-100% (Amber)</span>
+                            <span style="color:#eab308;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#eab308;margin-right:3px;"></span>0-50% (Yellow)</span>
+                            <span style="color:#10b981;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:3px;"></span>&le;0% Met Target (Green)</span>
+                        </span>
+                    </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                     <label for="usDevFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
@@ -3370,6 +3399,27 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 </div>
 
 <script>
+    function safeGetStorage(key) {{
+        try {{
+            if (typeof window !== 'undefined' && window.localStorage) {{
+                return localStorage.getItem(key);
+            }}
+        }} catch (e) {{
+            // Storage access blocked in sandboxed environment
+        }}
+        return null;
+    }}
+
+    function safeSetStorage(key, val) {{
+        try {{
+            if (typeof window !== 'undefined' && window.localStorage) {{
+                localStorage.setItem(key, val);
+            }}
+        }} catch (e) {{
+            // Storage access blocked in sandboxed environment
+        }}
+    }}
+
     function switchReportTab(tabId, btn) {{
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -3377,15 +3427,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         if (pane) pane.classList.remove('hidden');
         if (btn) btn.classList.add('active');
         // Force immediate resize on all Chart.js instances so hidden canvases get full 100% width
-        for (let id in Chart.instances) {{
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {{
+            for (let id in Chart.instances) {{
+                try {{
+                    Chart.instances[id].resize();
+                }} catch (e) {{}}
+            }}
         }}
         window.dispatchEvent(new Event('resize'));
     }}
 
     function toggleTheme() {{
         const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('jmeter_ai_theme', isDark ? 'dark' : 'light');
+        safeSetStorage('jmeter_ai_theme', isDark ? 'dark' : 'light');
     }}
 
     let activeTabBeforePrint = 'rpt-summary';
@@ -3402,8 +3456,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('hidden'));
         
         // Force Chart.js to immediately resize and redraw on the screen
-        for (let id in Chart.instances) {{
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {{
+            for (let id in Chart.instances) {{
+                try {{
+                    Chart.instances[id].resize();
+                }} catch (e) {{}}
+            }}
         }}
 
         // Wait for rendering frame to complete before launching print dialog
@@ -3470,15 +3528,16 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
     }}
 
-    if (localStorage.getItem('jmeter_ai_theme') === 'dark') {{
+    if (safeGetStorage('jmeter_ai_theme') === 'dark') {{
         document.documentElement.classList.add('dark');
     }}
 
-    const chartFont = {{ family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 }};
-    const gridColor = '#e1e4e8';
-    const textColor = '#656d76';
-    Chart.defaults.color = textColor;
-    Chart.defaults.font = chartFont;
+    if (typeof Chart !== 'undefined') {{
+        const chartFont = {{ family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 }};
+        const gridColor = '#e1e4e8';
+        const textColor = '#656d76';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font = chartFont;
 
     const overallTs = {{
         avg_rt: {ts_avg_rt},
@@ -4134,6 +4193,15 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     const initialDevLabels = {deviation_chart_labels_json};
     const initialDevVals = {deviation_chart_values_json};
 
+    function getSlaDevColor(val) {{
+        if (val > 100) return {{ bg: '#ef4444', border: '#dc2626' }}; // Red (> 100% breach)
+        if (val > 50)  return {{ bg: '#f97316', border: '#ea580c' }}; // Amber (50% - 100% breach)
+        if (val > 0)   return {{ bg: '#eab308', border: '#ca8a04' }}; // Yellow (0% - 50% breach)
+        return {{ bg: '#10b981', border: '#059669' }};                // Green (<= 0% met target)
+    }}
+
+    const initialDevColors = initialDevVals.map(getSlaDevColor);
+
     const slaDevChartObj = new Chart(document.getElementById('chart-sla-deviation-exec'), {{
         type: 'bar',
         data: {{
@@ -4142,8 +4210,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 {{
                     label: 'SLA Deviation (%)',
                     data: initialDevVals,
-                    backgroundColor: initialDevVals.map(val => val > 0 ? '#ef4444' : '#10b981'),
-                    borderColor: initialDevVals.map(val => val > 0 ? '#dc2626' : '#059669'),
+                    backgroundColor: initialDevColors.map(c => c.bg),
+                    borderColor: initialDevColors.map(c => c.border),
                     borderWidth: 1,
                     borderRadius: 4,
                     barPercentage: 0.65
@@ -4160,7 +4228,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     callbacks: {{
                         label: function(ctx) {{
                             const val = ctx.parsed.x;
-                            return (val > 0 ? '+' : '') + val + '% deviation from SLA';
+                            const status = val > 100 ? ' (Critical Breach)' : (val > 50 ? ' (Significant Breach)' : (val > 0 ? ' (Minor Breach)' : ' (Met SLA)'));
+                            return (val > 0 ? '+' : '') + val + '% deviation from SLA' + status;
                         }}
                     }}
                 }}
@@ -4200,11 +4269,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         const newLabels = filteredItems.map(item => item.label.length > 35 ? item.label.substring(0, 32) + '...' : item.label);
         const newVals   = filteredItems.map(item => item.dev_pct);
+        const newColors = newVals.map(getSlaDevColor);
 
         slaDevChartObj.data.labels = newLabels;
         slaDevChartObj.data.datasets[0].data = newVals;
-        slaDevChartObj.data.datasets[0].backgroundColor = newVals.map(v => v > 0 ? '#ef4444' : '#10b981');
-        slaDevChartObj.data.datasets[0].borderColor = newVals.map(v => v > 0 ? '#dc2626' : '#059669');
+        slaDevChartObj.data.datasets[0].backgroundColor = newColors.map(c => c.bg);
+        slaDevChartObj.data.datasets[0].borderColor = newColors.map(c => c.border);
         slaDevChartObj.update('active');
     }}
 
@@ -4807,6 +4877,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             }}
         }});
     }}
+    }} else {{
+        console.warn("Chart.js library is not available. Connect to the internet or ensure CDN scripts are permitted to render charts.");
+        document.querySelectorAll('canvas').forEach(c => {{
+            const p = c.parentElement;
+            if (p && !p.querySelector('.chart-fallback-msg')) {{
+                const msg = document.createElement('div');
+                msg.className = 'chart-fallback-msg';
+                msg.style.cssText = 'text-align:center; padding:2rem 1rem; color:var(--muted); font-size:0.85rem;';
+                msg.innerHTML = '<div style="font-size:1.5rem; margin-bottom:0.4rem;">📊</div><div>Chart library (Chart.js) is not available.<br>Please connect to the internet or allow external CDN scripts to view interactive charts.</div>';
+                p.appendChild(msg);
+            }}
+        }});
+    }}
     
     // ── Edit Mode Logic ──
     let editMode = false;
@@ -4899,7 +4982,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     // ── Graph Guide Modal Logic ──
     const graphGuides = {{
         'tx-summary': {{
-            title: '📊 Transaction Statistics &amp; Iteration Summary',
+            title: '📊 Iteration Statistics',
             what: 'Shows total request samples split into Passed (green) and Failed (red) executions for each test script.',
             howToRead: [
                 'Taller green bars indicate high execution volume with successful assertions.',

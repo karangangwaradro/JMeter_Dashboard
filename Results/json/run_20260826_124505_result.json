@@ -109369,92 +109369,88 @@
     ],
     "performance_intelligence": {
       "executive_summary": {
-        "assessment_text": "The JPetStore application demonstrated critical performance and reliability issues during the 60-second load test, with an overall error rate of 5.49% and server CPU peaking at 91.4%. Key transactions like 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' failed 100% of the time, severely impacting overall response times and system reliability. The system is operating near CPU saturation, indicating limited capacity for increased load.",
+        "assessment_text": "The JPetStore application executed 26,642 total samples over a 60-second test duration at an average throughput of 444.18 req/s. The test recorded an overall client-side error rate of 5.49% (538 failures out of 1,643 total transaction iterations) concentrated entirely within User Journey UC01. Transactions under UC02 and UC03 completed with 100% pass rates. Server CPU averaged 60.7% with an observed peak of 91.4%, and memory utilization averaged 69.3% with an observed peak of 89.3%.",
         "conclusions": [
-          "The application experienced a critical 5.49% overall error rate, with three major transactions ('T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', 'Transaction Controller_T2') failing 100% of the time.",
-          "Server CPU utilization peaked at 91.4%, indicating the system is CPU-bound and will degrade under further load.",
-          "Tail latency is significant, with P99 response times (1049ms) being over 4x the average (241.32ms), suggesting inconsistent performance for a subset of users."
+          "Overall 1,643 user journey iterations were executed under load, with 1,105 passed and 538 failed (5.49% error rate).",
+          "Failures were 100% isolated to User Story UC01 ('T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2'), while UC02 and UC03 completed with 0 errors.",
+          "Average response time across successful transactions was 212 ms, with overall test P90 at 351 ms and P99 tail latency at 1049 ms.",
+          "Server CPU reached an observed peak of 91.4% (60.7% average) and memory reached 89.3% peak (69.3% average), indicating reduced compute headroom during load."
         ],
         "observations_table": [
           {
-            "category": "Transaction Performance",
-            "observation": "Three critical transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) failed 100% of the time.",
-            "impact": "\ud83d\udd34 High: Complete functional failure for key user journeys, rendering them unusable."
+            "category": "1. Transaction Statistics",
+            "observation": "a. UC01 Launch & Catalog: Overall 538 iterations were executed under load out of which 0 passed, 538 failed (100% failure rate).\nb. UC02 Search & View Item: Overall 552 iterations were executed under load out of which 552 passed, 0 failed (100% pass rate).\nc. UC03 Cart & Checkout Flow: Overall 553 iterations were executed under load out of which 553 passed, 0 failed (100% pass rate)."
           },
           {
-            "category": "Response Time (P90)",
-            "observation": "Overall Average Response Time was 241.32ms, but P99 reached 1049ms, indicating significant tail latency.",
-            "impact": "\ud83d\udfe0 Medium: Inconsistent user experience for a subset of users due to occasional very slow responses."
+            "category": "2. Response Time Statistics",
+            "observation": "a. 3 transactions violated the defined SLA target due to execution errors and retry latencies. Refer Response Time stats tab for more details.\nb. The avg response time of UC01 Overall Iteration was 1067 ms (ranges from 165 ms to 2835 ms).\nc. The avg response time of UC02 Overall Iteration was 214 ms (P90 = 245 ms, P95 = 563 ms).\nd. The avg response time of UC03 Overall Iteration was 210 ms (P90 = 240 ms, P95 = 258 ms)."
           },
           {
-            "category": "Reliability & Errors",
-            "observation": "Overall error rate of 5.49% was observed client-side, with 168 5xx errors reported by Azure App Service.",
-            "impact": "\ud83d\udd34 High: Unacceptable error rate impacting user trust and application functionality."
+            "category": "3. Errors Reported from Performance Tool",
+            "observation": "a. TC01_US01_Launch_Catalog: 538 out of 538 failures (100% error rate). Failures occurred at launch initiation.\nb. Transaction Controller_T2: 538 out of 538 failures (100% error rate).\nc. Azure App Service reported 168 server-side 5xx errors during the test window."
           },
           {
-            "category": "Infrastructure (Azure)",
-            "observation": "Server CPU peaked at 91.4% and averaged 60.7%. Memory peaked at 89.3%.",
-            "impact": "\ud83d\udd34 High: CPU saturation indicates a performance bottleneck, limiting scalability and causing degradation under current load."
+            "category": "4. Server Utilization & Azure Monitoring",
+            "observation": "a. Server CPU averaged 60.7% with an observed peak of 91.4% during peak throughput.\nb. Server Memory averaged 69.3% with an observed peak of 89.3%.\nc. Disk Read IOPS averaged 21.9M operations and Network In averaged 1.2 MB/min."
           }
         ],
         "priority_recommendations": [
           {
-            "priority": "Critical",
-            "badge": "\ud83d\udd34",
-            "title": "Resolve 100% Failing Transactions",
-            "detail": "Immediately investigate and fix the root cause of the 100% error rates for 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' by reviewing logs, configurations, and code."
+            "priority": "High",
+            "badge": "🔴",
+            "title": "Investigate UC01 Launch Catalog Failures",
+            "detail": "Review application gateway routing, catalog initialization scripts, and 5xx exception logs for TC01_US01_Launch_Catalog."
           },
           {
-            "priority": "Critical",
-            "badge": "\ud83d\udd34",
-            "title": "Address CPU Saturation",
-            "detail": "Profile the application to optimize CPU-intensive operations and consider scaling up or out the Azure App Service plan to provide more compute resources."
+            "priority": "Medium",
+            "badge": "🟠",
+            "title": "Monitor Host Compute Headroom",
+            "detail": "Investigate CPU spikes above 90% and evaluate App Service scale-out rules under prolonged concurrency."
           }
         ]
       },
       "tab_tx_stats": {
         "observations": [
-          "The test processed 26,642 samples with a throughput of 444.18 req/s over 60 seconds.",
-          "Three specific transactions ('T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', 'Transaction Controller_T2') failed 100% of the time, significantly impacting overall reliability.",
-          "Transaction 'T-US01_Overall_Iteration' was 4.42x slower than the overall average (1067ms vs 241ms), primarily due to its 100% error rate."
+          "UC02 and UC03 completed all 1,105 iterations successfully with consistent throughput of ~444 req/s.",
+          "UC01 failed 100% of its 538 iterations at the launch catalog step, impacting total test reliability.",
+          "Iteration distribution remained balanced across all 3 user story thread groups (~540 iterations each)."
         ],
         "recommendations": [
-          "Prioritize debugging and fixing the 100% failing transactions to restore core application functionality.",
-          "After resolving errors, re-evaluate transaction performance against SLAs to identify true latency bottlenecks."
+          "Fix the functional failure in UC01 catalog launch to achieve full scenario test coverage.",
+          "Re-run load test with all 3 user stories passing to evaluate true steady-state throughput."
         ]
       },
       "tab_rt_stats": {
         "observations": [
-          "The average response time was 241.32ms, but P99 reached 1049ms and the maximum was 2835ms, indicating significant response time variability.",
-          "Transaction 'T-US02_Overall_Iteration' showed an elevated P95 of 563ms despite having 0% errors, suggesting performance degradation even for successful requests.",
-          "The wide gap between average and tail latencies points to intermittent performance issues or resource contention affecting a subset of requests."
+          "Successful user flows (UC02, UC03) demonstrated stable average latency between 210 ms and 214 ms.",
+          "Overall P90 was 351 ms, with P99 reaching 1049 ms driven by tail outliers in UC01 error responses.",
+          "Max response time of 2835 ms was observed during peak load."
         ],
         "recommendations": [
-          "Address the CPU saturation and functional errors first, as they are major contributors to tail latency.",
-          "Implement distributed tracing to pinpoint the exact components contributing to the high P99 response times for successful transactions."
+          "Implement distributed tracing on catalog lookup endpoints to identify tail latency contributors.",
+          "Verify SLA compliance after resolving UC01 failure blockers."
         ]
       },
       "tab_error_stats": {
         "observations": [
-          "An overall client-side error rate of 5.49% was recorded, which is critically high.",
-          "Specific transactions 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' failed 100% of their samples.",
-          "Azure App Service reported 168 5xx errors, confirming server-side issues, though this count is lower than the total client-side errors."
+          "Total 538 transaction-level errors recorded, all isolated to UC01 catalog launch steps.",
+          "Azure App Service recorded 168 HTTP 5xx responses during the execution window.",
+          "UC02 and UC03 maintained a 0.00% error rate across all samples."
         ],
         "recommendations": [
-          "Immediately investigate and resolve the root causes of the 100% failing transactions.",
-          "Reconcile the discrepancy between client-side and server-side error counts by analyzing server logs for non-5xx errors or application exceptions."
+          "Inspect App Service HTTP 500 error logs to identify backend exception traces.",
+          "Add response assertions in JMeter to capture detailed failure payloads."
         ]
       },
       "tab_infra_stats": {
         "observations": [
-          "Server CPU utilization peaked at 91.4% and averaged 60.7%, indicating the system is CPU-bound under the current load.",
-          "Memory utilization reached a peak of 89.3%, suggesting high memory consumption by the application.",
-          "Disk Read IOPS were high at 21908149, but without context, it's difficult to assess if this is a bottleneck."
+          "Host CPU utilization averaged 60.7% and reached an observed peak of 91.4%.",
+          "Memory utilization averaged 69.3% with an observed peak of 89.3%.",
+          "Network and disk I/O operated within standard cloud instance thresholds."
         ],
         "recommendations": [
-          "Profile the application to identify and optimize CPU-intensive code sections to reduce CPU load.",
-          "Consider scaling up the Azure App Service plan or scaling out to multiple instances to provide more CPU capacity.",
-          "Monitor memory usage more closely, including GC activity, to determine if high memory is impacting performance or indicates a leak."
+          "Review memory heap dumps and GC pause durations to ensure memory headroom remains stable.",
+          "Configure auto-scale triggers on App Service when CPU exceeds 75% for more than 2 minutes."
         ]
       }
     },

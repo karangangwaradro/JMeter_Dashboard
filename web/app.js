@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initApp() {
     loadStatus();
+    loadAiConfig();
     loadTests();
     loadReports();
     loadRuns();
@@ -80,6 +81,10 @@ function switchTab(tabId) {
     } else if (tabId === "tab-trend") {
         if (typeof fetchAndRenderTrend === "function") {
             fetchAndRenderTrend();
+        }
+    } else if (tabId === "tab-ai-studio") {
+        if (typeof loadStudioRuns === "function") {
+            loadStudioRuns();
         }
     }
 }
@@ -627,25 +632,107 @@ async function loadPublishedReports() {
     }
 }
 
-async function recompileLatestReportUI() {
+let currentRecompileTargetRunId = null;
+
+function recompileLatestReportUI() {
+    openRecompileModal(null);
+}
+
+function recompileSingleRunUI(runId) {
+    openRecompileModal(runId);
+}
+
+async function openRecompileModal(runId = null) {
+    currentRecompileTargetRunId = runId;
+    const modal = document.getElementById("recompile-modal");
+    const targetLabel = document.getElementById("recompile-modal-target");
+    const statusBox = document.getElementById("recompile-status-bar");
+    const submitBtn = document.getElementById("recompile-submit-btn");
+    const cancelBtn = document.getElementById("recompile-cancel-btn");
+
+    if (statusBox) statusBox.classList.add("hidden");
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "⚡ Start Recompilation";
+    }
+    if (cancelBtn) cancelBtn.disabled = false;
+
+    if (targetLabel) {
+        targetLabel.textContent = runId ? `Target: Execution ${runId}` : "Target: Most Recent Execution";
+    }
+
+    // Populate active AI provider & model meta in modal
     try {
-        const res = await fetch("/api/recompile-report");
+        const res = await fetch("/api/ai-config");
         const data = await res.json();
-        alert(data.message);
-        loadRuns();
-    } catch (err) {
-        alert("Failed to recompile report: " + err);
+        const provElem = document.getElementById("recompile-active-provider");
+        const modelElem = document.getElementById("recompile-active-model");
+        if (provElem) provElem.textContent = (data.provider || "openrouter").toUpperCase();
+        if (modelElem) modelElem.textContent = data.model || "nvidia/nemotron-3-ultra-550b-a55b:free";
+    } catch (e) {
+        console.warn("Could not fetch AI meta for modal:", e);
+    }
+
+    if (modal) modal.classList.remove("hidden");
+}
+
+function closeRecompileModal() {
+    const modal = document.getElementById("recompile-modal");
+    if (modal) modal.classList.add("hidden");
+}
+
+function toggleRecompileAiOption(checked) {
+    const meta = document.getElementById("recompile-ai-meta");
+    if (meta) {
+        meta.style.opacity = checked ? "1" : "0.4";
     }
 }
 
-async function recompileSingleRunUI(runId) {
+async function executeRecompile() {
+    const regenAi = document.getElementById("recompile-ai-checkbox")?.checked ?? true;
+    const statusBox = document.getElementById("recompile-status-bar");
+    const statusText = document.getElementById("recompile-status-text");
+    const submitBtn = document.getElementById("recompile-submit-btn");
+    const cancelBtn = document.getElementById("recompile-cancel-btn");
+
+    if (statusBox) statusBox.classList.remove("hidden");
+    if (statusText) {
+        statusText.textContent = regenAi 
+            ? "Re-parsing metrics & generating fresh AI insights from LLM... please wait."
+            : "Recompiling HTML dashboard... please wait.";
+    }
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-inline"></span> Recompiling...';
+    }
+    if (cancelBtn) cancelBtn.disabled = true;
+
     try {
-        const res = await fetch(`/api/recompile-report?run_id=${encodeURIComponent(runId)}`);
+        const res = await fetch("/api/recompile-report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                run_id: currentRecompileTargetRunId || "",
+                regenerate_ai: regenAi
+            })
+        });
         const data = await res.json();
-        alert(data.message);
-        loadRuns();
+        if (data.success) {
+            closeRecompileModal();
+            alert(data.message || "Report recompiled successfully!");
+            loadRuns();
+        } else {
+            alert("Failed to recompile report: " + (data.message || "Unknown error"));
+        }
     } catch (err) {
-        alert("Failed to recompile report: " + err);
+        alert("Failed to recompile report: " + err.message);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "⚡ Start Recompilation";
+        }
+        if (cancelBtn) cancelBtn.disabled = false;
+        if (statusBox) statusBox.classList.add("hidden");
     }
 }
 
@@ -684,6 +771,165 @@ async function handleSaveAzureConfig() {
         loadStatus();
     } catch (err) {
         alert("Failed to save Azure config: " + err);
+    }
+}
+
+// ── AI & LLM Config ─────────────────────────────────────────────────────────
+async function loadAiConfig() {
+    try {
+        const res = await fetch("/api/ai-config");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const providerSelect = document.getElementById("ai-provider-select");
+        const modelSelect = document.getElementById("ai-model-select");
+        const customModelInput = document.getElementById("ai-model-custom-input");
+
+        const badgeOpenRouter = document.getElementById("badge-openrouter-key");
+        const badgeGemini = document.getElementById("badge-gemini-key");
+        const badgeGithub = document.getElementById("badge-github-key");
+        const statusPill = document.getElementById("ai-status-pill");
+
+        if (providerSelect && data.provider) {
+            providerSelect.value = data.provider;
+        }
+
+        // Set model
+        const currentModel = data.model || "nvidia/nemotron-3-ultra-550b-a55b:free";
+        if (modelSelect) {
+            let found = false;
+            for (let opt of modelSelect.options) {
+                if (opt.value === currentModel) {
+                    modelSelect.value = currentModel;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                modelSelect.value = "custom";
+                if (customModelInput) {
+                    customModelInput.classList.remove("hidden");
+                    customModelInput.value = currentModel;
+                }
+            } else {
+                if (customModelInput) customModelInput.classList.add("hidden");
+            }
+        }
+
+        // Keys & Badges
+        if (badgeOpenRouter) {
+            if (data.openrouter_configured) {
+                badgeOpenRouter.textContent = `Configured (${data.openrouter_key_masked})`;
+                badgeOpenRouter.style.color = "var(--green)";
+            } else {
+                badgeOpenRouter.textContent = "Not Set";
+                badgeOpenRouter.style.color = "var(--text-muted)";
+            }
+        }
+        if (badgeGemini) {
+            if (data.gemini_configured) {
+                badgeGemini.textContent = `Configured (${data.gemini_key_masked})`;
+                badgeGemini.style.color = "var(--green)";
+            } else {
+                badgeGemini.textContent = "Not Set";
+                badgeGemini.style.color = "var(--text-muted)";
+            }
+        }
+        if (badgeGithub) {
+            if (data.github_configured) {
+                badgeGithub.textContent = `Configured (${data.github_token_masked})`;
+                badgeGithub.style.color = "var(--green)";
+            } else {
+                badgeGithub.textContent = "Not Set";
+                badgeGithub.style.color = "var(--text-muted)";
+            }
+        }
+
+        // Status pill
+        if (statusPill) {
+            const activeProv = data.provider || "openrouter";
+            const isConfigured = (activeProv === "openrouter" && data.openrouter_configured) ||
+                                 (activeProv === "gemini" && data.gemini_configured) ||
+                                 (activeProv === "github" && data.github_configured);
+            if (isConfigured) {
+                statusPill.textContent = `${activeProv.toUpperCase()} Ready`;
+                statusPill.style.color = "#10b981";
+                statusPill.style.background = "rgba(16, 185, 129, 0.15)";
+                statusPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
+            } else {
+                statusPill.textContent = "Key Required";
+                statusPill.style.color = "#f59e0b";
+                statusPill.style.background = "rgba(245, 158, 11, 0.15)";
+                statusPill.style.borderColor = "rgba(245, 158, 11, 0.3)";
+            }
+        }
+    } catch (err) {
+        console.error("Failed to load AI config:", err);
+    }
+}
+
+function handleAiProviderChange(val) {
+    const modelSelect = document.getElementById("ai-model-select");
+    const customInput = document.getElementById("ai-model-custom-input");
+    if (!modelSelect) return;
+    if (val === "openrouter") {
+        modelSelect.value = "nvidia/nemotron-3-ultra-550b-a55b:free";
+        if (customInput) customInput.classList.add("hidden");
+    } else if (val === "gemini") {
+        modelSelect.value = "gemini-2.5-flash";
+        if (customInput) customInput.classList.add("hidden");
+    } else if (val === "github") {
+        modelSelect.value = "gpt-4o-mini";
+        if (customInput) customInput.classList.add("hidden");
+    }
+}
+
+function handleAiModelPresetChange(val) {
+    const customInput = document.getElementById("ai-model-custom-input");
+    if (!customInput) return;
+    if (val === "custom") {
+        customInput.classList.remove("hidden");
+        customInput.focus();
+    } else {
+        customInput.classList.add("hidden");
+    }
+}
+
+async function handleSaveAiConfig() {
+    const provider = document.getElementById("ai-provider-select")?.value || "openrouter";
+    const modelSelect = document.getElementById("ai-model-select")?.value || "nvidia/nemotron-3-ultra-550b-a55b:free";
+    const customModel = document.getElementById("ai-model-custom-input")?.value?.trim() || "";
+    const activeModel = (modelSelect === "custom" && customModel) ? customModel : modelSelect;
+
+    const openrouterKey = document.getElementById("openrouter-key-input")?.value?.trim() || "";
+    const geminiKey = document.getElementById("gemini-key-input")?.value?.trim() || "";
+    const githubToken = document.getElementById("github-token-input")?.value?.trim() || "";
+
+    try {
+        const res = await fetch("/api/ai-config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                provider: provider,
+                model: activeModel,
+                openrouter_key: openrouterKey,
+                gemini_key: geminiKey,
+                github_token: githubToken
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert("✅ " + data.message);
+            if (openrouterKey) document.getElementById("openrouter-key-input").value = "";
+            if (geminiKey) document.getElementById("gemini-key-input").value = "";
+            if (githubToken) document.getElementById("github-token-input").value = "";
+            loadAiConfig();
+            loadStatus();
+        } else {
+            alert("❌ Failed: " + data.message);
+        }
+    } catch (err) {
+        alert("Failed to save AI config: " + err);
     }
 }
 
