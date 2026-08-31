@@ -7,6 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>');
+        }
+    </script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js"><\/script>');
+        }
+    </script>
     <style>
         :root {
             --bg-grad: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #dbeafe 100%);
@@ -2184,6 +2194,27 @@
 </div>
 
 <script>
+    function safeGetStorage(key) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return localStorage.getItem(key);
+            }
+        } catch (e) {
+            // Storage access blocked in sandboxed environment
+        }
+        return null;
+    }
+
+    function safeSetStorage(key, val) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                localStorage.setItem(key, val);
+            }
+        } catch (e) {
+            // Storage access blocked in sandboxed environment
+        }
+    }
+
     function switchReportTab(tabId, btn) {
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -2191,15 +2222,19 @@
         if (pane) pane.classList.remove('hidden');
         if (btn) btn.classList.add('active');
         // Force immediate resize on all Chart.js instances so hidden canvases get full 100% width
-        for (let id in Chart.instances) {
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            for (let id in Chart.instances) {
+                try {
+                    Chart.instances[id].resize();
+                } catch (e) {}
+            }
         }
         window.dispatchEvent(new Event('resize'));
     }
 
     function toggleTheme() {
         const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('jmeter_ai_theme', isDark ? 'dark' : 'light');
+        safeSetStorage('jmeter_ai_theme', isDark ? 'dark' : 'light');
     }
 
     let activeTabBeforePrint = 'rpt-summary';
@@ -2216,8 +2251,12 @@
         document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('hidden'));
         
         // Force Chart.js to immediately resize and redraw on the screen
-        for (let id in Chart.instances) {
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            for (let id in Chart.instances) {
+                try {
+                    Chart.instances[id].resize();
+                } catch (e) {}
+            }
         }
 
         // Wait for rendering frame to complete before launching print dialog
@@ -2284,15 +2323,16 @@
         }
     }
 
-    if (localStorage.getItem('jmeter_ai_theme') === 'dark') {
+    if (safeGetStorage('jmeter_ai_theme') === 'dark') {
         document.documentElement.classList.add('dark');
     }
 
-    const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
-    const gridColor = '#e1e4e8';
-    const textColor = '#656d76';
-    Chart.defaults.color = textColor;
-    Chart.defaults.font = chartFont;
+    if (typeof Chart !== 'undefined') {
+        const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
+        const gridColor = '#e1e4e8';
+        const textColor = '#656d76';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font = chartFont;
 
     const overallTs = {
         avg_rt: [336.93, 222.61, 224.09, 212.24, 222.59, 224.24, 254.37, 218.22, 215.62, 253.84, 222.91, 212.83, 223.42, 214.93, 222.69, 213.9, 211.16, 210.37, 181.0],
@@ -3629,6 +3669,19 @@
                     y: { grid: { color: gridColor }, title: { display: true, text: 'MB' } },
                     x: { grid: { display: false } }
                 }
+            }
+        });
+    }
+    } else {
+        console.warn("Chart.js library is not available. Connect to the internet or ensure CDN scripts are permitted to render charts.");
+        document.querySelectorAll('canvas').forEach(c => {
+            const p = c.parentElement;
+            if (p && !p.querySelector('.chart-fallback-msg')) {
+                const msg = document.createElement('div');
+                msg.className = 'chart-fallback-msg';
+                msg.style.cssText = 'text-align:center; padding:2rem 1rem; color:var(--muted); font-size:0.85rem;';
+                msg.innerHTML = '<div style="font-size:1.5rem; margin-bottom:0.4rem;">📊</div><div>Chart library (Chart.js) is not available.<br>Please connect to the internet or allow external CDN scripts to view interactive charts.</div>';
+                p.appendChild(msg);
             }
         });
     }

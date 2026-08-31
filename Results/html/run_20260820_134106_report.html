@@ -7,6 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>');
+        }
+    </script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js"><\/script>');
+        }
+    </script>
     <style>
         :root {
             --bg-grad: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #dbeafe 100%);
@@ -763,7 +773,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">1.8</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.3</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -794,7 +804,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">14.3% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">1.8</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.2</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -825,7 +835,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">1.7</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.2</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -856,7 +866,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">1.7</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">5.2</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -967,7 +977,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1372962447')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3024542701')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
             <td>106</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="562.2"><span class="tx-rt-val">562</span></td>
@@ -979,8 +989,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-966696694')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3024542701"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3024542701" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1572362480')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
             <td>106</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="194.1"><span class="tx-rt-val">194</span></td>
@@ -992,7 +1002,7 @@
             <td><span style="color:var(--green); font-weight:600;">-64.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-1572362480"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1572362480" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
             <td>106</td>
             <td>-</td>
@@ -1005,8 +1015,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4030556995')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3024542701"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3024542701" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3869342451')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
             <td>106</td>
             <td><span class="fail"><strong>0.49</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="178.4"><span class="tx-rt-val">178</span></td>
@@ -1018,7 +1028,7 @@
             <td><span style="color:var(--red); font-weight:600;">+95.7%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-4030556995"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4030556995" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-3869342451"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3869342451" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Fish</code></span></td>
             <td>106</td>
             <td>-</td>
@@ -1031,8 +1041,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1134486219')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3024542701"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3024542701" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2735173282')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
             <td>106</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="189.7"><span class="tx-rt-val">190</span></td>
@@ -1044,7 +1054,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-1134486219"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1134486219" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-2735173282"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-2735173282" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_View_Product_FI-SW-01</code></span></td>
             <td>106</td>
             <td>-</td>
@@ -1063,7 +1073,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3100956969')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2358402183')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
             <td>105</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="568.1"><span class="tx-rt-val">568</span></td>
@@ -1075,8 +1085,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1034189100')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2358402183"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2358402183" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-166322714')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
             <td>105</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="200.5"><span class="tx-rt-val">201</span></td>
@@ -1088,7 +1098,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-1034189100"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1034189100" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2358402183 tree-children-166322714"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-166322714" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
             <td>105</td>
             <td>-</td>
@@ -1101,8 +1111,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3337989914')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2358402183"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2358402183" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-895710092')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
             <td>105</td>
             <td><span class="fail"><strong>0.49</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="183.1"><span class="tx-rt-val">183</span></td>
@@ -1114,7 +1124,7 @@
             <td><span style="color:var(--yellow); font-weight:600;">+82.0%</span></td>
             <td><span style="color: var(--yellow); font-weight:700;">Slightly Deviated</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-3337989914"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3337989914" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2358402183 tree-children-895710092"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-895710092" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Select_Category_Dogs</code></span></td>
             <td>105</td>
             <td>-</td>
@@ -1127,8 +1137,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2735157779')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2358402183"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2358402183" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-260987139')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
             <td>105</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="184.5"><span class="tx-rt-val">184</span></td>
@@ -1140,7 +1150,7 @@
             <td><span style="color:var(--green); font-weight:600;">-87.9%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-2735157779"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2735157779" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2358402183 tree-children-260987139"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-260987139" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Add_Item_EST-26</code></span></td>
             <td>105</td>
             <td>-</td>
@@ -1159,7 +1169,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3080663765')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1314582728')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
             <td>156</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="380.9"><span class="tx-rt-val">381</span></td>
@@ -1171,8 +1181,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3080663765"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3080663765" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-533417186')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1314582728"  data-tg="US03_Search_Products" data-parent-cls="tree-children-1314582728" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2157786894')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
             <td>157</td>
             <td><span class="pass"><strong>0.96</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="196.3"><span class="tx-rt-val">196</span></td>
@@ -1184,7 +1194,7 @@
             <td><span style="color:var(--green); font-weight:600;">-7.5%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3080663765 tree-children-533417186"  data-tg="US03_Search_Products" data-parent-cls="tree-children-533417186" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1314582728 tree-children-2157786894"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2157786894" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Homepage</code></span></td>
             <td>157</td>
             <td>-</td>
@@ -1197,8 +1207,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3080663765"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3080663765" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2694986713')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1314582728"  data-tg="US03_Search_Products" data-parent-cls="tree-children-1314582728" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-445368003')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
             <td>156</td>
             <td><span class="pass"><strong>1.00</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="184.4"><span class="tx-rt-val">184</span></td>
@@ -1210,7 +1220,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3080663765 tree-children-2694986713"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2694986713" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1314582728 tree-children-445368003"  data-tg="US03_Search_Products" data-parent-cls="tree-children-445368003" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Search_Bulldog</code></span></td>
             <td>156</td>
             <td>-</td>
@@ -1229,7 +1239,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-937799748')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-426290571')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
             <td>157</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="380.0"><span class="tx-rt-val">380</span></td>
@@ -1241,8 +1251,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-937799748"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-937799748" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2043401207')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-426290571"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-426290571" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1021859826')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
             <td>157</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="194.9"><span class="tx-rt-val">195</span></td>
@@ -1254,7 +1264,7 @@
             <td><span style="color:var(--green); font-weight:600;">-63.0%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-937799748 tree-children-2043401207"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2043401207" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-426290571 tree-children-1021859826"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1021859826" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Launch_Catalog</code></span></td>
             <td>157</td>
             <td>-</td>
@@ -1267,8 +1277,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-937799748"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-937799748" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3342637634')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-426290571"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-426290571" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-602338617')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
             <td>157</td>
             <td><span class="fail"><strong>0.48</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="185.0"><span class="tx-rt-val">185</span></td>
@@ -1280,7 +1290,7 @@
             <td><span style="color:var(--red); font-weight:600;">+268.0%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-937799748 tree-children-3342637634"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3342637634" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-426290571 tree-children-602338617"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-602338617" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_Signon_Form</code></span></td>
             <td>157</td>
             <td>-</td>
@@ -1679,14 +1689,14 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK CPU UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0%</div>
-                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Healthy</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">91.4%</div>
+                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High CPU Pressure</div>
             </div>
 
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK MEMORY UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0%</div>
-                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Healthy</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">89.3%</div>
+                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High Memory Pressure</div>
             </div>
 
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
@@ -1703,7 +1713,7 @@
         </div>
 
         <!-- 2. Main Resource Utilization (CPU & Memory) - Full Width -->
-        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: none;">
+        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: block;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
                 <div>
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🖥️ Azure Resource Utilization (CPU &amp; Memory)</h3>
@@ -1720,7 +1730,7 @@
             </div>
             
             <p style="margin-top:0.8rem; font-size:0.78rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.8rem; border-radius:6px; border-left:3px solid var(--accent);">
-                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 0% and memory reaching 0%, indicating elevated host-level contention.
+                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 91.4% and memory reaching 89.3%, indicating elevated host-level contention.
             </p>
             
         </div>
@@ -1808,28 +1818,28 @@
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">CPU %</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.92</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Memory %</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.96</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.94</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Throughput</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.96</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.98</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Resp Time</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.92</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.94</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.98</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                         </tr>
@@ -1849,6 +1859,14 @@
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#3b82f6;">[</span>
             <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 31 req/s</span>
         </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #f59e0b;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#f59e0b;">0</span>
+            <span>⚠️ <strong>CPU Saturation:</strong> Host CPU utilization reached 83%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #8b5cf6;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#8b5cf6;">s</span>
+            <span>⚠️ <strong>Memory Pressure:</strong> Host memory utilization climbed to 89%</span>
+        </div>
                 </div>
             </div>
         </div>
@@ -1862,11 +1880,11 @@
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:0.85rem; font-size:0.78rem;">
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#ef4444; margin-bottom:0.2rem;">🔴 Primary Signal</div>
-                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>0%</strong> peak pressure during high-throughput interval.</p>
+                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>91.4%</strong> peak pressure during high-throughput interval.</p>
                 </div>
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#f59e0b; margin-bottom:0.2rem;">Associated Signals</div>
-                    <p style="margin:0; color:var(--text);">Memory reached <strong>0%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
+                    <p style="margin:0; color:var(--text);">Memory reached <strong>89.3%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
                 </div>
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#3b82f6; margin-bottom:0.2rem;">🔍 Likely Root Cause</div>
@@ -1927,6 +1945,27 @@
 </div>
 
 <script>
+    function safeGetStorage(key) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return localStorage.getItem(key);
+            }
+        } catch (e) {
+            // Storage access blocked in sandboxed environment
+        }
+        return null;
+    }
+
+    function safeSetStorage(key, val) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                localStorage.setItem(key, val);
+            }
+        } catch (e) {
+            // Storage access blocked in sandboxed environment
+        }
+    }
+
     function switchReportTab(tabId, btn) {
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -1934,15 +1973,19 @@
         if (pane) pane.classList.remove('hidden');
         if (btn) btn.classList.add('active');
         // Force immediate resize on all Chart.js instances so hidden canvases get full 100% width
-        for (let id in Chart.instances) {
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            for (let id in Chart.instances) {
+                try {
+                    Chart.instances[id].resize();
+                } catch (e) {}
+            }
         }
         window.dispatchEvent(new Event('resize'));
     }
 
     function toggleTheme() {
         const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('jmeter_ai_theme', isDark ? 'dark' : 'light');
+        safeSetStorage('jmeter_ai_theme', isDark ? 'dark' : 'light');
     }
 
     let activeTabBeforePrint = 'rpt-summary';
@@ -1959,8 +2002,12 @@
         document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('hidden'));
         
         // Force Chart.js to immediately resize and redraw on the screen
-        for (let id in Chart.instances) {
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            for (let id in Chart.instances) {
+                try {
+                    Chart.instances[id].resize();
+                } catch (e) {}
+            }
         }
 
         // Wait for rendering frame to complete before launching print dialog
@@ -2027,15 +2074,16 @@
         }
     }
 
-    if (localStorage.getItem('jmeter_ai_theme') === 'dark') {
+    if (safeGetStorage('jmeter_ai_theme') === 'dark') {
         document.documentElement.classList.add('dark');
     }
 
-    const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
-    const gridColor = '#e1e4e8';
-    const textColor = '#656d76';
-    Chart.defaults.color = textColor;
-    Chart.defaults.font = chartFont;
+    if (typeof Chart !== 'undefined') {
+        const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
+        const gridColor = '#e1e4e8';
+        const textColor = '#656d76';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font = chartFont;
 
     const overallTs = {
         avg_rt: [213.18, 201.32, 198.96, 178.67, 178.16, 176.31],
@@ -2914,8 +2962,8 @@
         data: {
             labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
             datasets: [
-                { label: 'CPU %', data: [], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
-                { label: 'Memory %', data: [], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
+                { label: 'CPU %', data: [34.2, 41.7, 46.3, 82.6, 91.4, 68.2], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'Memory %', data: [52.4, 55.7, 61.2, 74.8, 89.3, 82.7], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gridColor }, min: 0, max: 100 }, x: { grid: { display: false } } } }
@@ -3273,8 +3321,8 @@
 
 
     // Azure Infrastructure Diagnostic Suite Charts
-    const azCpu = [];
-    const azMem = [];
+    const azCpu = [34.2, 41.7, 46.3, 82.6, 91.4, 68.2];
+    const azMem = [52.4, 55.7, 61.2, 74.8, 89.3, 82.7];
     const azDiskQ = [];
     const azDiskRead = [];
     const azDiskWrite = [];
@@ -3375,6 +3423,19 @@
             }
         });
     }
+    } else {
+        console.warn("Chart.js library is not available. Connect to the internet or ensure CDN scripts are permitted to render charts.");
+        document.querySelectorAll('canvas').forEach(c => {
+            const p = c.parentElement;
+            if (p && !p.querySelector('.chart-fallback-msg')) {
+                const msg = document.createElement('div');
+                msg.className = 'chart-fallback-msg';
+                msg.style.cssText = 'text-align:center; padding:2rem 1rem; color:var(--muted); font-size:0.85rem;';
+                msg.innerHTML = '<div style="font-size:1.5rem; margin-bottom:0.4rem;">📊</div><div>Chart library (Chart.js) is not available.<br>Please connect to the internet or allow external CDN scripts to view interactive charts.</div>';
+                p.appendChild(msg);
+            }
+        });
+    }
     
     // ── Edit Mode Logic ──
     let editMode = false;
@@ -3400,7 +3461,7 @@
     });
 
     // ── Finding Drawer Logic ──
-    const findingsData = [{"id": "F-001", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation (184 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "184 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "268%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-002", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation (182 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "182 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "82%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation (180 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "180 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "96%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "tail_latency", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "Elevated tail latency (P99: 730 ms)", "observation": "", "evidence": [{"metric": "P99 Response Time", "value": "730 ms", "baseline": "235 ms Avg RT", "source": "Response Time Distribution"}, {"metric": "P90 Response Time", "value": "364 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution"]}];
+    const findingsData = [{"id": "F-001", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation (184 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "184 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "268%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-002", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation (182 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "182 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "82%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-003", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation (180 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "180 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "96%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"]}, {"id": "F-004", "category": "tail_latency", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "Elevated tail latency (P99: 730 ms)", "observation": "", "evidence": [{"metric": "P99 Response Time", "value": "730 ms", "baseline": "235 ms Avg RT", "source": "Response Time Distribution"}, {"metric": "P90 Response Time", "value": "364 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution"]}, {"id": "F-005", "category": "infrastructure_correlation", "evidence_class": "MEASURED", "severity": "Slightly Deviated", "title": "Server CPU peak at 91%", "observation": "", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Azure Resource Utilization"]}, {"id": "F-006", "category": "infrastructure_correlation", "evidence_class": "MEASURED", "severity": "Acceptable Deviation", "title": "Server Memory peak at 89%", "observation": "", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg Memory", "value": "69.3%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "", "confidence": {}, "evidence_sources": ["Azure Resource Utilization"]}];
     const recsData = [{"id": "R-0", "triggered_by": [], "priority": "Low", "category": "Configuration", "title": "Maintain Current Performance", "why": "All metrics are within healthy thresholds.", "action": ["Consider running longer duration tests", "Test at higher concurrency to find limits"], "expected_impact": "Identify maximum safe throughput capacity", "validation": "N/A", "confidence": "High"}];
 
     function showFinding(fid) {

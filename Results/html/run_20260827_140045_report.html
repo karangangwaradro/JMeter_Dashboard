@@ -7,6 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>');
+        }
+    </script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://unpkg.com/chart.js@4.4.1/dist/chart.umd.js"><\/script>');
+        }
+    </script>
     <style>
         :root {
             --bg-grad: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #dbeafe 100%);
@@ -850,7 +860,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">4.8</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">14.3</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -881,7 +891,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">14.3% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">4.6</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">13.9</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -912,7 +922,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">9.9</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">29.6</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -943,7 +953,7 @@
                 <div style="font-size:0.72rem; color:var(--muted);">28.6% Load Share</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
-                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">9.5</div>
+                <div style="font-size:1.05rem; font-weight:800; color:var(--text);">28.6</div>
                 <div style="font-size:0.72rem; color:var(--muted);">TPS</div>
             </td>
             <td style="padding:0.75rem 0.8rem; text-align:center; vertical-align:middle;">
@@ -1075,7 +1085,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US01_Browse_Catalog" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1372962447')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3024542701')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US01_Overall_Iteration</strong></span></td>
             <td>283</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="2003.0"><span class="tx-rt-val">2003</span></td>
@@ -1087,8 +1097,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-966696694')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3024542701"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3024542701" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1572362480')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US01_Launch_Catalog</strong></span></td>
             <td>289</td>
             <td><span class="fail"><strong>0.00</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="1376.8"><span class="tx-rt-val">1377</span></td>
@@ -1100,7 +1110,7 @@
             <td><span style="color:var(--red); font-weight:600;">+335.6%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-1572362480"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1572362480" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_1</code></span></td>
             <td>293</td>
             <td>-</td>
@@ -1113,7 +1123,7 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-1572362480"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1572362480" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_2</code></span></td>
             <td>293</td>
             <td>-</td>
@@ -1126,7 +1136,7 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-1572362480"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1572362480" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_Err500</code></span></td>
             <td>291</td>
             <td>-</td>
@@ -1139,7 +1149,7 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-966696694"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-966696694" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-1572362480"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1572362480" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Launch_Catalog_3</code></span></td>
             <td>289</td>
             <td>-</td>
@@ -1152,8 +1162,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-4030556995')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3024542701"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3024542701" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3869342451')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US01_Select_Fish_Category</strong></span></td>
             <td>285</td>
             <td><span class="fail"><strong>0.44</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="315.3"><span class="tx-rt-val">315</span></td>
@@ -1165,7 +1175,7 @@
             <td><span style="color:var(--red); font-weight:600;">+533.7%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-4030556995"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-4030556995" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-3869342451"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3869342451" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_Select_Category_Fish</code></span></td>
             <td>285</td>
             <td>-</td>
@@ -1178,8 +1188,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1372962447"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1372962447" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1134486219')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3024542701"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-3024542701" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2735173282')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US01_View_Product_Details</strong></span></td>
             <td>283</td>
             <td><span class="pass"><strong>0.95</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="305.7"><span class="tx-rt-val">306</span></td>
@@ -1191,7 +1201,7 @@
             <td><span style="color:var(--green); font-weight:600;">-43.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1372962447 tree-children-1134486219"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-1134486219" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3024542701 tree-children-2735173282"  data-tg="US01_Browse_Catalog" data-parent-cls="tree-children-2735173282" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US01_View_Product_FI-SW-01</code></span></td>
             <td>283</td>
             <td>-</td>
@@ -1210,7 +1220,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US02_Add_To_Cart" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3100956969')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2358402183')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US02_Overall_Iteration</strong></span></td>
             <td>276</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="1045.1"><span class="tx-rt-val">1045</span></td>
@@ -1222,8 +1232,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1034189100')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2358402183"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2358402183" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-166322714')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US02_Launch_Catalog</strong></span></td>
             <td>280</td>
             <td><span class="pass"><strong>0.93</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="357.6"><span class="tx-rt-val">358</span></td>
@@ -1235,7 +1245,7 @@
             <td><span style="color:var(--green); font-weight:600;">+20.4%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-1034189100"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-1034189100" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2358402183 tree-children-166322714"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-166322714" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Launch_Catalog</code></span></td>
             <td>280</td>
             <td>-</td>
@@ -1248,8 +1258,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3337989914')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2358402183"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2358402183" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-895710092')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US02_Select_Dogs_Category</strong></span></td>
             <td>277</td>
             <td><span class="fail"><strong>0.43</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="341.5"><span class="tx-rt-val">341</span></td>
@@ -1261,7 +1271,7 @@
             <td><span style="color:var(--red); font-weight:600;">+487.0%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-3337989914"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3337989914" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2358402183 tree-children-895710092"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-895710092" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Select_Category_Dogs</code></span></td>
             <td>277</td>
             <td>-</td>
@@ -1274,8 +1284,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3100956969"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-3100956969" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2735157779')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-2358402183"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2358402183" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-260987139')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC03_US02_Add_Item_To_Cart</strong></span></td>
             <td>276</td>
             <td><span class="pass"><strong>0.99</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="346.8"><span class="tx-rt-val">347</span></td>
@@ -1287,7 +1297,7 @@
             <td><span style="color:var(--green); font-weight:600;">-59.8%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3100956969 tree-children-2735157779"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-2735157779" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-2358402183 tree-children-260987139"  data-tg="US02_Add_To_Cart" data-parent-cls="tree-children-260987139" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US02_Add_Item_EST-26</code></span></td>
             <td>276</td>
             <td>-</td>
@@ -1306,7 +1316,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US03_Search_Products" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3080663765')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1314582728')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US03_Overall_Iteration</strong></span></td>
             <td>886</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="650.2"><span class="tx-rt-val">650</span></td>
@@ -1318,8 +1328,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3080663765"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3080663765" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-533417186')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1314582728"  data-tg="US03_Search_Products" data-parent-cls="tree-children-1314582728" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2157786894')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US03_Launch_Homepage</strong></span></td>
             <td>892</td>
             <td><span class="fail"><strong>0.47</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="343.4"><span class="tx-rt-val">343</span></td>
@@ -1331,7 +1341,7 @@
             <td><span style="color:var(--red); font-weight:600;">+178.5%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3080663765 tree-children-533417186"  data-tg="US03_Search_Products" data-parent-cls="tree-children-533417186" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1314582728 tree-children-2157786894"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2157786894" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US03_Launch_Homepage</code></span></td>
             <td>892</td>
             <td>-</td>
@@ -1344,8 +1354,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-3080663765"  data-tg="US03_Search_Products" data-parent-cls="tree-children-3080663765" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2694986713')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-1314582728"  data-tg="US03_Search_Products" data-parent-cls="tree-children-1314582728" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-445368003')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US03_Search_Keyword_Bulldog</strong></span></td>
             <td>886</td>
             <td><span class="pass"><strong>0.95</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="307.0"><span class="tx-rt-val">307</span></td>
@@ -1357,7 +1367,7 @@
             <td><span style="color:var(--green); font-weight:600;">+9.2%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-3080663765 tree-children-2694986713"  data-tg="US03_Search_Products" data-parent-cls="tree-children-2694986713" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-1314582728 tree-children-445368003"  data-tg="US03_Search_Products" data-parent-cls="tree-children-445368003" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US03_Search_Bulldog</code></span></td>
             <td>886</td>
             <td>-</td>
@@ -1376,7 +1386,7 @@
                 </td>
             </tr>
         <tr style=" font-size: 0.85rem;" class="tree-row"  data-tg="US04_User_Sign_In" data-depth="0" data-type="transaction">
-            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-937799748')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
+            <td><span style="padding-left:0px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-426290571')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📊</span> <strong style="font-weight:600; color:var(--text);">T-US04_Overall_Iteration</strong></span></td>
             <td>855</td>
             <td>-</td>
             <td class="pass tx-rt-cell" data-ms="673.4"><span class="tx-rt-val">673</span></td>
@@ -1388,8 +1398,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-937799748"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-937799748" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-2043401207')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-426290571"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-426290571" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-1021859826')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC01_US04_Launch_Catalog</strong></span></td>
             <td>861</td>
             <td><span class="pass"><strong>0.94</strong></span></td>
             <td class="pass tx-rt-cell" data-ms="355.1"><span class="tx-rt-val">355</span></td>
@@ -1401,7 +1411,7 @@
             <td><span style="color:var(--green); font-weight:600;">+10.6%</span></td>
             <td><span style="color: var(--green); font-weight:700;">No Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-937799748 tree-children-2043401207"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-2043401207" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-426290571 tree-children-1021859826"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-1021859826" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US04_Launch_Catalog</code></span></td>
             <td>861</td>
             <td>-</td>
@@ -1414,8 +1424,8 @@
             <td>-</td>
             <td>-</td>
         </tr>
-        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-937799748"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-937799748" data-depth="1" data-type="transaction">
-            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-3342637634')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
+        <tr style="display: none; font-weight: 500;" class="tree-row tree-children-426290571"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-426290571" data-depth="1" data-type="transaction">
+            <td><span style="padding-left:20px; display:inline-flex; align-items:center; gap:0.25rem;"><button onclick="toggleTreeChildren(this, 'tree-children-602338617')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button><span>📁</span> <strong>TC02_US04_Navigate_To_Signon_Page</strong></span></td>
             <td>855</td>
             <td><span class="fail"><strong>0.00</strong></span></td>
             <td class="fail tx-rt-cell" data-ms="317.9"><span class="tx-rt-val">318</span></td>
@@ -1427,7 +1437,7 @@
             <td><span style="color:var(--red); font-weight:600;">+540.0%</span></td>
             <td><span style="color: var(--red); font-weight:700;">Critical Deviation</span></td>
         </tr>
-        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-937799748 tree-children-3342637634"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-3342637634" data-depth="2" data-type="request">
+        <tr style="display: none; background: var(--surface2); font-size: 0.78rem; color: var(--muted);" class="tree-row tree-children-426290571 tree-children-602338617"  data-tg="US04_User_Sign_In" data-parent-cls="tree-children-602338617" data-depth="2" data-type="request">
             <td><span style="padding-left:40px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">HTTP_US04_Signon_Form</code></span></td>
             <td>855</td>
             <td>-</td>
@@ -1931,14 +1941,14 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK CPU UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0%</div>
-                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Healthy</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">91.4%</div>
+                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High CPU Pressure</div>
             </div>
 
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK MEMORY UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">0%</div>
-                <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.2rem;">Healthy</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">89.3%</div>
+                <div style="font-size: 0.7rem; color: #ef4444; margin-top: 0.2rem;">⚠️ High Memory Pressure</div>
             </div>
 
             <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
@@ -1955,7 +1965,7 @@
         </div>
 
         <!-- 2. Main Resource Utilization (CPU & Memory) - Full Width -->
-        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: none;">
+        <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; padding: 1.25rem; display: block;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem;">
                 <div>
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🖥️ Azure Resource Utilization (CPU &amp; Memory)</h3>
@@ -1972,7 +1982,7 @@
             </div>
             
             <p style="margin-top:0.8rem; font-size:0.78rem; color:var(--muted); background:var(--surface2); padding:0.5rem 0.8rem; border-radius:6px; border-left:3px solid var(--accent);">
-                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 0% and memory reaching 0%, indicating elevated host-level contention.
+                <strong>Conclusion:</strong> The server experienced a significant resource utilization spike, with CPU reaching 91.4% and memory reaching 89.3%, indicating elevated host-level contention.
             </p>
             
         </div>
@@ -2060,28 +2070,28 @@
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">CPU %</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.66</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.63</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Memory %</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">0.93</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.69</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.72</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Throughput</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.66</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.69</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.88</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.4rem; font-weight:600; text-align:left;">Resp Time</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
-                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">0.00</td>
+                            <td style="padding:0.4rem; font-weight:700; color:var(--text);">-0.63</td>
+                            <td style="padding:0.4rem; font-weight:700; color:#10b981;">-0.72</td>
                             <td style="padding:0.4rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.15);">-0.88</td>
                             <td style="padding:0.4rem; font-weight:700; background:rgba(59,130,246,0.15);">1.00</td>
                         </tr>
@@ -2101,6 +2111,14 @@
             <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#3b82f6;">[</span>
             <span>🚦 <strong>Traffic Ramp-up:</strong> Request throughput reached 108 req/s</span>
         </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #f59e0b;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#f59e0b;">0</span>
+            <span>⚠️ <strong>CPU Saturation:</strong> Host CPU utilization reached 83%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; background:var(--surface2); padding:0.45rem 0.75rem; border-radius:6px; border-left:3px solid #8b5cf6;">
+            <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#8b5cf6;">s</span>
+            <span>⚠️ <strong>Memory Pressure:</strong> Host memory utilization climbed to 89%</span>
+        </div>
                 </div>
             </div>
         </div>
@@ -2114,11 +2132,11 @@
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:0.85rem; font-size:0.78rem;">
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#ef4444; margin-bottom:0.2rem;">🔴 Primary Signal</div>
-                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>0%</strong> peak pressure during high-throughput interval.</p>
+                    <p style="margin:0; color:var(--text);">CPU utilization reached <strong>91.4%</strong> peak pressure during high-throughput interval.</p>
                 </div>
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#f59e0b; margin-bottom:0.2rem;">Associated Signals</div>
-                    <p style="margin:0; color:var(--text);">Memory reached <strong>0%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
+                    <p style="margin:0; color:var(--text);">Memory reached <strong>89.3%</strong>, Disk Queue depth reached <strong>0</strong>, and SLA breaches occurred.</p>
                 </div>
                 <div style="background:var(--surface2); padding:0.75rem; border-radius:8px; border:1px solid var(--border);">
                     <div style="font-weight:700; color:#3b82f6; margin-bottom:0.2rem;">🔍 Likely Root Cause</div>
@@ -2179,6 +2197,27 @@
 </div>
 
 <script>
+    function safeGetStorage(key) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                return localStorage.getItem(key);
+            }
+        } catch (e) {
+            // Storage access blocked in sandboxed environment
+        }
+        return null;
+    }
+
+    function safeSetStorage(key, val) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                localStorage.setItem(key, val);
+            }
+        } catch (e) {
+            // Storage access blocked in sandboxed environment
+        }
+    }
+
     function switchReportTab(tabId, btn) {
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -2186,15 +2225,19 @@
         if (pane) pane.classList.remove('hidden');
         if (btn) btn.classList.add('active');
         // Force immediate resize on all Chart.js instances so hidden canvases get full 100% width
-        for (let id in Chart.instances) {
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            for (let id in Chart.instances) {
+                try {
+                    Chart.instances[id].resize();
+                } catch (e) {}
+            }
         }
         window.dispatchEvent(new Event('resize'));
     }
 
     function toggleTheme() {
         const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('jmeter_ai_theme', isDark ? 'dark' : 'light');
+        safeSetStorage('jmeter_ai_theme', isDark ? 'dark' : 'light');
     }
 
     let activeTabBeforePrint = 'rpt-summary';
@@ -2211,8 +2254,12 @@
         document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('hidden'));
         
         // Force Chart.js to immediately resize and redraw on the screen
-        for (let id in Chart.instances) {
-            Chart.instances[id].resize();
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            for (let id in Chart.instances) {
+                try {
+                    Chart.instances[id].resize();
+                } catch (e) {}
+            }
         }
 
         // Wait for rendering frame to complete before launching print dialog
@@ -2279,15 +2326,16 @@
         }
     }
 
-    if (localStorage.getItem('jmeter_ai_theme') === 'dark') {
+    if (safeGetStorage('jmeter_ai_theme') === 'dark') {
         document.documentElement.classList.add('dark');
     }
 
-    const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
-    const gridColor = '#e1e4e8';
-    const textColor = '#656d76';
-    Chart.defaults.color = textColor;
-    Chart.defaults.font = chartFont;
+    if (typeof Chart !== 'undefined') {
+        const chartFont = { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", size: 11 };
+        const gridColor = '#e1e4e8';
+        const textColor = '#656d76';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font = chartFont;
 
     const overallTs = {
         avg_rt: [448.5, 390.84, 345.47, 373.11, 345.19, 347.97],
@@ -3166,8 +3214,8 @@
         data: {
             labels: ["10s", "20s", "30s", "40s", "50s", "1m"],
             datasets: [
-                { label: 'CPU %', data: [], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
-                { label: 'Memory %', data: [], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
+                { label: 'CPU %', data: [34.2, 41.7, 46.3, 82.6, 91.4, 68.2], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 },
+                { label: 'Memory %', data: [52.4, 55.7, 61.2, 74.8, 89.3, 82.7], borderColor: '#3b82f6', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }
             ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: gridColor }, min: 0, max: 100 }, x: { grid: { display: false } } } }
@@ -3525,8 +3573,8 @@
 
 
     // Azure Infrastructure Diagnostic Suite Charts
-    const azCpu = [];
-    const azMem = [];
+    const azCpu = [34.2, 41.7, 46.3, 82.6, 91.4, 68.2];
+    const azMem = [52.4, 55.7, 61.2, 74.8, 89.3, 82.7];
     const azDiskQ = [];
     const azDiskRead = [];
     const azDiskWrite = [];
@@ -3627,6 +3675,19 @@
             }
         });
     }
+    } else {
+        console.warn("Chart.js library is not available. Connect to the internet or ensure CDN scripts are permitted to render charts.");
+        document.querySelectorAll('canvas').forEach(c => {
+            const p = c.parentElement;
+            if (p && !p.querySelector('.chart-fallback-msg')) {
+                const msg = document.createElement('div');
+                msg.className = 'chart-fallback-msg';
+                msg.style.cssText = 'text-align:center; padding:2rem 1rem; color:var(--muted); font-size:0.85rem;';
+                msg.innerHTML = '<div style="font-size:1.5rem; margin-bottom:0.4rem;">📊</div><div>Chart library (Chart.js) is not available.<br>Please connect to the internet or allow external CDN scripts to view interactive charts.</div>';
+                p.appendChild(msg);
+            }
+        });
+    }
     
     // ── Edit Mode Logic ──
     let editMode = false;
@@ -3652,7 +3713,7 @@
     });
 
     // ── Finding Drawer Logic ──
-    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC01_US01_Launch_Catalog latency deviation (2178 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "2178 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+335.6%", "baseline": "", "source": "Calculated"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The 100% error rate indicates a fundamental functional defect or severe misconfiguration within the 'T-US01_Overall_Iteration' user flow, causing all attempts to fail and contributing to the high observed latency for these failed transactions.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time"], "likely_cause": "The 100% error rate indicates a fundamental functional defect or severe misconfiguration within the 'T-US01_Overall_Iteration' user flow, causing all attempts to fail and contributing to the high observed latency for these failed transactions."}, {"id": "F-002", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC01_US02_Launch_Catalog SLA deviation (602 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "602 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "20%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "Similar to F-001, the 100% error rate for 'TC01_US01_Launch_Catalog' points to a critical functional defect or misconfiguration. The high P90 is a consequence of these failures, as failed transactions often take longer to complete or timeout.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "Similar to F-001, the 100% error rate for 'TC01_US01_Launch_Catalog' points to a critical functional defect or misconfiguration. The high P90 is a consequence of these failures, as failed transactions often take longer to complete or timeout."}, {"id": "F-003", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC01_US04_Launch_Catalog SLA deviation (553 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "553 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "11%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "While not failing, the significantly elevated response time for this transaction, in conjunction with the server's CPU peaking at 91.4%, suggests that CPU contention is contributing to slower processing for this user flow.", "confidence": {"ai_confidence": "High"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "While not failing, the significantly elevated response time for this transaction, in conjunction with the server's CPU peaking at 91.4%, suggests that CPU contention is contributing to slower processing for this user flow."}, {"id": "F-004", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Slightly Deviated", "title": "TC01_US03_Launch_Homepage SLA deviation (557 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "557 ms", "baseline": "200 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "178%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The elevated response time for 'Transaction Controller_T1' is likely influenced by the overall system stress, particularly the high CPU utilization (max 91.4%), which can lead to increased queuing and processing delays.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The elevated response time for 'Transaction Controller_T1' is likely influenced by the overall system stress, particularly the high CPU utilization (max 91.4%), which can lead to increased queuing and processing delays."}, {"id": "F-005", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation (587 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "587 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "487%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The increased response time for 'T-US04_Overall_Iteration' is likely a symptom of the broader system performance degradation, with high CPU utilization (max 91.4%) being a primary contributing factor.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The increased response time for 'T-US04_Overall_Iteration' is likely a symptom of the broader system performance degradation, with high CPU utilization (max 91.4%) being a primary contributing factor."}, {"id": "F-006", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation (320 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "320 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "540%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The 100% error rate for 'Transaction Controller_T2' indicates a critical functional failure or misconfiguration. The reported response times are for failed transactions, which inherently contribute to higher latency.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The 100% error rate for 'Transaction Controller_T2' indicates a critical functional failure or misconfiguration. The reported response times are for failed transactions, which inherently contribute to higher latency."}, {"id": "F-007", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation (583 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "583 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "534%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The elevated response time for 'T-US03_Overall_Iteration' is likely influenced by the overall system resource contention, particularly the high CPU utilization (max 91.4%).", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The elevated response time for 'T-US03_Overall_Iteration' is likely influenced by the overall system resource contention, particularly the high CPU utilization (max 91.4%)."}, {"id": "F-008", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US03_Search_Keyword_Bulldog SLA deviation (546 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "546 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "9%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "While the average response time is below the overall average, the high P95 suggests occasional latency spikes. This could be due to intermittent CPU contention (max 91.4%) or other transient resource issues.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "While the average response time is below the overall average, the high P95 suggests occasional latency spikes. This could be due to intermittent CPU contention (max 91.4%) or other transient resource issues."}, {"id": "F-009", "category": "tail_latency", "evidence_class": "DERIVED", "severity": "Slightly Deviated", "title": "Elevated tail latency (P99: 2434 ms)", "observation": "", "evidence": [{"metric": "P99 Response Time", "value": "2434 ms", "baseline": "457 ms Avg RT", "source": "Response Time Distribution"}, {"metric": "P90 Response Time", "value": "877 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "Similar to F-008, the average response time is good, but the P95 indicates some tail latency. This is likely influenced by overall system resource contention, particularly CPU saturation (max 91.4%).", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution"], "likely_cause": "Similar to F-008, the average response time is good, but the P95 indicates some tail latency. This is likely influenced by overall system resource contention, particularly CPU saturation (max 91.4%)."}, {"id": "F-010", "category": "error_anomaly", "evidence_class": "MEASURED", "severity": "Critical Deviation", "title": "Overall error rate at 5.57%", "observation": "", "evidence": [{"metric": "Error Rate", "value": "5.57%", "baseline": "< 1% acceptable", "source": "Executive Summary KPIs"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The P95 deviation, despite a good average response time, suggests occasional latency spikes. This is likely a symptom of the overall system under stress, with CPU contention (max 91.4%) being a contributing factor.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Error Distribution & Analysis", "Overall Summary"], "likely_cause": "The P95 deviation, despite a good average response time, suggests occasional latency spikes. This is likely a symptom of the overall system under stress, with CPU contention (max 91.4%) being a contributing factor."}];
+    const findingsData = [{"id": "F-001", "category": "latency_bottleneck", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC01_US01_Launch_Catalog latency deviation (2178 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "2178 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "+335.6%", "baseline": "", "source": "Calculated"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The 100% error rate indicates a fundamental functional defect or severe misconfiguration within the 'T-US01_Overall_Iteration' user flow, causing all attempts to fail and contributing to the high observed latency for these failed transactions.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "Response Time Over Time"], "likely_cause": "The 100% error rate indicates a fundamental functional defect or severe misconfiguration within the 'T-US01_Overall_Iteration' user flow, causing all attempts to fail and contributing to the high observed latency for these failed transactions."}, {"id": "F-002", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC01_US02_Launch_Catalog SLA deviation (602 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "602 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "20%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "Similar to F-001, the 100% error rate for 'TC01_US01_Launch_Catalog' points to a critical functional defect or misconfiguration. The high P90 is a consequence of these failures, as failed transactions often take longer to complete or timeout.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "Similar to F-001, the 100% error rate for 'TC01_US01_Launch_Catalog' points to a critical functional defect or misconfiguration. The high P90 is a consequence of these failures, as failed transactions often take longer to complete or timeout."}, {"id": "F-003", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC01_US04_Launch_Catalog SLA deviation (553 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "553 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "11%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "While not failing, the significantly elevated response time for this transaction, in conjunction with the server's CPU peaking at 91.4%, suggests that CPU contention is contributing to slower processing for this user flow.", "confidence": {"ai_confidence": "High"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "While not failing, the significantly elevated response time for this transaction, in conjunction with the server's CPU peaking at 91.4%, suggests that CPU contention is contributing to slower processing for this user flow."}, {"id": "F-004", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Slightly Deviated", "title": "TC01_US03_Launch_Homepage SLA deviation (557 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "557 ms", "baseline": "200 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "178%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The elevated response time for 'Transaction Controller_T1' is likely influenced by the overall system stress, particularly the high CPU utilization (max 91.4%), which can lead to increased queuing and processing delays.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The elevated response time for 'Transaction Controller_T1' is likely influenced by the overall system stress, particularly the high CPU utilization (max 91.4%), which can lead to increased queuing and processing delays."}, {"id": "F-005", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US02_Select_Dogs_Category SLA deviation (587 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "587 ms", "baseline": "100 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "487%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The increased response time for 'T-US04_Overall_Iteration' is likely a symptom of the broader system performance degradation, with high CPU utilization (max 91.4%) being a primary contributing factor.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The increased response time for 'T-US04_Overall_Iteration' is likely a symptom of the broader system performance degradation, with high CPU utilization (max 91.4%) being a primary contributing factor."}, {"id": "F-006", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US04_Navigate_To_Signon_Page SLA deviation (320 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "320 ms", "baseline": "50 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "540%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The 100% error rate for 'Transaction Controller_T2' indicates a critical functional failure or misconfiguration. The reported response times are for failed transactions, which inherently contribute to higher latency.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The 100% error rate for 'Transaction Controller_T2' indicates a critical functional failure or misconfiguration. The reported response times are for failed transactions, which inherently contribute to higher latency."}, {"id": "F-007", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Critical Deviation", "title": "TC02_US01_Select_Fish_Category SLA deviation (583 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "583 ms", "baseline": "92 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "534%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The elevated response time for 'T-US03_Overall_Iteration' is likely influenced by the overall system resource contention, particularly the high CPU utilization (max 91.4%).", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "The elevated response time for 'T-US03_Overall_Iteration' is likely influenced by the overall system resource contention, particularly the high CPU utilization (max 91.4%)."}, {"id": "F-008", "category": "sla_breach", "evidence_class": "DERIVED", "severity": "Acceptable Deviation", "title": "TC02_US03_Search_Keyword_Bulldog SLA deviation (546 ms)", "observation": "", "evidence": [{"metric": "P90 Response Time", "value": "546 ms", "baseline": "500 ms SLA target", "source": "Transaction Breakdown"}, {"metric": "Deviation", "value": "9%", "baseline": "", "source": "SLA Engine"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "While the average response time is below the overall average, the high P95 suggests occasional latency spikes. This could be due to intermittent CPU contention (max 91.4%) or other transient resource issues.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Transaction Breakdown", "SLA Breach Analysis"], "likely_cause": "While the average response time is below the overall average, the high P95 suggests occasional latency spikes. This could be due to intermittent CPU contention (max 91.4%) or other transient resource issues."}, {"id": "F-009", "category": "tail_latency", "evidence_class": "DERIVED", "severity": "Slightly Deviated", "title": "Elevated tail latency (P99: 2434 ms)", "observation": "", "evidence": [{"metric": "P99 Response Time", "value": "2434 ms", "baseline": "457 ms Avg RT", "source": "Response Time Distribution"}, {"metric": "P90 Response Time", "value": "877 ms", "baseline": "500 ms SLA target", "source": "Response Time Over Time"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "Similar to F-008, the average response time is good, but the P95 indicates some tail latency. This is likely influenced by overall system resource contention, particularly CPU saturation (max 91.4%).", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Response Time Over Time", "Response Time Distribution"], "likely_cause": "Similar to F-008, the average response time is good, but the P95 indicates some tail latency. This is likely influenced by overall system resource contention, particularly CPU saturation (max 91.4%)."}, {"id": "F-010", "category": "infrastructure_correlation", "evidence_class": "MEASURED", "severity": "Slightly Deviated", "title": "Server CPU peak at 91%", "observation": "", "evidence": [{"metric": "Peak CPU", "value": "91.4%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg CPU", "value": "60.7%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The P95 deviation, despite a good average response time, suggests occasional latency spikes. This is likely a symptom of the overall system under stress, with CPU contention (max 91.4%) being a contributing factor.", "confidence": {"ai_confidence": "Medium"}, "evidence_sources": ["Azure Resource Utilization"], "likely_cause": "The P95 deviation, despite a good average response time, suggests occasional latency spikes. This is likely a symptom of the overall system under stress, with CPU contention (max 91.4%) being a contributing factor."}, {"id": "F-011", "category": "infrastructure_correlation", "evidence_class": "MEASURED", "severity": "Acceptable Deviation", "title": "Server Memory peak at 89%", "observation": "", "evidence": [{"metric": "Peak Memory", "value": "89.3%", "baseline": "80% warning threshold", "source": "Azure Resource Utilization"}, {"metric": "Avg Memory", "value": "69.3%", "baseline": "", "source": "Azure Resource Utilization"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "High CPU utilization (max 91.4%) leads to increased queuing and processing delays for a subset of requests. Additionally, the 5.57% overall error rate, including transactions with 100% errors, contributes to tail latency as failed requests may take longer to timeout or return errors.", "confidence": {"ai_confidence": "High"}, "evidence_sources": ["Azure Resource Utilization"], "likely_cause": "High CPU utilization (max 91.4%) leads to increased queuing and processing delays for a subset of requests. Additionally, the 5.57% overall error rate, including transactions with 100% errors, contributes to tail latency as failed requests may take longer to timeout or return errors."}, {"id": "F-012", "category": "error_anomaly", "evidence_class": "MEASURED", "severity": "Critical Deviation", "title": "Overall error rate at 5.57%", "observation": "", "evidence": [{"metric": "Error Rate", "value": "5.57%", "baseline": "< 1% acceptable", "source": "Executive Summary KPIs"}], "interpretation": "", "why_it_matters": "", "root_cause_assessment": "The application's computational demands under the current load are exceeding the available CPU resources, leading to CPU contention and saturation. This directly impacts response times and overall system throughput.", "confidence": {"ai_confidence": "Confirmed"}, "evidence_sources": ["Error Distribution & Analysis", "Overall Summary"], "likely_cause": "The application's computational demands under the current load are exceeding the available CPU resources, leading to CPU contention and saturation. This directly impacts response times and overall system throughput."}];
     const recsData = [{"id": "R-001", "triggered_by": ["F-001", "F-002", "F-006", "F-014"], "priority": "Critical", "category": "Application", "title": "Resolve 100% Error Rates for Critical Transactions", "why": "Transactions 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' are failing 100% of the time, indicating severe functional defects or misconfigurations. This is the primary cause of the overall 5.57% error rate and significantly impacts application reliability.", "action": ["Review application logs for detailed error messages and stack traces related to 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2'.", "Inspect the code and configuration for these specific transactions and their dependencies (e.g., database, external services) to identify the root cause of the failures.", "Implement necessary code fixes or configuration adjustments."], "expected_impact": "Significant improvement in overall application reliability and a substantial reduction in the overall error rate. This will also remove the inflated response times associated with these failing transactions.", "validation": "Re-run the performance test and verify that the error rates for 'T-US01_Overall_Iteration', 'TC01_US01_Launch_Catalog', and 'Transaction Controller_T2' are 0.00% and the overall error rate is within acceptable limits.", "confidence": "Confirmed"}, {"id": "R-002", "triggered_by": ["F-003", "F-004", "F-005", "F-007", "F-008", "F-009", "F-010", "F-011", "F-012"], "priority": "Critical", "category": "Infrastructure", "title": "Address Server CPU Saturation", "why": "The server CPU peaked at 91.4%, indicating CPU saturation. This is a critical bottleneck causing elevated average response times and significant tail latency across multiple transactions, degrading overall system performance.", "action": ["Perform detailed CPU profiling on the application server during load to identify the most CPU-intensive methods or components.", "Optimize identified CPU hotspots in the application code (e.g., algorithm improvements, caching, reducing unnecessary computations).", "If software optimization is insufficient, consider scaling up the Azure App Service plan (e.g., to a higher CPU tier) or scaling out by adding more instances."], "expected_impact": "Improved average response times, reduced tail latency, and increased throughput capacity before CPU becomes a bottleneck.", "validation": "Re-run the performance test and monitor server CPU utilization, aiming for peak CPU below 80% under the same load. Verify a reduction in overall average response time and P95/P99 latencies.", "confidence": "Confirmed"}, {"id": "R-003", "triggered_by": ["F-013"], "priority": "High", "category": "Infrastructure", "title": "Investigate High Memory Utilization", "why": "Memory utilization peaked at 89.3%, indicating high memory pressure. While not confirmed as a direct bottleneck, this level of utilization can lead to increased garbage collection activity or swapping, contributing to performance degradation and tail latency.", "action": ["Enable and analyze garbage collection (GC) logs to understand GC frequency, duration, and pause times.", "Perform heap dump analysis to identify potential memory leaks or inefficient memory allocation patterns within the application.", "Optimize memory-intensive operations or data structures in the application code.", "Consider increasing the memory allocated to the Azure App Service instance if memory optimization is not feasible or sufficient."], "expected_impact": "Reduced GC overhead, more stable response times, and increased memory headroom for future growth.", "validation": "Re-run the performance test and monitor memory utilization, GC activity, and page faults. Aim for lower peak memory utilization and reduced GC pause times.", "confidence": "High"}, {"id": "R-004", "triggered_by": ["F-011"], "priority": "Medium", "category": "Application", "title": "Optimize Tail Latency for Remaining Slow Transactions", "why": "Even after addressing critical errors and CPU saturation, transactions like 'T-US02_Overall_Iteration', 'Transaction Controller_T1', 'T-US04_Overall_Iteration', and 'T-US03_Overall_Iteration' show elevated average response times and P95/P99 values, indicating opportunities for further optimization.", "action": ["Implement distributed tracing to gain end-to-end visibility into the execution path of these transactions, identifying specific internal or external service calls that contribute most to latency.", "Review database query performance for these transactions, ensuring efficient indexing and query optimization.", "Introduce caching mechanisms for frequently accessed data or computationally expensive operations.", "Evaluate asynchronous processing for non-critical operations within these transactions."], "expected_impact": "Further reduction in average response times and significant improvement in P95/P99 tail latencies for the identified transactions.", "validation": "Re-run the performance test and verify that the average response times and P95/P99 values for the targeted transactions are reduced and meet SLA targets.", "confidence": "Medium"}];
 
     function showFinding(fid) {

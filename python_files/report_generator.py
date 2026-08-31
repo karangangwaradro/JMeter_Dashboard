@@ -1101,10 +1101,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     findings_result = generate_findings(
         summary=summary, labels=labels, display_labels=display_labels,
         time_series=ts, infra=infra, correlation=correlation,
-        sla_targets=sla_targets, default_rt=default_rt, default_err=default_err
+        sla_targets=sla_targets, default_rt=default_rt, default_err=default_err,
+        ai_insights=ai_insights, auto_ai=False
     )
     # Enrich with AI interpretations if available
-    findings_result = enrich_findings_with_ai(findings_result, ai_insights)
+    if ai_insights:
+        findings_result = enrich_findings_with_ai(findings_result, ai_insights)
 
     all_findings = findings_result.get("findings", [])
     all_recommendations = findings_result.get("recommendations", [])
@@ -1671,11 +1673,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
     # Build dropdown HTML options using numeric index values
     tx_options_html = ""
+    tx_options_data = []
     for idx_i, l_name in enumerate(display_label_names):
         short_display = l_name if len(l_name) <= 50 else f"{l_name[:47]}..."
         # Use json.dumps to safely escape the display name for the title attribute
         safe_title = short_display.replace('"', '&quot;')
         tx_options_html += f'<option value="{idx_i}" title="{safe_title}">{short_display}</option>'
+        tx_options_data.append({
+            "id": str(idx_i),
+            "name": l_name,
+            "shortName": short_display,
+            "sla": tx_sla_map.get(l_name, "")
+        })
+    tx_options_json = json.dumps(tx_options_data)
 
     # Transaction chart data
     top_labels = sorted(display_labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True)[:8]
@@ -1885,10 +1895,13 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     tg_to_tcs_json = json.dumps(tg_to_tcs_map)
 
     # Build User Story dropdown HTML options for Section 5
+    us_options_data = []
     us_select_options_html = '<option value="ALL">All User Stories / Thread Groups</option>'
     if tg_to_tcs_map:
         for tg_name in tg_to_tcs_map.keys():
             us_select_options_html += f'<option value="{tg_name}">{tg_name}</option>'
+            us_options_data.append({"id": tg_name, "name": tg_name, "shortName": tg_name})
+    us_options_json = json.dumps(us_options_data)
 
     # Build hierarchical transaction & sub-transaction/request data for Interactive Breakdown Bar Chart
     def _build_tx_hierarchy_data():
@@ -2052,8 +2065,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     <style>
         :root {{
             --bg-grad: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 50%, #dbeafe 100%);
-            --surface: rgba(255, 255, 255, 0.65);
-            --surface2: rgba(255, 255, 255, 0.4);
+            --surface: rgba(255, 255, 255, 0.75);
+            --surface2: rgba(255, 255, 255, 0.5);
+            --surface-solid: #ffffff;
+            --surface-dropdown: rgba(255, 255, 255, 0.98);
             --border: rgba(255, 255, 255, 0.6);
             --text: #1f2328; --muted: #4b5563;
             --accent: #2563eb; --accent2: #1d4ed8;
@@ -2066,8 +2081,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
         html.dark {{
             --bg-grad: linear-gradient(135deg, #0f172a 0%, #020617 50%, #1e1b4b 100%);
-            --surface: rgba(30, 41, 59, 0.65);
-            --surface2: rgba(30, 41, 59, 0.4);
+            --surface: rgba(30, 41, 59, 0.75);
+            --surface2: rgba(30, 41, 59, 0.5);
+            --surface-solid: #1e293b;
+            --surface-dropdown: rgba(15, 23, 42, 0.98);
             --border: rgba(255, 255, 255, 0.08);
             --text: #f1f5f9; --muted: #94a3b8;
             --accent: #3b82f6; --accent2: #60a5fa;
@@ -2329,10 +2346,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             opacity: 1;
         }}
         #graphInfoModal {{
-            background: var(--surface);
+            background: var(--surface-dropdown, #ffffff);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border);
             border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.35), 0 10px 15px -5px rgba(0, 0, 0, 0.15);
             width: 90%;
             max-width: 540px;
             max-height: 85vh;
@@ -2341,6 +2360,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             transform: scale(0.95);
             transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10001;
+        }}
+        html.dark #graphInfoModal {{
+            background: rgba(15, 23, 42, 0.98);
+            border-color: rgba(255, 255, 255, 0.14);
         }}
         #graphModalOverlay.open #graphInfoModal {{
             transform: scale(1);
@@ -2408,6 +2431,165 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
         .graph-modal-list li {{
             margin-bottom: 0.3rem;
+        }}
+
+        /* --- Chart Multi-Select Dropdown Component --- */
+        .chart-ms-wrap {{
+            position: relative;
+            display: inline-block;
+            text-align: left;
+        }}
+        .chart-ms-btn {{
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.4rem;
+            background: var(--surface2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 170px;
+            max-width: 280px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.15s ease;
+            user-select: none;
+        }}
+        .chart-ms-btn:hover, .chart-ms-btn:focus {{
+            border-color: var(--accent);
+            background: var(--surface);
+        }}
+        .chart-ms-btn-text {{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }}
+        .chart-ms-badge {{
+            background: var(--accent);
+            color: #ffffff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }}
+        .chart-ms-dropdown {{
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            width: 320px;
+            max-height: 380px;
+            background: var(--surface-dropdown, #ffffff);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            padding: 0.6rem;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-sizing: border-box;
+        }}
+        html.dark .chart-ms-dropdown {{
+            background: rgba(15, 23, 42, 0.98);
+            border-color: rgba(255, 255, 255, 0.14);
+            box-shadow: 0 16px 42px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.35);
+        }}
+        .chart-ms-dropdown.open {{
+            display: flex;
+        }}
+        .chart-ms-search {{
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.35rem 0.55rem;
+            font-size: 0.75rem;
+            outline: none;
+        }}
+        html.dark .chart-ms-search {{
+            background: rgba(30, 41, 59, 0.9);
+            color: #f1f5f9;
+        }}
+        .chart-ms-search:focus {{
+            border-color: var(--accent);
+        }}
+        .chart-ms-actions {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.3rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border);
+        }}
+        .chart-ms-action-btn {{
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.45rem;
+            cursor: pointer;
+            transition: all 0.12s;
+        }}
+        .chart-ms-action-btn:hover {{
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }}
+        .chart-ms-list {{
+            overflow-y: auto;
+            max-height: 230px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }}
+        .chart-ms-item {{
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.3rem 0.4rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text);
+            user-select: none;
+            transition: background 0.12s;
+        }}
+        .chart-ms-item:hover {{
+            background: var(--surface2);
+        }}
+        .chart-ms-item input[type="checkbox"] {{
+            accent-color: var(--accent);
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            flex-shrink: 0;
+        }}
+        .chart-ms-item-text {{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }}
+        .chart-ms-color-dot {{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }}
     </style>
 </head>
@@ -2603,11 +2785,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         </span>
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <label for="usDevFilter" style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
-                    <select id="usDevFilter" onchange="filterSlaDevByUs(this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:600;">
-                        {us_select_options_html}
-                    </select>
+                <div style="display:flex; align-items:center; gap:0.6rem; position:relative;">
+                    <label style="font-size:0.78rem; font-weight:700; color:var(--muted);">Filter User Story:</label>
+                    <div id="usDevMultiSelectContainer"></div>
                 </div>
             </div>
             <div style="position:relative; height:340px; width:100%; margin-top:0.5rem;">
@@ -2776,11 +2956,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     </h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.75rem; color:var(--muted);">Request execution rate and failure distribution over test timeline</p>
                 </div>
-                <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <select id="tpSelect" onchange="updateTpChart(this.value)" style="max-width: 260px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.65rem; font-size:0.78rem; font-weight:600; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
-                        <option value="ALL">All Transactions (Overall)</option>
-                        {tx_options_html}
-                    </select>
+                <div style="display:flex; align-items:center; gap:0.6rem; position:relative;">
+                    <div id="tpMultiSelectContainer"></div>
                     <button class="chart-info-btn" onclick="openGraphModal('throughput')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
@@ -2945,11 +3122,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
                 <h3 style="margin:0; white-space: nowrap;">📈 Response Time Over Time</h3>
-                <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <select id="rtSelect" onchange="updateRtChart(this.value)" style="max-width: 240px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; font-size:0.78rem; outline:none; cursor:pointer; text-overflow: ellipsis; overflow: hidden;">
-                        <option value="ALL">All Transactions (Overall)</option>
-                        {tx_options_html}
-                    </select>
+                <div style="display:flex; align-items:center; gap:0.6rem; position:relative;">
+                    <div id="rtMultiSelectContainer"></div>
                     <button class="chart-info-btn" onclick="openGraphModal('rt-over-time')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
@@ -3590,6 +3764,241 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
 
 
+    function createChartMultiSelect(container, config) {{
+        const target = typeof container === 'string' ? document.getElementById(container) : container;
+        if (!target) return null;
+        target.innerHTML = '';
+
+        const items = config.items || [];
+        const overallLabel = config.overallLabel || 'All Transactions (Overall)';
+        const allowOverall = config.allowOverall !== false;
+        let selectedSet = new Set((config.initialSelected || (allowOverall ? ['ALL'] : [])).map(String));
+        if (selectedSet.size === 0 && allowOverall) selectedSet.add('ALL');
+
+        const wrap = document.createElement('div');
+        wrap.className = 'chart-ms-wrap';
+        if (config.maxWidth) wrap.style.maxWidth = config.maxWidth;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chart-ms-btn';
+
+        const btnText = document.createElement('span');
+        btnText.className = 'chart-ms-btn-text';
+
+        const badge = document.createElement('span');
+        badge.className = 'chart-ms-badge';
+        badge.style.display = 'none';
+
+        const arrow = document.createElement('span');
+        arrow.style.cssText = 'font-size:0.65rem; color:var(--muted); margin-left:0.3rem;';
+        arrow.textContent = '▼';
+
+        btn.appendChild(btnText);
+        btn.appendChild(badge);
+        btn.appendChild(arrow);
+        wrap.appendChild(btn);
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'chart-ms-dropdown';
+
+        // Search input
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'chart-ms-search';
+        searchInput.placeholder = config.placeholder || '🔍 Search...';
+        dropdown.appendChild(searchInput);
+
+        // Actions toolbar
+        const actionsBar = document.createElement('div');
+        actionsBar.className = 'chart-ms-actions';
+
+        if (allowOverall) {{
+            const overallBtn = document.createElement('button');
+            overallBtn.type = 'button';
+            overallBtn.className = 'chart-ms-action-btn';
+            overallBtn.textContent = '🌐 Overall';
+            overallBtn.onclick = (e) => {{
+                e.preventDefault();
+                e.stopPropagation();
+                selectedSet.clear();
+                selectedSet.add('ALL');
+                updateUI();
+                if (config.onChange) config.onChange(Array.from(selectedSet));
+            }};
+            actionsBar.appendChild(overallBtn);
+        }}
+
+        const selectAllBtn = document.createElement('button');
+        selectAllBtn.type = 'button';
+        selectAllBtn.className = 'chart-ms-action-btn';
+        selectAllBtn.textContent = '☑️ Select All';
+        selectAllBtn.onclick = (e) => {{
+            e.preventDefault();
+            e.stopPropagation();
+            selectedSet.clear();
+            items.forEach(it => selectedSet.add(String(it.id)));
+            updateUI();
+            if (config.onChange) config.onChange(Array.from(selectedSet));
+        }};
+        actionsBar.appendChild(selectAllBtn);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'chart-ms-action-btn';
+        clearBtn.textContent = '✖️ Clear';
+        clearBtn.onclick = (e) => {{
+            e.preventDefault();
+            e.stopPropagation();
+            selectedSet.clear();
+            if (allowOverall) selectedSet.add('ALL');
+            updateUI();
+            if (config.onChange) config.onChange(Array.from(selectedSet));
+        }};
+        actionsBar.appendChild(clearBtn);
+
+        dropdown.appendChild(actionsBar);
+
+        // Options List container
+        const listEl = document.createElement('div');
+        listEl.className = 'chart-ms-list';
+        dropdown.appendChild(listEl);
+        wrap.appendChild(dropdown);
+        target.appendChild(wrap);
+
+        function renderOptions(filterText = '') {{
+            listEl.innerHTML = '';
+            const q = filterText.trim().toLowerCase();
+
+            if (allowOverall && (!q || overallLabel.toLowerCase().includes(q))) {{
+                const isAllSelected = selectedSet.has('ALL');
+                const row = document.createElement('label');
+                row.className = 'chart-ms-item';
+                row.style.fontWeight = isAllSelected ? '700' : '500';
+                row.innerHTML = `
+                    <input type="checkbox" value="ALL" ${{isAllSelected ? 'checked' : ''}}>
+                    <span style="color:var(--accent); font-weight:700;">🌐</span>
+                    <span class="chart-ms-item-text" title="${{overallLabel}}">${{overallLabel}}</span>
+                `;
+                const cb = row.querySelector('input');
+                cb.onchange = () => {{
+                    if (cb.checked) {{
+                        selectedSet.clear();
+                        selectedSet.add('ALL');
+                    }} else {{
+                        selectedSet.delete('ALL');
+                    }}
+                    updateUI();
+                    if (config.onChange) config.onChange(Array.from(selectedSet));
+                }};
+                listEl.appendChild(row);
+            }}
+
+            items.forEach(it => {{
+                const itName = it.name || it.shortName || String(it.id);
+                if (q && !itName.toLowerCase().includes(q) && !(it.sla && String(it.sla).includes(q))) {{
+                    return;
+                }}
+                const isSelected = selectedSet.has(String(it.id)) || selectedSet.has(itName);
+                const color = it.color || getTxColor(itName);
+                const slaText = it.sla ? ` <span style="font-size:0.68rem; color:var(--muted);">(SLA: ${{it.sla}}ms)</span>` : '';
+                const row = document.createElement('label');
+                row.className = 'chart-ms-item';
+                row.innerHTML = `
+                    <input type="checkbox" value="${{it.id}}" ${{isSelected ? 'checked' : ''}}>
+                    <span class="chart-ms-color-dot" style="background:${{color}};"></span>
+                    <span class="chart-ms-item-text" title="${{itName}}">${{it.shortName || itName}}${{slaText}}</span>
+                `;
+                const cb = row.querySelector('input');
+                cb.onchange = () => {{
+                    if (cb.checked) {{
+                        selectedSet.delete('ALL');
+                        selectedSet.add(String(it.id));
+                    }} else {{
+                        selectedSet.delete(String(it.id));
+                        selectedSet.delete(itName);
+                        if (selectedSet.size === 0 && allowOverall) {{
+                            selectedSet.add('ALL');
+                        }}
+                    }}
+                    updateUI();
+                    if (config.onChange) config.onChange(Array.from(selectedSet));
+                }};
+                listEl.appendChild(row);
+            }});
+
+            if (listEl.children.length === 0) {{
+                const empty = document.createElement('div');
+                empty.style.cssText = 'font-size:0.75rem; color:var(--muted); text-align:center; padding:0.6rem;';
+                empty.textContent = 'No matching items';
+                listEl.appendChild(empty);
+            }}
+        }}
+
+        function updateUI() {{
+            if (selectedSet.has('ALL') || (allowOverall && selectedSet.size === 0)) {{
+                btnText.textContent = overallLabel;
+                btnText.title = overallLabel;
+                badge.style.display = 'none';
+            }} else if (selectedSet.size === 1) {{
+                const selId = Array.from(selectedSet)[0];
+                const found = items.find(it => String(it.id) === selId || it.name === selId);
+                const name = found ? (found.shortName || found.name) : selId;
+                btnText.textContent = name;
+                btnText.title = found ? found.name : selId;
+                badge.textContent = '1';
+                badge.style.display = 'inline-block';
+            }} else {{
+                btnText.textContent = `${{selectedSet.size}} Selected`;
+                btnText.title = `${{selectedSet.size}} items selected`;
+                badge.textContent = String(selectedSet.size);
+                badge.style.display = 'inline-block';
+            }}
+            renderOptions(searchInput.value);
+        }}
+
+        searchInput.oninput = () => {{
+            renderOptions(searchInput.value);
+        }};
+
+        btn.onclick = (e) => {{
+            e.preventDefault();
+            e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.chart-ms-dropdown.open').forEach(d => d.classList.remove('open'));
+            if (!isOpen) {{
+                dropdown.classList.add('open');
+                searchInput.value = '';
+                renderOptions('');
+                setTimeout(() => searchInput.focus(), 50);
+            }}
+        }};
+
+        updateUI();
+
+        return {{
+            getSelected: () => Array.from(selectedSet),
+            setSelected: (newIds) => {{
+                selectedSet.clear();
+                (newIds || []).forEach(id => selectedSet.add(String(id)));
+                if (selectedSet.size === 0 && allowOverall) selectedSet.add('ALL');
+                updateUI();
+            }},
+            setItems: (newItems) => {{
+                items.length = 0;
+                newItems.forEach(it => items.push(it));
+                updateUI();
+            }}
+        }};
+    }}
+
+    // Global listener to close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {{
+        if (!e.target.closest('.chart-ms-wrap')) {{
+            document.querySelectorAll('.chart-ms-dropdown.open').forEach(d => d.classList.remove('open'));
+        }}
+    }});
+
     function renderCritTxChips() {{
         const container = document.getElementById('crit-tx-chip-container');
         if (!container) return;
@@ -3608,6 +4017,18 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             updateCriticalTxChart();
         }};
         container.appendChild(allBtn);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.style.cssText = 'padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:12px; border:1px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; font-weight:600; margin-right:0.25rem;';
+        clearBtn.innerText = 'Clear All';
+        clearBtn.onclick = (e) => {{
+            e.preventDefault();
+            criticalTxSet.clear();
+            renderCritTxChips();
+            updateCriticalTxChart();
+        }};
+        container.appendChild(clearBtn);
 
         initialCriticals.forEach(txName => {{
             const isSelected = criticalTxSet.has(txName);
@@ -3694,24 +4115,64 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         data: {{
             labels: {ts_labels},
             datasets: [
-                {{ label: 'Avg RT', data: overallTs.avg_rt, borderColor: '#6366f1', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }},
-                {{ label: 'P95 RT', data: overallTs.p95_rt, borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }},
-                {{ label: 'P99 RT', data: overallTs.p99_rt, borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1 }}
+                {{ label: 'Avg RT (Overall)', data: overallTs.avg_rt, borderColor: '#6366f1', borderWidth: 2.5, fill: false, tension: 0.3, pointRadius: 2.5 }},
+                {{ label: 'P95 RT (Overall)', data: overallTs.p95_rt, borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }},
+                {{ label: 'P99 RT (Overall)', data: overallTs.p99_rt, borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1.5 }}
             ]
         }},
         options: {{ responsive: true, scales: {{ y: {{ grid: {{ color: gridColor }}, title: {{ 'display': true, text: 'ms' }} }}, x: {{ grid: {{ 'display': false }} }} }} }}
     }});
 
-    function updateRtChart(val) {{
-        let d = overallTs;
-        if (val !== 'ALL') {{
-            const idx = parseInt(val, 10);
-            const entry = labelTsMap[idx];
-            if (entry) d = {{ avg_rt: entry.ts_avg_rt, p95_rt: entry.ts_p95_rt, p99_rt: entry.ts_p99_rt }};
+    function updateRtChart(selectedKeys) {{
+        const isAll = !selectedKeys || selectedKeys.length === 0 || selectedKeys.includes('ALL');
+        let datasets = [];
+
+        if (isAll) {{
+            datasets = [
+                {{ label: 'Avg RT (Overall)', data: [...overallTs.avg_rt], borderColor: '#6366f1', borderWidth: 2.5, fill: false, tension: 0.3, pointRadius: 2.5 }},
+                {{ label: 'P95 RT (Overall)', data: [...overallTs.p95_rt], borderColor: '#f59e0b', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 2 }},
+                {{ label: 'P99 RT (Overall)', data: [...overallTs.p99_rt], borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1.5 }}
+            ];
+        }} else if (selectedKeys.length === 1) {{
+            const key = selectedKeys[0];
+            const entry = labelTsMap[key] || Object.values(labelTsMap).find(e => e.label === key || e.name === key);
+            const txName = entry ? entry.label : key;
+            const color = getTxColor(txName);
+            const d = entry ? {{ avg_rt: entry.ts_avg_rt || [], p95_rt: entry.ts_p95_rt || [], p99_rt: entry.ts_p99_rt || [] }} : overallTs;
+
+            datasets = [
+                {{ label: `${{txName}} (Avg RT)`, data: [...d.avg_rt], borderColor: color, borderWidth: 2.5, fill: false, tension: 0.3, pointRadius: 3.5, pointBackgroundColor: color }},
+                {{ label: `${{txName}} (P95 RT)`, data: [...d.p95_rt], borderColor: '#f59e0b', borderWidth: 2, borderDash: [4,2], fill: false, tension: 0.3, pointRadius: 2 }},
+                {{ label: `${{txName}} (P99 RT)`, data: [...d.p99_rt], borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1.5 }}
+            ];
+        }} else {{
+            // MULTIPLE transactions selected! Plot an Avg RT line for EACH transaction
+            selectedKeys.forEach(key => {{
+                const entry = labelTsMap[key] || Object.values(labelTsMap).find(e => e.label === key || e.name === key);
+                if (!entry || !entry.ts_avg_rt) return;
+                const txName = entry.label;
+                const color = getTxColor(txName);
+                const txSla = txSlaMap[txName] ? ` (SLA: ${{txSlaMap[txName]}}ms)` : '';
+                const shortLabel = (txName.length > 25 ? txName.substring(0, 22) + '...' : txName) + txSla;
+
+                datasets.push({{
+                    label: shortLabel,
+                    data: [...entry.ts_avg_rt],
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 3.5,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1.5
+                }});
+            }});
         }}
-        rtChartObj.data.datasets[0].data = [...d.avg_rt];
-        rtChartObj.data.datasets[1].data = [...d.p95_rt];
-        rtChartObj.data.datasets[2].data = [...d.p99_rt];
+
+        rtChartObj.data.datasets = datasets;
         rtChartObj.update('active');
     }}
 
@@ -3770,28 +4231,142 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
     }});
 
-    function updateTpChart(val) {{
-        let d = overallTs;
-        if (val !== 'ALL') {{
-            const idx = parseInt(val, 10);
-            const entry = labelTsMap[idx];
-            if (entry) d = {{ throughput: entry.ts_throughput, errors: entry.ts_errors }};
+    function updateTpChart(selectedKeys) {{
+        const isAll = !selectedKeys || selectedKeys.length === 0 || selectedKeys.includes('ALL');
+        let datasets = [];
+        let totalTp = 0;
+        let peakTp = 0;
+        let totalErrs = 0;
+        let samplePointsCount = 0;
+
+        if (isAll) {{
+            datasets.push({{
+                label: 'Overall Throughput (req/s)',
+                data: [...overallTs.throughput],
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.12)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#6366f1',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
+            }});
+            if (hasInitialErrors && overallTs.errors) {{
+                datasets.push({{
+                    label: 'Overall Errors',
+                    data: [...overallTs.errors],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.10)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ef4444',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }});
+            }}
+            const tpArr = overallTs.throughput || [];
+            const errArr = overallTs.errors || [];
+            totalTp = tpArr.reduce((a,b)=>a+b, 0);
+            peakTp = tpArr.length ? Math.max(...tpArr) : 0;
+            totalErrs = errArr.reduce((a,b)=>a+b, 0);
+            samplePointsCount = tpArr.length;
+        }} else if (selectedKeys.length === 1) {{
+            const key = selectedKeys[0];
+            const entry = labelTsMap[key] || Object.values(labelTsMap).find(e => e.label === key || e.name === key);
+            const txName = entry ? entry.label : key;
+            const color = getTxColor(txName);
+            const tpData = (entry && entry.ts_throughput) ? entry.ts_throughput : [];
+            const errData = (entry && entry.ts_errors) ? entry.ts_errors : [];
+
+            datasets.push({{
+                label: (txName.length > 28 ? txName.substring(0, 25) + '...' : txName) + ' (Throughput)',
+                data: [...tpData],
+                borderColor: color,
+                backgroundColor: color + '22',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: color,
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
+            }});
+            const hasErr = errData.some(e => e > 0);
+            if (hasErr) {{
+                datasets.push({{
+                    label: (txName.length > 28 ? txName.substring(0, 25) + '...' : txName) + ' (Errors)',
+                    data: [...errData],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.10)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ef4444',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }});
+            }}
+            totalTp = tpData.reduce((a,b)=>a+b, 0);
+            peakTp = tpData.length ? Math.max(...tpData) : 0;
+            totalErrs = errData.reduce((a,b)=>a+b, 0);
+            samplePointsCount = tpData.length;
+        }} else {{
+            // Multiple transactions selected! Plot each transaction throughput line
+            let aggTpSumByTime = null;
+            selectedKeys.forEach(key => {{
+                const entry = labelTsMap[key] || Object.values(labelTsMap).find(e => e.label === key || e.name === key);
+                if (!entry) return;
+                const txName = entry.label;
+                const color = getTxColor(txName);
+                const tpData = entry.ts_throughput || [];
+                const errData = entry.ts_errors || [];
+
+                datasets.push({{
+                    label: (txName.length > 28 ? txName.substring(0, 25) + '...' : txName),
+                    data: [...tpData],
+                    borderColor: color,
+                    backgroundColor: color + '15',
+                    fill: false,
+                    tension: 0.35,
+                    borderWidth: 2.5,
+                    pointRadius: 3.5,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }});
+
+                if (!aggTpSumByTime) {{
+                    aggTpSumByTime = new Array(tpData.length).fill(0);
+                }}
+                tpData.forEach((v, i) => {{ aggTpSumByTime[i] += v; }});
+                totalErrs += errData.reduce((a,b)=>a+b, 0);
+            }});
+
+            if (aggTpSumByTime && aggTpSumByTime.length > 0) {{
+                totalTp = aggTpSumByTime.reduce((a,b)=>a+b, 0);
+                peakTp = Math.max(...aggTpSumByTime);
+                samplePointsCount = aggTpSumByTime.length;
+            }}
         }}
-        tpChartObj.data.datasets[0].data = [...d.throughput];
-        if (tpChartObj.data.datasets.length > 1 && d.errors) {{
-            tpChartObj.data.datasets[1].data = [...d.errors];
-        }}
+
+        tpChartObj.data.datasets = datasets;
         tpChartObj.update('active');
 
         // Dynamically update the 4 KPI chips above the chart
-        const tpArr = d.throughput || [];
-        const errArr = d.errors || [];
-        if (tpArr.length > 0) {{
-            const avgVal = Math.round(tpArr.reduce((a,b)=>a+b, 0) / tpArr.length);
-            const peakVal = Math.round(Math.max(...tpArr));
-            const endVal = Math.round(tpArr[tpArr.length - 1]);
-            const totalErrs = errArr.reduce((a,b)=>a+b, 0);
-            const totalSamples = tpArr.reduce((a,b)=>a+b, 0) * 10;
+        if (samplePointsCount > 0) {{
+            const avgVal = Math.round(totalTp / samplePointsCount);
+            const peakVal = Math.round(peakTp);
+            const totalSamples = totalTp * 10;
             const errRateVal = totalSamples > 0 ? (totalErrs / totalSamples * 100).toFixed(2) : '0.00';
 
             const kpiAvg = document.getElementById('tpKpiAvg');
@@ -3805,17 +4380,46 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 kpiErr.style.color = parseFloat(errRateVal) > 0 ? 'var(--red)' : 'var(--green)';
             }}
             if (kpiTrend) {{
-                const diffPct = peakVal > 0 ? Math.round((peakVal - endVal)/peakVal * 100) : 0;
-                if (diffPct >= 10) {{
-                    kpiTrend.innerText = '↓ ' + diffPct + '% from Peak';
-                    kpiTrend.style.color = 'var(--red)';
+                if (isAll) {{
+                    const diffPct = peakVal > 0 ? Math.round((peakVal - avgVal)/peakVal * 100) : 0;
+                    if (diffPct >= 15) {{
+                        kpiTrend.innerText = '↓ ' + diffPct + '% from Peak';
+                        kpiTrend.style.color = 'var(--red)';
+                    }} else {{
+                        kpiTrend.innerText = '🟢 Stable';
+                        kpiTrend.style.color = 'var(--green)';
+                    }}
                 }} else {{
-                    kpiTrend.innerText = '🟢 Stable';
-                    kpiTrend.style.color = 'var(--green)';
+                    kpiTrend.innerText = `${{selectedKeys.length}} Selected`;
+                    kpiTrend.style.color = 'var(--accent)';
                 }}
             }}
         }}
     }}
+
+    // Mount Throughput and Response Time multi-select widgets
+    const chartTxOptionsData = {tx_options_json};
+    const tpMs = createChartMultiSelect('tpMultiSelectContainer', {{
+        items: chartTxOptionsData,
+        overallLabel: 'All Transactions (Overall)',
+        initialSelected: ['ALL'],
+        maxWidth: '280px',
+        placeholder: '🔍 Search transactions...',
+        onChange: (selectedIds) => {{
+            updateTpChart(selectedIds);
+        }}
+    }});
+
+    const rtMs = createChartMultiSelect('rtMultiSelectContainer', {{
+        items: chartTxOptionsData,
+        overallLabel: 'All Transactions (Overall)',
+        initialSelected: ['ALL'],
+        maxWidth: '280px',
+        placeholder: '🔍 Search transactions...',
+        onChange: (selectedIds) => {{
+            updateRtChart(selectedIds);
+        }}
+    }});
 
     // ── Hierarchical Transaction & Sub-Transaction Multi-View Line Chart Manager ──
     const txRtHierarchyData = {tx_rt_hierarchy_json};
@@ -3893,10 +4497,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         <select id="txRtUsSelect-${{panelId}}" onchange="onPanelUsChange(${{panelId}}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer;">
                         </select>
                     </div>
-                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                    <div style="display:flex; align-items:center; gap:0.3rem; position:relative;">
                         <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">Transaction:</label>
-                        <select id="txRtTxSelect-${{panelId}}" onchange="onPanelTxChange(${{panelId}}, this.value)" style="background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:0.3rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; outline:none; cursor:pointer; max-width:260px;">
-                        </select>
+                        <div id="txRtTxMultiSelectContainer-${{panelId}}"></div>
                     </div>
                     <div style="display:flex; align-items:center; gap:0.3rem;">
                         <label style="font-size:0.75rem; font-weight:700; color:var(--muted); white-space:nowrap;">Metric:</label>
@@ -3928,9 +4531,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         const panelObj = {{
             id: panelId,
             us: 'ALL',
-            tx: 'ALL',
+            txs: ['ALL'],
             metric: defaultMetric,
-            chartObj: null
+            chartObj: null,
+            msInstance: null
         }};
         txRtChartPanels.push(panelObj);
 
@@ -3947,8 +4551,6 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 }});
             }}
         }}
-
-        populatePanelTxDropdown(panelId);
 
         // Create Chart.js Line Instance
         const canvas = document.getElementById(`chart-tx-rt-canvas-${{panelId}}`);
@@ -4024,20 +4626,15 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         chartObj.config._metricKey = defaultMetric;
         panelObj.chartObj = chartObj;
 
+        populatePanelTxDropdown(panelId);
         updatePanelChart(panelId);
     }}
 
     function populatePanelTxDropdown(panelId) {{
         const panel = txRtChartPanels.find(p => p.id === panelId);
         if (!panel) return;
-        const txSelect = document.getElementById(`txRtTxSelect-${{panelId}}`);
-        if (!txSelect) return;
-
-        txSelect.innerHTML = '';
-        const allOpt = document.createElement('option');
-        allOpt.value = 'ALL';
-        allOpt.textContent = panel.us === 'ALL' ? 'All Transactions (Overview)' : `All in ${{panel.us}}`;
-        txSelect.appendChild(allOpt);
+        const msContainer = document.getElementById(`txRtTxMultiSelectContainer-${{panelId}}`);
+        if (!msContainer) return;
 
         let txList = [];
         if (panel.us === 'ALL') {{
@@ -4047,36 +4644,38 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             if (foundUs) txList = foundUs.transactions || [];
         }}
 
-        txList.forEach(t => {{
-            const opt = document.createElement('option');
-            opt.value = t.name;
+        const msItems = txList.map(t => {{
             const subCount = (t.children || []).length;
             const suffix = subCount > 0 ? ` (${{subCount}} sub-req)` : '';
-            opt.textContent = (t.name.length > 25 ? t.name.substring(0, 22) + '...' : t.name) + suffix;
-            opt.title = t.name;
-            txSelect.appendChild(opt);
+            return {{
+                id: t.name,
+                name: t.name,
+                shortName: (t.name.length > 25 ? t.name.substring(0, 22) + '...' : t.name) + suffix,
+                color: getTxColor(t.name)
+            }};
         }});
 
-        txSelect.value = panel.tx;
-        if (txSelect.value !== panel.tx) {{
-            panel.tx = 'ALL';
-            txSelect.value = 'ALL';
-        }}
+        const overallLabel = panel.us === 'ALL' ? 'All Transactions (Overview)' : `All in ${{panel.us}}`;
+
+        panel.msInstance = createChartMultiSelect(msContainer, {{
+            items: msItems,
+            overallLabel: overallLabel,
+            initialSelected: panel.txs || ['ALL'],
+            maxWidth: '260px',
+            placeholder: '🔍 Search transactions...',
+            onChange: (selectedIds) => {{
+                panel.txs = selectedIds;
+                updatePanelChart(panelId);
+            }}
+        }});
     }}
 
     function onPanelUsChange(panelId, val) {{
         const panel = txRtChartPanels.find(p => p.id === panelId);
         if (!panel) return;
         panel.us = val;
-        panel.tx = 'ALL';
+        panel.txs = ['ALL'];
         populatePanelTxDropdown(panelId);
-        updatePanelChart(panelId);
-    }}
-
-    function onPanelTxChange(panelId, val) {{
-        const panel = txRtChartPanels.find(p => p.id === panelId);
-        if (!panel) return;
-        panel.tx = val;
         updatePanelChart(panelId);
     }}
 
@@ -4094,13 +4693,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         const newPanel = txRtChartPanels[txRtChartPanels.length - 1];
         if (newPanel) {{
             newPanel.us = src.us;
-            newPanel.tx = src.tx;
+            newPanel.txs = [...(src.txs || ['ALL'])];
             newPanel.metric = src.metric;
             const usSel = document.getElementById(`txRtUsSelect-${{newPanel.id}}`);
             if (usSel) usSel.value = src.us;
             populatePanelTxDropdown(newPanel.id);
-            const txSel = document.getElementById(`txRtTxSelect-${{newPanel.id}}`);
-            if (txSel) txSel.value = src.tx;
+            if (newPanel.msInstance) newPanel.msInstance.setSelected(newPanel.txs);
             const mSel = document.getElementById(`txRtMetricSelect-${{newPanel.id}}`);
             if (mSel) mSel.value = src.metric;
             updatePanelChart(newPanel.id);
@@ -4125,28 +4723,53 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         const breadcrumbEl = document.getElementById(`txRtBreadcrumb-${{panelId}}`);
         let items = [];
+        const selectedTxs = panel.txs || ['ALL'];
+        const isAll = selectedTxs.length === 0 || selectedTxs.includes('ALL');
 
-        if (panel.tx !== 'ALL') {{
-            let targetTx = null;
-            if (txRtHierarchyData.all_transactions) {{
-                targetTx = txRtHierarchyData.all_transactions.find(t => t.name === panel.tx);
-            }}
-            if (!targetTx && txRtHierarchyData.user_stories) {{
-                for (const us of txRtHierarchyData.user_stories) {{
-                    const found = (us.transactions || []).find(t => t.name === panel.tx);
-                    if (found) {{ targetTx = found; break; }}
+        if (!isAll) {{
+            if (selectedTxs.length === 1) {{
+                const targetTxName = selectedTxs[0];
+                let targetTx = null;
+                if (txRtHierarchyData.all_transactions) {{
+                    targetTx = txRtHierarchyData.all_transactions.find(t => t.name === targetTxName);
                 }}
-            }}
+                if (!targetTx && txRtHierarchyData.user_stories) {{
+                    for (const us of txRtHierarchyData.user_stories) {{
+                        const found = (us.transactions || []).find(t => t.name === targetTxName);
+                        if (found) {{ targetTx = found; break; }}
+                    }}
+                }}
 
-            if (targetTx && targetTx.children && targetTx.children.length > 0) {{
-                items = targetTx.children;
-                if (breadcrumbEl) {{
-                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${{items.length}} Child Requests</span>`;
+                if (targetTx && targetTx.children && targetTx.children.length > 0) {{
+                    items = targetTx.children;
+                    if (breadcrumbEl) {{
+                        breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> &rarr; <span style="color:var(--text); font-weight:700;">🔍 ${{items.length}} Child Requests</span>`;
+                    }}
+                }} else if (targetTx) {{
+                    items = [targetTx];
+                    if (breadcrumbEl) {{
+                        breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span>`;
+                    }}
                 }}
-            }} else if (targetTx) {{
-                items = [targetTx];
+            }} else {{
+                // Multiple specific transactions selected
+                const foundItems = [];
+                selectedTxs.forEach(txName => {{
+                    let targetTx = null;
+                    if (txRtHierarchyData.all_transactions) {{
+                        targetTx = txRtHierarchyData.all_transactions.find(t => t.name === txName);
+                    }}
+                    if (!targetTx && txRtHierarchyData.user_stories) {{
+                        for (const us of txRtHierarchyData.user_stories) {{
+                            const found = (us.transactions || []).find(t => t.name === txName);
+                            if (found) {{ targetTx = found; break; }}
+                        }}
+                    }}
+                    if (targetTx) foundItems.push(targetTx);
+                }});
+                items = foundItems;
                 if (breadcrumbEl) {{
-                    breadcrumbEl.innerHTML = `<span>Context:</span> <span style="color:var(--text);">${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--accent); font-weight:700;">📂 ${{targetTx.name}}</span> (No child requests)`;
+                    breadcrumbEl.innerHTML = `<span>Showing:</span> <span style="color:var(--accent); font-weight:700;">📁 ${{panel.us === 'ALL' ? 'All Stories' : panel.us}}</span> &rarr; <span style="color:var(--text); font-weight:700;">${{items.length}} Selected Transactions</span>`;
                 }}
             }}
         }} else {{
@@ -4254,15 +4877,20 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     function filterSlaDevByUs(selectedUs) {{
         if (!slaDevChartObj) return;
 
+        const selectedList = Array.isArray(selectedUs) ? selectedUs : [selectedUs];
         let filteredItems = [];
 
-        if (selectedUs === 'ALL' || !tgToTcsMap[selectedUs]) {{
+        if (selectedList.includes('ALL') || selectedList.length === 0) {{
             // Show all transactions sorted by worst deviation %
             filteredItems = Object.values(txDevMap);
         }} else {{
-            // Filter to child transactions belonging to the selected User Story / Thread Group
-            const childTcs = tgToTcsMap[selectedUs] || [];
-            filteredItems = Object.values(txDevMap).filter(item => childTcs.includes(item.label));
+            // Filter to child transactions belonging to the selected User Stories / Thread Groups
+            const allAllowedTcs = new Set();
+            selectedList.forEach(us => {{
+                const childTcs = tgToTcsMap[us] || [];
+                childTcs.forEach(tc => allAllowedTcs.add(tc));
+            }});
+            filteredItems = Object.values(txDevMap).filter(item => allAllowedTcs.has(item.label));
         }}
 
         filteredItems.sort((a, b) => b.dev_pct - a.dev_pct);
@@ -4277,6 +4905,19 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         slaDevChartObj.data.datasets[0].borderColor = newColors.map(c => c.border);
         slaDevChartObj.update('active');
     }}
+
+    // Mount SLA Deviation User Story multi-select widget
+    const usDevOptionsData = {us_options_json};
+    const usDevMs = createChartMultiSelect('usDevMultiSelectContainer', {{
+        items: usDevOptionsData,
+        overallLabel: 'All User Stories / Thread Groups',
+        initialSelected: ['ALL'],
+        maxWidth: '280px',
+        placeholder: '🔍 Search user stories...',
+        onChange: (selectedIds) => {{
+            filterSlaDevByUs(selectedIds);
+        }}
+    }});
 
     // Chart.js Data Labels Plugin to draw exact sample counts on top of bars
     const txSummaryDataLabelsPlugin = {{
@@ -5043,7 +5684,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 'Throughput should remain steady or scale with concurrent user ramp-up.',
                 'Red bars indicate the exact timeframe when errors occurred.'
             ],
-            filters: 'Use the top-right <strong>Transaction</strong> dropdown to view throughput and error trends for a specific transaction or the entire test.'
+            filters: 'Use the top-right <strong>Multi-Select Transaction</strong> filter to select and compare multiple transactions at once, search by name, or view the overall test.'
         }},
         'rt-over-time': {{
             title: '📈 Response Time Trend Over Time',
@@ -5052,7 +5693,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 'Flat, low lines indicate stable performance under load.',
                 'Rising slopes or sharp spikes reveal latency degradation or server queueing.'
             ],
-            filters: 'Use the <strong>Transaction</strong> dropdown to focus on an individual transaction. Click legend items to toggle P95/P99 visibility.'
+            filters: 'Use the top-right <strong>Multi-Select Transaction</strong> filter to select multiple transactions to compare their response time curves side-by-side on the same timeline.'
         }},
         'critical-tx': {{
             title: '🔥 Critical Transaction Response Time',

@@ -109397,13 +109397,13 @@
         "priority_recommendations": [
           {
             "priority": "High",
-            "badge": "🔴",
+            "badge": "\ud83d\udd34",
             "title": "Investigate UC01 Launch Catalog Failures",
             "detail": "Review application gateway routing, catalog initialization scripts, and 5xx exception logs for TC01_US01_Launch_Catalog."
           },
           {
             "priority": "Medium",
-            "badge": "🟠",
+            "badge": "\ud83d\udfe0",
             "title": "Monitor Host Compute Headroom",
             "detail": "Investigate CPU spikes above 90% and evaluate App Service scale-out rules under prolonged concurrency."
           }
