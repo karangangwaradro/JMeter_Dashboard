@@ -417,103 +417,55 @@ def parse_jmx_hierarchy(jmx_input) -> Tuple[List[str], Dict[str, List[str]]]:
     if not jmx_input:
         return tc_list, tc_to_samplers
 
-    jmx_paths = []
-    if isinstance(jmx_input, (list, tuple)):
-        jmx_paths = [Path(p) for p in jmx_input]
-    elif isinstance(jmx_input, Path):
-        jmx_paths = [jmx_input]
-    elif isinstance(jmx_input, str):
-        for name in jmx_input.split(","):
-            name = name.strip()
-            if not name: continue
-            p = Path(name)
-            if not p.is_absolute():
-                p = _TESTS_DIR / name
-            jmx_paths.append(p)
-
-    for jmx_path in jmx_paths:
-        if not jmx_path.exists():
-            continue
-
-        try:
-            tree = ET.parse(jmx_path)
-            root = tree.getroot()
-
-            all_tcs = []
-            for tc_elem in root.iter("TransactionController"):
-                tc_name = tc_elem.attrib.get("testname", "").strip()
-                if not tc_name:
-                    continue
-
-                u_name = tc_name.upper()
-                is_main_tc = u_name.startswith("TC")
-
-                if is_main_tc:
-                    if tc_name not in tc_list:
-                        tc_list.append(tc_name)
-                else:
-                    all_tcs.append(tc_name)
-
-                if tc_name not in tc_to_samplers:
-                    tc_to_samplers[tc_name] = []
-
-                # Traverse all sub-elements (ParallelControllers, child TransactionControllers, HTTP Samplers)
-                for child in tc_elem.iter():
-                    c_name = child.attrib.get("testname", "").strip()
-                    if not c_name or c_name == tc_name:
-                        continue
-                    # Match HTTP Samplers, TransactionControllers, and Parallel Controllers
-                    if "HTTPSampler" in child.tag or "TransactionController" in child.tag or "Parallel" in child.tag:
-                        if c_name not in tc_to_samplers[tc_name]:
-                            tc_to_samplers[tc_name].append(c_name)
-
-            if not tc_list and all_tcs:
-                for tc_n in all_tcs:
-                    if tc_n not in tc_list:
-                        tc_list.append(tc_n)
-
-        except Exception as e:
-            print(f"[SLA] Error parsing JMX hierarchy from {jmx_path.name}: {e}", flush=True)
+    try:
+        tree, _ = parse_jmx_full_tree(jmx_input)
+        for tg in tree:
+            for node in tg.get("children", []):
+                n_name = node.get("name", "").strip()
+                n_type = node.get("type", "transaction")
+                if n_type == "transaction" and n_name:
+                    if n_name not in tc_list:
+                        tc_list.append(n_name)
+                    
+                    if n_name not in tc_to_samplers:
+                        tc_to_samplers[n_name] = []
+                    
+                    for child in node.get("children", []):
+                        c_name = child.get("name", "").strip()
+                        if c_name:
+                            tc_to_samplers[n_name].append(c_name)
+                            if child.get("type") == "transaction" and c_name not in tc_list:
+                                tc_list.append(c_name)
+                                if c_name not in tc_to_samplers:
+                                    tc_to_samplers[c_name] = []
+                                for sub_c in child.get("children", []):
+                                    sc_name = sub_c.get("name", "").strip()
+                                    if sc_name:
+                                        tc_to_samplers[c_name].append(sc_name)
+    except Exception as e:
+        print(f"[SLA] Error parsing JMX hierarchy from full tree: {e}", flush=True)
 
     def tc_sort_key(name: str):
-        u = name.upper()
-        if u.startswith("TC"): return (0, name)
-        if u.startswith("T01") or u.startswith("T1"): return (1, name)
-        if u.startswith("T_"): return (2, name)
-        return (3, name)
+        # Natural sorting with digits
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', name)]
 
     tc_list.sort(key=tc_sort_key)
     return tc_list, tc_to_samplers
+
+
 def parse_jmx_thread_groups(jmx_input) -> List[Dict]:
     """
     Parse JMX file(s) and return a list of ThreadGroup configs.
 
     Each item:
       {
-        name:         str   — ThreadGroup display name (e.g. "TC01_Services")
+        name:         str   — ThreadGroup display name (e.g. "TC_01_Browse_Catalog")
         enabled:      bool  — Whether the TG was enabled in the JMX
-        wrapper_tc:   str   — First direct TC inside TG (e.g. "T-1_Overall Iteration")
-                             This is what actually appears in the JTL as a label.
+        wrapper_tc:   str   — Optional top-level overall wrapper TC (if any)
         users:        int   — Configured concurrent users
         duration:     int   — Duration in seconds
-        child_tcs:    list  — Named TCs inside the wrapper (the user story steps)
+        child_tcs:    list  — Named TCs inside the TG
       }
-
-    IMPORTANT: JMeter XML structure note:
-      <ThreadGroup testname="TC01_Services">
-        <intProp name="ThreadGroup.num_threads">10</intProp>   ← properties only
-      </ThreadGroup>
-      <hashTree>                       ← SIBLING hashTree has the actual test elements
-        <TransactionController testname="T-1_Overall Iteration"/>
-        <hashTree>
-          <TransactionController testname="TC01Launch Home Page URL"/>
-          ...
-        </hashTree>
-      </hashTree>
-
-    The TCs are NOT children of the ThreadGroup element — they are in the
-    sibling hashTree that immediately follows it. We must traverse the parent's
-    children list to find the correct hashTree for each ThreadGroup.
     """
     result = []
 
@@ -577,7 +529,7 @@ def parse_jmx_thread_groups(jmx_input) -> List[Dict]:
                         try: tg_rampup = int(child.text or "0")
                         except ValueError: pass
 
-                # Search for TCs in the SIBLING hashTree (not inside tg_elem!)
+                # Search for TCs in the SIBLING hashTree
                 wrapper_tc = None
                 child_tcs = []
 
@@ -589,15 +541,21 @@ def parse_jmx_thread_groups(jmx_input) -> List[Dict]:
                             all_tcs_in_tg.append(tc_name)
 
                     if all_tcs_in_tg:
-                        # First TC is the wrapper (e.g. "T-1_Overall Iteration")
-                        wrapper_tc = all_tcs_in_tg[0]
-                        # Rest are user story step TCs — filter out generic names
-                        child_tcs = [
-                            tc for tc in all_tcs_in_tg[1:]
-                            if not tc.lower().startswith("transaction controller")
-                            and not tc.lower().startswith("bzm")
-                            and tc != wrapper_tc
-                        ]
+                        if all_tcs_in_tg[0].startswith("T-") or "Overall" in all_tcs_in_tg[0]:
+                            wrapper_tc = all_tcs_in_tg[0]
+                            child_tcs = [
+                                tc for tc in all_tcs_in_tg[1:]
+                                if not tc.lower().startswith("transaction controller")
+                                and not tc.lower().startswith("bzm")
+                                and tc != wrapper_tc
+                            ]
+                        else:
+                            wrapper_tc = None
+                            child_tcs = [
+                                tc for tc in all_tcs_in_tg
+                                if not tc.lower().startswith("transaction controller")
+                                and not tc.lower().startswith("bzm")
+                            ]
 
                 result.append({
                     "name":       tg_name,

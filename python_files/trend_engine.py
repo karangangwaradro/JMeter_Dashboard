@@ -106,11 +106,13 @@ def extract_label_hierarchy_map(jmx_name: str) -> Dict[str, Dict[str, Any]]:
 
 def classify_label_heuristic(lbl: str) -> Dict[str, Any]:
     """Fallback heuristic classification when label is not in JMX tree."""
-    u_lbl = lbl.upper()
-    if u_lbl.startswith("T-") or u_lbl.startswith("T_") or "OVERALL" in u_lbl:
+    u_lbl = (lbl or "").upper()
+    if "_R_" in u_lbl or "_R0" in u_lbl or "_R1" in u_lbl or u_lbl.startswith("HTTP_") or u_lbl.startswith("GET_") or u_lbl.startswith("POST_"):
+        return {"user_story": "HTTP Requests", "item_type": "HTTP_REQUEST", "item_type_label": "HTTP Request", "parent_tc": "", "depth": 2}
+    elif u_lbl.startswith("T-") or u_lbl.startswith("T_") or "OVERALL" in u_lbl:
         return {"user_story": "Overall Scenario", "item_type": "MAIN_TRANSACTION", "item_type_label": "Main Transaction", "parent_tc": "", "depth": 0}
-    elif u_lbl.startswith("TC") or u_lbl.startswith("T0") or u_lbl.startswith("T1") or any(k in u_lbl for k in ("LAUNCH", "SELECT", "CHECKOUT", "BIND", "LOGIN", "SEARCH")):
-        return {"user_story": lbl.split("-", 1)[0] if "-" in lbl else "User Flow", "item_type": "SUB_TRANSACTION", "item_type_label": "Sub-Transaction", "parent_tc": "", "depth": 1}
+    elif u_lbl.startswith("TC") or u_lbl.startswith("T0") or u_lbl.startswith("T1") or any(k in u_lbl for k in ("LAUNCH", "SELECT", "CHECKOUT", "BIND", "LOGIN", "SEARCH", "NAVIGATE", "SIGNON")):
+        return {"user_story": lbl.split("_", 2)[0] if "_" in lbl else "User Flow", "item_type": "MAIN_TRANSACTION", "item_type_label": "Main Transaction", "parent_tc": "", "depth": 1}
     else:
         return {"user_story": "HTTP Requests", "item_type": "HTTP_REQUEST", "item_type_label": "HTTP Request", "parent_tc": "", "depth": 2}
 

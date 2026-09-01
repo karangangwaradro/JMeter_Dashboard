@@ -340,6 +340,39 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
 }}"""
 
 
+def _safe_json_loads(text: str, provider_name: str = "AI") -> dict:
+    """Robustly parse JSON response from LLMs, handling markdown fences and unescaped characters."""
+    import re
+    t = (text or "").strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[1] if "\n" in t else t[3:]
+    if t.endswith("```"):
+        t = t[:-3]
+    if t.startswith("json"):
+        t = t[4:]
+    t = t.strip()
+
+    try:
+        return json.loads(t, strict=False)
+    except Exception:
+        pass
+
+    start = t.find("{")
+    end = t.rfind("}") + 1
+    if start >= 0 and end > start:
+        sub = t[start:end]
+        try:
+            return json.loads(sub, strict=False)
+        except Exception:
+            try:
+                # Fix unescaped backslashes commonly returned by LLMs in latex or regex patterns
+                fixed = re.sub(r'\\(?![/u"bfnrt])', r'\\\\', sub)
+                return json.loads(fixed, strict=False)
+            except Exception as final_err:
+                raise ValueError(f"Failed to parse JSON response from {provider_name}: {final_err}")
+    raise ValueError(f"Failed to parse JSON response from {provider_name}: {t[:200]}")
+
+
 def execute_gemini_prompt(prompt: str, api_key: str = None, model: str = "gemini-2.5-flash",
                           temperature: float = 0.2, summary: dict = None, infra: dict = None) -> tuple[dict, str, int]:
     """Execute prompt directly against Gemini REST API with performance timing."""
@@ -369,7 +402,7 @@ def execute_gemini_prompt(prompt: str, api_key: str = None, model: str = "gemini
             data = json.loads(resp.read().decode("utf-8"))
             candidates = data.get("candidates", [])
             if not candidates:
-                raise Exception("Gemini returned empty candidate list.")
+                raise Exception(f"Gemini returned empty candidates list: {data}")
             parts = candidates[0].get("content", {}).get("parts", [])
             res_text = parts[0].get("text", "") if parts else ""
     except urllib.error.HTTPError as err:
@@ -383,25 +416,7 @@ def execute_gemini_prompt(prompt: str, api_key: str = None, model: str = "gemini
 
     elapsed_ms = int((time.time() - start_time) * 1000)
 
-    # Clean code fences
-    text = res_text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-    if text.startswith("json"):
-        text = text[4:]
-    text = text.strip()
-
-    try:
-        result = json.loads(text)
-    except json.JSONDecodeError:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start >= 0 and end > start:
-            result = json.loads(text[start:end])
-        else:
-            raise ValueError(f"Failed to parse JSON response from Gemini: {text[:200]}")
+    result = _safe_json_loads(res_text, "Gemini")
 
     result["source"] = "gemini"
     result["model"] = model
@@ -456,7 +471,7 @@ def execute_github_prompt(prompt: str, github_token: str = None, model: str = "g
         raise Exception(f"GitHub Models API Error ({err.code}): {err_msg}")
 
     elapsed_ms = int((time.time() - start_time) * 1000)
-    result = json.loads(content)
+    result = _safe_json_loads(content, "GitHub Models")
     result["source"] = "github_ai"
     result["model"] = model
     result["elapsed_ms"] = elapsed_ms
@@ -525,26 +540,7 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "nv
         raise Exception(f"OpenRouter API Error ({err.code}): {err_msg}")
 
     elapsed_ms = int((time.time() - start_time) * 1000)
-
-    # Clean code fences if returned with markdown
-    text = content.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-    if text.startswith("json"):
-        text = text[4:]
-    text = text.strip()
-
-    try:
-        result = json.loads(text)
-    except json.JSONDecodeError:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start >= 0 and end > start:
-            result = json.loads(text[start:end])
-        else:
-            raise ValueError(f"Failed to parse JSON response from OpenRouter: {text[:200]}")
+    result = _safe_json_loads(content, "OpenRouter")
 
     result["source"] = "openrouter"
     result["model"] = model_name

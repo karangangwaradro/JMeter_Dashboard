@@ -116,6 +116,13 @@ def run(regen_ai: bool = False):
         res_file.write_text(json.dumps(parsed, indent=2), encoding="utf-8")
 
         out_file = rg_module.generate_report(parsed, azure_data, ai_insights, report_path, jmx_name, users)
+        root_report = results_dir / f"run_{timestamp}_report.html"
+        if root_report != report_path:
+            import shutil
+            try:
+                shutil.copy2(report_path, root_report)
+            except Exception:
+                pass
         print(f"[Recompile]   Done: {report_path.exists()}", flush=True)
 
         for r_item in runs_data.get("runs", []):
