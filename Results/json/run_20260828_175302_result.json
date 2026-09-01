@@ -46151,28 +46151,35 @@
     }
   },
   "ai_insights": {
-    "executive_summary": "The 60-second load test executed 10,881 samples at 182 requests per second. Only 3.4% of transactions (1 of 29) met their defined SLA targets, with 28 transactions breaching response time or error rate thresholds. Server CPU peaked at 91.4%, indicating saturation, and 168 server-side 5xx errors were recorded, contributing to a 5.72% overall error rate.",
+    "executive_summary": "The 60-second load test executed 10,881 samples at 182 req/s, but only 3.4% of transactions met SLA targets (1 of 29). Average response time was 592 ms with P99 at 4,489 ms, and error rate reached 5.72% (exceeding 1% target). Server CPU peaked at 91.4%, indicating saturation, and 168 HTTP 5xx errors were recorded.",
     "data_quality_findings": [
       {
         "severity": "Warning",
-        "issue": "Limited test duration may not capture steady-state performance or garbage collection cycles",
-        "evidence": "Test duration is only 60 seconds with no ramp-up or soak period reported",
-        "impact": "Results may not reflect sustained load behavior; tail latency and memory trends could be underrepresented",
-        "action": "Extend test duration to at least 30 minutes with gradual ramp-up to observe steady-state metrics and GC patterns"
+        "issue": "Test duration limited to 60 seconds; may not capture steady-state behavior or garbage collection cycles.",
+        "evidence": "Test duration reported as 60 seconds with no ramp-up/down details.",
+        "impact": "Confidence in sustained performance characteristics is reduced; saturation effects may be underrepresented.",
+        "action": "Extend test duration to 15-30 minutes with gradual ramp-up to observe steady-state metrics."
       },
       {
         "severity": "Info",
-        "issue": "Absence of database and JVM-level telemetry",
-        "evidence": "Only Azure App Service CPU, memory, network, and disk IOPS are provided; no database query latency, connection pool usage, or GC logs",
-        "impact": "Root cause analysis is limited to infrastructure symptoms; cannot pinpoint application-layer bottlenecks such as slow queries or lock contention",
-        "action": "Enable database monitoring (query duration, wait stats) and JVM metrics (GC frequency, heap usage, thread counts) for future runs"
+        "issue": "Concurrency level (virtual users) not explicitly reported; throughput and response time used to infer load.",
+        "evidence": "Total samples and throughput provided, but no virtual user count or thread group configuration.",
+        "impact": "Capacity planning estimates rely on Little's Law approximations rather than controlled concurrency.",
+        "action": "Capture and report active virtual user count per interval in future tests."
+      },
+      {
+        "severity": "Warning",
+        "issue": "Database and JVM telemetry absent; cannot isolate application-tier vs data-tier bottlenecks.",
+        "evidence": "Only Azure App Service CPU/memory/network/disk metrics provided; no SQL metrics, GC logs, or thread dumps.",
+        "impact": "Root cause analysis limited to infrastructure saturation; database contention or lock contention cannot be ruled out.",
+        "action": "Enable Azure SQL monitoring, JVM GC logging, and application profiling in next test cycle."
       }
     ],
     "finding_enrichments": {
       "F-001": {
-        "finding": "T-US01_Overall_Iteration P90 response time of 4046 ms exceeds the 500 ms SLA target by 709%",
-        "observation": "The overall iteration for user story 1 (T-US01_Overall_Iteration) recorded an average of 2522 ms and P90 of 4046 ms across 226 samples, with 100% error rate.",
-        "interpretation": "This transaction is the slowest and most error-prone, indicating a critical path failure under load.",
+        "finding": "T-US01_Overall_Iteration P90 latency 4046 ms vs 500 ms SLA target (+709% deviation) with 100% error rate",
+        "observation": "The overall iteration for User Story 01 (Catalog Browse) exhibited a P90 response time of 4046 ms against a 500 ms SLA, and every one of its 226 iterations failed.",
+        "interpretation": "This transaction is the single largest contributor to SLA breach and error rate, indicating a fundamental failure in the catalog browse flow under load.",
         "evidence": [
           {
             "metric": "P90 Response Time",
@@ -46180,8 +46187,13 @@
             "source": "client"
           },
           {
+            "metric": "SLA Target",
+            "value": "500 ms",
+            "source": "defined"
+          },
+          {
             "metric": "Error Rate",
-            "value": "100%",
+            "value": "100% (226/226)",
             "source": "client"
           },
           {
@@ -46190,16 +46202,16 @@
             "source": "client"
           }
         ],
-        "likely_cause": "CPU saturation on the application server (peak 91.4%) causing thread contention and request queuing, compounded by application errors returning HTTP 5xx.",
+        "likely_cause": "CPU saturation (91.4% peak) causing request queueing and timeouts, compounded by inefficient catalog data retrieval.",
         "confidence": "High",
-        "impact": "Complete failure of the primary user journey; users cannot complete the catalog launch and sign-on flow.",
-        "recommendation": "Profile the code path for T-US01_Overall_Iteration to identify CPU-intensive operations; consider scaling out the App Service or optimizing the catalog launch logic.",
-        "validation": "Re-run test after optimization and verify P90 falls below 500 ms and error rate drops below 1%."
+        "impact": "Complete failure of the primary browsing workflow; users cannot view products.",
+        "recommendation": "Immediately investigate catalog launch failures; scale compute resources and optimize catalog queries.",
+        "validation": "Re-run test after fix; verify T-US01_Overall_Iteration P90 < 500 ms and error rate < 1%."
       },
       "F-002": {
-        "finding": "TC01_US01_Launch_Catalog P90 of 2662 ms breaches the 500 ms SLA by 432%",
-        "observation": "The catalog launch transaction (TC01_US01_Launch_Catalog) averaged 1742 ms with P90 at 2662 ms across 228 samples, all of which resulted in errors (100% error rate).",
-        "interpretation": "The catalog launch step is a major contributor to the overall iteration failure and is likely the root cause of the 5xx errors.",
+        "finding": "TC01_US01_Launch_Catalog P90 2662 ms vs 500 ms SLA (+432%) with 100% error rate",
+        "observation": "The Launch Catalog transaction recorded a P90 of 2662 ms and failed on all 228 attempts.",
+        "interpretation": "The entry point to the catalog is completely broken under load, likely due to database connection exhaustion or thread pool saturation.",
         "evidence": [
           {
             "metric": "P90 Response Time",
@@ -46207,107 +46219,31 @@
             "source": "client"
           },
           {
-            "metric": "Error Rate",
-            "value": "100%",
-            "source": "client"
-          },
-          {
-            "metric": "Sample Count",
-            "value": "228",
-            "source": "client"
-          }
-        ],
-        "likely_cause": "Application exception or database timeout during catalog initialization, exacerbated by CPU starvation.",
-        "confidence": "High",
-        "impact": "Users cannot view the catalog; this is a blocking functional failure.",
-        "recommendation": "Investigate application logs for the 5xx errors during catalog launch; check database connection pool and query performance for the catalog retrieval.",
-        "validation": "Confirm zero 5xx errors and P90 under 500 ms in a subsequent test."
-      },
-      "F-003": {
-        "finding": "T-US02_Overall_Iteration P90 of 1617 ms exceeds the 500 ms SLA by 223%",
-        "observation": "The overall iteration for user story 2 (T-US02_Overall_Iteration) averaged 1237 ms with P90 at 1617 ms across 233 samples, but with 0% error rate.",
-        "interpretation": "While this iteration does not produce HTTP errors, its latency is significantly above the SLA, indicating performance degradation without functional failure.",
-        "evidence": [
-          {
-            "metric": "P90 Response Time",
-            "value": "1617 ms",
-            "source": "client"
+            "metric": "SLA Target",
+            "value": "500 ms",
+            "source": "defined"
           },
           {
             "metric": "Error Rate",
-            "value": "0%",
+            "value": "100% (228/228)",
             "source": "client"
           },
           {
-            "metric": "Sample Count",
-            "value": "233",
-            "source": "client"
-          }
-        ],
-        "likely_cause": "CPU contention and increased garbage collection pauses affecting the category selection flow.",
-        "confidence": "Medium",
-        "impact": "Degraded user experience for category browsing; may lead to timeouts if SLA is strictly enforced.",
-        "recommendation": "Optimize the category selection logic and ensure adequate CPU headroom; consider caching category data.",
-        "validation": "Verify P90 reduces to under 500 ms after optimization."
-      },
-      "F-004": {
-        "finding": "Transaction Controller_T1 P90 of 1309 ms breaches the 500 ms SLA by 162%",
-        "observation": "Transaction Controller_T1 (a logical controller) recorded P90 of 1309 ms across 231 samples with 0% error rate.",
-        "interpretation": "This controller aggregates multiple HTTP requests; its elevated latency reflects the cumulative effect of underlying slow requests.",
-        "evidence": [
-          {
-            "metric": "P90 Response Time",
-            "value": "1309 ms",
-            "source": "client"
-          },
-          {
-            "metric": "Error Rate",
-            "value": "0%",
-            "source": "client"
-          },
-          {
-            "metric": "Sample Count",
-            "value": "231",
-            "source": "client"
-          }
-        ],
-        "likely_cause": "Sum of child transaction latencies (e.g., HTTP_US01_Launch_Catalog_1, HTTP_US01_Launch_Catalog_2) which are themselves above SLA.",
-        "confidence": "High",
-        "impact": "Indicates that the composite transaction fails SLA due to child transaction performance.",
-        "recommendation": "Focus optimization on the child transactions (catalog launch HTTP requests) to bring the controller within SLA.",
-        "validation": "Monitor controller P90 after child transaction improvements."
-      },
-      "F-005": {
-        "finding": "Overall error rate of 5.72% exceeds the 1% SLA threshold",
-        "observation": "The test recorded a 5.72% error rate across all transactions, with three transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) showing 100% error rates.",
-        "interpretation": "The application is returning server-side errors (HTTP 5xx) for critical user flows, indicating functional instability under load.",
-        "evidence": [
-          {
-            "metric": "Overall Error Rate",
-            "value": "5.72%",
-            "source": "client"
-          },
-          {
-            "metric": "5xx Errors (Azure)",
+            "metric": "Server 5xx Errors",
             "value": "168",
             "source": "server"
-          },
-          {
-            "metric": "Transactions with 100% Error Rate",
-            "value": "3",
-            "source": "client"
           }
         ],
-        "likely_cause": "Application exceptions triggered by resource exhaustion (CPU, thread pool) or unhandled edge cases in the catalog launch logic.",
+        "likely_cause": "Application thread pool exhaustion or database connection pool depletion under CPU saturation.",
         "confidence": "High",
-        "impact": "High failure rate for key business transactions; violates reliability SLA.",
-        "recommendation": "Analyze server logs for the 5xx errors; fix exception handling and ensure graceful degradation. Increase compute resources to alleviate resource exhaustion.",
-        "validation": "Error rate must fall below 1% in next test run."
+        "impact": "Blocks all downstream catalog interactions; direct revenue impact.",
+        "recommendation": "Analyze server logs for 5xx root cause; increase thread/connection pool limits; optimize catalog query.",
+        "validation": "Confirm zero 5xx errors and P90 < 500 ms in next test."
       },
-      "F-006": {
-        "finding": "Server CPU peaked at 91.4%, indicating saturation",
-        "observation": "Azure App Service CPU utilization averaged 60.7% but peaked at 91.4% during the test, with memory peaking at 89.3%.",
-        "interpretation": "The application server is CPU-bound at peak load, causing request queuing, increased latency, and likely contributing to the 5xx errors.",
+      "F-003": {
+        "finding": "Server CPU saturation at 91.4% peak (avg 60.7%) correlating with latency spikes and 5xx errors",
+        "observation": "Azure App Service CPU peaked at 91.4% during the test, coinciding with the highest response times and the 168 HTTP 5xx errors.",
+        "interpretation": "The compute instance is undersized for the applied load; CPU contention causes request queuing, GC pressure, and thread starvation.",
         "evidence": [
           {
             "metric": "CPU Peak",
@@ -46320,180 +46256,309 @@
             "source": "server"
           },
           {
-            "metric": "Memory Peak",
-            "value": "89.3%",
+            "metric": "5xx Errors",
+            "value": "168",
             "source": "server"
+          },
+          {
+            "metric": "P99 Latency",
+            "value": "4489 ms",
+            "source": "client"
           }
         ],
-        "likely_cause": "Insufficient CPU allocation for the given load profile; inefficient code paths consuming excessive CPU cycles.",
+        "likely_cause": "Insufficient vCPU allocation for the workload; no auto-scaling configured.",
+        "confidence": "Confirmed",
+        "impact": "All transactions suffer elevated latency; error rate exceeds SLA by 5.7x.",
+        "recommendation": "Scale up App Service plan to higher vCPU tier; enable auto-scaling on CPU > 70%.",
+        "validation": "Post-scale test should show CPU peak < 70% and P90 within SLA for all transactions."
+      },
+      "F-004": {
+        "finding": "TC02_US04_Navigate_To_Signon_Page P90 578 ms vs 50 ms SLA (+1056% deviation)",
+        "observation": "The Signon page navigation transaction exceeded its strict 50 ms SLA by over 10x, with a P90 of 578 ms.",
+        "interpretation": "Even lightweight page loads are severely impacted by CPU saturation, indicating systemic resource contention rather than isolated heavy transactions.",
+        "evidence": [
+          {
+            "metric": "P90 Response Time",
+            "value": "578 ms",
+            "source": "client"
+          },
+          {
+            "metric": "SLA Target",
+            "value": "50 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "Deviation",
+            "value": "+1056%",
+            "source": "derived"
+          }
+        ],
+        "likely_cause": "CPU saturation delaying all request processing; possible lock contention in session initialization.",
         "confidence": "High",
-        "impact": "Directly correlates with response time degradation and error rate increase; limits scalability.",
-        "recommendation": "Scale up the App Service plan (more vCPUs) or scale out (increase instance count). Profile application CPU hotspots for optimization.",
-        "validation": "Re-test with increased CPU capacity and verify peak CPU stays below 70% and response times meet SLA."
+        "impact": "Signon flow fails SLA dramatically; affects user authentication entry point.",
+        "recommendation": "Address CPU saturation first; then profile signon page for unnecessary synchronous work.",
+        "validation": "P90 < 50 ms after CPU headroom restored."
+      },
+      "F-005": {
+        "finding": "Overall error rate 5.72% (622 errors) vs 1% SLA target; 168 server-side 5xx errors",
+        "observation": "The test-wide error rate of 5.72% far exceeds the 1% threshold, driven by three transactions with 100% failure rates and 168 HTTP 5xx responses from the server.",
+        "interpretation": "Application instability under load; errors are not transient but systematic for specific transactions.",
+        "evidence": [
+          {
+            "metric": "Overall Error Rate",
+            "value": "5.72%",
+            "source": "client"
+          },
+          {
+            "metric": "Error SLA Target",
+            "value": "1.00%",
+            "source": "defined"
+          },
+          {
+            "metric": "5xx Errors",
+            "value": "168",
+            "source": "server"
+          },
+          {
+            "metric": "Failed Transactions",
+            "value": "TC01_US01_Launch_Catalog, Transaction Controller_T2, HTTP_US01_Launch_Catalog_Err500",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Unhandled exceptions due to resource exhaustion (CPU, threads, DB connections).",
+        "confidence": "High",
+        "impact": "Failed user journeys; potential data inconsistency; SLA breach.",
+        "recommendation": "Enable detailed error logging; implement circuit breakers; fix root cause of 5xx on catalog launch.",
+        "validation": "Error rate < 1% and zero 5xx in subsequent test."
+      },
+      "F-006": {
+        "finding": "Extreme tail latency: P99 4489 ms, max 20709 ms (8.9x average)",
+        "observation": "The 99th percentile response time reached 4489 ms with a maximum of 20709 ms, indicating severe outliers.",
+        "interpretation": "Long-tail latencies suggest intermittent GC pauses, thread blocking, or database lock contention exacerbated by CPU saturation.",
+        "evidence": [
+          {
+            "metric": "P99 Response Time",
+            "value": "4489 ms",
+            "source": "client"
+          },
+          {
+            "metric": "Max Response Time",
+            "value": "20709 ms",
+            "source": "client"
+          },
+          {
+            "metric": "Average Response Time",
+            "value": "592 ms",
+            "source": "client"
+          },
+          {
+            "metric": "P95 Response Time",
+            "value": "1533 ms",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "GC pauses under memory pressure (89.3% peak) combined with CPU queueing; possible database lock waits.",
+        "confidence": "Medium",
+        "impact": "Unpredictable user experience; timeouts for sensitive operations.",
+        "recommendation": "Capture GC logs and thread dumps during load; tune JVM heap and GC algorithm; review database locking.",
+        "validation": "P99 < 2000 ms and max < 5000 ms in next test."
       }
     },
     "capacity_planning": {
       "observed_concurrency": null,
       "estimated_max_users": null,
-      "saturation_point": null,
-      "safe_concurrency": null,
-      "capacity_confidence": "Unknown",
-      "analysis": "The test does not report virtual user count or concurrency level, only throughput (182 req/s). Without knowing the user think time and iteration pacing, we cannot reliably estimate maximum users or saturation point. The CPU peak at 91.4% suggests the current infrastructure is at or near saturation for this throughput level. A capacity test with increasing user loads and measured concurrency is required to define safe operating limits."
+      "saturation_point": "CPU saturation observed at ~182 req/s with 91.4% CPU utilization",
+      "safe_concurrency": "Approximately 145 req/s (80% of current throughput) before CPU saturation",
+      "capacity_confidence": "Low",
+      "analysis": "Concurrency (virtual users) was not directly measured. Using Little's Law (concurrency = throughput \u00d7 response time), average concurrency \u2248 182 req/s \u00d7 0.592 s \u2248 108 users. However, without controlled concurrency ramps, the true saturation point cannot be reliably determined. The test shows CPU saturation at the current throughput, indicating the system is already beyond safe capacity. A proper capacity test with incremental user loads and steady-state measurements is required."
     },
     "root_cause_assessment": [
       {
-        "finding": "CPU saturation on the application server is the primary bottleneck causing elevated response times and server-side errors.",
-        "evidence": "CPU peaked at 91.4% (Azure Monitor); 168 HTTP 5xx errors recorded; three critical transactions show 100% error rates; P90 response times exceed SLA by up to 1056%.",
-        "likely_cause": "Insufficient compute resources for the workload, compounded by inefficient code in the catalog launch flow that consumes excessive CPU cycles.",
+        "finding": "CPU saturation on Azure App Service is the primary bottleneck causing queueing, elevated latency, and 5xx errors.",
+        "evidence": "CPU peaked at 91.4% (avg 60.7%); 168 HTTP 5xx errors; P99 latency 4489 ms; 28/29 transactions breached P90 SLA; error rate 5.72%.",
+        "likely_cause": "Insufficient vCPU allocation for the workload; no auto-scaling; inefficient code paths in catalog and signon transactions amplify CPU demand.",
         "confidence": "High",
-        "recommended_investigation": "Enable continuous profiling (e.g., Azure Application Insights Profiler) to identify CPU hotspots in the catalog launch and sign-on flows. Correlate GC activity with latency spikes. Review thread pool configuration and database connection pool sizing."
+        "recommended_investigation": "Profile CPU usage per transaction (e.g., via Application Insights or profiler); capture thread dumps at peak load; analyze database query execution plans for catalog launch; enable auto-scaling and re-test."
       }
     ],
-    "bottleneck_analysis": "The dominant time consumers are the T-US01_Overall_Iteration (avg 2522 ms) and TC01_US01_Launch_Catalog (avg 1742 ms), which together account for the majority of the test duration. These transactions correspond to the catalog launch and sign-on user journey. The high P99 (4489 ms) and maximum (20709 ms) indicate severe tail latency, likely caused by CPU contention leading to thread queuing and garbage collection pauses. The 100% error rate on these transactions suggests that the application throws exceptions when resource limits are hit, rather than degrading gracefully. Secondary bottlenecks include the category selection transactions (TC02_US02_Select_Dogs_Category P90 552 ms vs 100 ms SLA) which, while not erroring, exceed their stricter SLA targets due to the same CPU pressure.",
-    "tail_latency_analysis": "The P95 response time of 1533 ms and P99 of 4489 ms (max 20709 ms) show high variability. The gap between P90 (957 ms) and P99 (4489 ms) is a factor of 4.7, indicating that a small fraction of requests experience extreme delays. This pattern is consistent with garbage collection stop-the-world events, thread pool exhaustion causing queueing, or sporadic database lock contention. The 168 server-side 5xx errors align with the tail, suggesting that requests hitting resource limits fail rather than complete slowly.",
-    "infra_analysis": "The Azure App Service shows CPU average of 60.7% but peak of 91.4%, indicating that the instance(s) are periodically saturated. Memory average 69.3% with peak 89.3% shows memory headroom but trending high. Network I/O (43 MB/min in, 27 MB/min out) and disk IOPS (21.9M read, 9M write) are within typical limits for this workload but not analyzed for bottlenecks. The CPU saturation is the clear infrastructure constraint; memory is not yet a limiting factor but offers limited headroom for scaling up on the same instance size.",
-    "correlation_insights": "Client-side latency spikes (P90 up to 4046 ms) directly correlate with server CPU peaks (91.4%) and the occurrence of 168 HTTP 5xx errors. The transactions with 100% error rates (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) are the same ones with the highest response times, confirming that the application fails under CPU pressure rather than slowing down linearly. The error rate of 5.72% is driven almost entirely by these three transactions. The correlation indicates that resolving CPU saturation will likely reduce both latency and error rates simultaneously.",
+    "bottleneck_analysis": "The dominant time consumers are the Catalog Launch (TC01_US01_Launch_Catalog, P90 2662 ms) and Signon Navigation (TC02_US04_Navigate_To_Signon_Page, P90 578 ms vs 50 ms SLA). These transactions, along with the overall iteration controllers, account for the highest response times and error rates. CPU saturation (91.4% peak) forces all requests into queueing, inflating latency across the board. The 100% error rate on catalog launch suggests thread pool or database connection pool exhaustion. Database-tier metrics are absent, but the correlation of high CPU with catalog failures points to either application-level lock contention or expensive queries running on a CPU-starved instance. Memory pressure (89.3% peak) may contribute to GC pauses, evidenced by the extreme max latency of 20.7 seconds.",
+    "tail_latency_analysis": "Tail latency is severe: P95 1533 ms, P99 4489 ms, max 20709 ms. The P99 is 7.6x the average (592 ms), indicating high variability. Outliers likely stem from GC stop-the-world events (memory at 89.3% peak), thread starvation due to CPU saturation, and possible database lock contention. The 100% error transactions (catalog launch) may have timed out after long waits, contributing to the max values. Without GC logs and thread dumps, the exact cause of the 20-second outliers cannot be pinpointed, but the combination of high CPU and high memory pressure makes GC a prime suspect.",
+    "infra_analysis": "The Azure App Service shows clear CPU saturation: average 60.7%, peak 91.4%. This leaves no headroom for traffic spikes. Memory utilization averages 69.3% with a peak of 89.3%, approaching the threshold where GC frequency increases. Network I/O (43 MB/min in, 27 MB/min out) and disk IOPS (21.9M reads, 9.0M writes over 60s) are moderate and not indicative of bottlenecks. The 168 HTTP 5xx errors confirm the application runtime is failing under resource pressure. The current instance size is inadequate for the applied load; vertical scaling (more vCPU) or horizontal scaling (auto-scale) is required.",
+    "correlation_insights": "Client-side latency spikes directly correlate with server CPU peaks. The three transactions with 100% error rates (TC01_US01_Launch_Catalog, Transaction Controller_T2, HTTP_US01_Launch_Catalog_Err500) all involve catalog initialization, which likely performs database queries. Under CPU saturation, these queries experience queueing delays, leading to timeouts and 5xx errors. The signon page navigation (TC02_US04_Navigate_To_Signon_Page) exceeds its 50 ms SLA by 1056%, showing even lightweight requests suffer from systemic CPU contention. The 5.72% overall error rate is almost entirely driven by these catalog-related failures; other user stories (US02, US03, US04) have 0% errors but still breach response time SLAs due to the shared resource saturation.",
     "recommendations": [
       {
         "id": "R-001",
         "priority": "Critical",
         "category": "Infrastructure",
-        "title": "Increase compute capacity for the App Service",
-        "why": "CPU peaked at 91.4%, causing request queuing, tail latency, and 5xx errors. The current instance size cannot sustain the tested throughput.",
+        "title": "Scale up Azure App Service and enable auto-scaling",
+        "why": "CPU peaked at 91.4% causing request queueing, 5xx errors, and SLA breaches across 28 transactions.",
         "action": [
-          "Scale up to a higher vCPU tier (e.g., P2v3 to P3v3) or scale out to multiple instances.",
-          "Enable auto-scaling rules based on CPU percentage (e.g., scale out at 70% CPU)."
+          "Upgrade to a higher vCPU tier (e.g., P2v3 or P3v3) to provide immediate headroom.",
+          "Configure auto-scale rules: scale out when CPU > 70% for 5 minutes, scale in when CPU < 30%."
         ],
-        "expected_impact": "Reduced CPU contention, lower response times, elimination of 5xx errors due to resource exhaustion.",
-        "validation": "Re-run load test; verify peak CPU stays below 70%, P90 response times meet SLA, error rate < 1%.",
+        "expected_impact": "Eliminate CPU saturation; reduce average response time by 50%+; bring error rate below 1%.",
+        "validation": "Re-run load test; verify CPU peak < 70%, P90 < SLA targets for all transactions, error rate < 1%.",
         "confidence": "High"
       },
       {
         "id": "R-002",
-        "priority": "Critical",
+        "priority": "High",
         "category": "Backend",
-        "title": "Fix catalog launch failures (HTTP 5xx errors)",
-        "why": "Three critical transactions have 100% error rates, indicating functional failures in the catalog launch flow. These are likely unhandled exceptions triggered by resource pressure.",
+        "title": "Optimize catalog launch and signon page queries",
+        "why": "TC01_US01_Launch_Catalog P90 2662 ms (+432% over SLA) and TC02_US04_Navigate_To_Signon_Page P90 578 ms (+1056% over SLA) are the worst latency offenders.",
         "action": [
-          "Analyze application logs for the 168 5xx errors to identify exception types and stack traces.",
-          "Implement proper error handling and fallback mechanisms (e.g., circuit breaker, retry with backoff).",
-          "Optimize the catalog launch database queries and connection pool usage."
+          "Profile database queries for catalog launch and signon using Query Performance Insight.",
+          "Add caching for catalog category/product data (e.g., Azure Cache for Redis).",
+          "Review and add missing indexes on product and category tables.",
+          "Convert synchronous signon page initialization to asynchronous where possible."
         ],
-        "expected_impact": "Error rate drops below 1% SLA; catalog launch becomes reliable under load.",
-        "validation": "Confirm zero 5xx errors in subsequent test; monitor application insights for exception trends.",
+        "expected_impact": "Reduce catalog launch P90 to < 500 ms; signon navigation P90 to < 50 ms.",
+        "validation": "Measure P90 for TC01_US01_Launch_Catalog and TC02_US04_Navigate_To_Signon_Page in staging after changes.",
         "confidence": "High"
       },
       {
         "id": "R-003",
         "priority": "High",
-        "category": "Backend",
-        "title": "Optimize high-latency transactions (T-US01, TC01_US01, T-US02)",
-        "why": "These transactions exceed SLA by 223% to 709% even without errors (for T-US02). They represent core user journeys.",
+        "category": "Configuration",
+        "title": "Resolve 100% error rate on catalog launch and Transaction Controller_T2",
+        "why": "Three transactions failed on every iteration (228/228, 228/228, 100% error rate), driving overall error rate to 5.72%.",
         "action": [
-          "Profile the code paths for catalog launch, sign-on, and category selection to identify CPU-intensive operations.",
-          "Introduce caching for static catalog data and category lists.",
-          "Review database indexes and query plans for the catalog and category retrieval queries."
+          "Analyze application logs for the 168 HTTP 5xx errors; identify exception types and stack traces.",
+          "Check thread pool and database connection pool configurations; increase limits if exhausted.",
+          "Implement circuit breaker pattern for catalog service calls to fail fast and preserve resources."
         ],
-        "expected_impact": "P90 response times for these transactions fall within defined SLA targets (500 ms for most, 100 ms for category selection).",
-        "validation": "Execute targeted performance test for each transaction; verify P90 meets SLA.",
+        "expected_impact": "Eliminate application errors; achieve < 1% error rate SLA.",
+        "validation": "Next test shows zero 5xx errors and error rate < 1% across all transactions.",
+        "confidence": "High"
+      },
+      {
+        "id": "R-004",
+        "priority": "Medium",
+        "category": "Database",
+        "title": "Enable Azure SQL performance monitoring and query store",
+        "why": "No database metrics were captured; catalog transactions are likely database-bound but invisible.",
+        "action": [
+          "Enable Azure SQL Query Performance Insight and Query Store.",
+          "Monitor DTU/CPU percentage, wait stats, and long-running queries during load.",
+          "Correlate database metrics with transaction latency in next test."
+        ],
+        "expected_impact": "Visibility into database bottlenecks; targeted query optimization.",
+        "validation": "Database CPU < 70% and no query waits > 500 ms during load test.",
         "confidence": "Medium"
       }
     ],
     "performance_intelligence": {
       "executive_summary": {
-        "assessment_text": "The 60-second load test of JPetStore executed 10,881 samples at 182 requests per second. Only 3.4% of transactions (1 of 29) met their defined SLA targets, with 28 transactions breaching response time or error rate thresholds. The primary bottleneck is server CPU saturation (peak 91.4%), which correlates with 168 server-side 5xx errors and a 5.72% overall error rate. Critical user journeys (catalog launch, sign-on, category selection) fail completely or exceed SLA by up to 1056%. Immediate infrastructure scaling and application error remediation are required.",
+        "assessment_text": "\u2022 Only 3.4% of transactions (1 of 29) met defined SLA targets; 28 transactions breached response time or error rate SLAs.\n\u2022 Peak throughput of 182 req/s drove server CPU to 91.4% saturation, causing average response times of 592 ms (P99: 4,489 ms) and a 5.72% error rate.\n\u2022 The Catalog Browse user story (US01) completely failed with 100% error rate on launch and iteration transactions, while other user stories succeeded but with elevated latency.\n\u2022 Primary bottleneck is CPU saturation on the Azure App Service, amplified by inefficient catalog and signon page processing.\n\u2022 168 server-side HTTP 5xx errors confirm application instability under load.",
+        "assessment_bullets": [
+          "SLA compliance at 3.4% (1/29 transactions); 28 transactions breached P90 or error rate targets.",
+          "Throughput 182 req/s saturated CPU at 91.4% peak; memory peaked at 89.3%.",
+          "Catalog Browse (US01) 100% failure rate (226/226 iterations); Signon navigation 10x SLA breach.",
+          "168 HTTP 5xx errors recorded; overall error rate 5.72% vs 1% target.",
+          "Tail latency extreme: P99 4,489 ms, max 20,709 ms."
+        ],
         "conclusions": [
-          "Overall SLA compliance is 3.4% (1 of 29 transactions met targets).",
-          "Server CPU peaked at 91.4%, indicating saturation; 168 HTTP 5xx errors recorded.",
-          "Three transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) have 100% error rates."
+          "System cannot support current load profile; CPU saturation is the root cause of latency and errors.",
+          "Catalog browse flow is completely broken (100% errors) and must be fixed before any further performance tuning.",
+          "Infrastructure scaling is the highest-impact immediate action; code-level optimizations required for catalog and signon."
         ],
         "observations_table": [
           {
             "category": "1. Transaction Statistics",
-            "observation": "a. T-US01_Overall_Iteration: Overall 226 iterations were executed under load out of which 0 passed, 226 failed.\nb. TC01_US01_Launch_Catalog: Overall 228 iterations were executed under load out of which 0 passed, 228 failed.\nc. T-US02_Overall_Iteration: Overall 233 iterations were executed under load out of which 233 passed, 0 failed.\nd. Transaction Controller_T1: Overall 231 iterations were executed under load out of which 231 passed, 0 failed.\ne. T-US04_Overall_Iteration: Overall 646 iterations were executed under load out of which 646 passed, 0 failed.\nf. T-US03_Overall_Iteration: Overall 650 iterations were executed under load out of which 650 passed, 0 failed.\ng. Transaction Controller_T2: Overall 228 iterations were executed under load out of which 0 passed, 228 failed."
+            "observation": "a. US01 Catalog Browse: Overall 226 iterations were executed under load out of which 0 passed, 226 failed (100% failure).\nb. US02 Dog Category: Overall 233 iterations were executed under load out of which 233 passed, 0 failed.\nc. US03 Homepage: Overall 650 iterations were executed under load out of which 650 passed, 0 failed.\nd. US04 Signon: Overall 646 iterations were executed under load out of which 646 passed, 0 failed."
           },
           {
             "category": "2. Response Time Statistics",
-            "observation": "a. 28 out of 29 transactions violated the defined NFR SLA (3.4% compliance).\nb. The avg response time of T-US01_Overall_Iteration ranges from 1159 ms to 20709 ms (avg 2522 ms, P90 4046 ms).\nc. The avg response time of TC01_US01_Launch_Catalog ranges from 771 ms to 14828 ms (avg 1742 ms, P90 2662 ms).\nd. The avg response time of T-US02_Overall_Iteration ranges from 591 ms to 13739 ms (avg 1237 ms, P90 1617 ms).\ne. The avg response time of Transaction Controller_T1 ranges from 374 ms to 14047 ms (avg 981 ms, P90 1309 ms).\nf. The avg response time of T-US04_Overall_Iteration ranges from 360 ms to 20194 ms (avg 890 ms, P90 1174 ms).\ng. The avg response time of T-US03_Overall_Iteration ranges from 389 ms to 19642 ms (avg 885 ms, P90 1119 ms)."
+            "observation": "a. 28 out of 29 transactions violated the defined NFR SLA (3.4% compliance).\nb. The avg response time of T-US01_Overall_Iteration ranges from 1159 ms to 20709 ms (avg 2522 ms).\nc. The avg response time of TC01_US01_Launch_Catalog ranges from 771 ms to 14828 ms (avg 1742 ms).\nd. The avg response time of T-US02_Overall_Iteration ranges from 591 ms to 13739 ms (avg 1237 ms).\ne. The avg response time of TC02_US04_Navigate_To_Signon_Page was 578 ms at P90 vs 50 ms SLA target."
           },
           {
             "category": "3. Errors Reported from Performance Tool",
-            "observation": "a. T-US01_Overall_Iteration: 226 out of 226 failures (100% error rate). Observed failures are HTTP 5xx server errors during peak execution.\nb. TC01_US01_Launch_Catalog: 228 out of 228 failures (100% error rate). Observed failures are HTTP 5xx server errors.\nc. Transaction Controller_T2: 228 out of 228 failures (100% error rate). Observed failures are HTTP 5xx server errors.\nd. Overall error rate across all transactions is 5.72%, exceeding the 1% SLA threshold."
+            "observation": "a. TC01_US01_Launch_Catalog: 228 out of 228 failures (100% error rate). These were HTTP 500 server errors observed during peak execution.\nb. Transaction Controller_T2: 228 out of 228 failures (100% error rate).\nc. HTTP_US01_Launch_Catalog_Err500: 100% error rate.\nd. Overall error rate 5.72% (622 errors) exceeds 1% SLA target by 5.7x."
           },
           {
             "category": "4. Server Utilization & Azure Monitoring",
-            "observation": "a. Server CPU averaged 60.7% (peak 91.4%) and memory averaged 69.3% (peak 89.3%).\nb. Network In: 43.1 MB/min, Network Out: 27.2 MB/min.\nc. Disk Read IOPS: 21,908,149; Disk Write IOPS: 9,019,541.\nd. Azure App Service returned 168 HTTP 5xx errors during the test window."
+            "observation": "a. Server CPU averaged 60.7% (peak 91.4%) and memory averaged 69.3% (peak 89.3%).\nb. Network In: 43.1 MB/min, Network Out: 27.2 MB/min.\nc. Disk Read IOPS: 21,908,149; Disk Write IOPS: 9,019,541 over the 60-second test.\nd. Azure App Service returned 168 HTTP 5xx errors during the test window."
           }
         ],
         "priority_recommendations": [
           {
             "priority": "Critical",
             "badge": "\ud83d\udd34",
-            "title": "Scale up App Service compute to resolve CPU saturation",
-            "detail": "Increase vCPU allocation or enable auto-scaling to keep peak CPU below 70%. This will directly reduce queuing, tail latency, and 5xx errors."
-          },
-          {
-            "priority": "Critical",
-            "badge": "\ud83d\udd34",
-            "title": "Fix catalog launch 5xx errors",
-            "detail": "Investigate and resolve the root cause of HTTP 500 errors in the catalog launch flow (TC01_US01_Launch_Catalog). Check application logs, database connectivity, and exception handling."
+            "title": "Scale up Azure App Service and enable auto-scaling",
+            "detail": "Upgrade to a higher vCPU tier (e.g., P2v3/P3v3) and configure auto-scale rules (scale out at CPU > 70%). This directly addresses the 91.4% CPU peak causing queueing, 5xx errors, and SLA breaches.",
+            "business_impact": "Restores system stability; eliminates 5xx errors; brings 28/29 transactions closer to SLA targets; protects revenue from failed catalog browsing."
           },
           {
             "priority": "High",
             "badge": "\ud83d\udfe0",
-            "title": "Optimize high-latency transactions (T-US01, TC01_US01, T-US02)",
-            "detail": "Profile and optimize the catalog launch, sign-on, and category selection code paths. Implement caching for static data and review database query performance."
+            "title": "Fix catalog launch 100% failure rate",
+            "detail": "Analyze server logs for the 168 5xx errors; increase thread/connection pool limits; optimize catalog database queries; add caching for catalog data.",
+            "business_impact": "Recovers the primary product browsing workflow; eliminates 100% failure on US01; directly improves conversion funnel entry point."
+          },
+          {
+            "priority": "High",
+            "badge": "\ud83d\udfe0",
+            "title": "Optimize signon page navigation to meet 50 ms SLA",
+            "detail": "Profile TC02_US04_Navigate_To_Signon_Page (P90 578 ms vs 50 ms target); remove synchronous blocking calls; ensure session initialization is lightweight.",
+            "business_impact": "Ensures authentication entry point meets strict latency SLA; reduces login abandonment."
+          },
+          {
+            "priority": "Medium",
+            "badge": "\ud83d\udfe1",
+            "title": "Enable database observability and tune queries",
+            "detail": "Activate Azure SQL Query Performance Insight and Query Store; monitor DTU/CPU, wait stats, and long-running queries during load; optimize top consumers.",
+            "business_impact": "Provides visibility into data-tier bottlenecks; enables targeted indexing and query tuning to reduce catalog latency."
           }
         ]
       },
       "tab_tx_stats": {
         "observations": [
-          "The test executed 10,881 total samples across 29 transactions. The highest volume transactions are HTTP_US03_Launch_Homepage (655 samples), HTTP_US04_Launch_Catalog (651 samples), and T-US03_Overall_Iteration (650 samples).",
-          "Three transactions (T-US01_Overall_Iteration, TC01_US01_Launch_Catalog, Transaction Controller_T2) have 100% error rates, accounting for 682 failed iterations. All other transactions have 0% error rates.",
-          "Throughput of 182 req/s is driven primarily by the homepage and catalog launch HTTP requests, but the business-critical iterations (T-US01, T-US02) have lower iteration counts due to failures and pacing."
+          "The test executed 10,881 total samples across 29 transactions at 182 req/s throughput over 60 seconds.",
+          "US01 Catalog Browse accounted for 226 overall iterations but with 100% failure rate; US02, US03, US04 completed successfully with 233, 650, and 646 iterations respectively.",
+          "Transaction Controller_T1 and _T2 appear as control transactions with high sample counts (231, 228); T2 shows 100% errors, indicating a systemic failure in the controller logic under load."
         ],
         "recommendations": [
-          "Prioritize fixing the 100% error rate transactions to restore functional correctness before further performance tuning.",
-          "Review the pacing and think-time configuration for user stories to ensure realistic concurrency representation."
+          "Prioritize fixing US01 Catalog Browse flow which completely failed; investigate root cause of 100% errors on Launch Catalog and Transaction Controller_T2.",
+          "Consider pacing adjustments or think-time insertion to reduce concurrency pressure on catalog browsing during peak load."
         ]
       },
       "tab_rt_stats": {
         "observations": [
-          "28 of 29 transactions breach their defined P90 SLA targets. The most severe breach is TC02_US04_Navigate_To_Signon_Page with P90 578 ms vs 50 ms target (+1056% deviation).",
-          "The top three transactions by P90 latency are T-US01_Overall_Iteration (4046 ms), TC01_US01_Launch_Catalog (2662 ms), and T-US02_Overall_Iteration (1617 ms), all exceeding the 500 ms default SLA by 223% to 709%.",
-          "Tail latency is high: P95 1533 ms, P99 4489 ms, max 20709 ms, indicating significant variability and occasional extreme delays."
+          "28 of 29 transactions breached P90 SLA targets; only one transaction met SLA (3.4% compliance).",
+          "Worst offenders: TC02_US04_Navigate_To_Signon_Page P90 578 ms vs 50 ms target (+1056%), T-US01_Overall_Iteration P90 4046 ms vs 500 ms (+709%), TC01_US01_Launch_Catalog P90 2662 ms vs 500 ms (+432%).",
+          "Tail latency extreme: P99 4489 ms, max 20709 ms, indicating severe outliers under CPU saturation."
         ],
         "recommendations": [
-          "Focus optimization efforts on the catalog launch and sign-on flow (T-US01, TC01_US01) as they contribute the largest latency and error impact.",
-          "Investigate and mitigate the causes of tail latency (GC pauses, thread pool exhaustion, database locks) to bring P99 within acceptable bounds."
+          "Focus optimization on catalog launch and signon navigation paths which exceed SLA by 400-1000%.",
+          "Implement caching for catalog data and optimize signon page rendering to reduce CPU demand per request."
         ]
       },
       "tab_error_stats": {
         "observations": [
-          "Overall error rate is 5.72% (623 errors out of 10,881 samples), exceeding the 1% SLA threshold by 5.7x.",
-          "Errors are concentrated in three transactions: T-US01_Overall_Iteration (226 errors), TC01_US01_Launch_Catalog (228 errors), and Transaction Controller_T2 (228 errors), all showing 100% error rates.",
-          "Azure Monitor recorded 168 HTTP 5xx errors during the test window, confirming server-side failures as the source of client-side errors."
+          "Overall error rate 5.72% exceeds 1% SLA target by 5.7x.",
+          "Three transactions exhibited 100% error rate: TC01_US01_Launch_Catalog (228/228), Transaction Controller_T2 (228/228), HTTP_US01_Launch_Catalog_Err500 (100%).",
+          "168 HTTP 5xx errors recorded server-side, confirming application-level failures correlated with CPU peaks."
         ],
         "recommendations": [
-          "Analyze server logs for the 5xx errors to identify exception types and stack traces; implement fixes for the underlying code defects.",
-          "Add circuit breaker and retry logic for downstream dependencies to improve resilience under resource pressure."
+          "Analyze server logs for the 5xx errors on catalog launch; likely due to thread exhaustion or database connection pool depletion under CPU saturation.",
+          "Implement circuit breaker and retry logic for catalog service calls to improve resilience."
         ]
       },
       "tab_infra_stats": {
         "observations": [
-          "CPU utilization averaged 60.7% but peaked at 91.4%, indicating periodic saturation that aligns with latency spikes and error bursts.",
-          "Memory utilization averaged 69.3% with a peak of 89.3%, showing adequate headroom but trending high; no memory pressure observed yet.",
-          "Network and disk I/O are within normal ranges for the workload; no obvious bottlenecks in those resources."
+          "CPU utilization averaged 60.7% but peaked at 91.4%, indicating saturation during peak load; no headroom for traffic spikes.",
+          "Memory utilization averaged 69.3% peaking at 89.3%, approaching limits but not saturated; potential GC pressure contributor to tail latency.",
+          "Azure App Service returned 168 5xx errors during test, correlating with CPU peaks."
         ],
         "recommendations": [
-          "Scale up the App Service plan (increase vCPU) or configure horizontal scaling to maintain CPU below 70% under peak load.",
-          "Monitor memory trends during longer soak tests to ensure no memory leaks; consider increasing memory if scaling up CPU."
+          "Scale up App Service plan to higher vCPU tier or enable horizontal auto-scaling triggered at 70% CPU.",
+          "Monitor memory trends; consider increasing memory allocation if GC pressure suspected after scaling CPU."
         ]
       }
     },
     "source": "openrouter",
     "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "elapsed_ms": 292203,
+    "elapsed_ms": 377069,
     "performance_score": 50,
     "performance_grade": "D"
   }

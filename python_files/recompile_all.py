@@ -87,7 +87,7 @@ def run(regen_ai: bool = False):
             try:
                 from python_files.ai_insights import generate_insights
                 from python_files.sla_manager import load_sla_targets
-                sla_targets, default_rt, default_err = load_sla_targets(jmx_name)
+                sla_targets, default_rt, default_err = load_sla_targets(jmx_name, actual_users=users)
                 infra_summary = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
                 if not infra_summary and isinstance(azure_data, dict) and "metrics" in azure_data:
                     from python_files.azure_collector import AzureMetricsCollector

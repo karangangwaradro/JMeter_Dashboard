@@ -171,10 +171,10 @@ FORMAT EXAMPLE FOR HIGH LEVEL OBSERVATIONS:
     c. The avg response time of Single bind ranges from 12 secs to 20 secs.
     d. The avg response time of Group renewal issue quote and bind quote was observed to be 41 secs and 8 secs respectively.
 
-3. Errors Reported from Performance Tool:
+3. Errors :
     a. UC07 T11 ClickOnIssueQuote: 27 out of 34 Failure i.e., error rate is 79%. These were timeout or server errors observed during peak execution.
 
-4. Server Utilization & Azure Monitoring:
+4. Server Monitoring:
     a. Server CPU averaged X% (peak Y%) and memory averaged Z%.
     b. (If App Service / Function Apps present): Execution counts, memory usage, and execution durations.
 
@@ -267,7 +267,12 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
   ],
   "performance_intelligence": {{
     "executive_summary": {{
-      "assessment_text": "One natural summary paragraph synthesizing the test narrative, citing exact measurements, primary bottlenecks, and reliability status.",
+      "assessment_text": "3-5 high-level executive pointers/bullet statements citing exact measurements, primary bottlenecks, and reliability status.",
+      "assessment_bullets": [
+        "Executive finding pointer 1 citing measured response time ranges and overall SLA compliance",
+        "Executive finding pointer 2 citing peak throughput and concurrency behavior",
+        "Executive finding pointer 3 citing primary bottlenecks or error patterns"
+      ],
       "conclusions": [
         "Concise conclusion bullet 1 citing exact numbers",
         "Concise conclusion bullet 2 citing exact numbers",
@@ -283,16 +288,16 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly
           "observation": "a. X transactions violated the NFR SLA.\\nb. The avg response time of ... ranges from ... to ...\\nc. ..."
         }},
         {{
-          "category": "3. Errors Reported from Performance Tool",
+          "category": "3. Errors",
           "observation": "a. Transaction Name: X out of Y failures (Z% error rate). Observed failure reasons..."
         }},
         {{
-          "category": "4. Server Utilization & Azure Monitoring",
+          "category": "4. Server Monitoring",
           "observation": "a. Server CPU averaged X% (peak Y%) and memory averaged Z%.\\nb. ..."
         }}
       ],
       "priority_recommendations": [
-        {{"priority": "High", "badge": "🟠", "title": "Short recommendation title", "detail": "Actionable, evidence-backed advice"}}
+        {{"priority": "High", "badge": "🟠", "title": "Short recommendation title", "detail": "Actionable, evidence-backed technical remediation advice", "business_impact": "Direct operational or business impact, e.g. Eliminates checkout delays, protecting customer conversion during peak sales windows."}}
       ]
     }},
     "tab_tx_stats": {{
@@ -498,7 +503,7 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "nv
     req = urllib.request.Request(url, data=payload, headers={
         "Authorization": f"Bearer {key}",
         "HTTP-Referer": "http://localhost:8080",
-        "X-Title": "PerfPilot JMeter AI",
+        "X-Title": "PerfPilot",
         "Content-Type": "application/json"
     })
 
@@ -762,7 +767,7 @@ Return JSON with exact keys:
             req = urllib.request.Request(url, data=payload, headers={
                 "Authorization": f"Bearer {openrouter_key}",
                 "HTTP-Referer": "http://localhost:8080",
-                "X-Title": "PerfPilot JMeter AI",
+                "X-Title": "PerfPilot",
                 "Content-Type": "application/json"
             })
             with urllib.request.urlopen(req, timeout=20) as resp:
@@ -808,7 +813,7 @@ Return JSON with exact keys:
             req = urllib.request.Request(url, data=payload, headers={
                 "Authorization": f"Bearer {openrouter_key}",
                 "HTTP-Referer": "http://localhost:8080",
-                "X-Title": "PerfPilot JMeter AI",
+                "X-Title": "PerfPilot",
                 "Content-Type": "application/json"
             })
             with urllib.request.urlopen(req, timeout=20) as resp:

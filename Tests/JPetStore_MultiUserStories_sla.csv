@@ -1,12 +1,12 @@
-Transaction Label,Target RT (ms),Target Error Rate (%),Minor Breach (%),Moderate Breach (%),Critical Breach (%),Is Critical Transaction
-default,500,1,100.0,200.0,300.0,0
-TC01_US01_Launch_Catalog,500,1,100.0,200.0,300.0,0
-TC01_US02_Launch_Catalog,500,1,100.0,200.0,300.0,0
-TC01_US03_Launch_Homepage,200,1,100.0,200.0,300.0,1
-TC01_US04_Launch_Catalog,500,1,100.0,200.0,300.0,0
-TC02_US01_Select_Fish_Category,92,1,100.0,200.0,300.0,1
-TC02_US02_Select_Dogs_Category,100,1,100.0,200.0,300.0,0
-TC02_US03_Search_Keyword_Bulldog,500,1,100.0,200.0,300.0,0
-TC02_US04_Navigate_To_Signon_Page,50,1,100.0,200.0,300.0,1
-TC03_US01_View_Product_Details,500,1,100.0,200.0,300.0,0
-TC03_US02_Add_Item_To_Cart,1517,1,100.0,200.0,300.0,1
+Transaction Label,Target RT (ms),Target Error Rate (%),Minor Breach (%),Moderate Breach (%),Critical Breach (%),Is Critical Transaction,Scenario: Normal Load (50 Users):Target RT (ms),Scenario: Normal Load (50 Users):Target Error Rate (%),Scenario: Spike Load (500 Users):Target RT (ms),Scenario: Spike Load (500 Users):Target Error Rate (%)
+default,500,1,100.0,200.0,300.0,0,500,1,500,1
+TC01_US01_Launch_Catalog,500,1,100.0,200.0,300.0,0,500,1,500,1
+TC01_US02_Launch_Catalog,500,1,100.0,200.0,300.0,0,500,1,500,1
+TC01_US03_Launch_Homepage,200,1,100.0,200.0,300.0,1,200,1,200,1
+TC01_US04_Launch_Catalog,500,1,100.0,200.0,300.0,0,500,1,500,1
+TC02_US01_Select_Fish_Category,92,1,100.0,200.0,300.0,1,400,1,92,1
+TC02_US02_Select_Dogs_Category,100,1,100.0,200.0,300.0,0,100,1,100,1
+TC02_US03_Search_Keyword_Bulldog,500,1,100.0,200.0,300.0,0,500,1,500,1
+TC02_US04_Navigate_To_Signon_Page,50,1,100.0,200.0,300.0,1,50,1,50,1
+TC03_US01_View_Product_Details,500,1,100.0,200.0,300.0,0,500,1,500,1
+TC03_US02_Add_Item_To_Cart,1517,1,100.0,200.0,300.0,1,1517,1,1517,1

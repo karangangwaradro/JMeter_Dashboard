@@ -1,5 +1,16 @@
 // app.js — Frontend Application Logic for PerfPilot SPA
 
+// ── Utility: HTML Escaping ──────────────────────────────────────────────────
+function escapeHtml(str) {
+    if (str == null) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 let activePollingInterval = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -63,14 +74,9 @@ function switchTab(tabId) {
         loadStatus();
         loadTests();
     } else if (tabId === "tab-sla") {
-        loadSlaScenariosFilter().then(() => {
-            const filter = document.getElementById("sla-jmx-filter");
-            const testSel = document.getElementById("test-select");
-            if (filter && !filter.value && testSel && testSel.value) {
-                filter.value = testSel.value;
-            }
-            loadSlaTargetsForSelectedJmx(filter ? filter.value : "");
-        });
+        const jmxSelect = document.getElementById("jmx-select");
+        const preferredJmx = jmxSelect && jmxSelect.value ? jmxSelect.value : "";
+        loadSlaScenariosFilter(preferredJmx);
     } else if (tabId === "tab-reports") {
         loadRuns();
         loadReports();
@@ -178,7 +184,7 @@ async function handleJmxSelection(jmxName) {
     const saveBtn = document.getElementById("btn-save-config");
 
     if (!jmxName) {
-        container.innerHTML = '<div class="info-box">Select a JMX file above to view and configure its thread groups.</div>';
+        container.innerHTML = '<div class="info-box">Select a JMX file above to view and configure its user journeys.</div>';
         launchBtn.disabled = true;
         saveBtn.disabled = true;
         csvBox.classList.add("hidden");
@@ -186,7 +192,7 @@ async function handleJmxSelection(jmxName) {
         return;
     }
 
-    container.innerHTML = '<div class="info-box" style="text-align:center;">⏳ Loading thread groups...</div>';
+    container.innerHTML = '<div class="info-box" style="text-align:center;">⏳ Loading user journeys...</div>';
 
     try {
         const res = await fetch(`/api/jmx-config?jmx=${encodeURIComponent(jmxName)}`);
@@ -216,7 +222,7 @@ async function handleJmxSelection(jmxName) {
         }
 
         if (tgs.length === 0) {
-            container.innerHTML = '<div class="info-box" style="color: var(--danger);">No Thread Groups found in this JMX file.</div>';
+            container.innerHTML = '<div class="info-box" style="color: var(--danger);">No User Journeys found in this JMX file.</div>';
             launchBtn.disabled = true;
             saveBtn.disabled = true;
             return;
@@ -240,7 +246,7 @@ async function handleJmxSelection(jmxName) {
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <strong style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">${tg.name}</strong>
-                        <span class="badge badge-passed" style="font-size: 0.7rem; padding: 0.15rem 0.5rem; font-weight: 500;">Thread Group ${idx + 1}</span>
+                        <span class="badge badge-passed" style="font-size: 0.7rem; padding: 0.15rem 0.5rem; font-weight: 500;">User Journey ${idx + 1}</span>
                     </div>
                     <label class="tg-toggle" title="${isEnabled ? 'Enabled — click to disable' : 'Disabled — click to enable'}">
                         <input type="checkbox" class="tg-enabled-check" ${isEnabled ? 'checked' : ''} onchange="toggleTgCard(this)">
@@ -276,7 +282,7 @@ async function handleJmxSelection(jmxName) {
 
     } catch (err) {
         console.error("Failed to load JMX config:", err);
-        container.innerHTML = '<div class="info-box" style="color: var(--danger);">Error loading thread group configuration.</div>';
+        container.innerHTML = '<div class="info-box" style="color: var(--danger);">Error loading user journey configuration.</div>';
         launchBtn.disabled = true;
         saveBtn.disabled = true;
     }
@@ -325,7 +331,7 @@ function collectThreadGroupConfigs() {
 async function handleSaveJmxConfig() {
     const payload = collectThreadGroupConfigs();
     if (!payload || payload.thread_groups.length === 0) {
-        alert("Please select a JMX file and configure thread groups first.");
+        alert("Please select a JMX file and configure user journeys first.");
         return;
     }
 
@@ -587,7 +593,7 @@ function renderRunsTable(runs) {
             <td style="text-align: center;">${run.users}</td>
             <td style="text-align: right;">${run.total_samples ? run.total_samples.toLocaleString() : 0}</td>
             <td style="text-align: center;">${run.has_azure ? '✅ Yes' : '➖ No'}</td>
-            <td style="text-align: center;">${run.has_ai_insights ? '🤖 AI' : '📊 Rule'}</td>
+            <td style="text-align: center;">${run.has_ai_insights ? ' AI' : '📊 Rule'}</td>
             <td style="text-align: center;"><span class="badge ${badgeClass}">${run.status.toUpperCase()}</span></td>
             <td style="text-align: right;" onclick="event.stopPropagation();">
                 <div class="action-btn-group">
@@ -697,7 +703,7 @@ async function executeRecompile() {
 
     if (statusBox) statusBox.classList.remove("hidden");
     if (statusText) {
-        statusText.textContent = regenAi 
+        statusText.textContent = regenAi
             ? "Re-parsing metrics & generating fresh AI insights from LLM... please wait."
             : "Recompiling HTML dashboard... please wait.";
     }
@@ -849,8 +855,8 @@ async function loadAiConfig() {
         if (statusPill) {
             const activeProv = data.provider || "openrouter";
             const isConfigured = (activeProv === "openrouter" && data.openrouter_configured) ||
-                                 (activeProv === "gemini" && data.gemini_configured) ||
-                                 (activeProv === "github" && data.github_configured);
+                (activeProv === "gemini" && data.gemini_configured) ||
+                (activeProv === "github" && data.github_configured);
             if (isConfigured) {
                 statusPill.textContent = `${activeProv.toUpperCase()} Ready`;
                 statusPill.style.color = "#10b981";
@@ -992,16 +998,21 @@ async function uploadFile(file) {
 }
 
 // ── SLA Management ─────────────────────────────────────────────────────────────
-async function loadSlaScenariosFilter() {
+let currentSlaScenarios = [];
+let currentSlaIdentifications = [];
+let currentSlaFilterQuery = "";
+
+async function loadSlaScenariosFilter(preferredJmx = "") {
     try {
         const res = await fetch("/api/tests");
         const data = await res.json();
         const filter = document.getElementById("sla-jmx-filter");
         if (!filter) return;
 
-        const currentVal = filter.value;
-        filter.innerHTML = '<option value="">All Scenarios (Global default)</option>';
+        const currentVal = preferredJmx || filter.value;
+        filter.innerHTML = '<option value="">All Scenarios / Global Fallback (config/sla_targets.csv)</option>';
 
+        let matched = false;
         if (data.tests && data.tests.length > 0) {
             data.tests.forEach(testFile => {
                 if (testFile.endsWith(".jmx")) {
@@ -1009,189 +1020,514 @@ async function loadSlaScenariosFilter() {
                     opt.value = testFile;
                     opt.textContent = `${testFile} (Paired SLA CSV)`;
                     filter.appendChild(opt);
+                    if (currentVal && currentVal === testFile) {
+                        matched = true;
+                    }
                 }
             });
         }
-        filter.value = currentVal;
+
+        // Set the active value: prefer passed preferredJmx, then previous val if exists, else first jmx if available
+        if (matched) {
+            filter.value = currentVal;
+        } else if (currentVal === "") {
+            filter.value = "";
+        } else if (filter.options.length > 1) {
+            filter.selectedIndex = 1; // pick first actual JMX test plan
+        }
+
+        handleSlaTestPlanChange(filter.value);
     } catch (err) {
         console.error("Failed to load SLA scenario filter:", err);
     }
+}
+
+function handleSlaTestPlanChange(jmxName = "") {
+    const planNameEl = document.getElementById("sla-chip-plan-name");
+    const fileChipEl = document.getElementById("sla-chip-file");
+
+    if (planNameEl) {
+        planNameEl.textContent = jmxName || "Global Default";
+    }
+    if (fileChipEl) {
+        if (jmxName) {
+            const clean = jmxName.replace(/\.jmx$/i, "");
+            fileChipEl.textContent = `Tests/${clean}_sla.csv`;
+            fileChipEl.title = `Paired SLA CSV file for ${jmxName}`;
+        } else {
+            fileChipEl.textContent = "config/sla_targets.csv";
+            fileChipEl.title = "Global fallback SLA file";
+        }
+    }
+
+    loadSlaTargetsForSelectedJmx(jmxName);
 }
 
 async function loadSlaTargetsForSelectedJmx(jmxName = "") {
     const tbody = document.getElementById("sla-tbody");
     if (!tbody) return;
 
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;"><span class="spinner-inline" style="margin-right: 8px;"></span> Loading SLA targets for ${escapeHtml(jmxName || "Global Default")}...</td></tr>`;
+
     try {
         const url = jmxName ? `/api/sla?jmx=${encodeURIComponent(jmxName)}` : "/api/sla";
         const res = await fetch(url);
         const data = await res.json();
 
-        tbody.innerHTML = "";
-        const identifications = data.identifications || [];
+        currentSlaScenarios = data.scenarios || [];
+        currentSlaIdentifications = data.identifications || [];
 
-        if (identifications.length > 0) {
-            identifications.forEach((item, idx) => {
-                const tr = document.createElement("tr");
-                const isDefault = item.label === "default";
-                const isCrit = item.is_critical === 1 || item.is_critical === "1" || item.is_critical === true || item.is_critical === "true";
-                const isCritChecked = isCrit ? "checked" : "";
-                tr.innerHTML = `
-                    <td><strong>${item.label}</strong> ${isDefault ? '<span class="badge badge-passed">GLOBAL DEFAULT</span>' : ''}</td>
-                    <td style="text-align: center;">
-                        ${isDefault ? '-' : `
-  <label style="
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    width:42px;
-    height:23px;
-    padding:2px;
-    border-radius:999px;
-    cursor:pointer;
-    box-sizing:border-box;
-
-    background:${isCrit
-                            ? 'rgba(239,68,68,.16)'
-                            : 'rgba(148,163,184,.16)'};
-
-    border:1px solid ${isCrit
-                            ? 'rgba(239,68,68,.28)'
-                            : 'rgba(148,163,184,.28)'};
-
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
-
-    box-shadow:
-      inset 0 1px 2px rgba(255,255,255,.7),
-      0 2px 6px rgba(15,23,42,.06);
-
-    transition:
-      background .25s ease,
-      border-color .25s ease,
-      box-shadow .25s ease;
-  ">
-
-    <input
-      type="checkbox"
-      class="sla-crit-checkbox"
-      ${isCritChecked}
-      style="
-        position:absolute;
-        opacity:0;
-        width:0;
-        height:0;
-      "
-
-      onchange="
-        const track=this.parentElement;
-        const knob=track.querySelector('.sla-toggle-knob');
-
-        track.style.background=this.checked
-          ? 'rgba(239,68,68,.16)'
-          : 'rgba(148,163,184,.16)';
-
-        track.style.borderColor=this.checked
-          ? 'rgba(239,68,68,.32)'
-          : 'rgba(148,163,184,.28)';
-
-        knob.style.transform=this.checked
-          ? 'translateX(19px) scaleX(1.12)'
-          : 'translateX(0) scaleX(1)';
-
-        knob.style.background=this.checked
-          ? '#ef4444'
-          : 'rgba(255,255,255,.92)';
-
-        knob.style.boxShadow=this.checked
-          ? '0 2px 7px rgba(239,68,68,.28), inset 0 1px 1px rgba(255,255,255,.45)'
-          : '0 2px 6px rgba(15,23,42,.12), inset 0 1px 1px rgba(255,255,255,.8)';
-      "
-    >
-
-    <span
-      class="sla-toggle-knob"
-      style="
-        display:block;
-        width:17px;
-        height:17px;
-        flex:none;
-        border-radius:50%;
-
-        background:${isCrit
-                            ? '#ef4444'
-                            : 'rgba(255,255,255,.92)'};
-
-        transform:${isCrit
-                            ? 'translateX(19px) scaleX(1.12)'
-                            : 'translateX(0) scaleX(1)'};
-
-        box-shadow:${isCrit
-                            ? '0 2px 7px rgba(239,68,68,.28), inset 0 1px 1px rgba(255,255,255,.45)'
-                            : '0 2px 6px rgba(15,23,42,.12), inset 0 1px 1px rgba(255,255,255,.8)'};
-
-        transition:
-          transform .38s cubic-bezier(.34,1.56,.64,1),
-          background .22s ease,
-          box-shadow .22s ease;
-      "
-    ></span>
-
-  </label>
-`}
-                    </td>
-                    <td><input type="number" class="sla-rt-input" value="${item.rt}" style="width: 140px;" required></td>
-                    <td><input type="number" step="0.1" class="sla-err-input" value="${item.err}" style="width: 140px;" required></td>
-                    <td><span class="badge ${item.defined ? 'badge-passed' : 'badge-warning'}">${item.status}</span></td>
-                    <td>${!isDefault ? `<button type="button" class="btn btn-danger" onclick="this.closest('tr').remove()" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Delete</button>` : 'System Default'}</td>
-                `;
-                tr.dataset.label = item.label;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No SLA targets found.</td></tr>';
+        // Update meta count chips
+        const txChip = document.getElementById("sla-chip-txs");
+        const scChip = document.getElementById("sla-chip-scenarios");
+        if (txChip) {
+            txChip.textContent = `${currentSlaIdentifications.length} Transactions`;
         }
+        if (scChip) {
+            scChip.textContent = `${currentSlaScenarios.length} Load Scenarios`;
+        }
+
+        renderSlaTable();
     } catch (err) {
         console.error("Failed to load SLA targets:", err);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger" style="padding: 1.5rem;">Failed to load SLA targets: ${escapeHtml(String(err))}</td></tr>`;
     }
+}
+
+function filterSlaRowsUI(query) {
+    currentSlaFilterQuery = (query || "").trim().toLowerCase();
+    const tbody = document.getElementById("sla-tbody");
+    if (!tbody) return;
+
+    const rows = tbody.querySelectorAll("tr[data-label]");
+    let visibleCount = 0;
+    rows.forEach(tr => {
+        const label = (tr.dataset.label || "").toLowerCase();
+        if (!currentSlaFilterQuery || label.includes(currentSlaFilterQuery)) {
+            tr.style.display = "";
+            visibleCount++;
+        } else {
+            tr.style.display = "none";
+        }
+    });
+
+    const noMatchesRow = document.getElementById("sla-no-matches-row");
+    if (visibleCount === 0 && rows.length > 0) {
+        if (!noMatchesRow) {
+            const tr = document.createElement("tr");
+            tr.id = "sla-no-matches-row";
+            const colSpan = 6 + currentSlaScenarios.length;
+            tr.innerHTML = `<td colspan="${colSpan}" class="text-center text-muted" style="padding: 1.5rem;">No transactions matching "<strong>${escapeHtml(query)}</strong>"</td>`;
+            tbody.appendChild(tr);
+        }
+    } else if (noMatchesRow) {
+        noMatchesRow.remove();
+    }
+}
+
+function renderSlaTable() {
+    const thead = document.getElementById("sla-thead");
+    const tbody = document.getElementById("sla-tbody");
+    if (!thead || !tbody) return;
+
+    // 1. Build Header Row with Dynamic Scenario Columns
+    let thHtml = `
+        <tr>
+            <th>Transaction / Sampler Label</th>
+            <th style="text-align: center; min-width: 90px;">Critical?</th>
+            <th style="min-width: 130px;">Base RT (ms)<br><span style="font-size:0.7rem; font-weight:normal; color:var(--text-muted);">Default / Fallback</span></th>
+            <th style="min-width: 110px;">Base Err (%)<br><span style="font-size:0.7rem; font-weight:normal; color:var(--text-muted);">Default</span></th>
+    `;
+
+    currentSlaScenarios.forEach(sc => {
+        thHtml += `
+            <th class="sla-scenario-th" style="text-align: center; min-width: 170px;">
+                <div class="sla-sc-th-header">
+                    <span class="sla-sc-name">${escapeHtml(sc.name)}</span>
+                    <span class="sla-sc-badge">${sc.users} Users</span>
+                    <button type="button" class="sla-sc-del-btn" title="Delete scenario column" onclick="deleteSlaScenarioUI('${sc.id}')">✕</button>
+                </div>
+                <div class="sla-sc-th-sub">Target RT (ms) | Err (%)</div>
+            </th>
+        `;
+    });
+
+    thHtml += `
+            <th>Status / Scope</th>
+            <th>Actions</th>
+        </tr>
+    `;
+    thead.innerHTML = thHtml;
+
+    // 2. Build Body Rows
+    tbody.innerHTML = "";
+    if (currentSlaIdentifications.length === 0) {
+        const colSpan = 6 + currentSlaScenarios.length;
+        tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center text-muted" style="padding: 2rem;">No SLA targets found for this test plan. Click "➕ Add Row" or "➕ Add Load Scenario" to get started.</td></tr>`;
+        return;
+    }
+
+    currentSlaIdentifications.forEach(item => {
+        const tr = document.createElement("tr");
+        const isDefault = item.label === "default";
+        const isCrit = item.is_critical === 1 || item.is_critical === "1" || item.is_critical === true || item.is_critical === "true";
+        const isCritChecked = isCrit ? "checked" : "";
+
+        let rowHtml = `
+            <td>
+                <strong>${escapeHtml(item.label)}</strong>
+                ${isDefault ? ' <span class="badge badge-passed">GLOBAL DEFAULT</span>' : ''}
+            </td>
+            <td style="text-align: center;">
+                ${isDefault ? '-' : `
+                    <label style="
+                        position:relative;
+                        display:inline-flex;
+                        align-items:center;
+                        width:42px;
+                        height:23px;
+                        padding:2px;
+                        border-radius:999px;
+                        cursor:pointer;
+                        box-sizing:border-box;
+                        background:${isCrit ? 'rgba(239,68,68,.16)' : 'rgba(148,163,184,.16)'};
+                        border:1px solid ${isCrit ? 'rgba(239,68,68,.28)' : 'rgba(148,163,184,.28)'};
+                        backdrop-filter:blur(12px);
+                        -webkit-backdrop-filter:blur(12px);
+                        box-shadow:inset 0 1px 2px rgba(255,255,255,.7), 0 2px 6px rgba(15,23,42,.06);
+                        transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;
+                    ">
+                        <input
+                            type="checkbox"
+                            class="sla-crit-checkbox"
+                            ${isCritChecked}
+                            style="position:absolute; opacity:0; width:0; height:0;"
+                            onchange="
+                                const track=this.parentElement;
+                                const knob=track.querySelector('.sla-toggle-knob');
+                                track.style.background=this.checked ? 'rgba(239,68,68,.16)' : 'rgba(148,163,184,.16)';
+                                track.style.borderColor=this.checked ? 'rgba(239,68,68,.32)' : 'rgba(148,163,184,.28)';
+                                knob.style.transform=this.checked ? 'translateX(19px) scaleX(1.12)' : 'translateX(0) scaleX(1)';
+                                knob.style.background=this.checked ? '#ef4444' : 'rgba(255,255,255,.92)';
+                            "
+                        >
+                        <span
+                            class="sla-toggle-knob"
+                            style="
+                                display:block;
+                                width:17px;
+                                height:17px;
+                                flex:none;
+                                border-radius:50%;
+                                background:${isCrit ? '#ef4444' : 'rgba(255,255,255,.92)'};
+                                transform:${isCrit ? 'translateX(19px) scaleX(1.12)' : 'translateX(0) scaleX(1)'};
+                                box-shadow:${isCrit ? '0 2px 7px rgba(239,68,68,.28), inset 0 1px 1px rgba(255,255,255,.45)' : '0 2px 6px rgba(15,23,42,.12), inset 0 1px 1px rgba(255,255,255,.8)'};
+                                transition:transform .38s cubic-bezier(.34,1.56,.64,1), background .22s ease, box-shadow .22s ease;
+                            "
+                        ></span>
+                    </label>
+                `}
+            </td>
+            <td><input type="number" class="sla-rt-input" value="${item.rt}" style="width: 110px;" required></td>
+            <td><input type="number" step="0.1" class="sla-err-input" value="${item.err}" style="width: 90px;" required></td>
+        `;
+
+        // Scenario Cells
+        const itemScenarios = item.scenarios || {};
+        currentSlaScenarios.forEach(sc => {
+            const scVal = itemScenarios[sc.id] || itemScenarios[sc.name] || { rt: item.rt, err: item.err };
+            rowHtml += `
+                <td class="sla-sc-td" style="text-align: center;">
+                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                        <input type="number" class="sla-sc-rt-input" data-sc-id="${sc.id}" value="${scVal.rt}" placeholder="RT" title="${escapeHtml(sc.name)} Target RT (ms)" style="width: 76px; text-align: center;" required>
+                        <input type="number" step="0.1" class="sla-sc-err-input" data-sc-id="${sc.id}" value="${scVal.err}" placeholder="Err%" title="${escapeHtml(sc.name)} Target Error Rate (%)" style="width: 62px; text-align: center;" required>
+                    </div>
+                </td>
+            `;
+        });
+
+        rowHtml += `
+            <td><span class="badge ${item.defined ? 'badge-passed' : 'badge-warning'}">${escapeHtml(item.status || 'Defined')}</span></td>
+            <td>${!isDefault ? `<button type="button" class="btn btn-danger" onclick="deleteSlaRowUI(this)" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Delete</button>` : '<span class="text-muted" style="font-size:0.75rem;">System Default</span>'}</td>
+        `;
+
+        tr.innerHTML = rowHtml;
+        tr.dataset.label = item.label;
+        tbody.appendChild(tr);
+    });
+
+    if (currentSlaFilterQuery) {
+        filterSlaRowsUI(currentSlaFilterQuery);
+    }
+}
+
+function deleteSlaRowUI(button) {
+    const tr = button.closest("tr");
+    if (!tr) return;
+    const label = tr.dataset.label;
+    if (confirm(`Remove SLA definition for "${label}"?`)) {
+        tr.remove();
+        snapshotSlaTableState();
+        const txChip = document.getElementById("sla-chip-txs");
+        if (txChip) {
+            txChip.textContent = `${currentSlaIdentifications.length} Transactions`;
+        }
+    }
+}
+
+function openAddScenarioModalUI() {
+    const modal = document.getElementById("add-scenario-modal");
+    if (!modal) return;
+    const nameInput = document.getElementById("new-scenario-name");
+    const usersInput = document.getElementById("new-scenario-users");
+    if (nameInput) nameInput.value = "";
+    if (usersInput) usersInput.value = "";
+    modal.classList.remove("hidden");
+    if (nameInput) nameInput.focus();
+}
+
+function closeAddScenarioModalUI() {
+    const modal = document.getElementById("add-scenario-modal");
+    if (modal) modal.classList.add("hidden");
+}
+
+function applyScenarioPresetUI(name, users) {
+    const nameInput = document.getElementById("new-scenario-name");
+    const usersInput = document.getElementById("new-scenario-users");
+    if (nameInput) nameInput.value = name;
+    if (usersInput) usersInput.value = users;
+}
+
+function confirmAddScenarioUI() {
+    const nameInput = document.getElementById("new-scenario-name");
+    const usersInput = document.getElementById("new-scenario-users");
+
+    const scName = nameInput ? nameInput.value.trim() : "";
+    const scUsers = usersInput ? parseInt(usersInput.value, 10) : 0;
+
+    if (!scName) {
+        alert("Please enter a Scenario Name (e.g. 'Normal Load', 'Peak Load', 'Spike Load').");
+        if (nameInput) nameInput.focus();
+        return;
+    }
+    if (!scUsers || scUsers <= 0) {
+        alert("Please enter a valid target user count (e.g. 50, 200, 500).");
+        if (usersInput) usersInput.focus();
+        return;
+    }
+
+    // Check if scenario with same name or same users already exists
+    const exists = currentSlaScenarios.some(s => s.name.toLowerCase() === scName.toLowerCase() || s.users === scUsers);
+    if (exists) {
+        alert(`A scenario with name "${scName}" or user load (${scUsers} Users) already exists.`);
+        return;
+    }
+
+    // Snapshot current inputs in table before re-rendering
+    snapshotSlaTableState();
+
+    const scId = `sc_${scName.toLowerCase().replace(/[^a-z0-9_]/g, '_')}_${scUsers}`;
+    currentSlaScenarios.push({
+        id: scId,
+        name: scName,
+        users: scUsers
+    });
+
+    // Sort scenarios by user load
+    currentSlaScenarios.sort((a, b) => a.users - b.users);
+
+    closeAddScenarioModalUI();
+
+    const scChip = document.getElementById("sla-chip-scenarios");
+    if (scChip) {
+        scChip.textContent = `${currentSlaScenarios.length} Load Scenarios`;
+    }
+
+    renderSlaTable();
+}
+
+function deleteSlaScenarioUI(scenarioId) {
+    const sc = currentSlaScenarios.find(s => s.id === scenarioId);
+    if (!sc) return;
+
+    if (!confirm(`Are you sure you want to delete the "${sc.name} (${sc.users} Users)" load scenario column?`)) {
+        return;
+    }
+
+    snapshotSlaTableState();
+    currentSlaScenarios = currentSlaScenarios.filter(s => s.id !== scenarioId);
+
+    const scChip = document.getElementById("sla-chip-scenarios");
+    if (scChip) {
+        scChip.textContent = `${currentSlaScenarios.length} Load Scenarios`;
+    }
+
+    renderSlaTable();
+}
+
+// ── Custom Transaction Row Modal ──
+function openAddCustomTransactionModalUI() {
+    const modal = document.getElementById("add-transaction-modal");
+    if (!modal) return;
+    const labelInput = document.getElementById("new-tx-label");
+    const rtInput = document.getElementById("new-tx-rt");
+    const errInput = document.getElementById("new-tx-err");
+    const critInput = document.getElementById("new-tx-critical");
+
+    if (labelInput) labelInput.value = "";
+    if (rtInput) rtInput.value = "500";
+    if (errInput) errInput.value = "1.0";
+    if (critInput) critInput.checked = false;
+
+    modal.classList.remove("hidden");
+    if (labelInput) labelInput.focus();
+}
+
+function closeAddTransactionModalUI() {
+    const modal = document.getElementById("add-transaction-modal");
+    if (modal) modal.classList.add("hidden");
+}
+
+function confirmAddTransactionUI() {
+    const labelInput = document.getElementById("new-tx-label");
+    const rtInput = document.getElementById("new-tx-rt");
+    const errInput = document.getElementById("new-tx-err");
+    const critInput = document.getElementById("new-tx-critical");
+
+    const label = labelInput ? labelInput.value.trim() : "";
+    const rt = rtInput ? parseFloat(rtInput.value) || 500 : 500;
+    const err = errInput ? parseFloat(errInput.value) || 1.0 : 1.0;
+    const isCrit = critInput ? (critInput.checked ? 1 : 0) : 0;
+
+    if (!label) {
+        alert("Please enter a Transaction or Sampler label.");
+        if (labelInput) labelInput.focus();
+        return;
+    }
+
+    snapshotSlaTableState();
+
+    const exists = currentSlaIdentifications.some(i => i.label.toLowerCase() === label.toLowerCase());
+    if (exists) {
+        alert(`A transaction with label "${label}" already exists in the SLA table.`);
+        return;
+    }
+
+    currentSlaIdentifications.push({
+        label: label,
+        rt: rt,
+        err: err,
+        is_critical: isCrit,
+        scenarios: {},
+        status: "Custom Added",
+        defined: true
+    });
+
+    closeAddTransactionModalUI();
+
+    const txChip = document.getElementById("sla-chip-txs");
+    if (txChip) {
+        txChip.textContent = `${currentSlaIdentifications.length} Transactions`;
+    }
+
+    renderSlaTable();
+}
+
+function snapshotSlaTableState() {
+    const tbody = document.getElementById("sla-tbody");
+    if (!tbody) return;
+
+    const rows = tbody.querySelectorAll("tr");
+    const updatedIdentifications = [];
+
+    rows.forEach(tr => {
+        const label = tr.dataset.label;
+        if (!label) return;
+        const rtInput = tr.querySelector(".sla-rt-input");
+        const errInput = tr.querySelector(".sla-err-input");
+        const critInput = tr.querySelector(".sla-crit-checkbox");
+
+        const scMap = {};
+        currentSlaScenarios.forEach(sc => {
+            const scRtInput = tr.querySelector(`.sla-sc-rt-input[data-sc-id="${sc.id}"]`);
+            const scErrInput = tr.querySelector(`.sla-sc-err-input[data-sc-id="${sc.id}"]`);
+            if (scRtInput && scErrInput) {
+                scMap[sc.id] = {
+                    rt: parseFloat(scRtInput.value) || (rtInput ? parseFloat(rtInput.value) : 500),
+                    err: parseFloat(scErrInput.value) || (errInput ? parseFloat(errInput.value) : 1.0)
+                };
+                scMap[sc.name] = scMap[sc.id];
+            }
+        });
+
+        const exItem = currentSlaIdentifications.find(i => i.label === label) || {};
+        updatedIdentifications.push({
+            label: label,
+            rt: rtInput ? parseFloat(rtInput.value) || 500 : (exItem.rt || 500),
+            err: errInput ? parseFloat(errInput.value) || 1.0 : (exItem.err || 1.0),
+            is_critical: critInput ? (critInput.checked ? 1 : 0) : (exItem.is_critical || 0),
+            scenarios: scMap,
+            status: exItem.status || "Explicitly Defined",
+            defined: exItem.defined !== undefined ? exItem.defined : true
+        });
+    });
+
+    currentSlaIdentifications = updatedIdentifications;
 }
 
 async function saveSlaTargetsFromUI() {
     const filter = document.getElementById("sla-jmx-filter");
     const jmxName = filter ? filter.value : "";
-    const tbody = document.getElementById("sla-tbody");
-    if (!tbody) return;
+    const saveBtn = document.getElementById("btn-save-sla");
+    const origBtnHtml = saveBtn ? saveBtn.innerHTML : "";
 
-    const rows = tbody.querySelectorAll("tr");
-    const slas = [];
+    snapshotSlaTableState();
 
-    rows.forEach(tr => {
-        const label = tr.dataset.label;
-        const rtInput = tr.querySelector(".sla-rt-input");
-        const errInput = tr.querySelector(".sla-err-input");
-        const critInput = tr.querySelector(".sla-crit-checkbox");
+    const slas = currentSlaIdentifications.map(item => ({
+        label: item.label,
+        rt: item.rt,
+        err: item.err,
+        is_critical: item.is_critical,
+        scenarios: item.scenarios || {}
+    }));
 
-        if (label && rtInput && errInput) {
-            slas.push({
-                label: label,
-                rt: parseFloat(rtInput.value) || 500,
-                err: parseFloat(errInput.value) || 1.0,
-                is_critical: (critInput && critInput.checked) ? 1 : 0
-            });
-        }
-    });
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-inline"></span> Saving...';
+    }
 
     try {
         const res = await fetch("/api/sla", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ slas: slas, jmx: jmxName })
+            body: JSON.stringify({
+                slas: slas,
+                scenarios: currentSlaScenarios,
+                jmx: jmxName
+            })
         });
         const data = await res.json();
-        alert(data.message);
-        loadSlaTargetsForSelectedJmx(jmxName);
+        if (data.success) {
+            alert(data.message || "SLA targets saved successfully!");
+            loadSlaTargetsForSelectedJmx(jmxName);
+        } else {
+            alert("Failed to save SLA targets: " + (data.message || "Unknown error"));
+        }
     } catch (err) {
         alert("Failed to save SLA targets: " + err);
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = origBtnHtml;
+        }
     }
 }
+
+// Global modal close on Escape key
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        closeAddScenarioModalUI();
+        closeAddTransactionModalUI();
+    }
+});
 

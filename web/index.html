@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PerfAI — Local Performance Engineering & Azure Observability</title>
+    <title>PerfPilot — Local Performance Engineering & Azure Observability</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -35,7 +35,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1>PerfAI</h1>
+                    <h1>PerfPilot</h1>
                 </div>
             </div>
         </div>
@@ -102,9 +102,9 @@
                             <circle cx="12" cy="12" r="6"></circle>
                             <circle cx="12" cy="12" r="2"></circle>
                         </svg>
-                        SLA Validation
+                        SLA Defination
                     </a>
-                    <a href="#" data-tab="tab-compare" onclick="switchTab('tab-compare')">
+                    <!-- <a href="#" data-tab="tab-compare" onclick="switchTab('tab-compare')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -112,21 +112,24 @@
                             <line x1="6" y1="20" x2="6" y2="14"></line>
                         </svg>
                         Compare Runs (2-Run Deep Dive)
-                    </a>
-                    <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
+                    </a> -->
+                    <!-- <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                             <polyline points="17 6 23 6 23 12"></polyline>
                         </svg>
                         Historical Trend Analysis
-                    </a>
-                    <a href="#" data-tab="tab-ai-studio" onclick="switchTab('tab-ai-studio')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                    </a> -->
+                    <!-- <a href="#" data-tab="tab-ai-studio" onclick="switchTab('tab-ai-studio')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                            </path>
                         </svg>
                         ✨ AI Insights Studio
-                    </a>
+                    </a> -->
                     <a href="#" data-tab="tab-reports" onclick="switchTab('tab-reports')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
@@ -171,8 +174,8 @@
                             <div class="health-item" id="health-ai">
                                 <span class="indicator" id="ind-ai"></span>
                                 <div>
-                                    <h3>Gemini AI Insights Engine</h3>
-                                    <p class="desc" id="val-ai">Checking credentials...</p>
+                                    <h3>AI Insights Engine</h3>
+
                                 </div>
                             </div>
                         </div>
@@ -194,7 +197,7 @@
 
                             <div id="thread-groups-container"
                                 style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                                <div class="info-box">Select a JMX file above to view and configure its thread groups.
+                                <div class="info-box">Select a JMX file above to view and configure its user journeys.
                                 </div>
                             </div>
 
@@ -213,7 +216,7 @@
 
                     <!-- 3. Upload Test Assets Card -->
                     <section class="glass-container grid-card">
-                        <h2>Upload Test Assets</h2>
+                        <h2>Upload Test Plans</h2>
                         <p class="card-desc" style="font-size:0.8rem; color:var(--text-muted); margin-bottom: 1rem;">
                             Drop `.jmx` test plans or `.csv` data files into the local Tests directory.</p>
                         <div id="drop-zone" class="drop-zone upload-dropzone">
@@ -242,13 +245,15 @@
 
                     <!-- 5. AI & LLM Provider Settings Card -->
                     <section class="glass-container grid-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <h2 style="margin: 0;">🤖 AI &amp; LLM Configuration</h2>
-                            <span id="ai-status-pill" style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">Checking...</span>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h2 style="margin: 0;"> AI &amp; LLM Configuration</h2>
+                            <span id="ai-status-pill"
+                                style="font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">Checking...</span>
                         </div>
                         <p class="card-desc" style="font-size:0.8rem; color:var(--text-muted); margin-bottom: 1rem;">
                             Choose your active LLM provider, default model, and configure API keys directly.</p>
-                        
+
                         <div class="form-group">
                             <label for="ai-provider-select">Active Provider</label>
                             <select id="ai-provider-select" onchange="handleAiProviderChange(this.value)">
@@ -261,37 +266,50 @@
                         <div class="form-group" style="margin-top: 0.75rem;">
                             <label for="ai-model-select">Active Model</label>
                             <select id="ai-model-select" onchange="handleAiModelPresetChange(this.value)">
-                                <option value="nvidia/nemotron-3-ultra-550b-a55b:free">nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)</option>
-                                <option value="meta-llama/llama-3.3-70b-instruct">meta-llama/llama-3.3-70b-instruct (OpenRouter)</option>
+                                <option value="nvidia/nemotron-3-ultra-550b-a55b:free">
+                                    nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)</option>
+                                <option value="meta-llama/llama-3.3-70b-instruct">meta-llama/llama-3.3-70b-instruct
+                                    (OpenRouter)</option>
                                 <option value="gemini-2.5-flash">gemini-2.5-flash (Google)</option>
                                 <option value="gemini-1.5-flash">gemini-1.5-flash (Google)</option>
                                 <option value="gpt-4o-mini">gpt-4o-mini (GitHub / OpenAI)</option>
                                 <option value="custom">✏️ Custom Model ID...</option>
                             </select>
-                            <input type="text" id="ai-model-custom-input" class="hidden" placeholder="Enter custom model ID (e.g. nvidia/nemotron-3-ultra-550b-a55b:free)" style="margin-top: 0.4rem;">
+                            <input type="text" id="ai-model-custom-input" class="hidden"
+                                placeholder="Enter custom model ID (e.g. nvidia/nemotron-3-ultra-550b-a55b:free)"
+                                style="margin-top: 0.4rem;">
                         </div>
 
                         <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border);">
                             <div class="form-group" id="group-openrouter-key">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
                                     <label for="openrouter-key-input" style="margin: 0;">OpenRouter API Key</label>
-                                    <span id="badge-openrouter-key" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Not Set</span>
+                                    <span id="badge-openrouter-key"
+                                        style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Not
+                                        Set</span>
                                 </div>
                                 <input type="password" id="openrouter-key-input" placeholder="sk-or-v1-...">
                             </div>
 
                             <div class="form-group" id="group-gemini-key" style="margin-top: 0.6rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
                                     <label for="gemini-key-input" style="margin: 0;">Gemini API Key</label>
-                                    <span id="badge-gemini-key" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Not Set</span>
+                                    <span id="badge-gemini-key"
+                                        style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Not
+                                        Set</span>
                                 </div>
                                 <input type="password" id="gemini-key-input" placeholder="AIzaSy...">
                             </div>
 
                             <div class="form-group" id="group-github-key" style="margin-top: 0.6rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
                                     <label for="github-token-input" style="margin: 0;">GitHub Token</label>
-                                    <span id="badge-github-key" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Not Set</span>
+                                    <span id="badge-github-key"
+                                        style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">Not
+                                        Set</span>
                                 </div>
                                 <input type="password" id="github-token-input" placeholder="ghp_...">
                             </div>
@@ -378,31 +396,96 @@
 
             <!-- 3. SLA VALIDATION VIEW -->
             <section id="tab-sla" class="dashboard-layout tab-content hidden">
-                <div class="glass-container full-width-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h2>🎯 Transaction SLA Validation & Creation</h2>
-                            <p class="card-desc">Extracted Transaction Controllers (starting with TC / T01 / T_) and
-                                child samplers. Define Target RT and Error Rate SLAs per scenario.</p>
+                <!-- STEP 1: Select Test Plan / Scenario -->
+                <div class="glass-container full-width-card sla-step-card" style="margin-bottom: 1.25rem;">
+                    <div class="sla-step-header">
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <span class="sla-step-badge">Step 1</span>
+                            <h2 style="font-size: 1.25rem; margin: 0;">Select JMeter Test Plan / Test Script</h2>
                         </div>
-                        <div style="display: flex; gap: 1rem;">
-                            <select id="sla-jmx-filter" onchange="loadSlaTargetsForSelectedJmx(this.value)"
-                                style="min-width: 220px;">
-                                <option value="">All Scenarios (Global default)</option>
+                        <p class="card-desc" style="margin-top: 4px;">
+                            Select the test plan script (.jmx) to automatically extract transaction names and configure
+                            custom SLA thresholds and user load scenarios.
+                        </p>
+                    </div>
+
+                    <div class="sla-plan-selector-container"
+                        style="margin-top: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 280px;">
+                            <label for="sla-jmx-filter"
+                                style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); white-space: nowrap;">Active
+                                Test Plan:</label>
+                            <select id="sla-jmx-filter" onchange="handleSlaTestPlanChange(this.value)"
+                                class="sla-plan-select"
+                                style="flex: 1; min-width: 240px; padding: 0.55rem 0.85rem; border: 1.5px solid var(--border-color); border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
+                                <option value="">Loading test plans...</option>
                             </select>
-                            <button class="btn primary-btn" onclick="saveSlaTargetsFromUI()">💾 Save SLA
-                                Targets</button>
+                        </div>
+                        <div class="sla-meta-chips" id="sla-meta-chips"
+                            style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                            <span class="sla-chip" id="sla-chip-plan">Plan: <strong id="sla-chip-plan-name"
+                                    style="margin-left:4px;">Global Default</strong></span>
+                            <span class="sla-chip sla-chip-info" id="sla-chip-txs">0 Transactions</span>
+                            <span class="sla-chip sla-chip-success" id="sla-chip-scenarios">0 Load Scenarios</span>
+                            <span class="sla-chip sla-chip-neutral" id="sla-chip-file"
+                                title="Paired SLA Storage">config/sla_targets.csv</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Define Load Scenarios & SLA Thresholds -->
+                <div class="glass-container full-width-card sla-step-card" id="sla-step2-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <span class="sla-step-badge">Step 2</span>
+                                <h2 style="font-size: 1.25rem; margin: 0;">Define SLA Targets &amp; Load Scenarios</h2>
+                            </div>
+                            <p class="card-desc" style="margin-top: 4px;">
+                                Set target Response Times (ms) and Error Rates (%) across user load scenarios (Normal,
+                                Peak, Spike, etc.). During test runs, the engine automatically matches the nearest load
+                                scenario.
+                            </p>
+                        </div>
+
+                        <!-- Action Toolbar -->
+                        <div class="sla-toolbar"
+                            style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+                            <div class="search-bar" style="max-width: 220px; min-width: 180px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="sla-search-input" placeholder="Filter transactions..."
+                                    onkeyup="filterSlaRowsUI(this.value)">
+                            </div>
+                            <button type="button" class="btn secondary-btn" onclick="openAddScenarioModalUI()"
+                                style="display: inline-flex; align-items: center; gap: 6px;">
+                                ➕ Add Load Scenario
+                            </button>
+                            <button type="button" class="btn secondary-btn" onclick="openAddCustomTransactionModalUI()"
+                                style="display: inline-flex; align-items: center; gap: 6px;"
+                                title="Add an extra custom transaction row">
+                                ➕ Add Row
+                            </button>
+                            <button type="button" class="btn primary-btn" id="btn-save-sla"
+                                onclick="saveSlaTargetsFromUI()"
+                                style="display: inline-flex; align-items: center; gap: 6px;">
+                                💾 Save SLA Targets
+                            </button>
                         </div>
                     </div>
 
-                    <div class="table-container" style="margin-top: 1.5rem;">
-                        <table class="data-table">
-                            <thead>
+                    <div class="table-container" style="margin-top: 1.25rem; overflow-x: auto;">
+                        <table class="data-table" id="sla-table">
+                            <thead id="sla-thead">
                                 <tr>
                                     <th>Transaction / Sampler Label</th>
                                     <th style="text-align: center;">Critical?</th>
-                                    <th>Target RT (ms) [P90 SLA]</th>
-                                    <th>Target Error Rate (%)</th>
+                                    <th>Base Target RT (ms)</th>
+                                    <th>Base Error Rate (%)</th>
                                     <th>Status / Scope</th>
                                     <th>Actions</th>
                                 </tr>
@@ -413,6 +496,122 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Add Load Scenario Modal -->
+                <div id="add-scenario-modal" class="sla-modal-backdrop hidden"
+                    onclick="if(event.target===this) closeAddScenarioModalUI()">
+                    <div class="sla-modal-card">
+                        <div class="sla-modal-header">
+                            <h3>➕ Add Load Scenario SLA Profile</h3>
+                            <button type="button" class="sla-modal-close" onclick="closeAddScenarioModalUI()"
+                                aria-label="Close">✕</button>
+                        </div>
+                        <div class="sla-modal-body">
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+                                Define a user load scenario. A new column pair (RT &amp; Error Rate) will be added to
+                                the SLA matrix for all transactions.
+                            </p>
+
+                            <!-- Quick Presets -->
+                            <div style="margin-bottom: 1rem;">
+                                <label
+                                    style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted);">Quick
+                                    Presets:</label>
+                                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Normal Load', 50)">Normal (50 U)</button>
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Peak Load', 200)">Peak (200 U)</button>
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Spike Load', 500)">Spike (500 U)</button>
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Stress Load', 1000)">Stress (1000 U)</button>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label for="new-scenario-name"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Scenario
+                                    Name</label>
+                                <input type="text" id="new-scenario-name"
+                                    placeholder="e.g. Normal Load, Peak Load, Spike Load"
+                                    style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;"
+                                    list="scenario-name-suggestions">
+                                <datalist id="scenario-name-suggestions">
+                                    <option value="Normal Load"></option>
+                                    <option value="Peak Load"></option>
+                                    <option value="Spike Load"></option>
+                                    <option value="Stress Load"></option>
+                                    <option value="Break-point Load"></option>
+                                </datalist>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label for="new-scenario-users"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Target
+                                    User Load (Concurrent Users)</label>
+                                <input type="number" id="new-scenario-users" placeholder="e.g. 50, 200, 500" min="1"
+                                    style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+                        <div class="sla-modal-footer">
+                            <button type="button" class="btn secondary-btn"
+                                onclick="closeAddScenarioModalUI()">Cancel</button>
+                            <button type="button" class="btn primary-btn" onclick="confirmAddScenarioUI()">Add Scenario
+                                Column</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Custom Transaction Row Modal -->
+                <div id="add-transaction-modal" class="sla-modal-backdrop hidden"
+                    onclick="if(event.target===this) closeAddTransactionModalUI()">
+                    <div class="sla-modal-card">
+                        <div class="sla-modal-header">
+                            <h3>➕ Add Custom Transaction Row</h3>
+                            <button type="button" class="sla-modal-close" onclick="closeAddTransactionModalUI()"
+                                aria-label="Close">✕</button>
+                        </div>
+                        <div class="sla-modal-body">
+                            <div style="margin-bottom: 1rem;">
+                                <label for="new-tx-label"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Transaction
+                                    / Sampler Label</label>
+                                <input type="text" id="new-tx-label" placeholder="e.g. 01_UserLogin, 02_Checkout"
+                                    style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                            </div>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label for="new-tx-rt"
+                                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Base
+                                        Target RT (ms)</label>
+                                    <input type="number" id="new-tx-rt" value="500" min="1"
+                                        style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                                </div>
+                                <div>
+                                    <label for="new-tx-err"
+                                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Base
+                                        Error Rate (%)</label>
+                                    <input type="number" step="0.1" id="new-tx-err" value="1.0" min="0" max="100"
+                                        style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="new-tx-critical"
+                                    style="width: 16px; height: 16px; cursor: pointer;">
+                                <label for="new-tx-critical"
+                                    style="font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--text-primary);">Mark
+                                    as Critical Transaction</label>
+                            </div>
+                        </div>
+                        <div class="sla-modal-footer">
+                            <button type="button" class="btn secondary-btn"
+                                onclick="closeAddTransactionModalUI()">Cancel</button>
+                            <button type="button" class="btn primary-btn" onclick="confirmAddTransactionUI()">Add
+                                Transaction</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -533,10 +732,10 @@
                     <!-- Secondary Filters -->
                     <div class="compare-filter-row">
                         <div class="trend-ctrl-group">
-                            <label>User Story Scope</label>
+                            <label>User Journey Scope</label>
                             <select id="comp-run-story-select" class="trend-select"
                                 onchange="fetchAndRenderRunComparison()">
-                                <option value="">All User Stories</option>
+                                <option value="">All User Journeys</option>
                             </select>
                         </div>
                         <div class="trend-ctrl-group">
@@ -785,7 +984,7 @@
                             <thead>
                                 <tr>
                                     <th>Hierarchy Item</th>
-                                    <th>User Story</th>
+                                    <th>User Journey</th>
                                     <th style="text-align:right;">Run A RT</th>
                                     <th style="text-align:right;">Run B RT</th>
                                     <th style="text-align:right;">RT Change %</th>
@@ -880,9 +1079,9 @@
                                 onchange="onTrendProjectChange()"></select>
                         </div>
                         <div class="trend-ctrl-group">
-                            <label>User Story Scope</label>
+                            <label>User Journey Scope</label>
                             <select id="trend-story-select" class="trend-select" onchange="fetchAndRenderTrend()">
-                                <option value="">All User Stories</option>
+                                <option value="">All User Journeys</option>
                             </select>
                         </div>
                         <div class="trend-ctrl-group">
@@ -957,7 +1156,7 @@
                                 <div class="chart-panel-title" style="font-size: 1.15rem;">📈 Multi-Series Performance
                                     Trend Explorer</div>
                                 <div class="chart-panel-sub">Compare multi-release progression for overall scenario,
-                                    specific user stories, or individual transactions across metrics</div>
+                                    specific user journeys, or individual transactions across metrics</div>
                             </div>
 
                             <!-- Interactive Multi-Select & Metric Controls -->
@@ -993,7 +1192,7 @@
                                     <div id="trend-multiselect-dropdown" class="trend-multiselect-dropdown hidden">
                                         <div class="trend-ms-search-bar">
                                             <input type="text" id="trend-ms-search-input"
-                                                placeholder="Search user stories or transactions..."
+                                                placeholder="Search user journeys or transactions..."
                                                 oninput="filterTrendMultiSelectOptions(this.value)">
                                         </div>
                                         <div class="trend-ms-quick-actions">
@@ -1094,9 +1293,13 @@
                 <!-- Studio Header & Action Bar -->
                 <div class="ai-studio-header">
                     <div class="ai-studio-title">
-                        <div class="brand-icon" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 0.5rem; display: flex; align-items: center;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
-                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                        <div class="brand-icon"
+                            style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 0.5rem; display: flex; align-items: center;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa"
+                                stroke-width="2">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                                </path>
                             </svg>
                         </div>
                         <div>
@@ -1111,31 +1314,39 @@
                         </select>
 
                         <select id="studio-model-select" class="ai-studio-select">
-                            <option value="nvidia/nemotron-3-ultra-550b-a55b:free">nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)</option>
-                            <option value="meta-llama/llama-3.3-70b-instruct">meta-llama/llama-3.3-70b-instruct (OpenRouter)</option>
+                            <option value="nvidia/nemotron-3-ultra-550b-a55b:free">
+                                nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct">meta-llama/llama-3.3-70b-instruct
+                                (OpenRouter)</option>
                             <option value="gemini-2.5-flash">Gemini 2.5 Flash (Google)</option>
                             <option value="gemini-1.5-flash">Gemini 1.5 Flash (Google)</option>
                             <option value="gpt-4o-mini">GPT-4o Mini (GitHub AI)</option>
                         </select>
 
-                        <div style="display: flex; align-items: center; gap: 0.4rem; background: var(--surface2); border: 1px solid var(--border); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.8rem;">
+                        <div
+                            style="display: flex; align-items: center; gap: 0.4rem; background: var(--surface2); border: 1px solid var(--border); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.8rem;">
                             <span style="color: var(--muted); font-weight: 600;">Temp:</span>
-                            <input type="number" id="studio-temp-input" min="0.0" max="1.0" step="0.1" value="0.2" style="width: 45px; background: transparent; border: none; color: var(--text); font-weight: 700; outline: none;">
+                            <input type="number" id="studio-temp-input" min="0.0" max="1.0" step="0.1" value="0.2"
+                                style="width: 45px; background: transparent; border: none; color: var(--text); font-weight: 700; outline: none;">
                         </div>
 
-                        <button id="studio-generate-btn" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; font-weight: 700;">
+                        <button id="studio-generate-btn" class="btn btn-primary"
+                            style="display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; font-weight: 700;">
                             ⚡ Generate &amp; Refine Insights
                         </button>
 
-                        <button id="studio-save-btn" class="btn btn-secondary" style="font-weight: 600; padding: 0.6rem 1rem;">
+                        <button id="studio-save-btn" class="btn btn-secondary"
+                            style="font-weight: 600; padding: 0.6rem 1rem;">
                             💾 Save Refined Insights to Run
                         </button>
                     </div>
                 </div>
 
                 <!-- Status Strip -->
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); border: 1px solid var(--border); padding: 0.55rem 1rem; border-radius: 8px; font-size: 0.82rem;">
-                    <div id="studio-status-indicator" style="color: var(--muted); display: flex; align-items: center; gap: 0.4rem;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); border: 1px solid var(--border); padding: 0.55rem 1rem; border-radius: 8px; font-size: 0.82rem;">
+                    <div id="studio-status-indicator"
+                        style="color: var(--muted); display: flex; align-items: center; gap: 0.4rem;">
                         <span>Select a test execution to preview the synthesized AI prompt.</span>
                     </div>
                     <div id="studio-score-badge" class="score-badge">
@@ -1145,14 +1356,16 @@
 
                 <!-- Two-Column Workbench Layout -->
                 <div class="ai-studio-grid">
-                    
+
                     <!-- Left: Prompt Inspector & Telemetry -->
                     <div class="ai-panel-card">
                         <div class="ai-panel-header">
                             <h3>📝 Synthesized AI Prompt &amp; Rules</h3>
                             <div style="display: flex; gap: 0.4rem;">
-                                <button id="studio-copy-prompt-btn" class="prompt-chip-btn" title="Copy Prompt">📋 Copy</button>
-                                <button id="studio-reset-prompt-btn" class="prompt-chip-btn" title="Reset to Default Template">🔄 Reset</button>
+                                <button id="studio-copy-prompt-btn" class="prompt-chip-btn" title="Copy Prompt">📋
+                                    Copy</button>
+                                <button id="studio-reset-prompt-btn" class="prompt-chip-btn"
+                                    title="Reset to Default Template">🔄 Reset</button>
                             </div>
                         </div>
 
@@ -1178,17 +1391,28 @@
 
                         <!-- Quick Inserters -->
                         <div>
-                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em;">⚡ Quick Rule Injections:</div>
+                            <div
+                                style="font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em;">
+                                ⚡ Quick Rule Injections:</div>
                             <div class="prompt-toolbar">
-                                <button class="prompt-chip-btn" onclick="appendStudioPromptRule('Focus intensely on tail latency outliers (P95/P99) and identify specific slow transactions.')">+ Tail Latency Focus</button>
-                                <button class="prompt-chip-btn" onclick="appendStudioPromptRule('Provide 3 ultra-concise, high-priority actionable recommendations only.')">+ Max 3 Recommendations</button>
-                                <button class="prompt-chip-btn" onclick="appendStudioPromptRule('Check for contradictions between response time spikes and CPU utilization.')">+ CPU Correlation Rule</button>
-                                <button class="prompt-chip-btn" onclick="appendStudioPromptRule('Strictly prohibit generic recommendations like tuning GC without evidence.')">+ Ban Generic GC Advice</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Focus intensely on tail latency outliers (P95/P99) and identify specific slow transactions.')">+
+                                    Tail Latency Focus</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Provide 3 ultra-concise, high-priority actionable recommendations only.')">+
+                                    Max 3 Recommendations</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Check for contradictions between response time spikes and CPU utilization.')">+
+                                    CPU Correlation Rule</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Strictly prohibit generic recommendations like tuning GC without evidence.')">+
+                                    Ban Generic GC Advice</button>
                             </div>
                         </div>
 
                         <!-- Prompt Editor -->
-                        <textarea id="studio-prompt-input" class="prompt-textarea" placeholder="Prompt will be constructed automatically when a run is selected..."></textarea>
+                        <textarea id="studio-prompt-input" class="prompt-textarea"
+                            placeholder="Prompt will be constructed automatically when a run is selected..."></textarea>
                     </div>
 
                     <!-- Right: Live AI Insights Visualization -->
@@ -1201,37 +1425,49 @@
                         </div>
 
                         <!-- Executive Banner -->
-                        <div style="background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 8px; padding: 1rem 1.15rem;">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">Executive Assessment</div>
-                            <p id="studio-exec-summary-text" style="margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--text);">
+                        <div
+                            style="background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 8px; padding: 1rem 1.15rem;">
+                            <div
+                                style="font-size: 0.8rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">
+                                Executive Assessment</div>
+                            <p id="studio-exec-summary-text"
+                                style="margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--text);">
                                 Select a test and click 'Generate &amp; Refine Insights' to view live AI outputs.
                             </p>
                         </div>
 
                         <!-- Output Navigation Tabs -->
                         <div class="ai-output-tabs">
-                            <button class="ai-output-tab-btn active" data-out-tab="findings" onclick="switchStudioOutputTab('findings')">Findings &amp; Root Causes</button>
-                            <button class="ai-output-tab-btn" data-out-tab="recs" onclick="switchStudioOutputTab('recs')">Recommendations</button>
-                            <button class="ai-output-tab-btn" data-out-tab="tabs" onclick="switchStudioOutputTab('tabs')">Tab Intelligence</button>
-                            <button class="ai-output-tab-btn" data-out-tab="json" onclick="switchStudioOutputTab('json')">Raw JSON</button>
+                            <button class="ai-output-tab-btn active" data-out-tab="findings"
+                                onclick="switchStudioOutputTab('findings')">Findings &amp; Root Causes</button>
+                            <button class="ai-output-tab-btn" data-out-tab="recs"
+                                onclick="switchStudioOutputTab('recs')">Recommendations</button>
+                            <button class="ai-output-tab-btn" data-out-tab="tabs"
+                                onclick="switchStudioOutputTab('tabs')">Tab Intelligence</button>
+                            <button class="ai-output-tab-btn" data-out-tab="json"
+                                onclick="switchStudioOutputTab('json')">Raw JSON</button>
                         </div>
 
                         <!-- Sub-tab Panes -->
                         <div id="studio-output-container">
                             <div id="studio-view-findings">
-                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No active findings generated yet.</p>
+                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No active findings
+                                    generated yet.</p>
                             </div>
 
                             <div id="studio-view-recs" style="display: none;">
-                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No active recommendations to display.</p>
+                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No active
+                                    recommendations to display.</p>
                             </div>
 
                             <div id="studio-view-tabs" style="display: none;">
-                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No tab intelligence data to display.</p>
+                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No tab intelligence
+                                    data to display.</p>
                             </div>
 
                             <div id="studio-view-json" style="display: none;">
-                                <pre id="studio-raw-json" class="json-viewer">// Raw JSON will appear here after generation...</pre>
+                                <pre id="studio-raw-json"
+                                    class="json-viewer">// Raw JSON will appear here after generation...</pre>
                             </div>
                         </div>
                     </div>
@@ -1250,47 +1486,62 @@
                     <span style="font-size: 1.3rem;">⚡</span>
                     <div>
                         <h3 style="margin: 0; font-size: 1.1rem;">Recompile HTML Report</h3>
-                        <p id="recompile-modal-target" style="margin: 0.15rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Target: Latest Execution</p>
+                        <p id="recompile-modal-target"
+                            style="margin: 0.15rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Target: Latest
+                            Execution</p>
                     </div>
                 </div>
-                <button type="button" class="icon-action-btn" onclick="closeRecompileModal()" style="font-size: 1.1rem; line-height: 1;">✕</button>
+                <button type="button" class="icon-action-btn" onclick="closeRecompileModal()"
+                    style="font-size: 1.1rem; line-height: 1;">✕</button>
             </div>
 
             <div class="modal-body" style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
                 <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.5;">
-                    Rebuilding the report will re-parse execution metrics, re-calculate SLA compliance, correlate telemetry, and regenerate the interactive HTML report.
+                    Rebuilding the report will re-parse execution metrics, re-calculate SLA compliance, correlate
+                    telemetry, and regenerate the interactive HTML report.
                 </p>
 
                 <!-- AI Insights Toggle Card -->
                 <div class="recompile-ai-option-card">
                     <label class="recompile-checkbox-label">
-                        <input type="checkbox" id="recompile-ai-checkbox" checked onchange="toggleRecompileAiOption(this.checked)">
+                        <input type="checkbox" id="recompile-ai-checkbox" checked
+                            onchange="toggleRecompileAiOption(this.checked)">
                         <div>
-                            <div style="display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
-                                <span>🤖 Regenerate AI Insights (Live LLM Inference)</span>
-                                <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.68rem; padding: 0.15rem 0.4rem;">Recommended</span>
+                            <div
+                                style="display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
+                                <span> Regenerate AI Insights (Live LLM Inference)</span>
+                                <span class="badge"
+                                    style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.68rem; padding: 0.15rem 0.4rem;">Recommended</span>
                             </div>
-                            <p style="margin: 0.3rem 0 0 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.45;">
-                                Executes performance engineering prompts against your active LLM to generate fresh findings, observations, and recommendations taking defined SLA targets into account.
+                            <p
+                                style="margin: 0.3rem 0 0 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.45;">
+                                Executes performance engineering prompts against your active LLM to generate fresh
+                                findings, observations, and recommendations taking defined SLA targets into account.
                             </p>
                         </div>
                     </label>
 
-                    <div id="recompile-ai-meta" style="margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px solid var(--border-color); font-size: 0.76rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
-                        <span>Active Provider: <strong id="recompile-active-provider" style="color: var(--text-primary);">Checking...</strong></span>
+                    <div id="recompile-ai-meta"
+                        style="margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px solid var(--border-color); font-size: 0.76rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
+                        <span>Active Provider: <strong id="recompile-active-provider"
+                                style="color: var(--text-primary);">Checking...</strong></span>
                         <span>Model: <code id="recompile-active-model" style="font-size: 0.74rem;">--</code></span>
                     </div>
                 </div>
 
-                <div id="recompile-status-bar" class="hidden" style="background: var(--bg-subtle); border: 1px solid var(--border-color); padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.82rem; display: flex; align-items: center; gap: 0.6rem; color: var(--primary-color);">
+                <div id="recompile-status-bar" class="hidden"
+                    style="background: var(--bg-subtle); border: 1px solid var(--border-color); padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.82rem; display: flex; align-items: center; gap: 0.6rem; color: var(--primary-color);">
                     <div class="spinner-inline"></div>
                     <span id="recompile-status-text">Recompiling report... please wait.</span>
                 </div>
             </div>
 
-            <div class="modal-footer" style="padding: 1rem 1.5rem; background: var(--bg-subtle); border-top: 1px solid var(--border-color); border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="btn secondary-btn" onclick="closeRecompileModal()" id="recompile-cancel-btn">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="executeRecompile()" id="recompile-submit-btn" style="font-weight: 700;">
+            <div class="modal-footer"
+                style="padding: 1rem 1.5rem; background: var(--bg-subtle); border-top: 1px solid var(--border-color); border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn secondary-btn" onclick="closeRecompileModal()"
+                    id="recompile-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="executeRecompile()" id="recompile-submit-btn"
+                    style="font-weight: 700;">
                     ⚡ Start Recompilation
                 </button>
             </div>

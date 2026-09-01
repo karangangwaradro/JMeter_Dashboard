@@ -87,7 +87,7 @@ function populateCompareStoryOptions() {
     const storySel = document.getElementById("comp-run-story-select");
     if (!storySel) return;
 
-    storySel.innerHTML = '<option value="">All User Stories</option>';
+    storySel.innerHTML = '<option value="">All User Journeys</option>';
     const stories = new Set();
     Object.values(compareHierarchy).forEach(pStories => {
         Object.keys(pStories).forEach(s => stories.add(s));

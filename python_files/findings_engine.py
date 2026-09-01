@@ -475,6 +475,8 @@ def enrich_findings_with_ai(findings_result: dict, ai_insights: dict) -> dict:
             ai_exec = ai_perf["executive_summary"]
             if "assessment_text" in ai_exec and ai_exec["assessment_text"]:
                 base_perf["executive_summary"]["assessment_text"] = ai_exec["assessment_text"]
+            if "assessment_bullets" in ai_exec and ai_exec["assessment_bullets"]:
+                base_perf["executive_summary"]["assessment_bullets"] = ai_exec["assessment_bullets"]
             if "conclusions" in ai_exec and ai_exec["conclusions"]:
                 base_perf["executive_summary"]["conclusions"] = ai_exec["conclusions"]
             if "priority_recommendations" in ai_exec and ai_exec["priority_recommendations"]:

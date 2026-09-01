@@ -192,7 +192,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                     try:
                         from python_files.ai_insights import generate_insights
                         from python_files.sla_manager import load_sla_targets
-                        sla_targets, default_rt, default_err = load_sla_targets(jmx_name)
+                        sla_targets, default_rt, default_err = load_sla_targets(jmx_name, actual_users=users)
                         infra_summary = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
                         if not infra_summary and isinstance(azure_data, dict) and "metrics" in azure_data:
                             from python_files.azure_collector import AzureMetricsCollector
@@ -434,14 +434,18 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         if path == "/api/sla":
             query = urllib.parse.parse_qs(parsed.query)
             jmx_name = query.get("jmx", [""])[0]
-            from python_files.sla_manager import load_sla_targets, parse_jmx_hierarchy, save_sla_targets, get_sla_file_path
+            from python_files.sla_manager import (
+                load_sla_scenarios_and_targets, parse_jmx_hierarchy, save_sla_targets, get_sla_file_path
+            )
             
-            targets, default_rt, default_err = load_sla_targets(jmx_name)
+            scenarios, targets, default_rt, default_err = load_sla_scenarios_and_targets(jmx_name)
             paired_path = get_sla_file_path(jmx_name)
             
             identifications = []
+            default_scenarios = targets.get("default", {}).get("scenarios", {})
             identifications.append({
                 "label": "default", "rt": default_rt, "err": default_err, "is_critical": 0,
+                "scenarios": default_scenarios,
                 "status": "Global Default", "defined": True
             })
             
@@ -453,11 +457,13 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                         is_crit = 1 if targets[tc].get("is_critical") in (1, True, "1", "true") else 0
                         identifications.append({
                             "label": tc, "rt": targets[tc]["rt"], "err": targets[tc]["err"], "is_critical": is_crit,
+                            "scenarios": targets[tc].get("scenarios", {}),
                             "status": "Explicitly Defined", "defined": True
                         })
                     else:
                         identifications.append({
                             "label": tc, "rt": default_rt, "err": default_err, "is_critical": 0,
+                            "scenarios": {},
                             "status": "Auto-Extracted from JMX", "defined": False
                         })
                 
@@ -465,17 +471,34 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 clean_name = Path(jmx_name).stem
                 expected_csv = _TESTS_DIR / f"{clean_name}_sla.csv"
                 if not expected_csv.exists() and tc_list:
-                    slas_to_save = [{"label": item["label"], "rt": item["rt"], "err": item["err"], "is_critical": item["is_critical"]} for item in identifications]
-                    save_sla_targets(slas_to_save, jmx_name)
+                    slas_to_save = [
+                        {
+                            "label": item["label"],
+                            "rt": item["rt"],
+                            "err": item["err"],
+                            "is_critical": item["is_critical"],
+                            "scenarios": item.get("scenarios", {})
+                        }
+                        for item in identifications
+                    ]
+                    save_sla_targets(slas_to_save, jmx_name, scenarios=scenarios)
             else:
                 for lbl, tdata in targets.items():
+                    if lbl.lower() == "default":
+                        continue
                     is_crit = 1 if tdata.get("is_critical") in (1, True, "1", "true") else 0
                     identifications.append({
                         "label": lbl, "rt": tdata["rt"], "err": tdata["err"], "is_critical": is_crit,
+                        "scenarios": tdata.get("scenarios", {}),
                         "status": "Explicitly Defined", "defined": True
                     })
 
-            self._send_json({"success": True, "identifications": identifications, "targets": targets})
+            self._send_json({
+                "success": True,
+                "scenarios": scenarios,
+                "identifications": identifications,
+                "targets": targets
+            })
             return
 
         # ── /api/runs ──
@@ -869,9 +892,9 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             if thread_groups:
                 success = update_jmx_thread_groups(jmx_path, thread_groups)
                 if success:
-                    self._send_json({"success": True, "message": f"Updated {len(thread_groups)} thread group(s) in {jmx_name}."})
+                    self._send_json({"success": True, "message": f"Updated {len(thread_groups)} user journey(s) in {jmx_name}."})
                 else:
-                    self._send_json({"success": False, "message": "No changes were applied. Check thread group names."}, 400)
+                    self._send_json({"success": False, "message": "No changes were applied. Check user journey names."}, 400)
             else:
                 self._send_json({"success": False, "message": "thread_groups array required"}, 400)
             return
@@ -914,7 +937,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             tg_count = len(thread_groups) if thread_groups else 0
             self._send_json({
                 "success": True,
-                "message": f"Started test '{jmx_name}' with {tg_count} thread group(s) in background.",
+                "message": f"Started test '{jmx_name}' with {tg_count} user journey(s) in background.",
                 "jmx_name": jmx_name
             })
             return
@@ -977,6 +1000,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         # ── /api/sla ──
         if path == "/api/sla":
             slas_list = body.get("slas", [])
+            scenarios = body.get("scenarios", [])
             jmx_name = body.get("jmx", "")
             if not slas_list:
                 self._send_json({"success": False, "message": "slas array is required"}, 400)
@@ -991,7 +1015,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                         item["minor_pct"] = ex.get("minor_pct", 100.0)
                         item["mod_pct"] = ex.get("mod_pct", 200.0)
                         item["crit_pct"] = ex.get("crit_pct", 300.0)
-                saved_path = save_sla_targets(slas_list, jmx_name)
+                saved_path = save_sla_targets(slas_list, jmx_name, scenarios=scenarios)
                 self._send_json({"success": True, "message": f"Saved SLA targets to {saved_path}"})
             except Exception as e:
                 self._send_json({"success": False, "message": str(e)}, 500)

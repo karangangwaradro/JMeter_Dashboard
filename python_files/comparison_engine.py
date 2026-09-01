@@ -78,7 +78,7 @@ def load_single_run_enriched(run_id: str) -> Optional[Dict[str, Any]]:
     from python_files.sla_manager import load_sla_targets
 
     jmx_h_map = extract_label_hierarchy_map(jmx_name)
-    sla_map, def_rt, def_err = load_sla_targets(jmx_name)
+    sla_map, def_rt, def_err = load_sla_targets(jmx_name, actual_users=merged.get("users"))
 
     summary_data = detail.get("summary", {})
     dur_sec = float(summary_data.get("duration_sec", merged.get("duration_sec", 60.0))) or 60.0
@@ -448,7 +448,7 @@ def build_run_comparison(
         "success": True,
         "metadata": {
             "project": project or run_b.get("project", "Default Project"),
-            "user_story": user_story or "All User Stories",
+            "user_story": user_story or "All User Journeys",
             "item_type_filter": item_type_filter or "TRANSACTIONS_ONLY",
             "run_a": {
                 "id": run_a_id,
@@ -528,51 +528,64 @@ def generate_run_comparison_html(comp_data: Dict[str, Any]) -> str:
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
-<head>
     <meta charset="UTF-8">
     <title>Run Comparison Engineering Report — {run_a.get('id')} vs {run_b.get('id')}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {{
-            --bg: #f4f6f8;
-            --card-bg: #ffffff;
-            --border: #cfd7e0;
-            --primary: #0284c7;
-            --text-primary: #0f172a;
-            --text-secondary: #334155;
-            --text-muted: #64748b;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --surface3: #1e293b;
+            --border: #475569;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-bg: rgba(56, 189, 248, 0.1);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, 0.1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, 0.1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.1);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-        body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text-secondary); line-height: 1.5; padding: 2rem; }}
-        .header-card {{ background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }}
-        .header-title {{ font-size: 1.6rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }}
+        body {{ font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding: 2rem; }}
+        .header-card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }}
+        .header-title {{ font-size: 1.5rem; font-weight: 800; color: var(--text); display: flex; align-items: center; justify-content: space-between; }}
         .meta-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.85rem; margin-top: 1.25rem; }}
-        .meta-item {{ background: #f8fafc; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid #e2e8f0; }}
-        .meta-label {{ font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }}
-        .meta-val {{ font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-top: 0.15rem; }}
+        .meta-item {{ background: var(--surface2); padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--border); }}
+        .meta-label {{ font-size: 0.72rem; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 0.05em; }}
+        .meta-val {{ font-size: 0.95rem; font-weight: 600; color: var(--text); margin-top: 0.15rem; }}
 
-        .kpi-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }}
-        .kpi-card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(15,23,42,0.05); text-align: center; }}
-        .kpi-title {{ font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }}
-        .kpi-value {{ font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin: 0.35rem 0; }}
+        .kpi-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }}
+        .kpi-card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow); text-align: center; }}
+        .kpi-title {{ font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }}
+        .kpi-value {{ font-size: 1.45rem; font-weight: 800; color: var(--text); margin: 0.35rem 0; }}
         .kpi-delta {{ font-size: 0.82rem; font-weight: 700; }}
 
-        .card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(15,23,42,0.05); }}
-        h2 {{ color: var(--text-primary); font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; }}
+        .card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }}
+        h2 {{ color: var(--text); font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; }}
         
-        .bullet-box {{ background: #f0f9ff; border-left: 4px solid var(--primary); padding: 1.25rem; border-radius: 0 6px 6px 0; margin-bottom: 1.5rem; }}
+        .bullet-box {{ background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; }}
         .bullet-box ul {{ margin-left: 1.25rem; }}
-        .bullet-box li {{ margin-bottom: 0.35rem; color: var(--text-primary); font-size: 0.92rem; }}
+        .bullet-box li {{ margin-bottom: 0.35rem; color: var(--text); font-size: 0.92rem; }}
 
-        .obs-strip {{ background: #f8fafc; border-top: 1px dashed #cbd5e1; padding: 0.75rem 1rem; font-size: 0.85rem; color: #1e293b; font-weight: 500; margin-top: 1rem; border-radius: 4px; }}
-        .obs-strip strong {{ color: var(--primary); }}
+        .obs-strip {{ background: var(--surface2); border: 1px solid var(--border); border-top: 1px dashed var(--accent); padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text); font-weight: 500; margin-top: 1rem; border-radius: 6px; }}
+        .obs-strip strong {{ color: var(--accent); }}
 
         .trans-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1rem; }}
-        .trans-box {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; text-align: center; }}
-        .trans-num {{ font-size: 1.6rem; font-weight: 800; margin-top: 0.2rem; }}
+        .trans-box {{ background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }}
+        .trans-num {{ font-size: 1.6rem; font-weight: 800; margin-top: 0.2rem; color: var(--text); }}
 
-        table {{ width: 100%; border-collapse: collapse; margin-top: 0.5rem; }}
-        th, td {{ padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }}
-        th {{ background: #f8fafc; text-align: left; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.72rem; }}
+        table {{ width: 100%; border-collapse: collapse; margin-top: 0.5rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }}
+        th, td {{ padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }}
+        th {{ background: var(--surface2); text-align: left; color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; }}
+        td {{ color: var(--text); }}
+        tr:hover {{ background: rgba(255, 255, 255, 0.02); }}
     </style>
 </head>
 <body>
@@ -585,7 +598,7 @@ def generate_run_comparison_html(comp_data: Dict[str, Any]) -> str:
         </div>
         <div class="meta-grid">
             <div class="meta-item"><div class="meta-label">Project</div><div class="meta-val">{meta.get('project')}</div></div>
-            <div class="meta-item"><div class="meta-label">User Story Scope</div><div class="meta-val">{meta.get('user_story')}</div></div>
+            <div class="meta-item"><div class="meta-label">User Journey Scope</div><div class="meta-val">{meta.get('user_story')}</div></div>
             <div class="meta-item"><div class="meta-label">Hierarchy Scope</div><div class="meta-val">{meta.get('item_type_filter')}</div></div>
             <div class="meta-item"><div class="meta-label">Run A (Baseline)</div><div class="meta-val">{run_a.get('id')} ({run_a.get('users')} Users)</div></div>
             <div class="meta-item"><div class="meta-label">Run B (Target)</div><div class="meta-val">{run_b.get('id')} ({run_b.get('users')} Users)</div></div>
@@ -677,7 +690,7 @@ def generate_run_comparison_html(comp_data: Dict[str, Any]) -> str:
             <thead>
                 <tr>
                     <th>Hierarchy Item</th>
-                    <th>User Story</th>
+                    <th>User Journey</th>
                     <th style="text-align:right;">Run A RT</th>
                     <th style="text-align:right;">Run B RT</th>
                     <th style="text-align:right;">Change %</th>

@@ -821,15 +821,263 @@ select:focus {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes modalScaleIn {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Global Utility ── */
+.hidden {
+    display: none !important;
+}
+
+/* ── SLA Load Scenario Modal & Table Styles ── */
+.sla-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+.sla-modal-backdrop.hidden {
+    display: none !important;
+}
+
+.sla-modal-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-lg);
+    animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.sla-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--border-color);
+    background: #f8fafc;
+}
+
+.sla-modal-header h3 {
+    font-size: 1.05rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.sla-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    transition: var(--transition-smooth);
+}
+
+.sla-modal-close:hover {
+    color: var(--danger-color);
+    background: rgba(220, 38, 38, 0.08);
+}
+
+.sla-modal-body {
+    padding: 1.4rem;
+}
+
+.sla-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 0.9rem 1.4rem;
+    border-top: 1px solid var(--border-color);
+    background: #f8fafc;
+}
+
+.sla-step-card {
+    border: 1px solid var(--border-color);
+    background: var(--card-bg, #ffffff);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.sla-step-badge {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.sla-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.sla-chip-info {
+    background: #e0f2fe;
+    border-color: #bae6fd;
+    color: #0369a1;
+    font-weight: 600;
+}
+
+.sla-chip-success {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+    font-weight: 600;
+}
+
+.sla-chip-neutral {
+    background: #f8fafc;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-family: monospace;
+}
+
+.sla-preset-btn {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.32rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.sla-preset-btn:hover {
+    background: #e0f2fe;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sla-scenario-th {
+    background: #f1f5f9;
+    border-left: 2px solid var(--border-color);
+    border-right: 2px solid var(--border-color);
+    padding: 0.6rem 0.5rem !important;
+}
+
+.sla-sc-th-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.sla-sc-name {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+}
+
+.sla-sc-badge {
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 12px;
+    border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.sla-sc-del-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.sla-sc-del-btn:hover {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.12);
+}
+
+.sla-sc-th-sub {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.sla-sc-td {
+    border-left: 2px solid var(--border-color);
+    border-right: 2px solid var(--border-color);
+    background: rgba(248, 250, 252, 0.4);
+}
+
+.sla-sc-rt-input,
+.sla-sc-err-input {
+    padding: 0.3rem 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: var(--transition-smooth);
+}
+
+.sla-sc-rt-input:focus,
+.sla-sc-err-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
