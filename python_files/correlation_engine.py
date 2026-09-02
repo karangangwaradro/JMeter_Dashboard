@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-correlation_engine.py — Client ↔ Server Metric Correlation for JmeterAI.
+correlation_engine.py — Client ↔ Server Metric Correlation for PerfPilot.
 
 Correlates JMeter client-side metrics (response times, throughput, errors)
 with Azure Monitor server-side metrics (CPU, memory, network) to identify

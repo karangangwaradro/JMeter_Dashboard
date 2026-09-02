@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_local_jmeter.py — Local JMeter Test Runner for JmeterAI.
+run_local_jmeter.py — Local JMeter Test Runner for PerfPilot.
 
 Runs a JMX test plan using the locally installed Apache JMeter CLI.
 Parses the resulting .jtl file and returns structured results.
@@ -49,8 +49,14 @@ def _load_env():
             if line and not line.startswith("#") and "=" in line:
                 key, val = line.split("=", 1)
                 key, val = key.strip(), val.strip()
-                if key and val and key not in os.environ:
+                if key and val:
                     os.environ[key] = val
+
+    # Auto-normalize JMETER_HOME and JAVA_HOME if set to /bin
+    if "JMETER_HOME" in os.environ and os.environ["JMETER_HOME"].rstrip("/\\").endswith("bin"):
+        os.environ["JMETER_HOME"] = str(Path(os.environ["JMETER_HOME"]).parent)
+    if "JAVA_HOME" in os.environ and os.environ["JAVA_HOME"].rstrip("/\\").endswith("bin"):
+        os.environ["JAVA_HOME"] = str(Path(os.environ["JAVA_HOME"]).parent)
 
 _load_env()
 

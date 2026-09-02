@@ -1,4 +1,4 @@
-# Results directory outputs (ignore generated logs, json, and html reports)
+# Results directory outputs
 Results/*
 !Results/.gitkeep
 !Results/html/
@@ -9,6 +9,16 @@ Results/*
 !Results/jtl/.gitkeep
 !Results/Published/
 !Results/Published/.gitkeep
+
+# Exclude JTL files and logs completely from Git
+*.jtl
+Results/jtl/*.jtl
+Results/*.jtl
+*.log
+logs/*
+!logs/.gitkeep
+Results/logs/*
+!Results/logs/.gitkeep
 
 # Python bytecode and virtual environments
 __pycache__/

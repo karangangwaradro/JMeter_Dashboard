@@ -52,7 +52,7 @@ function updateTrendStoryOptions() {
 
     const selectedProj = projSelect ? projSelect.value : "";
     const curVal = storySelect.value;
-    storySelect.innerHTML = '<option value="">All User Stories</option>';
+    storySelect.innerHTML = '<option value="">All User Journeys</option>';
 
     let storiesToPopulate = new Set();
     if (selectedProj && trendHierarchy[selectedProj]) {
@@ -232,7 +232,7 @@ function populateTrendMultiSelectDropdown(multiSeries) {
     const stories = multiSeries.stories || {};
     const storyKeys = Object.keys(stories);
     if (storyKeys.length > 0) {
-        html += `<div class="trend-ms-category-title">User Stories</div>`;
+        html += `<div class="trend-ms-category-title">User Journeys</div>`;
         storyKeys.forEach(sName => {
             const key = `story:${sName}`;
             html += `

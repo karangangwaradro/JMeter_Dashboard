@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-jmx_editor.py — JMX XML Parser & Editor for the JmeterAI Platform.
+jmx_editor.py — JMX XML Parser & Editor for the PerfPilot Platform.
 
 Reads and modifies Apache JMeter .jmx test plan files to:
   - Extract ThreadGroup configurations (users, duration, rampup)

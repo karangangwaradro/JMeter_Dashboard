@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-web_server.py — Local Web Server for JmeterAI.
+web_server.py — Local Web Server for PerfPilot.
 
 Serves the web/ SPA dashboard and exposes REST API endpoints:
   - GET  /api/status            → System health (JMeter, Azure, AI status)
@@ -128,6 +128,121 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _handle_recompile(self, target_run: str = "", regen_ai: bool = False):
+        """Recompile single or all reports with optional live AI insights regeneration."""
+        try:
+            res_set = set(_RESULTS_JSON_DIR.glob("*_result.json"))
+            res_set.update(_RESULTS_DIR.glob("*_result.json"))
+            result_files = sorted([f for f in res_set if f.is_file()], key=lambda p: p.stat().st_mtime, reverse=True)
+            if target_run:
+                result_files = [f for f in result_files if target_run in f.name]
+
+            if not result_files:
+                self._send_json({"success": False, "message": f"No result JSON files found for target '{target_run or 'all'}'"}, 404)
+                return
+
+            import importlib
+            import python_files.apdex_calculator as ap_module
+            import python_files.report_generator as rg_module
+            importlib.reload(ap_module)
+            importlib.reload(rg_module)
+
+            compiled_count = 0
+            ai_generated_count = 0
+            runs_path = _DATA_DIR / "runs.json"
+            r_data = json.loads(runs_path.read_text(encoding="utf-8")) if runs_path.exists() else {"runs": []}
+
+            for target_file in result_files:
+                with open(target_file, "r", encoding="utf-8") as f:
+                    parsed_res = json.load(f)
+
+                timestamp = target_file.name.replace("run_", "").replace("_result.json", "")
+                azure_file = _RESULTS_JSON_DIR / f"azure_{timestamp}.json"
+                if not azure_file.exists():
+                    azure_file = _RESULTS_DIR / f"azure_{timestamp}.json"
+                azure_data = {}
+                if azure_file.exists():
+                    with open(azure_file, "r", encoding="utf-8") as f:
+                        azure_data = json.load(f)
+
+                jmx_name = parsed_res.get("jmx_name", "Scenario")
+                users = parsed_res.get("users", 1)
+                report_path = _RESULTS_HTML_DIR / f"run_{timestamp}_report.html"
+
+                jtl_file = _RESULTS_JTL_DIR / f"run_{timestamp}.jtl"
+                if not jtl_file.exists():
+                    jtl_file = _RESULTS_DIR / f"run_{timestamp}.jtl"
+                if jtl_file.exists():
+                    try:
+                        from python_files.jtl_parser import parse_jtl
+                        re_p = parse_jtl(jtl_file)
+                        if re_p.get("labels"):
+                            parsed_res["labels"] = re_p["labels"]
+                        if re_p.get("summary"):
+                            parsed_res["summary"] = re_p["summary"]
+                        if re_p.get("time_series"):
+                            parsed_res["time_series"] = re_p["time_series"]
+                    except Exception as e:
+                        print(f"[Recompile] Error parsing JTL: {e}", flush=True)
+
+                ai_insights = parsed_res.get("ai_insights", {})
+
+                # If regenerate_ai is requested, trigger live AI generation
+                if regen_ai:
+                    try:
+                        from python_files.ai_insights import generate_insights
+                        from python_files.sla_manager import load_sla_targets
+                        sla_targets, default_rt, default_err = load_sla_targets(jmx_name, actual_users=users)
+                        infra_summary = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
+                        if not infra_summary and isinstance(azure_data, dict) and "metrics" in azure_data:
+                            from python_files.azure_collector import AzureMetricsCollector
+                            infra_summary = AzureMetricsCollector._summarize_metrics(azure_data)
+
+                        print(f"[Recompile] Regenerating live AI insights for {target_file.name}...", flush=True)
+                        fresh_ai = generate_insights(
+                            test_name=jmx_name,
+                            summary=parsed_res.get("summary", {}),
+                            labels=parsed_res.get("labels", {}),
+                            time_series=parsed_res.get("time_series", {}),
+                            infra=infra_summary,
+                            correlation=parsed_res.get("correlation", {}),
+                            sla_targets=sla_targets,
+                            default_rt=default_rt,
+                            default_err=default_err
+                        )
+                        if fresh_ai and fresh_ai.get("source") != "none":
+                            parsed_res["ai_insights"] = fresh_ai
+                            ai_insights = fresh_ai
+                            ai_generated_count += 1
+                            print(f"[Recompile] Live AI insights regenerated successfully for {target_file.name}.", flush=True)
+                    except Exception as ai_gen_err:
+                        print(f"[Recompile] AI regeneration note: {ai_gen_err}", flush=True)
+
+                # Persist updated parsed_res back to JSON
+                with open(target_file, "w", encoding="utf-8") as f:
+                    json.dump(parsed_res, f, indent=2)
+
+                rg_module.generate_report(parsed_res, azure_data, ai_insights, report_path, jmx_name, users)
+                compiled_count += 1
+
+                for r_item in r_data.get("runs", []):
+                    if r_item.get("id") == f"run_{timestamp}":
+                        r_item["report_file"] = report_path.name
+                        if ai_insights and ai_insights.get("source") != "none":
+                            r_item["has_ai_insights"] = True
+
+            runs_path.write_text(json.dumps(r_data, indent=2), encoding="utf-8")
+            
+            ai_msg = f" (including regenerated AI insights for {ai_generated_count} run(s))" if regen_ai and ai_generated_count > 0 else ""
+            self._send_json({
+                "success": True,
+                "message": f"Successfully recompiled {compiled_count} report(s){ai_msg}!",
+                "compiled_count": compiled_count,
+                "ai_generated_count": ai_generated_count
+            })
+        except Exception as re_err:
+            self._send_json({"success": False, "message": f"Failed to recompile reports: {re_err}"}, 500)
+
     # ─────────────────────────────────────────────────────────────────────────
     # GET Handlers
     # ─────────────────────────────────────────────────────────────────────────
@@ -162,17 +277,68 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             from python_files.run_local_jmeter import check_jmeter
             jmeter_info = check_jmeter()
             azure_configured = bool(os.environ.get("AZURE_RESOURCE_IDS", "").strip())
+            openrouter_configured = bool(os.environ.get("OPENROUTER_API_KEY", "").strip())
             gemini_configured = bool(os.environ.get("GEMINI_API_KEY", "").strip())
             github_configured = bool(os.environ.get("GITHUB_TOKEN", "").strip())
+            provider = os.environ.get("DEFAULT_AI_PROVIDER", "openrouter" if openrouter_configured else ("gemini" if gemini_configured else "github"))
+            model = os.environ.get("DEFAULT_AI_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
+            if model == "nvidia/llama-3.1-nemotron-70b-instruct":
+                model = "nvidia/nemotron-3-ultra-550b-a55b:free"
+            elif model == "gemini-2.0-flash":
+                model = "gemini-2.5-flash"
+
+            if provider == "openrouter" and openrouter_configured:
+                ai_mode = f"OpenRouter ({model}) Ready"
+            elif provider == "gemini" and gemini_configured:
+                ai_mode = f"Gemini ({model}) Ready"
+            elif provider == "github" and github_configured:
+                ai_mode = f"GitHub AI ({model}) Ready"
+            elif openrouter_configured or gemini_configured or github_configured:
+                ai_mode = "AI Engine Configured"
+            else:
+                ai_mode = "Not Configured"
 
             self._send_json({
                 "jmeter": jmeter_info,
                 "azure_configured": azure_configured,
+                "openrouter_configured": openrouter_configured,
                 "gemini_configured": gemini_configured,
                 "github_configured": github_configured,
-                "ai_configured": gemini_configured or github_configured,
-                "ai_mode": "Gemini 2.0 Ready" if gemini_configured else ("GitHub AI (GPT-4o) Ready" if github_configured else "Rule-based Fallback Mode"),
+                "ai_configured": openrouter_configured or gemini_configured or github_configured,
+                "ai_provider": provider,
+                "ai_model": model,
+                "ai_mode": ai_mode,
                 "jmeter_home": os.environ.get("JMETER_HOME", "")
+            })
+            return
+
+        # ── /api/ai-config (GET) ──
+        if path == "/api/ai-config":
+            _load_env()
+            openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+            gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+            github_token = os.environ.get("GITHUB_TOKEN", "").strip()
+            provider = os.environ.get("DEFAULT_AI_PROVIDER", "openrouter" if openrouter_key else ("gemini" if gemini_key else "github"))
+            model = os.environ.get("DEFAULT_AI_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
+            if model == "nvidia/llama-3.1-nemotron-70b-instruct":
+                model = "nvidia/nemotron-3-ultra-550b-a55b:free"
+            elif model == "gemini-2.0-flash":
+                model = "gemini-2.5-flash"
+
+            def mask(k):
+                if not k: return ""
+                if len(k) <= 8: return "****"
+                return k[:4] + "...." + k[-4:]
+
+            self._send_json({
+                "provider": provider,
+                "model": model,
+                "openrouter_configured": bool(openrouter_key),
+                "openrouter_key_masked": mask(openrouter_key),
+                "gemini_configured": bool(gemini_key),
+                "gemini_key_masked": mask(gemini_key),
+                "github_configured": bool(github_token),
+                "github_token_masked": mask(github_token)
             })
             return
 
@@ -258,89 +424,28 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
 
         # ── /api/recompile-report ──
         if path == "/api/recompile-report":
-            try:
-                query = urllib.parse.parse_qs(parsed.query)
-                target_run = query.get("run_id", [""])[0].strip()
-
-                res_set = set(_RESULTS_JSON_DIR.glob("*_result.json"))
-                res_set.update(_RESULTS_DIR.glob("*_result.json"))
-                result_files = sorted([f for f in res_set if f.is_file()], key=lambda p: p.stat().st_mtime, reverse=True)
-                if target_run:
-                    result_files = [f for f in result_files if target_run in f.name]
-
-                if not result_files:
-                    self._send_json({"success": False, "message": f"No result JSON files found for target '{target_run or 'all'}'"}, 404)
-                    return
-
-                import importlib
-                import python_files.apdex_calculator as ap_module
-                import python_files.report_generator as rg_module
-                importlib.reload(ap_module)
-                importlib.reload(rg_module)
-
-                compiled_count = 0
-                runs_path = _DATA_DIR / "runs.json"
-                r_data = json.loads(runs_path.read_text(encoding="utf-8")) if runs_path.exists() else {"runs": []}
-
-                for target_file in result_files:
-                    with open(target_file, "r", encoding="utf-8") as f:
-                        parsed_res = json.load(f)
-
-                    timestamp = target_file.name.replace("run_", "").replace("_result.json", "")
-                    azure_file = _RESULTS_JSON_DIR / f"azure_{timestamp}.json"
-                    if not azure_file.exists():
-                        azure_file = _RESULTS_DIR / f"azure_{timestamp}.json"
-                    azure_data = {}
-                    if azure_file.exists():
-                        with open(azure_file, "r", encoding="utf-8") as f:
-                            azure_data = json.load(f)
-
-                    ai_insights = parsed_res.get("ai_insights", {})
-                    report_path = _RESULTS_HTML_DIR / f"run_{timestamp}_report.html"
-                    jmx_name = parsed_res.get("jmx_name", "Scenario")
-                    users = parsed_res.get("users", 1)
-
-                    jtl_file = _RESULTS_JTL_DIR / f"run_{timestamp}.jtl"
-                    if not jtl_file.exists():
-                        jtl_file = _RESULTS_DIR / f"run_{timestamp}.jtl"
-                    if jtl_file.exists():
-                        try:
-                            from python_files.jtl_parser import parse_jtl
-                            re_p = parse_jtl(jtl_file)
-                            if re_p.get("labels"):
-                                parsed_res["labels"] = re_p["labels"]
-                            if re_p.get("summary"):
-                                parsed_res["summary"] = re_p["summary"]
-                            if re_p.get("time_series"):
-                                parsed_res["time_series"] = re_p["time_series"]
-                        except Exception as e:
-                            print(f"[Recompile] Error parsing JTL: {e}")
-
-                    rg_module.generate_report(parsed_res, azure_data, ai_insights, report_path, jmx_name, users)
-                    compiled_count += 1
-
-                    for r_item in r_data.get("runs", []):
-                        if r_item.get("id") == f"run_{timestamp}":
-                            r_item["report_file"] = report_path.name
-
-                runs_path.write_text(json.dumps(r_data, indent=2), encoding="utf-8")
-                self._send_json({"success": True, "message": f"Successfully recompiled {compiled_count} reports with multi-tab layout!"})
-            except Exception as re_err:
-                self._send_json({"success": False, "message": f"Failed to recompile reports: {re_err}"}, 500)
+            query = urllib.parse.parse_qs(parsed.query)
+            target_run = query.get("run_id", [""])[0].strip()
+            regen_ai = query.get("regenerate_ai", ["false"])[0].strip().lower() in ("true", "1", "yes")
+            self._handle_recompile(target_run=target_run, regen_ai=regen_ai)
             return
 
         # ── /api/sla ──
         if path == "/api/sla":
             query = urllib.parse.parse_qs(parsed.query)
             jmx_name = query.get("jmx", [""])[0]
-            from python_files.sla_manager import load_sla_targets, parse_jmx_hierarchy, save_sla_targets, get_sla_file_path
+            from python_files.sla_manager import (
+                load_sla_scenarios_and_targets, parse_jmx_hierarchy, save_sla_targets, get_sla_file_path
+            )
             
-            targets, default_rt, default_err = load_sla_targets(jmx_name)
+            scenarios, targets, default_rt, default_err = load_sla_scenarios_and_targets(jmx_name)
             paired_path = get_sla_file_path(jmx_name)
             
             identifications = []
+            default_scenarios = targets.get("default", {}).get("scenarios", {})
             identifications.append({
                 "label": "default", "rt": default_rt, "err": default_err, "is_critical": 0,
+                "scenarios": default_scenarios,
                 "status": "Global Default", "defined": True
             })
             
@@ -352,11 +457,13 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                         is_crit = 1 if targets[tc].get("is_critical") in (1, True, "1", "true") else 0
                         identifications.append({
                             "label": tc, "rt": targets[tc]["rt"], "err": targets[tc]["err"], "is_critical": is_crit,
+                            "scenarios": targets[tc].get("scenarios", {}),
                             "status": "Explicitly Defined", "defined": True
                         })
                     else:
                         identifications.append({
                             "label": tc, "rt": default_rt, "err": default_err, "is_critical": 0,
+                            "scenarios": {},
                             "status": "Auto-Extracted from JMX", "defined": False
                         })
                 
@@ -364,17 +471,34 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 clean_name = Path(jmx_name).stem
                 expected_csv = _TESTS_DIR / f"{clean_name}_sla.csv"
                 if not expected_csv.exists() and tc_list:
-                    slas_to_save = [{"label": item["label"], "rt": item["rt"], "err": item["err"], "is_critical": item["is_critical"]} for item in identifications]
-                    save_sla_targets(slas_to_save, jmx_name)
+                    slas_to_save = [
+                        {
+                            "label": item["label"],
+                            "rt": item["rt"],
+                            "err": item["err"],
+                            "is_critical": item["is_critical"],
+                            "scenarios": item.get("scenarios", {})
+                        }
+                        for item in identifications
+                    ]
+                    save_sla_targets(slas_to_save, jmx_name, scenarios=scenarios)
             else:
                 for lbl, tdata in targets.items():
+                    if lbl.lower() == "default":
+                        continue
                     is_crit = 1 if tdata.get("is_critical") in (1, True, "1", "true") else 0
                     identifications.append({
                         "label": lbl, "rt": tdata["rt"], "err": tdata["err"], "is_critical": is_crit,
+                        "scenarios": tdata.get("scenarios", {}),
                         "status": "Explicitly Defined", "defined": True
                     })
 
-            self._send_json({"success": True, "identifications": identifications, "targets": targets})
+            self._send_json({
+                "success": True,
+                "scenarios": scenarios,
+                "identifications": identifications,
+                "targets": targets
+            })
             return
 
         # ── /api/runs ──
@@ -453,6 +577,110 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({"success": False, "message": str(te_err)}, 500)
             return
 
+        # ── /api/ai-studio/runs ──
+        if path == "/api/ai-studio/runs":
+            try:
+                res_set = set(_RESULTS_JSON_DIR.glob("*_result.json"))
+                res_set.update(_RESULTS_DIR.glob("*_result.json"))
+                runs_list = []
+                for p in sorted(list(res_set), key=lambda x: x.stat().st_mtime, reverse=True):
+                    try:
+                        data = json.loads(p.read_text(encoding="utf-8"))
+                        run_id = p.name.replace("_result.json", "")
+                        summary = data.get("summary", {})
+                        insights = data.get("ai_insights", {})
+                        runs_list.append({
+                            "id": run_id,
+                            "filename": p.name,
+                            "timestamp": data.get("timestamp", run_id.replace("run_", "")),
+                            "jmx_name": data.get("jmx_name", "Scenario"),
+                            "users": data.get("users", 1),
+                            "summary": {
+                                "total": summary.get("total", 0),
+                                "avg_rt": summary.get("avg_rt", 0),
+                                "p90": summary.get("p90", 0),
+                                "p95": summary.get("p95", 0),
+                                "p99": summary.get("p99", 0),
+                                "min_rt": summary.get("min_rt", 0),
+                                "max_rt": summary.get("max_rt", 0),
+                                "throughput": summary.get("throughput", 0),
+                                "error_rate": summary.get("error_rate", 0),
+                                "duration_sec": summary.get("duration_sec", 0),
+                            },
+                            "labels_count": len(data.get("labels", {})),
+                            "has_ai": bool(insights and insights.get("source") not in ("none", "", None)),
+                            "ai_source": insights.get("source", "none") if insights else "none",
+                            "ai_score": insights.get("performance_score") if insights else None,
+                            "ai_grade": insights.get("performance_grade") if insights else None
+                        })
+                    except Exception:
+                        pass
+                self._send_json({"success": True, "runs": runs_list})
+            except Exception as e:
+                self._send_json({"success": False, "message": str(e)}, 500)
+            return
+
+        # ── /api/ai-studio/prompt-preview ──
+        if path == "/api/ai-studio/prompt-preview":
+            try:
+                query = urllib.parse.parse_qs(parsed.query)
+                run_id = query.get("run_id", [""])[0].strip()
+                if not run_id:
+                    self._send_json({"success": False, "message": "run_id parameter required"}, 400)
+                    return
+                
+                target_file = _RESULTS_JSON_DIR / f"{run_id}_result.json"
+                if not target_file.exists():
+                    target_file = _RESULTS_DIR / f"{run_id}_result.json"
+                if not target_file.exists():
+                    self._send_json({"success": False, "message": f"Run '{run_id}' not found"}, 404)
+                    return
+                
+                with open(target_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                
+                from python_files.ai_insights import build_insights_prompt
+                test_name = data.get("jmx_name", run_id)
+                summary = data.get("summary", {})
+                labels = data.get("labels", {})
+                time_series = data.get("time_series", {})
+                correlation = data.get("correlation", {})
+                
+                # Check for azure monitor companion
+                ts_str = run_id.replace("run_", "")
+                azure_file = _RESULTS_JSON_DIR / f"azure_{ts_str}.json"
+                if not azure_file.exists():
+                    azure_file = _RESULTS_DIR / f"azure_{ts_str}.json"
+                azure_data = {}
+                if azure_file.exists():
+                    try:
+                        with open(azure_file, "r", encoding="utf-8") as af:
+                            azure_data = json.load(af)
+                    except Exception:
+                        pass
+                infra = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
+                
+                from python_files.sla_manager import load_sla_targets
+                sla_targets, default_rt, default_err = load_sla_targets(test_name)
+                prompt = build_insights_prompt(
+                    test_name, summary, labels, time_series, infra, correlation,
+                    sla_targets=sla_targets, default_rt=default_rt, default_err=default_err
+                )
+                self._send_json({
+                    "success": True,
+                    "run_id": run_id,
+                    "test_name": test_name,
+                    "prompt": prompt,
+                    "summary": summary,
+                    "labels": labels,
+                    "infra": infra,
+                    "correlation": correlation,
+                    "existing_insights": data.get("ai_insights", {})
+                })
+            except Exception as pe_err:
+                self._send_json({"success": False, "message": str(pe_err)}, 500)
+            return
+
         # Static file fallback
         super().do_GET()
 
@@ -475,6 +703,313 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             body = json.loads(raw)
         except json.JSONDecodeError:
             body = {}
+
+        # ── /api/recompile-report (POST) ──
+        if path == "/api/recompile-report":
+            target_run = body.get("run_id", "").strip()
+            regen_ai = bool(body.get("regenerate_ai", False))
+            self._handle_recompile(target_run=target_run, regen_ai=regen_ai)
+            return
+
+        # ── /api/ai-chat/message ──
+        if path == "/api/ai-chat/message":
+            try:
+                run_id = body.get("run_id", "").strip()
+                section_id = body.get("section_id", "executive").strip()
+                user_message = body.get("message", "").strip()
+                client_history = body.get("history", [])
+
+                if not user_message:
+                    self._send_json({"success": False, "message": "message parameter is required"}, 400)
+                    return
+
+                # Clean run_id
+                clean_run = run_id
+                if not clean_run.startswith("run_") and re.match(r'^\d{8}_\d{6}$', clean_run):
+                    clean_run = f"run_{clean_run}"
+
+                # Load result data
+                target_file = None
+                if clean_run:
+                    target_file = _RESULTS_JSON_DIR / f"{clean_run}_result.json"
+                    if not target_file.exists():
+                        target_file = _RESULTS_DIR / f"{clean_run}_result.json"
+
+                data = {}
+                if target_file and target_file.exists():
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                # Load Azure data if available
+                ts_str = clean_run.replace("run_", "")
+                azure_file = _RESULTS_JSON_DIR / f"azure_{ts_str}.json"
+                if not azure_file.exists():
+                    azure_file = _RESULTS_DIR / f"azure_{ts_str}.json"
+                azure_data = {}
+                if azure_file.exists():
+                    try:
+                        with open(azure_file, "r", encoding="utf-8") as af:
+                            azure_data = json.load(af)
+                    except Exception:
+                        pass
+
+                from python_files.context_packager import build_section_digest, build_chat_system_prompt
+                from python_files.ai_insights import execute_chat_completion
+
+                section_digest = build_section_digest(data, azure_data, section_id)
+                system_prompt = build_chat_system_prompt(section_id, section_digest)
+
+                # Format conversation history
+                messages = []
+                for h in client_history:
+                    if isinstance(h, dict) and "role" in h and "content" in h:
+                        messages.append({"role": h["role"], "content": h["content"]})
+
+                # Append current user question if not already in history
+                if not messages or messages[-1].get("content") != user_message:
+                    messages.append({"role": "user", "content": user_message})
+
+                reply_text, provider_used, elapsed_ms = execute_chat_completion(
+                    system_prompt=system_prompt,
+                    messages=messages
+                )
+
+                # Update persisted chat history in result.json
+                if target_file and target_file.exists():
+                    try:
+                        if "ai_chat_history" not in data or not isinstance(data["ai_chat_history"], dict):
+                            data["ai_chat_history"] = {}
+                        if section_id not in data["ai_chat_history"] or not isinstance(data["ai_chat_history"][section_id], list):
+                            data["ai_chat_history"][section_id] = []
+                        
+                        data["ai_chat_history"][section_id].append({"role": "user", "content": user_message})
+                        data["ai_chat_history"][section_id].append({"role": "assistant", "content": reply_text})
+
+                        with open(target_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, indent=2)
+                    except Exception as hist_err:
+                        print(f"[AI Chat] Warning saving chat history to result.json: {hist_err}", flush=True)
+
+                self._send_json({
+                    "success": True,
+                    "reply": reply_text,
+                    "section_id": section_id,
+                    "provider": provider_used,
+                    "elapsed_ms": elapsed_ms,
+                    "history": data.get("ai_chat_history", {}).get(section_id, messages + [{"role": "assistant", "content": reply_text}])
+                })
+            except Exception as chat_err:
+                self._send_json({"success": False, "message": f"AI Chat Failed: {str(chat_err)}"}, 500)
+            return
+
+        # ── /api/ai-chat/patch-section ──
+        if path == "/api/ai-chat/patch-section":
+            try:
+                run_id = body.get("run_id", "").strip()
+                section_id = body.get("section_id", "").strip()
+                content = body.get("content")
+
+                if not section_id or content is None:
+                    self._send_json({"success": False, "message": "section_id and content are required"}, 400)
+                    return
+
+                clean_run = run_id if run_id.startswith("run_") else f"run_{run_id}"
+                target_file = _RESULTS_JSON_DIR / f"{clean_run}_result.json"
+                if not target_file.exists():
+                    target_file = _RESULTS_DIR / f"{clean_run}_result.json"
+
+                if not target_file.exists():
+                    self._send_json({"success": False, "message": f"Run file {clean_run}_result.json not found"}, 404)
+                    return
+
+                with open(target_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                ai_insights = data.setdefault("ai_insights", {})
+                perf_intel = ai_insights.setdefault("performance_intelligence", {})
+                exec_summary = perf_intel.setdefault("executive_summary", {})
+
+                if section_id == "exec_overview":
+                    if isinstance(content, list):
+                        exec_summary["assessment_bullets"] = content
+                        exec_summary["assessment_text"] = "\n".join(content)
+                    elif isinstance(content, str):
+                        exec_summary["assessment_bullets"] = [content]
+                        exec_summary["assessment_text"] = content
+                elif section_id == "exec_observations":
+                    if isinstance(content, list):
+                        exec_summary["observations_table"] = content
+                elif section_id == "exec_conclusions":
+                    if isinstance(content, list):
+                        exec_summary["conclusions"] = content
+                elif section_id == "exec_recommendations":
+                    if isinstance(content, list):
+                        exec_summary["priority_recommendations"] = content
+                elif section_id in ("tab_tx_stats", "tab_rt_stats", "tab_error_stats", "tab_infra_stats"):
+                    if isinstance(content, dict):
+                        perf_intel[section_id] = content
+
+                with open(target_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2)
+
+                self._send_json({
+                    "success": True,
+                    "message": f"Successfully updated section {section_id} in {target_file.name}",
+                    "section_id": section_id
+                })
+            except Exception as patch_err:
+                self._send_json({"success": False, "message": f"Patch failed: {str(patch_err)}"}, 500)
+            return
+
+        # ── /api/ai-chat/clear ──
+        if path == "/api/ai-chat/clear":
+            try:
+                run_id = body.get("run_id", "").strip()
+                section_id = body.get("section_id", "").strip()
+                clean_run = run_id if run_id.startswith("run_") else f"run_{run_id}"
+
+                target_file = _RESULTS_JSON_DIR / f"{clean_run}_result.json"
+                if not target_file.exists():
+                    target_file = _RESULTS_DIR / f"{clean_run}_result.json"
+
+                if target_file.exists():
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    if "ai_chat_history" in data and isinstance(data["ai_chat_history"], dict):
+                        if section_id:
+                            data["ai_chat_history"][section_id] = []
+                        else:
+                            data["ai_chat_history"] = {}
+                        with open(target_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, indent=2)
+
+                self._send_json({"success": True, "message": f"Chat history cleared for {section_id or 'all sections'}."})
+            except Exception as clr_err:
+                self._send_json({"success": False, "message": str(clr_err)}, 500)
+            return
+
+
+
+        # ── /api/ai-studio/generate ──
+        if path == "/api/ai-studio/generate":
+            try:
+                run_id = body.get("run_id", "")
+                custom_prompt = body.get("prompt", "")
+                model = body.get("model", "nvidia/nemotron-3-ultra-550b-a55b:free")
+                if model == "nvidia/llama-3.1-nemotron-70b-instruct":
+                    model = "nvidia/nemotron-3-ultra-550b-a55b:free"
+                elif model == "gemini-2.0-flash":
+                    model = "gemini-2.5-flash"
+                temperature = float(body.get("temperature", 0.2))
+                
+                target_file = None
+                data = {}
+                if run_id:
+                    target_file = _RESULTS_JSON_DIR / f"{run_id}_result.json"
+                    if not target_file.exists():
+                        target_file = _RESULTS_DIR / f"{run_id}_result.json"
+                    if target_file.exists():
+                        with open(target_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                
+                summary = body.get("summary") or data.get("summary", {})
+                labels = body.get("labels") or data.get("labels", {})
+                time_series = data.get("time_series", {})
+                correlation = data.get("correlation", {})
+                infra = body.get("infra") or {}
+                
+                from python_files.ai_insights import (
+                    build_insights_prompt, execute_gemini_prompt, execute_github_prompt, execute_openrouter_prompt
+                )
+                
+                from python_files.sla_manager import load_sla_targets
+                jmx_name = data.get("jmx_name", "Scenario")
+                sla_targets, default_rt, default_err = load_sla_targets(jmx_name)
+
+                prompt_to_run = custom_prompt.strip() if custom_prompt.strip() else build_insights_prompt(
+                    jmx_name, summary, labels, time_series, infra, correlation,
+                    sla_targets=sla_targets, default_rt=default_rt, default_err=default_err
+                )
+                
+                provider = body.get("provider", "").strip().lower()
+                if provider == "openrouter" or "nemotron" in model.lower() or "openrouter" in model.lower() or "/" in model:
+                    insights, raw_text, elapsed_ms = execute_openrouter_prompt(
+                        prompt=prompt_to_run, model=model, temperature=temperature, summary=summary, infra=infra
+                    )
+                elif "gemini" in model.lower():
+                    insights, raw_text, elapsed_ms = execute_gemini_prompt(
+                        prompt=prompt_to_run, model=model, temperature=temperature, summary=summary, infra=infra
+                    )
+                else:
+                    insights, raw_text, elapsed_ms = execute_github_prompt(
+                        prompt=prompt_to_run, model=model, temperature=temperature, summary=summary, infra=infra
+                    )
+                
+                self._send_json({
+                    "success": True,
+                    "insights": insights,
+                    "raw_text": raw_text,
+                    "elapsed_ms": elapsed_ms,
+                    "model": model,
+                    "source": insights.get("source", "gemini")
+                })
+            except Exception as gen_err:
+                self._send_json({"success": False, "message": f"AI Generation Failed: {str(gen_err)}"}, 500)
+            return
+
+        # ── /api/ai-studio/save ──
+        if path == "/api/ai-studio/save":
+            try:
+                run_id = body.get("run_id", "")
+                insights = body.get("insights", {})
+                if not run_id or not insights:
+                    self._send_json({"success": False, "message": "run_id and insights required"}, 400)
+                    return
+                
+                target_file = _RESULTS_JSON_DIR / f"{run_id}_result.json"
+                if not target_file.exists():
+                    target_file = _RESULTS_DIR / f"{run_id}_result.json"
+                if not target_file.exists():
+                    self._send_json({"success": False, "message": f"Run file '{run_id}' not found"}, 404)
+                    return
+                
+                with open(target_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                
+                data["ai_insights"] = insights
+                with open(target_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2)
+                
+                # Recompile report for this run
+                try:
+                    import importlib
+                    import python_files.report_generator as rg_module
+                    importlib.reload(rg_module)
+                    
+                    ts_str = run_id.replace("run_", "")
+                    azure_file = _RESULTS_JSON_DIR / f"azure_{ts_str}.json"
+                    if not azure_file.exists():
+                        azure_file = _RESULTS_DIR / f"azure_{ts_str}.json"
+                    azure_data = {}
+                    if azure_file.exists():
+                        with open(azure_file, "r", encoding="utf-8") as af:
+                            azure_data = json.load(af)
+                    
+                    report_path = _RESULTS_HTML_DIR / f"{run_id}_report.html"
+                    rg_module.generate_report(
+                        data, azure_data, insights, report_path,
+                        data.get("jmx_name", "Scenario"), data.get("users", 1)
+                    )
+                except Exception as r_err:
+                    print(f"[AI Studio] Report recompile note: {r_err}", flush=True)
+                
+                self._send_json({
+                    "success": True,
+                    "message": f"AI Insights saved for {run_id} and report recompiled successfully!"
+                })
+            except Exception as sv_err:
+                self._send_json({"success": False, "message": str(sv_err)}, 500)
+            return
 
         # ── /api/save-published-report ──
         if path == "/api/save-published-report":
@@ -536,9 +1071,9 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             if thread_groups:
                 success = update_jmx_thread_groups(jmx_path, thread_groups)
                 if success:
-                    self._send_json({"success": True, "message": f"Updated {len(thread_groups)} thread group(s) in {jmx_name}."})
+                    self._send_json({"success": True, "message": f"Updated {len(thread_groups)} user journey(s) in {jmx_name}."})
                 else:
-                    self._send_json({"success": False, "message": "No changes were applied. Check thread group names."}, 400)
+                    self._send_json({"success": False, "message": "No changes were applied. Check user journey names."}, 400)
             else:
                 self._send_json({"success": False, "message": "thread_groups array required"}, 400)
             return
@@ -581,7 +1116,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             tg_count = len(thread_groups) if thread_groups else 0
             self._send_json({
                 "success": True,
-                "message": f"Started test '{jmx_name}' with {tg_count} thread group(s) in background.",
+                "message": f"Started test '{jmx_name}' with {tg_count} user journey(s) in background.",
                 "jmx_name": jmx_name
             })
             return
@@ -644,6 +1179,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         # ── /api/sla ──
         if path == "/api/sla":
             slas_list = body.get("slas", [])
+            scenarios = body.get("scenarios", [])
             jmx_name = body.get("jmx", "")
             if not slas_list:
                 self._send_json({"success": False, "message": "slas array is required"}, 400)
@@ -658,7 +1194,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                         item["minor_pct"] = ex.get("minor_pct", 100.0)
                         item["mod_pct"] = ex.get("mod_pct", 200.0)
                         item["crit_pct"] = ex.get("crit_pct", 300.0)
-                saved_path = save_sla_targets(slas_list, jmx_name)
+                saved_path = save_sla_targets(slas_list, jmx_name, scenarios=scenarios)
                 self._send_json({"success": True, "message": f"Saved SLA targets to {saved_path}"})
             except Exception as e:
                 self._send_json({"success": False, "message": str(e)}, 500)
@@ -770,6 +1306,54 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             env_path.write_text("\n".join(new_lines), encoding="utf-8")
             os.environ["AZURE_RESOURCE_IDS"] = resource_ids
             self._send_json({"success": True, "message": "Azure Monitor configuration saved."})
+            return
+
+        # ── /api/ai-config (POST) ──
+        if path == "/api/ai-config":
+            provider = body.get("provider", "openrouter").strip().lower()
+            model = body.get("model", "nvidia/nemotron-3-ultra-550b-a55b:free").strip()
+            if model == "nvidia/llama-3.1-nemotron-70b-instruct":
+                model = "nvidia/nemotron-3-ultra-550b-a55b:free"
+            elif model == "gemini-2.0-flash":
+                model = "gemini-2.5-flash"
+            openrouter_key = body.get("openrouter_key", "").strip()
+            gemini_key = body.get("gemini_key", "").strip()
+            github_token = body.get("github_token", "").strip()
+
+            env_path = _ROOT_DIR / "config" / ".env"
+            lines = []
+            if env_path.exists():
+                lines = env_path.read_text(encoding="utf-8").splitlines()
+
+            env_map = {}
+            for line in lines:
+                line_str = line.strip()
+                if line_str and not line_str.startswith("#") and "=" in line_str:
+                    k, v = line_str.split("=", 1)
+                    env_map[k.strip()] = v.strip()
+
+            if provider:
+                env_map["DEFAULT_AI_PROVIDER"] = provider
+                os.environ["DEFAULT_AI_PROVIDER"] = provider
+            if model:
+                env_map["DEFAULT_AI_MODEL"] = model
+                os.environ["DEFAULT_AI_MODEL"] = model
+
+            # Only overwrite keys if provided and not masked placeholder
+            if openrouter_key and not openrouter_key.startswith("****") and "...." not in openrouter_key:
+                env_map["OPENROUTER_API_KEY"] = openrouter_key
+                os.environ["OPENROUTER_API_KEY"] = openrouter_key
+            if gemini_key and not gemini_key.startswith("****") and "...." not in gemini_key:
+                env_map["GEMINI_API_KEY"] = gemini_key
+                os.environ["GEMINI_API_KEY"] = gemini_key
+            if github_token and not github_token.startswith("****") and "...." not in github_token:
+                env_map["GITHUB_TOKEN"] = github_token
+                os.environ["GITHUB_TOKEN"] = github_token
+
+            new_content = "\n".join([f"{k}={v}" for k, v in env_map.items()])
+            env_path.write_text(new_content + "\n", encoding="utf-8")
+
+            self._send_json({"success": True, "message": "AI configuration & API keys saved successfully."})
             return
 
         # ── /api/trend/compare ──
@@ -985,7 +1569,7 @@ def start_server(port: int = 8080):
     httpd = None
     try:
         httpd = ThreadedHTTPServer(("", port), PlatformRequestHandler)
-        print(f"\n  ⚡ JmeterAI Web Dashboard → http://localhost:{port}/")
+        print(f"\n  ⚡ PerfPilot Web Dashboard → http://localhost:{port}/")
         print(f"  Press Ctrl+C to stop.\n", flush=True)
         httpd.serve_forever()
     except KeyboardInterrupt:

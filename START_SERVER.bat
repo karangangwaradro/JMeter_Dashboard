@@ -3,7 +3,7 @@ cd /d "%~dp0"
 
 echo.
 echo =======================================================
-echo   ⚡ JmeterAI — Local Performance Testing Platform
+echo   ⚡ PerfPilot — Local Performance Testing Platform
 echo =======================================================
 echo.
 
@@ -15,29 +15,32 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM 2. Create Virtual Environment if missing or incomplete
+REM 2. Create Virtual Environment if missing
 if not exist "venv\Scripts\activate.bat" (
-    echo [1/3] Creating Python virtual environment...
+    echo [1/3] Setting up Python virtual environment (venv)...
     python -m venv venv
+    if %errorlevel% neq 0 (
+        echo [WARN] Could not create venv. Proceeding with system Python...
+    )
 )
 
-REM 3. Install dependencies
-echo [2/3] Checking dependencies...
+REM 3. Activate Virtual Environment & Install Requirements
+echo [2/3] Checking & installing dependencies...
 if exist "venv\Scripts\activate.bat" (
     call venv\Scripts\activate.bat
     if exist "requirements.txt" (
+        python -m pip install -q --upgrade pip
         pip install -q -r requirements.txt
     )
 ) else (
-    echo [INFO] Running using system Python environment...
-    python -m pip install -q -r requirements.txt 2>nul
+    if exist "requirements.txt" (
+        python -m pip install -q -r requirements.txt
+    )
 )
 
-REM 4. Ensure config\.env exists
-if not exist "config\.env" (
-    echo [3/3] Creating default config\.env...
-    copy "config\.env.template" "config\.env" >nul
-)
+REM 4. Check & configure config\.env (JMETER_HOME & JAVA_HOME interactive setup)
+echo [3/3] Verifying environment settings...
+python python_files\setup_env.py
 
 REM 5. Free port 8080 if previously occupied
 for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr /r ":8080 .*LISTENING"') do (
@@ -45,7 +48,7 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr /r ":8080 .*LISTENING"
 )
 
 echo.
-echo Launching JmeterAI Web Dashboard Server...
+echo Launching PerfPilot Web Dashboard Server...
 echo Web UI will be available at: http://localhost:8080/
 echo.
 

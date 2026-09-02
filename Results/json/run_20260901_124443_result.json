@@ -1,0 +1,7649 @@
+{
+  "summary": {
+    "total": 326,
+    "total_iterations": 5,
+    "errors": 25,
+    "tc_errors": 23,
+    "error_rate": 35.94,
+    "raw_error_rate": 7.67,
+    "avg_rt": 441.83,
+    "p50": 210,
+    "p90": 1014,
+    "p95": 1411,
+    "p99": 1864,
+    "min_rt": 187,
+    "max_rt": 2405,
+    "throughput": 10.89,
+    "duration_sec": 29.9,
+    "start_epoch": 1788246887,
+    "end_epoch": 1788246917
+  },
+  "labels": {
+    "TC02_T_01_R_01_GET_Catalog": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 971.0,
+      "p50": 795,
+      "p90": 894,
+      "p95": 894,
+      "p99": 894,
+      "min_rt": 763,
+      "max_rt": 1540,
+      "samples": [
+        1540,
+        863,
+        795,
+        763,
+        894
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_01_R_01_GET_Catalog_Gateway": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1007.6,
+      "p50": 843,
+      "p90": 883,
+      "p95": 883,
+      "p99": 883,
+      "min_rt": 808,
+      "max_rt": 1650,
+      "samples": [
+        1650,
+        883,
+        854,
+        843,
+        808
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_01_R_01_GET_Homepage": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1063.8,
+      "p50": 843,
+      "p90": 1070,
+      "p95": 1070,
+      "p99": 1070,
+      "min_rt": 783,
+      "max_rt": 1770,
+      "samples": [
+        1770,
+        1070,
+        853,
+        783,
+        843
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_01_R_01_GET_Search_Home": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1292.0,
+      "p50": 838,
+      "p90": 838,
+      "p95": 838,
+      "p99": 838,
+      "min_rt": 838,
+      "max_rt": 1746,
+      "samples": [
+        1746,
+        838
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_01_R_02_GET_Static_CSS": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 226.4,
+      "p50": 200,
+      "p90": 209,
+      "p95": 209,
+      "p99": 209,
+      "min_rt": 193,
+      "max_rt": 322,
+      "samples": [
+        209,
+        322,
+        200,
+        193,
+        208
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_01_R_02_GET_Auth_Header": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 201.2,
+      "p50": 200,
+      "p90": 202,
+      "p95": 202,
+      "p99": 202,
+      "min_rt": 197,
+      "max_rt": 207,
+      "samples": [
+        197,
+        200,
+        200,
+        207,
+        202
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_01_R_02_GET_Search_Bar_Widget": {
+      "count": 2,
+      "errors": 2,
+      "error_rate": 100.0,
+      "avg_rt": 193.0,
+      "p50": 191,
+      "p90": 191,
+      "p95": 191,
+      "p99": 191,
+      "min_rt": 191,
+      "max_rt": 195,
+      "samples": [
+        195,
+        191
+      ],
+      "success_flags": [
+        false,
+        false
+      ]
+    },
+    "TC02_T_01_R_02_GET_Category_Nav": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 201.0,
+      "p50": 192,
+      "p90": 193,
+      "p95": 193,
+      "p99": 193,
+      "min_rt": 187,
+      "max_rt": 240,
+      "samples": [
+        193,
+        192,
+        193,
+        187,
+        240
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_01_R_03_GET_Banner_Logo": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 213.0,
+      "p50": 201,
+      "p90": 212,
+      "p95": 212,
+      "p99": 212,
+      "min_rt": 193,
+      "max_rt": 256,
+      "samples": [
+        212,
+        256,
+        201,
+        193,
+        203
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC04_T_01_R_03_GET_Session_CSRF_Token": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 199.6,
+      "p50": 197,
+      "p90": 200,
+      "p95": 200,
+      "p99": 200,
+      "min_rt": 194,
+      "max_rt": 207,
+      "samples": [
+        194,
+        200,
+        197,
+        207,
+        200
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_01_R_03_GET_Trending_Keywords": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 192.0,
+      "p50": 189,
+      "p90": 189,
+      "p95": 189,
+      "p99": 189,
+      "min_rt": 189,
+      "max_rt": 195,
+      "samples": [
+        195,
+        189
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC02_T_01_R_03_GET_Promo_Deals": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 204.0,
+      "p50": 193,
+      "p90": 216,
+      "p95": 216,
+      "p99": 216,
+      "min_rt": 191,
+      "max_rt": 226,
+      "samples": [
+        194,
+        193,
+        216,
+        191,
+        226
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_01_R_04_GET_SSL_Certificate_Check": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 201.0,
+      "p50": 200,
+      "p90": 201,
+      "p95": 201,
+      "p99": 201,
+      "min_rt": 194,
+      "max_rt": 209,
+      "samples": [
+        200,
+        201,
+        194,
+        209,
+        201
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_01_Launch_Authentication_Gateway": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1609.4,
+      "p50": 1445,
+      "p90": 1484,
+      "p95": 1484,
+      "p99": 1484,
+      "min_rt": 1411,
+      "max_rt": 2241,
+      "samples": [
+        2241,
+        1484,
+        1445,
+        1466,
+        1411
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_01_R_04_GET_Footer_Links": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 207.0,
+      "p50": 203,
+      "p90": 214,
+      "p95": 214,
+      "p99": 214,
+      "min_rt": 198,
+      "max_rt": 216,
+      "samples": [
+        214,
+        216,
+        203,
+        198,
+        204
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_01_Launch_Homepage": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 1710.2,
+      "p50": 1457,
+      "p90": 1864,
+      "p95": 1864,
+      "p99": 1864,
+      "min_rt": 1367,
+      "max_rt": 2405,
+      "samples": [
+        2405,
+        1864,
+        1457,
+        1367,
+        1458
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC03_T_01_R_04_GET_Search_Autocomplete_Index": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 191.5,
+      "p50": 190,
+      "p90": 190,
+      "p95": 190,
+      "p99": 190,
+      "min_rt": 190,
+      "max_rt": 193,
+      "samples": [
+        193,
+        190
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC03_T_01_Launch_Search_Portal": {
+      "count": 2,
+      "errors": 2,
+      "error_rate": 100.0,
+      "avg_rt": 1868.5,
+      "p50": 1408,
+      "p90": 1408,
+      "p95": 1408,
+      "p99": 1408,
+      "min_rt": 1408,
+      "max_rt": 2329,
+      "samples": [
+        2329,
+        1408
+      ],
+      "success_flags": [
+        false,
+        false
+      ]
+    },
+    "TC02_T_01_R_04_GET_Cart_Status": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 213.4,
+      "p50": 195,
+      "p90": 221,
+      "p95": 221,
+      "p99": 221,
+      "min_rt": 193,
+      "max_rt": 262,
+      "samples": [
+        196,
+        262,
+        195,
+        193,
+        221
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_01_Launch_Shopping_Catalog": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1589.4,
+      "p50": 1399,
+      "p90": 1581,
+      "p95": 1581,
+      "p99": 1581,
+      "min_rt": 1334,
+      "max_rt": 2123,
+      "samples": [
+        2123,
+        1510,
+        1399,
+        1334,
+        1581
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_02_R_01_GET_SignonForm": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 211.4,
+      "p50": 193,
+      "p90": 201,
+      "p95": 201,
+      "p99": 201,
+      "min_rt": 193,
+      "max_rt": 272,
+      "samples": [
+        193,
+        201,
+        193,
+        272,
+        198
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_02_R_01_GET_Search_Bulldog": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 193.5,
+      "p50": 192,
+      "p90": 192,
+      "p95": 192,
+      "p99": 192,
+      "min_rt": 192,
+      "max_rt": 195,
+      "samples": [
+        195,
+        192
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_02_R_01_GET_Catalog_Index": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 232.6,
+      "p50": 205,
+      "p90": 267,
+      "p95": 267,
+      "p99": 267,
+      "min_rt": 193,
+      "max_rt": 286,
+      "samples": [
+        212,
+        267,
+        205,
+        193,
+        286
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_02_R_01_GET_Category_Reptiles": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 207.0,
+      "p50": 194,
+      "p90": 221,
+      "p95": 221,
+      "p99": 221,
+      "min_rt": 191,
+      "max_rt": 232,
+      "samples": [
+        197,
+        232,
+        194,
+        191,
+        221
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_02_R_02_GET_Login_Assets": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 222.0,
+      "p50": 193,
+      "p90": 208,
+      "p95": 208,
+      "p99": 208,
+      "min_rt": 192,
+      "max_rt": 311,
+      "samples": [
+        193,
+        208,
+        192,
+        206,
+        311
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC03_T_02_R_02_GET_Bulldog_Results": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 213.5,
+      "p50": 196,
+      "p90": 196,
+      "p95": 196,
+      "p99": 196,
+      "min_rt": 196,
+      "max_rt": 231,
+      "samples": [
+        196,
+        231
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_02_R_02_GET_Catalog_Menu": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 204.4,
+      "p50": 202,
+      "p90": 205,
+      "p95": 205,
+      "p99": 205,
+      "min_rt": 199,
+      "max_rt": 212,
+      "samples": [
+        204,
+        212,
+        205,
+        199,
+        202
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_02_R_02_GET_Reptiles_Products": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 203.2,
+      "p50": 194,
+      "p90": 203,
+      "p95": 203,
+      "p99": 203,
+      "min_rt": 190,
+      "max_rt": 231,
+      "samples": [
+        194,
+        203,
+        198,
+        190,
+        231
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_02_R_03_GET_Captcha_Widget": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 214.6,
+      "p50": 195,
+      "p90": 233,
+      "p95": 233,
+      "p99": 233,
+      "min_rt": 195,
+      "max_rt": 237,
+      "samples": [
+        195,
+        237,
+        195,
+        213,
+        233
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_02_R_03_GET_Bulldog_Filters": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 204.0,
+      "p50": 190,
+      "p90": 190,
+      "p95": 190,
+      "p99": 190,
+      "min_rt": 190,
+      "max_rt": 218,
+      "samples": [
+        218,
+        190
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_02_R_03_GET_Category_Icons": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 208.0,
+      "p50": 198,
+      "p90": 214,
+      "p95": 214,
+      "p99": 214,
+      "min_rt": 194,
+      "max_rt": 229,
+      "samples": [
+        229,
+        214,
+        198,
+        194,
+        205
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_02_R_03_GET_Reptiles_Pricing": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 201.0,
+      "p50": 194,
+      "p90": 198,
+      "p95": 198,
+      "p99": 198,
+      "min_rt": 194,
+      "max_rt": 223,
+      "samples": [
+        198,
+        196,
+        194,
+        194,
+        223
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_02_R_04_GET_SSO_Provider_Links": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 221.6,
+      "p50": 193,
+      "p90": 201,
+      "p95": 201,
+      "p99": 201,
+      "min_rt": 191,
+      "max_rt": 323,
+      "samples": [
+        193,
+        201,
+        191,
+        323,
+        200
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_02_Navigate_To_Signon_Page": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 869.6,
+      "p50": 774,
+      "p90": 942,
+      "p95": 942,
+      "p99": 942,
+      "min_rt": 771,
+      "max_rt": 1014,
+      "samples": [
+        774,
+        847,
+        771,
+        1014,
+        942
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC03_T_02_R_04_GET_Bulldog_Pagination": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 204.5,
+      "p50": 193,
+      "p90": 193,
+      "p95": 193,
+      "p99": 193,
+      "min_rt": 193,
+      "max_rt": 216,
+      "samples": [
+        193,
+        216
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC03_T_02_Search_Keyword_Bulldog": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 815.5,
+      "p50": 802,
+      "p90": 802,
+      "p95": 802,
+      "p99": 802,
+      "min_rt": 802,
+      "max_rt": 829,
+      "samples": [
+        802,
+        829
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_02_R_04_GET_Featured_Pets": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 203.2,
+      "p50": 200,
+      "p90": 205,
+      "p95": 205,
+      "p99": 205,
+      "min_rt": 190,
+      "max_rt": 218,
+      "samples": [
+        205,
+        218,
+        200,
+        190,
+        203
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_02_Navigate_Catalog": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 848.2,
+      "p50": 808,
+      "p90": 896,
+      "p95": 896,
+      "p99": 896,
+      "min_rt": 776,
+      "max_rt": 911,
+      "samples": [
+        850,
+        911,
+        808,
+        776,
+        896
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_02_R_04_GET_Reptiles_Media": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 199.0,
+      "p50": 192,
+      "p90": 199,
+      "p95": 199,
+      "p99": 199,
+      "min_rt": 189,
+      "max_rt": 220,
+      "samples": [
+        192,
+        199,
+        195,
+        189,
+        220
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC02_T_02_Select_Reptiles_Section": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 810.2,
+      "p50": 781,
+      "p90": 830,
+      "p95": 830,
+      "p99": 830,
+      "min_rt": 764,
+      "max_rt": 895,
+      "samples": [
+        781,
+        830,
+        781,
+        764,
+        895
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC04_T_03_R_01_POST_Account_Signon": {
+      "count": 5,
+      "errors": 5,
+      "error_rate": 100.0,
+      "avg_rt": 227.8,
+      "p50": 197,
+      "p90": 207,
+      "p95": 207,
+      "p99": 207,
+      "min_rt": 193,
+      "max_rt": 340,
+      "samples": [
+        197,
+        202,
+        193,
+        340,
+        207
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC03_T_03_R_01_POST_Filter_By_Price": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 195.0,
+      "p50": 191,
+      "p90": 191,
+      "p95": 191,
+      "p99": 191,
+      "min_rt": 191,
+      "max_rt": 199,
+      "samples": [
+        199,
+        191
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_03_R_01_GET_Category_Fish": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 241.2,
+      "p50": 203,
+      "p90": 270,
+      "p95": 270,
+      "p99": 270,
+      "min_rt": 193,
+      "max_rt": 323,
+      "samples": [
+        270,
+        217,
+        203,
+        193,
+        323
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_03_R_01_GET_Category_Dogs": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 215.2,
+      "p50": 199,
+      "p90": 226,
+      "p95": 226,
+      "p99": 226,
+      "min_rt": 196,
+      "max_rt": 255,
+      "samples": [
+        196,
+        255,
+        199,
+        200,
+        226
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_03_R_02_GET_Account_Dashboard": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 227.0,
+      "p50": 195,
+      "p90": 209,
+      "p95": 209,
+      "p99": 209,
+      "min_rt": 194,
+      "max_rt": 310,
+      "samples": [
+        195,
+        209,
+        194,
+        310
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_03_R_02_GET_Filtered_Listings": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 199.5,
+      "p50": 191,
+      "p90": 191,
+      "p95": 191,
+      "p99": 191,
+      "min_rt": 191,
+      "max_rt": 208,
+      "samples": [
+        208,
+        191
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC02_T_03_R_02_GET_Dogs_Products": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 215.8,
+      "p50": 192,
+      "p90": 201,
+      "p95": 201,
+      "p99": 201,
+      "min_rt": 190,
+      "max_rt": 300,
+      "samples": [
+        196,
+        192,
+        201,
+        190,
+        300
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_03_R_02_GET_Fish_Listings": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 223.4,
+      "p50": 203,
+      "p90": 220,
+      "p95": 220,
+      "p99": 220,
+      "min_rt": 193,
+      "max_rt": 292,
+      "samples": [
+        209,
+        220,
+        203,
+        193,
+        292
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_03_R_03_GET_Filter_Count": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 199.0,
+      "p50": 196,
+      "p90": 196,
+      "p95": 196,
+      "p99": 196,
+      "min_rt": 196,
+      "max_rt": 202,
+      "samples": [
+        202,
+        196
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC04_T_03_R_03_GET_Session_Validation": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 211.0,
+      "p50": 206,
+      "p90": 215,
+      "p95": 215,
+      "p99": 215,
+      "min_rt": 200,
+      "max_rt": 223,
+      "samples": [
+        215,
+        200,
+        223,
+        206
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_03_R_03_GET_Dogs_Pricing": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 207.2,
+      "p50": 194,
+      "p90": 227,
+      "p95": 227,
+      "p99": 227,
+      "min_rt": 190,
+      "max_rt": 229,
+      "samples": [
+        194,
+        229,
+        196,
+        190,
+        227
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_03_R_04_GET_Sorted_Order": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 198.5,
+      "p50": 192,
+      "p90": 192,
+      "p95": 192,
+      "p99": 192,
+      "min_rt": 192,
+      "max_rt": 205,
+      "samples": [
+        192,
+        205
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC03_T_03_Filter_Bulldog_Results": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 792.0,
+      "p50": 783,
+      "p90": 783,
+      "p95": 783,
+      "p99": 783,
+      "min_rt": 783,
+      "max_rt": 801,
+      "samples": [
+        801,
+        783
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_03_R_03_GET_Fish_Pagination": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 227.8,
+      "p50": 206,
+      "p90": 214,
+      "p95": 214,
+      "p99": 214,
+      "min_rt": 202,
+      "max_rt": 310,
+      "samples": [
+        207,
+        214,
+        206,
+        310,
+        202
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_03_R_04_GET_User_Preferences": {
+      "count": 3,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 197.33,
+      "p50": 196,
+      "p90": 197,
+      "p95": 197,
+      "p99": 197,
+      "min_rt": 196,
+      "max_rt": 199,
+      "samples": [
+        196,
+        199,
+        197
+      ],
+      "success_flags": [
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_03_Submit_Valid_Login_Credentials": {
+      "count": 4,
+      "errors": 4,
+      "error_rate": 100.0,
+      "avg_rt": 819.0,
+      "p50": 807,
+      "p90": 810,
+      "p95": 810,
+      "p99": 810,
+      "min_rt": 803,
+      "max_rt": 856,
+      "samples": [
+        803,
+        810,
+        807,
+        856
+      ],
+      "success_flags": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "TC02_T_03_R_04_GET_Dogs_Media": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 572.2,
+      "p50": 388,
+      "p90": 559,
+      "p95": 559,
+      "p99": 559,
+      "min_rt": 387,
+      "max_rt": 1134,
+      "samples": [
+        387,
+        388,
+        393,
+        1134,
+        559
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_03_Select_Dogs_Section": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1210.4,
+      "p50": 989,
+      "p90": 1312,
+      "p95": 1312,
+      "p99": 1312,
+      "min_rt": 973,
+      "max_rt": 1714,
+      "samples": [
+        973,
+        1064,
+        989,
+        1714,
+        1312
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_04_R_01_GET_Search_Fish": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 191.5,
+      "p50": 190,
+      "p90": 190,
+      "p95": 190,
+      "p99": 190,
+      "min_rt": 190,
+      "max_rt": 193,
+      "samples": [
+        193,
+        190
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_03_R_04_GET_Fish_Thumbnails": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 468.0,
+      "p50": 422,
+      "p90": 426,
+      "p95": 426,
+      "p99": 426,
+      "min_rt": 407,
+      "max_rt": 617,
+      "samples": [
+        407,
+        426,
+        617,
+        422
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC01_T_03_Select_Fish_Category": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1066.8,
+      "p50": 1077,
+      "p90": 1118,
+      "p95": 1118,
+      "p99": 1118,
+      "min_rt": 817,
+      "max_rt": 1229,
+      "samples": [
+        1093,
+        1077,
+        1229,
+        1118,
+        817
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_04_R_01_GET_EditAccountForm": {
+      "count": 3,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 246.33,
+      "p50": 195,
+      "p90": 227,
+      "p95": 227,
+      "p99": 227,
+      "min_rt": 195,
+      "max_rt": 317,
+      "samples": [
+        195,
+        227,
+        317
+      ],
+      "success_flags": [
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_04_R_01_GET_Bulldog_Product": {
+      "count": 5,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 220.6,
+      "p50": 194,
+      "p90": 227,
+      "p95": 227,
+      "p99": 227,
+      "min_rt": 193,
+      "max_rt": 272,
+      "samples": [
+        194,
+        193,
+        272,
+        217,
+        227
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_04_R_02_GET_Fish_Results": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 193.0,
+      "p50": 190,
+      "p90": 190,
+      "p95": 190,
+      "p99": 190,
+      "min_rt": 190,
+      "max_rt": 196,
+      "samples": [
+        196,
+        190
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_04_R_01_GET_Category_Dogs": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 212.0,
+      "p50": 209,
+      "p90": 215,
+      "p95": 215,
+      "p99": 215,
+      "min_rt": 200,
+      "max_rt": 224,
+      "samples": [
+        209,
+        215,
+        200,
+        224
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_04_R_02_GET_Billing_Address": {
+      "count": 3,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 236.0,
+      "p50": 196,
+      "p90": 240,
+      "p95": 240,
+      "p99": 240,
+      "min_rt": 196,
+      "max_rt": 272,
+      "samples": [
+        196,
+        240,
+        272
+      ],
+      "success_flags": [
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_04_R_02_GET_Bulldog_Specs": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 227.75,
+      "p50": 192,
+      "p90": 205,
+      "p95": 205,
+      "p99": 205,
+      "min_rt": 190,
+      "max_rt": 324,
+      "samples": [
+        205,
+        192,
+        324,
+        190
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_04_R_03_GET_Fish_Categories": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 193.0,
+      "p50": 192,
+      "p90": 192,
+      "p95": 192,
+      "p99": 192,
+      "min_rt": 192,
+      "max_rt": 194,
+      "samples": [
+        194,
+        192
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_04_R_02_GET_Dogs_Listings": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 254.0,
+      "p50": 209,
+      "p90": 295,
+      "p95": 295,
+      "p99": 295,
+      "min_rt": 195,
+      "max_rt": 317,
+      "samples": [
+        209,
+        295,
+        317,
+        195
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_04_R_03_GET_Shipping_Address": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 197.0,
+      "p50": 192,
+      "p90": 192,
+      "p95": 192,
+      "p99": 192,
+      "min_rt": 192,
+      "max_rt": 202,
+      "samples": [
+        192,
+        202
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC03_T_04_R_04_GET_Fish_Stock_Indicators": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 193.0,
+      "p50": 193,
+      "p90": 193,
+      "p95": 193,
+      "p99": 193,
+      "min_rt": 193,
+      "max_rt": 193,
+      "samples": [
+        193
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC03_T_04_Search_Keyword_Fish": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 674.0,
+      "p50": 572,
+      "p90": 572,
+      "p95": 572,
+      "p99": 572,
+      "min_rt": 572,
+      "max_rt": 776,
+      "samples": [
+        776,
+        572
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC02_T_04_R_03_GET_Bulldog_Stock": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 203.75,
+      "p50": 192,
+      "p90": 195,
+      "p95": 195,
+      "p99": 195,
+      "min_rt": 188,
+      "max_rt": 240,
+      "samples": [
+        192,
+        240,
+        195,
+        188
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_04_R_04_GET_Contact_Details": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 233.5,
+      "p50": 199,
+      "p90": 199,
+      "p95": 199,
+      "p99": 199,
+      "min_rt": 199,
+      "max_rt": 268,
+      "samples": [
+        268,
+        199
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC04_T_04_View_User_Account_Profile": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 859.5,
+      "p50": 851,
+      "p90": 851,
+      "p95": 851,
+      "p99": 851,
+      "min_rt": 851,
+      "max_rt": 868,
+      "samples": [
+        851,
+        868
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_04_R_03_GET_Dogs_Pagination": {
+      "count": 3,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 239.33,
+      "p50": 210,
+      "p90": 214,
+      "p95": 214,
+      "p99": 214,
+      "min_rt": 210,
+      "max_rt": 294,
+      "samples": [
+        294,
+        214,
+        210
+      ],
+      "success_flags": [
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_05_R_01_GET_Product_FI_FW_01": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 404.0,
+      "p50": 404,
+      "p90": 404,
+      "p95": 404,
+      "p99": 404,
+      "min_rt": 404,
+      "max_rt": 404,
+      "samples": [
+        404
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC02_T_04_R_04_GET_Bulldog_Reviews": {
+      "count": 3,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 201.0,
+      "p50": 195,
+      "p90": 198,
+      "p95": 198,
+      "p99": 198,
+      "min_rt": 195,
+      "max_rt": 210,
+      "samples": [
+        195,
+        198,
+        210
+      ],
+      "success_flags": [
+        true,
+        true,
+        true
+      ]
+    },
+    "TC02_T_04_View_Bulldog_Item": {
+      "count": 4,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 801.25,
+      "p50": 786,
+      "p90": 823,
+      "p95": 823,
+      "p99": 823,
+      "min_rt": 595,
+      "max_rt": 1001,
+      "samples": [
+        786,
+        823,
+        1001,
+        595
+      ],
+      "success_flags": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "TC04_T_05_R_01_POST_Update_Account": {
+      "count": 2,
+      "errors": 2,
+      "error_rate": 100.0,
+      "avg_rt": 198.5,
+      "p50": 197,
+      "p90": 197,
+      "p95": 197,
+      "p99": 197,
+      "min_rt": 197,
+      "max_rt": 200,
+      "samples": [
+        197,
+        200
+      ],
+      "success_flags": [
+        false,
+        false
+      ]
+    },
+    "TC01_T_04_R_04_GET_Dogs_Thumbnails": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 467.5,
+      "p50": 423,
+      "p90": 423,
+      "p95": 423,
+      "p99": 423,
+      "min_rt": 423,
+      "max_rt": 512,
+      "samples": [
+        512,
+        423
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC01_T_04_Select_Dogs_Category": {
+      "count": 3,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1032.67,
+      "p50": 727,
+      "p90": 1147,
+      "p95": 1147,
+      "p99": 1147,
+      "min_rt": 727,
+      "max_rt": 1224,
+      "samples": [
+        1224,
+        1147,
+        727
+      ],
+      "success_flags": [
+        true,
+        true,
+        true
+      ]
+    },
+    "TC03_T_05_R_02_GET_Product_Specs": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 245.0,
+      "p50": 245,
+      "p90": 245,
+      "p95": 245,
+      "p99": 245,
+      "min_rt": 245,
+      "max_rt": 245,
+      "samples": [
+        245
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC02_T_05_R_01_POST_AddToCart_EST_6": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 236.0,
+      "p50": 210,
+      "p90": 210,
+      "p95": 210,
+      "p99": 210,
+      "min_rt": 210,
+      "max_rt": 262,
+      "samples": [
+        210,
+        262
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC04_T_05_R_02_GET_Confirm_Updated_Profile": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 198.0,
+      "p50": 198,
+      "p90": 198,
+      "p95": 198,
+      "p99": 198,
+      "min_rt": 198,
+      "max_rt": 198,
+      "samples": [
+        198
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC01_T_05_R_01_GET_Category_Reptiles": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 270.0,
+      "p50": 227,
+      "p90": 227,
+      "p95": 227,
+      "p99": 227,
+      "min_rt": 227,
+      "max_rt": 313,
+      "samples": [
+        313,
+        227
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC03_T_05_R_03_GET_Customer_Ratings": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 193.0,
+      "p50": 193,
+      "p90": 193,
+      "p95": 193,
+      "p99": 193,
+      "min_rt": 193,
+      "max_rt": 193,
+      "samples": [
+        193
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC02_T_05_R_02_GET_Cart_View": {
+      "count": 2,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 205.5,
+      "p50": 194,
+      "p90": 194,
+      "p95": 194,
+      "p99": 194,
+      "min_rt": 194,
+      "max_rt": 217,
+      "samples": [
+        194,
+        217
+      ],
+      "success_flags": [
+        true,
+        true
+      ]
+    },
+    "TC04_T_05_R_03_GET_Language_Setting": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 192.0,
+      "p50": 192,
+      "p90": 192,
+      "p95": 192,
+      "p99": 192,
+      "min_rt": 192,
+      "max_rt": 192,
+      "samples": [
+        192
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC01_T_05_R_02_GET_Reptiles_Listings": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 207.0,
+      "p50": 207,
+      "p90": 207,
+      "p95": 207,
+      "p99": 207,
+      "min_rt": 207,
+      "max_rt": 207,
+      "samples": [
+        207
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC03_T_05_R_04_GET_Related_Searches": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 194.0,
+      "p50": 194,
+      "p90": 194,
+      "p95": 194,
+      "p99": 194,
+      "min_rt": 194,
+      "max_rt": 194,
+      "samples": [
+        194
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC03_T_05_View_Fish_Search_Result": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 1036.0,
+      "p50": 1036,
+      "p90": 1036,
+      "p95": 1036,
+      "p99": 1036,
+      "min_rt": 1036,
+      "max_rt": 1036,
+      "samples": [
+        1036
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC02_T_05_R_03_GET_Cart_Subtotal": {
+      "count": 1,
+      "errors": 1,
+      "error_rate": 100.0,
+      "avg_rt": 192.0,
+      "p50": 192,
+      "p90": 192,
+      "p95": 192,
+      "p99": 192,
+      "min_rt": 192,
+      "max_rt": 192,
+      "samples": [
+        192
+      ],
+      "success_flags": [
+        false
+      ]
+    },
+    "TC02_T_05_Add_Bulldog_To_Cart": {
+      "count": 1,
+      "errors": 1,
+      "error_rate": 100.0,
+      "avg_rt": 596.0,
+      "p50": 596,
+      "p90": 596,
+      "p95": 596,
+      "p99": 596,
+      "min_rt": 596,
+      "max_rt": 596,
+      "samples": [
+        596
+      ],
+      "success_flags": [
+        false
+      ]
+    },
+    "TC04_T_05_R_04_GET_Favorite_Category": {
+      "count": 1,
+      "errors": 0,
+      "error_rate": 0.0,
+      "avg_rt": 197.0,
+      "p50": 197,
+      "p90": 197,
+      "p95": 197,
+      "p99": 197,
+      "min_rt": 197,
+      "max_rt": 197,
+      "samples": [
+        197
+      ],
+      "success_flags": [
+        true
+      ]
+    },
+    "TC04_T_05_Update_Account_Preferences": {
+      "count": 1,
+      "errors": 1,
+      "error_rate": 100.0,
+      "avg_rt": 784.0,
+      "p50": 784,
+      "p90": 784,
+      "p95": 784,
+      "p99": 784,
+      "min_rt": 784,
+      "max_rt": 784,
+      "samples": [
+        784
+      ],
+      "success_flags": [
+        false
+      ]
+    }
+  },
+  "labels_by_tg": {
+    "TC_02_Add_To_Cart": {
+      "TC02_T_01_R_01_GET_Catalog": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 971.0,
+        "p50": 795,
+        "p90": 894,
+        "p95": 894,
+        "p99": 894,
+        "min_rt": 763,
+        "max_rt": 1540,
+        "samples": [
+          1540,
+          863,
+          795,
+          763,
+          894
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_01_R_02_GET_Category_Nav": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 201.0,
+        "p50": 192,
+        "p90": 193,
+        "p95": 193,
+        "p99": 193,
+        "min_rt": 187,
+        "max_rt": 240,
+        "samples": [
+          193,
+          192,
+          193,
+          187,
+          240
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_01_R_03_GET_Promo_Deals": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 204.0,
+        "p50": 193,
+        "p90": 216,
+        "p95": 216,
+        "p99": 216,
+        "min_rt": 191,
+        "max_rt": 226,
+        "samples": [
+          194,
+          193,
+          216,
+          191,
+          226
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_01_R_04_GET_Cart_Status": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 213.4,
+        "p50": 195,
+        "p90": 221,
+        "p95": 221,
+        "p99": 221,
+        "min_rt": 193,
+        "max_rt": 262,
+        "samples": [
+          196,
+          262,
+          195,
+          193,
+          221
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_01_Launch_Shopping_Catalog": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1589.4,
+        "p50": 1399,
+        "p90": 1581,
+        "p95": 1581,
+        "p99": 1581,
+        "min_rt": 1334,
+        "max_rt": 2123,
+        "samples": [
+          2123,
+          1510,
+          1399,
+          1334,
+          1581
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_02_R_01_GET_Category_Reptiles": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 207.0,
+        "p50": 194,
+        "p90": 221,
+        "p95": 221,
+        "p99": 221,
+        "min_rt": 191,
+        "max_rt": 232,
+        "samples": [
+          197,
+          232,
+          194,
+          191,
+          221
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_02_R_02_GET_Reptiles_Products": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 203.2,
+        "p50": 194,
+        "p90": 203,
+        "p95": 203,
+        "p99": 203,
+        "min_rt": 190,
+        "max_rt": 231,
+        "samples": [
+          194,
+          203,
+          198,
+          190,
+          231
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_02_R_03_GET_Reptiles_Pricing": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 201.0,
+        "p50": 194,
+        "p90": 198,
+        "p95": 198,
+        "p99": 198,
+        "min_rt": 194,
+        "max_rt": 223,
+        "samples": [
+          198,
+          196,
+          194,
+          194,
+          223
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_02_R_04_GET_Reptiles_Media": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 199.0,
+        "p50": 192,
+        "p90": 199,
+        "p95": 199,
+        "p99": 199,
+        "min_rt": 189,
+        "max_rt": 220,
+        "samples": [
+          192,
+          199,
+          195,
+          189,
+          220
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC02_T_02_Select_Reptiles_Section": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 810.2,
+        "p50": 781,
+        "p90": 830,
+        "p95": 830,
+        "p99": 830,
+        "min_rt": 764,
+        "max_rt": 895,
+        "samples": [
+          781,
+          830,
+          781,
+          764,
+          895
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC02_T_03_R_01_GET_Category_Dogs": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 215.2,
+        "p50": 199,
+        "p90": 226,
+        "p95": 226,
+        "p99": 226,
+        "min_rt": 196,
+        "max_rt": 255,
+        "samples": [
+          196,
+          255,
+          199,
+          200,
+          226
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_03_R_02_GET_Dogs_Products": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 215.8,
+        "p50": 192,
+        "p90": 201,
+        "p95": 201,
+        "p99": 201,
+        "min_rt": 190,
+        "max_rt": 300,
+        "samples": [
+          196,
+          192,
+          201,
+          190,
+          300
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_03_R_03_GET_Dogs_Pricing": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 207.2,
+        "p50": 194,
+        "p90": 227,
+        "p95": 227,
+        "p99": 227,
+        "min_rt": 190,
+        "max_rt": 229,
+        "samples": [
+          194,
+          229,
+          196,
+          190,
+          227
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_03_R_04_GET_Dogs_Media": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 572.2,
+        "p50": 388,
+        "p90": 559,
+        "p95": 559,
+        "p99": 559,
+        "min_rt": 387,
+        "max_rt": 1134,
+        "samples": [
+          387,
+          388,
+          393,
+          1134,
+          559
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_03_Select_Dogs_Section": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1210.4,
+        "p50": 989,
+        "p90": 1312,
+        "p95": 1312,
+        "p99": 1312,
+        "min_rt": 973,
+        "max_rt": 1714,
+        "samples": [
+          973,
+          1064,
+          989,
+          1714,
+          1312
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_04_R_01_GET_Bulldog_Product": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 220.6,
+        "p50": 194,
+        "p90": 227,
+        "p95": 227,
+        "p99": 227,
+        "min_rt": 193,
+        "max_rt": 272,
+        "samples": [
+          194,
+          193,
+          272,
+          217,
+          227
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_04_R_02_GET_Bulldog_Specs": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 227.75,
+        "p50": 192,
+        "p90": 205,
+        "p95": 205,
+        "p99": 205,
+        "min_rt": 190,
+        "max_rt": 324,
+        "samples": [
+          205,
+          192,
+          324,
+          190
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_04_R_03_GET_Bulldog_Stock": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 203.75,
+        "p50": 192,
+        "p90": 195,
+        "p95": 195,
+        "p99": 195,
+        "min_rt": 188,
+        "max_rt": 240,
+        "samples": [
+          192,
+          240,
+          195,
+          188
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_04_R_04_GET_Bulldog_Reviews": {
+        "count": 3,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 201.0,
+        "p50": 195,
+        "p90": 198,
+        "p95": 198,
+        "p99": 198,
+        "min_rt": 195,
+        "max_rt": 210,
+        "samples": [
+          195,
+          198,
+          210
+        ],
+        "success_flags": [
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_04_View_Bulldog_Item": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 801.25,
+        "p50": 786,
+        "p90": 823,
+        "p95": 823,
+        "p99": 823,
+        "min_rt": 595,
+        "max_rt": 1001,
+        "samples": [
+          786,
+          823,
+          1001,
+          595
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC02_T_05_R_01_POST_AddToCart_EST_6": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 236.0,
+        "p50": 210,
+        "p90": 210,
+        "p95": 210,
+        "p99": 210,
+        "min_rt": 210,
+        "max_rt": 262,
+        "samples": [
+          210,
+          262
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC02_T_05_R_02_GET_Cart_View": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 205.5,
+        "p50": 194,
+        "p90": 194,
+        "p95": 194,
+        "p99": 194,
+        "min_rt": 194,
+        "max_rt": 217,
+        "samples": [
+          194,
+          217
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC02_T_05_R_03_GET_Cart_Subtotal": {
+        "count": 1,
+        "errors": 1,
+        "error_rate": 100.0,
+        "avg_rt": 192.0,
+        "p50": 192,
+        "p90": 192,
+        "p95": 192,
+        "p99": 192,
+        "min_rt": 192,
+        "max_rt": 192,
+        "samples": [
+          192
+        ],
+        "success_flags": [
+          false
+        ]
+      },
+      "TC02_T_05_Add_Bulldog_To_Cart": {
+        "count": 1,
+        "errors": 1,
+        "error_rate": 100.0,
+        "avg_rt": 596.0,
+        "p50": 596,
+        "p90": 596,
+        "p95": 596,
+        "p99": 596,
+        "min_rt": 596,
+        "max_rt": 596,
+        "samples": [
+          596
+        ],
+        "success_flags": [
+          false
+        ]
+      }
+    },
+    "TC_04_User_Sign_In": {
+      "TC04_T_01_R_01_GET_Catalog_Gateway": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1007.6,
+        "p50": 843,
+        "p90": 883,
+        "p95": 883,
+        "p99": 883,
+        "min_rt": 808,
+        "max_rt": 1650,
+        "samples": [
+          1650,
+          883,
+          854,
+          843,
+          808
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_01_R_02_GET_Auth_Header": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 201.2,
+        "p50": 200,
+        "p90": 202,
+        "p95": 202,
+        "p99": 202,
+        "min_rt": 197,
+        "max_rt": 207,
+        "samples": [
+          197,
+          200,
+          200,
+          207,
+          202
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_01_R_03_GET_Session_CSRF_Token": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 199.6,
+        "p50": 197,
+        "p90": 200,
+        "p95": 200,
+        "p99": 200,
+        "min_rt": 194,
+        "max_rt": 207,
+        "samples": [
+          194,
+          200,
+          197,
+          207,
+          200
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_01_R_04_GET_SSL_Certificate_Check": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 201.0,
+        "p50": 200,
+        "p90": 201,
+        "p95": 201,
+        "p99": 201,
+        "min_rt": 194,
+        "max_rt": 209,
+        "samples": [
+          200,
+          201,
+          194,
+          209,
+          201
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_01_Launch_Authentication_Gateway": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1609.4,
+        "p50": 1445,
+        "p90": 1484,
+        "p95": 1484,
+        "p99": 1484,
+        "min_rt": 1411,
+        "max_rt": 2241,
+        "samples": [
+          2241,
+          1484,
+          1445,
+          1466,
+          1411
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_02_R_01_GET_SignonForm": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 211.4,
+        "p50": 193,
+        "p90": 201,
+        "p95": 201,
+        "p99": 201,
+        "min_rt": 193,
+        "max_rt": 272,
+        "samples": [
+          193,
+          201,
+          193,
+          272,
+          198
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_02_R_02_GET_Login_Assets": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 222.0,
+        "p50": 193,
+        "p90": 208,
+        "p95": 208,
+        "p99": 208,
+        "min_rt": 192,
+        "max_rt": 311,
+        "samples": [
+          193,
+          208,
+          192,
+          206,
+          311
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC04_T_02_R_03_GET_Captcha_Widget": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 214.6,
+        "p50": 195,
+        "p90": 233,
+        "p95": 233,
+        "p99": 233,
+        "min_rt": 195,
+        "max_rt": 237,
+        "samples": [
+          195,
+          237,
+          195,
+          213,
+          233
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_02_R_04_GET_SSO_Provider_Links": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 221.6,
+        "p50": 193,
+        "p90": 201,
+        "p95": 201,
+        "p99": 201,
+        "min_rt": 191,
+        "max_rt": 323,
+        "samples": [
+          193,
+          201,
+          191,
+          323,
+          200
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_02_Navigate_To_Signon_Page": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 869.6,
+        "p50": 774,
+        "p90": 942,
+        "p95": 942,
+        "p99": 942,
+        "min_rt": 771,
+        "max_rt": 1014,
+        "samples": [
+          774,
+          847,
+          771,
+          1014,
+          942
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC04_T_03_R_01_POST_Account_Signon": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 227.8,
+        "p50": 197,
+        "p90": 207,
+        "p95": 207,
+        "p99": 207,
+        "min_rt": 193,
+        "max_rt": 340,
+        "samples": [
+          197,
+          202,
+          193,
+          340,
+          207
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC04_T_03_R_02_GET_Account_Dashboard": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 227.0,
+        "p50": 195,
+        "p90": 209,
+        "p95": 209,
+        "p99": 209,
+        "min_rt": 194,
+        "max_rt": 310,
+        "samples": [
+          195,
+          209,
+          194,
+          310
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_03_R_03_GET_Session_Validation": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 211.0,
+        "p50": 206,
+        "p90": 215,
+        "p95": 215,
+        "p99": 215,
+        "min_rt": 200,
+        "max_rt": 223,
+        "samples": [
+          215,
+          200,
+          223,
+          206
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_03_R_04_GET_User_Preferences": {
+        "count": 3,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 197.33,
+        "p50": 196,
+        "p90": 197,
+        "p95": 197,
+        "p99": 197,
+        "min_rt": 196,
+        "max_rt": 199,
+        "samples": [
+          196,
+          199,
+          197
+        ],
+        "success_flags": [
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_03_Submit_Valid_Login_Credentials": {
+        "count": 4,
+        "errors": 4,
+        "error_rate": 100.0,
+        "avg_rt": 819.0,
+        "p50": 807,
+        "p90": 810,
+        "p95": 810,
+        "p99": 810,
+        "min_rt": 803,
+        "max_rt": 856,
+        "samples": [
+          803,
+          810,
+          807,
+          856
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC04_T_04_R_01_GET_EditAccountForm": {
+        "count": 3,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 246.33,
+        "p50": 195,
+        "p90": 227,
+        "p95": 227,
+        "p99": 227,
+        "min_rt": 195,
+        "max_rt": 317,
+        "samples": [
+          195,
+          227,
+          317
+        ],
+        "success_flags": [
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_04_R_02_GET_Billing_Address": {
+        "count": 3,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 236.0,
+        "p50": 196,
+        "p90": 240,
+        "p95": 240,
+        "p99": 240,
+        "min_rt": 196,
+        "max_rt": 272,
+        "samples": [
+          196,
+          240,
+          272
+        ],
+        "success_flags": [
+          true,
+          true,
+          true
+        ]
+      },
+      "TC04_T_04_R_03_GET_Shipping_Address": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 197.0,
+        "p50": 192,
+        "p90": 192,
+        "p95": 192,
+        "p99": 192,
+        "min_rt": 192,
+        "max_rt": 202,
+        "samples": [
+          192,
+          202
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC04_T_04_R_04_GET_Contact_Details": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 233.5,
+        "p50": 199,
+        "p90": 199,
+        "p95": 199,
+        "p99": 199,
+        "min_rt": 199,
+        "max_rt": 268,
+        "samples": [
+          268,
+          199
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC04_T_04_View_User_Account_Profile": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 859.5,
+        "p50": 851,
+        "p90": 851,
+        "p95": 851,
+        "p99": 851,
+        "min_rt": 851,
+        "max_rt": 868,
+        "samples": [
+          851,
+          868
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC04_T_05_R_01_POST_Update_Account": {
+        "count": 2,
+        "errors": 2,
+        "error_rate": 100.0,
+        "avg_rt": 198.5,
+        "p50": 197,
+        "p90": 197,
+        "p95": 197,
+        "p99": 197,
+        "min_rt": 197,
+        "max_rt": 200,
+        "samples": [
+          197,
+          200
+        ],
+        "success_flags": [
+          false,
+          false
+        ]
+      },
+      "TC04_T_05_R_02_GET_Confirm_Updated_Profile": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 198.0,
+        "p50": 198,
+        "p90": 198,
+        "p95": 198,
+        "p99": 198,
+        "min_rt": 198,
+        "max_rt": 198,
+        "samples": [
+          198
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC04_T_05_R_03_GET_Language_Setting": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 192.0,
+        "p50": 192,
+        "p90": 192,
+        "p95": 192,
+        "p99": 192,
+        "min_rt": 192,
+        "max_rt": 192,
+        "samples": [
+          192
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC04_T_05_R_04_GET_Favorite_Category": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 197.0,
+        "p50": 197,
+        "p90": 197,
+        "p95": 197,
+        "p99": 197,
+        "min_rt": 197,
+        "max_rt": 197,
+        "samples": [
+          197
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC04_T_05_Update_Account_Preferences": {
+        "count": 1,
+        "errors": 1,
+        "error_rate": 100.0,
+        "avg_rt": 784.0,
+        "p50": 784,
+        "p90": 784,
+        "p95": 784,
+        "p99": 784,
+        "min_rt": 784,
+        "max_rt": 784,
+        "samples": [
+          784
+        ],
+        "success_flags": [
+          false
+        ]
+      }
+    },
+    "TC_01_Browse_Catalog": {
+      "TC01_T_01_R_01_GET_Homepage": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1063.8,
+        "p50": 843,
+        "p90": 1070,
+        "p95": 1070,
+        "p99": 1070,
+        "min_rt": 783,
+        "max_rt": 1770,
+        "samples": [
+          1770,
+          1070,
+          853,
+          783,
+          843
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_01_R_02_GET_Static_CSS": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 226.4,
+        "p50": 200,
+        "p90": 209,
+        "p95": 209,
+        "p99": 209,
+        "min_rt": 193,
+        "max_rt": 322,
+        "samples": [
+          209,
+          322,
+          200,
+          193,
+          208
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_01_R_03_GET_Banner_Logo": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 213.0,
+        "p50": 201,
+        "p90": 212,
+        "p95": 212,
+        "p99": 212,
+        "min_rt": 193,
+        "max_rt": 256,
+        "samples": [
+          212,
+          256,
+          201,
+          193,
+          203
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC01_T_01_R_04_GET_Footer_Links": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 207.0,
+        "p50": 203,
+        "p90": 214,
+        "p95": 214,
+        "p99": 214,
+        "min_rt": 198,
+        "max_rt": 216,
+        "samples": [
+          214,
+          216,
+          203,
+          198,
+          204
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_01_Launch_Homepage": {
+        "count": 5,
+        "errors": 5,
+        "error_rate": 100.0,
+        "avg_rt": 1710.2,
+        "p50": 1457,
+        "p90": 1864,
+        "p95": 1864,
+        "p99": 1864,
+        "min_rt": 1367,
+        "max_rt": 2405,
+        "samples": [
+          2405,
+          1864,
+          1457,
+          1367,
+          1458
+        ],
+        "success_flags": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "TC01_T_02_R_01_GET_Catalog_Index": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 232.6,
+        "p50": 205,
+        "p90": 267,
+        "p95": 267,
+        "p99": 267,
+        "min_rt": 193,
+        "max_rt": 286,
+        "samples": [
+          212,
+          267,
+          205,
+          193,
+          286
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_02_R_02_GET_Catalog_Menu": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 204.4,
+        "p50": 202,
+        "p90": 205,
+        "p95": 205,
+        "p99": 205,
+        "min_rt": 199,
+        "max_rt": 212,
+        "samples": [
+          204,
+          212,
+          205,
+          199,
+          202
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_02_R_03_GET_Category_Icons": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 208.0,
+        "p50": 198,
+        "p90": 214,
+        "p95": 214,
+        "p99": 214,
+        "min_rt": 194,
+        "max_rt": 229,
+        "samples": [
+          229,
+          214,
+          198,
+          194,
+          205
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_02_R_04_GET_Featured_Pets": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 203.2,
+        "p50": 200,
+        "p90": 205,
+        "p95": 205,
+        "p99": 205,
+        "min_rt": 190,
+        "max_rt": 218,
+        "samples": [
+          205,
+          218,
+          200,
+          190,
+          203
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_02_Navigate_Catalog": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 848.2,
+        "p50": 808,
+        "p90": 896,
+        "p95": 896,
+        "p99": 896,
+        "min_rt": 776,
+        "max_rt": 911,
+        "samples": [
+          850,
+          911,
+          808,
+          776,
+          896
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_03_R_01_GET_Category_Fish": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 241.2,
+        "p50": 203,
+        "p90": 270,
+        "p95": 270,
+        "p99": 270,
+        "min_rt": 193,
+        "max_rt": 323,
+        "samples": [
+          270,
+          217,
+          203,
+          193,
+          323
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_03_R_02_GET_Fish_Listings": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 223.4,
+        "p50": 203,
+        "p90": 220,
+        "p95": 220,
+        "p99": 220,
+        "min_rt": 193,
+        "max_rt": 292,
+        "samples": [
+          209,
+          220,
+          203,
+          193,
+          292
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_03_R_03_GET_Fish_Pagination": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 227.8,
+        "p50": 206,
+        "p90": 214,
+        "p95": 214,
+        "p99": 214,
+        "min_rt": 202,
+        "max_rt": 310,
+        "samples": [
+          207,
+          214,
+          206,
+          310,
+          202
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_03_R_04_GET_Fish_Thumbnails": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 468.0,
+        "p50": 422,
+        "p90": 426,
+        "p95": 426,
+        "p99": 426,
+        "min_rt": 407,
+        "max_rt": 617,
+        "samples": [
+          407,
+          426,
+          617,
+          422
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_03_Select_Fish_Category": {
+        "count": 5,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1066.8,
+        "p50": 1077,
+        "p90": 1118,
+        "p95": 1118,
+        "p99": 1118,
+        "min_rt": 817,
+        "max_rt": 1229,
+        "samples": [
+          1093,
+          1077,
+          1229,
+          1118,
+          817
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_04_R_01_GET_Category_Dogs": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 212.0,
+        "p50": 209,
+        "p90": 215,
+        "p95": 215,
+        "p99": 215,
+        "min_rt": 200,
+        "max_rt": 224,
+        "samples": [
+          209,
+          215,
+          200,
+          224
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_04_R_02_GET_Dogs_Listings": {
+        "count": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 254.0,
+        "p50": 209,
+        "p90": 295,
+        "p95": 295,
+        "p99": 295,
+        "min_rt": 195,
+        "max_rt": 317,
+        "samples": [
+          209,
+          295,
+          317,
+          195
+        ],
+        "success_flags": [
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_04_R_03_GET_Dogs_Pagination": {
+        "count": 3,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 239.33,
+        "p50": 210,
+        "p90": 214,
+        "p95": 214,
+        "p99": 214,
+        "min_rt": 210,
+        "max_rt": 294,
+        "samples": [
+          294,
+          214,
+          210
+        ],
+        "success_flags": [
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_04_R_04_GET_Dogs_Thumbnails": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 467.5,
+        "p50": 423,
+        "p90": 423,
+        "p95": 423,
+        "p99": 423,
+        "min_rt": 423,
+        "max_rt": 512,
+        "samples": [
+          512,
+          423
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC01_T_04_Select_Dogs_Category": {
+        "count": 3,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1032.67,
+        "p50": 727,
+        "p90": 1147,
+        "p95": 1147,
+        "p99": 1147,
+        "min_rt": 727,
+        "max_rt": 1224,
+        "samples": [
+          1224,
+          1147,
+          727
+        ],
+        "success_flags": [
+          true,
+          true,
+          true
+        ]
+      },
+      "TC01_T_05_R_01_GET_Category_Reptiles": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 270.0,
+        "p50": 227,
+        "p90": 227,
+        "p95": 227,
+        "p99": 227,
+        "min_rt": 227,
+        "max_rt": 313,
+        "samples": [
+          313,
+          227
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC01_T_05_R_02_GET_Reptiles_Listings": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 207.0,
+        "p50": 207,
+        "p90": 207,
+        "p95": 207,
+        "p99": 207,
+        "min_rt": 207,
+        "max_rt": 207,
+        "samples": [
+          207
+        ],
+        "success_flags": [
+          true
+        ]
+      }
+    },
+    "TC_03_Search_Products": {
+      "TC03_T_01_R_01_GET_Search_Home": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1292.0,
+        "p50": 838,
+        "p90": 838,
+        "p95": 838,
+        "p99": 838,
+        "min_rt": 838,
+        "max_rt": 1746,
+        "samples": [
+          1746,
+          838
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_01_R_02_GET_Search_Bar_Widget": {
+        "count": 2,
+        "errors": 2,
+        "error_rate": 100.0,
+        "avg_rt": 193.0,
+        "p50": 191,
+        "p90": 191,
+        "p95": 191,
+        "p99": 191,
+        "min_rt": 191,
+        "max_rt": 195,
+        "samples": [
+          195,
+          191
+        ],
+        "success_flags": [
+          false,
+          false
+        ]
+      },
+      "TC03_T_01_R_03_GET_Trending_Keywords": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 192.0,
+        "p50": 189,
+        "p90": 189,
+        "p95": 189,
+        "p99": 189,
+        "min_rt": 189,
+        "max_rt": 195,
+        "samples": [
+          195,
+          189
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_01_R_04_GET_Search_Autocomplete_Index": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 191.5,
+        "p50": 190,
+        "p90": 190,
+        "p95": 190,
+        "p99": 190,
+        "min_rt": 190,
+        "max_rt": 193,
+        "samples": [
+          193,
+          190
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_01_Launch_Search_Portal": {
+        "count": 2,
+        "errors": 2,
+        "error_rate": 100.0,
+        "avg_rt": 1868.5,
+        "p50": 1408,
+        "p90": 1408,
+        "p95": 1408,
+        "p99": 1408,
+        "min_rt": 1408,
+        "max_rt": 2329,
+        "samples": [
+          2329,
+          1408
+        ],
+        "success_flags": [
+          false,
+          false
+        ]
+      },
+      "TC03_T_02_R_01_GET_Search_Bulldog": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 193.5,
+        "p50": 192,
+        "p90": 192,
+        "p95": 192,
+        "p99": 192,
+        "min_rt": 192,
+        "max_rt": 195,
+        "samples": [
+          195,
+          192
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_02_R_02_GET_Bulldog_Results": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 213.5,
+        "p50": 196,
+        "p90": 196,
+        "p95": 196,
+        "p99": 196,
+        "min_rt": 196,
+        "max_rt": 231,
+        "samples": [
+          196,
+          231
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_02_R_03_GET_Bulldog_Filters": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 204.0,
+        "p50": 190,
+        "p90": 190,
+        "p95": 190,
+        "p99": 190,
+        "min_rt": 190,
+        "max_rt": 218,
+        "samples": [
+          218,
+          190
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_02_R_04_GET_Bulldog_Pagination": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 204.5,
+        "p50": 193,
+        "p90": 193,
+        "p95": 193,
+        "p99": 193,
+        "min_rt": 193,
+        "max_rt": 216,
+        "samples": [
+          193,
+          216
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_02_Search_Keyword_Bulldog": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 815.5,
+        "p50": 802,
+        "p90": 802,
+        "p95": 802,
+        "p99": 802,
+        "min_rt": 802,
+        "max_rt": 829,
+        "samples": [
+          802,
+          829
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_03_R_01_POST_Filter_By_Price": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 195.0,
+        "p50": 191,
+        "p90": 191,
+        "p95": 191,
+        "p99": 191,
+        "min_rt": 191,
+        "max_rt": 199,
+        "samples": [
+          199,
+          191
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_03_R_02_GET_Filtered_Listings": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 199.5,
+        "p50": 191,
+        "p90": 191,
+        "p95": 191,
+        "p99": 191,
+        "min_rt": 191,
+        "max_rt": 208,
+        "samples": [
+          208,
+          191
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_03_R_03_GET_Filter_Count": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 199.0,
+        "p50": 196,
+        "p90": 196,
+        "p95": 196,
+        "p99": 196,
+        "min_rt": 196,
+        "max_rt": 202,
+        "samples": [
+          202,
+          196
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_03_R_04_GET_Sorted_Order": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 198.5,
+        "p50": 192,
+        "p90": 192,
+        "p95": 192,
+        "p99": 192,
+        "min_rt": 192,
+        "max_rt": 205,
+        "samples": [
+          192,
+          205
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_03_Filter_Bulldog_Results": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 792.0,
+        "p50": 783,
+        "p90": 783,
+        "p95": 783,
+        "p99": 783,
+        "min_rt": 783,
+        "max_rt": 801,
+        "samples": [
+          801,
+          783
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_04_R_01_GET_Search_Fish": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 191.5,
+        "p50": 190,
+        "p90": 190,
+        "p95": 190,
+        "p99": 190,
+        "min_rt": 190,
+        "max_rt": 193,
+        "samples": [
+          193,
+          190
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_04_R_02_GET_Fish_Results": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 193.0,
+        "p50": 190,
+        "p90": 190,
+        "p95": 190,
+        "p99": 190,
+        "min_rt": 190,
+        "max_rt": 196,
+        "samples": [
+          196,
+          190
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_04_R_03_GET_Fish_Categories": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 193.0,
+        "p50": 192,
+        "p90": 192,
+        "p95": 192,
+        "p99": 192,
+        "min_rt": 192,
+        "max_rt": 194,
+        "samples": [
+          194,
+          192
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_04_R_04_GET_Fish_Stock_Indicators": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 193.0,
+        "p50": 193,
+        "p90": 193,
+        "p95": 193,
+        "p99": 193,
+        "min_rt": 193,
+        "max_rt": 193,
+        "samples": [
+          193
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC03_T_04_Search_Keyword_Fish": {
+        "count": 2,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 674.0,
+        "p50": 572,
+        "p90": 572,
+        "p95": 572,
+        "p99": 572,
+        "min_rt": 572,
+        "max_rt": 776,
+        "samples": [
+          776,
+          572
+        ],
+        "success_flags": [
+          true,
+          true
+        ]
+      },
+      "TC03_T_05_R_01_GET_Product_FI_FW_01": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 404.0,
+        "p50": 404,
+        "p90": 404,
+        "p95": 404,
+        "p99": 404,
+        "min_rt": 404,
+        "max_rt": 404,
+        "samples": [
+          404
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC03_T_05_R_02_GET_Product_Specs": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 245.0,
+        "p50": 245,
+        "p90": 245,
+        "p95": 245,
+        "p99": 245,
+        "min_rt": 245,
+        "max_rt": 245,
+        "samples": [
+          245
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC03_T_05_R_03_GET_Customer_Ratings": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 193.0,
+        "p50": 193,
+        "p90": 193,
+        "p95": 193,
+        "p99": 193,
+        "min_rt": 193,
+        "max_rt": 193,
+        "samples": [
+          193
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC03_T_05_R_04_GET_Related_Searches": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 194.0,
+        "p50": 194,
+        "p90": 194,
+        "p95": 194,
+        "p99": 194,
+        "min_rt": 194,
+        "max_rt": 194,
+        "samples": [
+          194
+        ],
+        "success_flags": [
+          true
+        ]
+      },
+      "TC03_T_05_View_Fish_Search_Result": {
+        "count": 1,
+        "errors": 0,
+        "error_rate": 0.0,
+        "avg_rt": 1036.0,
+        "p50": 1036,
+        "p90": 1036,
+        "p95": 1036,
+        "p99": 1036,
+        "min_rt": 1036,
+        "max_rt": 1036,
+        "samples": [
+          1036
+        ],
+        "success_flags": [
+          true
+        ]
+      }
+    }
+  },
+  "time_series": {
+    "ts_labels": [
+      "10s",
+      "20s",
+      "30s"
+    ],
+    "ts_avg_rt": [
+      1444.75,
+      982.62,
+      879.6
+    ],
+    "ts_p95_rt": [
+      2329,
+      1458,
+      1147
+    ],
+    "ts_p99_rt": [
+      2329,
+      1466,
+      1147
+    ],
+    "ts_throughput": [
+      2.0,
+      2.9,
+      1.5
+    ],
+    "ts_errors": [
+      9,
+      10,
+      4
+    ],
+    "ts_active_threads": [
+      16,
+      17,
+      17
+    ],
+    "label_ts_map": {
+      "TC02_T_01_R_01_GET_Catalog": {
+        "ts_avg_rt": [
+          971.0,
+          0,
+          0
+        ],
+        "ts_p95_rt": [
+          894,
+          0,
+          0
+        ],
+        "ts_p99_rt": [
+          894,
+          0,
+          0
+        ],
+        "ts_throughput": [
+          0.5,
+          0,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_01_R_01_GET_Catalog_Gateway": {
+        "ts_avg_rt": [
+          1129.0,
+          825.5,
+          0
+        ],
+        "ts_p95_rt": [
+          883,
+          808,
+          0
+        ],
+        "ts_p99_rt": [
+          883,
+          808,
+          0
+        ],
+        "ts_throughput": [
+          0.3,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_01_R_01_GET_Homepage": {
+        "ts_avg_rt": [
+          1231.0,
+          813.0,
+          0
+        ],
+        "ts_p95_rt": [
+          1070,
+          783,
+          0
+        ],
+        "ts_p99_rt": [
+          1070,
+          783,
+          0
+        ],
+        "ts_throughput": [
+          0.3,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_01_R_01_GET_Search_Home": {
+        "ts_avg_rt": [
+          1292.0,
+          0,
+          0
+        ],
+        "ts_p95_rt": [
+          838,
+          0,
+          0
+        ],
+        "ts_p99_rt": [
+          838,
+          0,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_01_R_02_GET_Static_CSS": {
+        "ts_avg_rt": [
+          243.67,
+          200.5,
+          0
+        ],
+        "ts_p95_rt": [
+          209,
+          193,
+          0
+        ],
+        "ts_p99_rt": [
+          209,
+          193,
+          0
+        ],
+        "ts_throughput": [
+          0.3,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_01_R_02_GET_Auth_Header": {
+        "ts_avg_rt": [
+          198.5,
+          203.0,
+          0
+        ],
+        "ts_p95_rt": [
+          197,
+          202,
+          0
+        ],
+        "ts_p99_rt": [
+          197,
+          202,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_01_R_02_GET_Search_Bar_Widget": {
+        "ts_avg_rt": [
+          195.0,
+          191.0,
+          0
+        ],
+        "ts_p95_rt": [
+          195,
+          191,
+          0
+        ],
+        "ts_p99_rt": [
+          195,
+          191,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          1,
+          1,
+          0
+        ]
+      },
+      "TC02_T_01_R_02_GET_Category_Nav": {
+        "ts_avg_rt": [
+          191.25,
+          240.0,
+          0
+        ],
+        "ts_p95_rt": [
+          193,
+          240,
+          0
+        ],
+        "ts_p99_rt": [
+          193,
+          240,
+          0
+        ],
+        "ts_throughput": [
+          0.4,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_01_R_03_GET_Banner_Logo": {
+        "ts_avg_rt": [
+          234.0,
+          199.0,
+          0
+        ],
+        "ts_p95_rt": [
+          212,
+          201,
+          0
+        ],
+        "ts_p99_rt": [
+          212,
+          201,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          2,
+          3,
+          0
+        ]
+      },
+      "TC04_T_01_R_03_GET_Session_CSRF_Token": {
+        "ts_avg_rt": [
+          197.0,
+          202.0,
+          200.0
+        ],
+        "ts_p95_rt": [
+          194,
+          197,
+          200
+        ],
+        "ts_p99_rt": [
+          194,
+          197,
+          200
+        ],
+        "ts_throughput": [
+          0.2,
+          0.2,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_01_R_03_GET_Trending_Keywords": {
+        "ts_avg_rt": [
+          195.0,
+          189.0,
+          0
+        ],
+        "ts_p95_rt": [
+          195,
+          189,
+          0
+        ],
+        "ts_p99_rt": [
+          195,
+          189,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_01_R_03_GET_Promo_Deals": {
+        "ts_avg_rt": [
+          201.0,
+          208.5,
+          0
+        ],
+        "ts_p95_rt": [
+          194,
+          191,
+          0
+        ],
+        "ts_p99_rt": [
+          194,
+          191,
+          0
+        ],
+        "ts_throughput": [
+          0.3,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_01_R_04_GET_SSL_Certificate_Check": {
+        "ts_avg_rt": [
+          200.0,
+          201.33,
+          201.0
+        ],
+        "ts_p95_rt": [
+          200,
+          201,
+          201
+        ],
+        "ts_p99_rt": [
+          200,
+          201,
+          201
+        ],
+        "ts_throughput": [
+          0.1,
+          0.3,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_01_Launch_Authentication_Gateway": {
+        "ts_avg_rt": [
+          1723.33,
+          1438.5,
+          0
+        ],
+        "ts_p95_rt": [
+          1484,
+          1411,
+          0
+        ],
+        "ts_p99_rt": [
+          1484,
+          1411,
+          0
+        ],
+        "ts_throughput": [
+          0.3,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_01_R_04_GET_Footer_Links": {
+        "ts_avg_rt": [
+          215.0,
+          201.67,
+          0
+        ],
+        "ts_p95_rt": [
+          214,
+          203,
+          0
+        ],
+        "ts_p99_rt": [
+          214,
+          203,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_01_Launch_Homepage": {
+        "ts_avg_rt": [
+          1773.25,
+          1458.0,
+          0
+        ],
+        "ts_p95_rt": [
+          1864,
+          1458,
+          0
+        ],
+        "ts_p99_rt": [
+          1864,
+          1458,
+          0
+        ],
+        "ts_throughput": [
+          0.4,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          4,
+          1,
+          0
+        ]
+      },
+      "TC03_T_01_R_04_GET_Search_Autocomplete_Index": {
+        "ts_avg_rt": [
+          193.0,
+          190.0,
+          0
+        ],
+        "ts_p95_rt": [
+          193,
+          190,
+          0
+        ],
+        "ts_p99_rt": [
+          193,
+          190,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_01_Launch_Search_Portal": {
+        "ts_avg_rt": [
+          1868.5,
+          0,
+          0
+        ],
+        "ts_p95_rt": [
+          1408,
+          0,
+          0
+        ],
+        "ts_p99_rt": [
+          1408,
+          0,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0,
+          0
+        ],
+        "ts_errors": [
+          2,
+          0,
+          0
+        ]
+      },
+      "TC02_T_01_R_04_GET_Cart_Status": {
+        "ts_avg_rt": [
+          229.0,
+          203.0,
+          0
+        ],
+        "ts_p95_rt": [
+          196,
+          195,
+          0
+        ],
+        "ts_p99_rt": [
+          196,
+          195,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_01_Launch_Shopping_Catalog": {
+        "ts_avg_rt": [
+          1589.4,
+          0,
+          0
+        ],
+        "ts_p95_rt": [
+          1581,
+          0,
+          0
+        ],
+        "ts_p99_rt": [
+          1581,
+          0,
+          0
+        ],
+        "ts_throughput": [
+          0.5,
+          0,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_02_R_01_GET_SignonForm": {
+        "ts_avg_rt": [
+          193.0,
+          222.0,
+          198.0
+        ],
+        "ts_p95_rt": [
+          193,
+          201,
+          198
+        ],
+        "ts_p99_rt": [
+          193,
+          201,
+          198
+        ],
+        "ts_throughput": [
+          0.1,
+          0.3,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_02_R_01_GET_Search_Bulldog": {
+        "ts_avg_rt": [
+          195.0,
+          192.0,
+          0
+        ],
+        "ts_p95_rt": [
+          195,
+          192,
+          0
+        ],
+        "ts_p99_rt": [
+          195,
+          192,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_02_R_01_GET_Catalog_Index": {
+        "ts_avg_rt": [
+          212.0,
+          237.75,
+          0
+        ],
+        "ts_p95_rt": [
+          212,
+          267,
+          0
+        ],
+        "ts_p99_rt": [
+          212,
+          267,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.4,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_02_R_01_GET_Category_Reptiles": {
+        "ts_avg_rt": [
+          214.5,
+          202.0,
+          0
+        ],
+        "ts_p95_rt": [
+          197,
+          194,
+          0
+        ],
+        "ts_p99_rt": [
+          197,
+          194,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_02_R_02_GET_Login_Assets": {
+        "ts_avg_rt": [
+          193.0,
+          200.0,
+          258.5
+        ],
+        "ts_p95_rt": [
+          193,
+          192,
+          206
+        ],
+        "ts_p99_rt": [
+          193,
+          192,
+          206
+        ],
+        "ts_throughput": [
+          0.1,
+          0.2,
+          0.2
+        ],
+        "ts_errors": [
+          1,
+          2,
+          2
+        ]
+      },
+      "TC03_T_02_R_02_GET_Bulldog_Results": {
+        "ts_avg_rt": [
+          196.0,
+          231.0,
+          0
+        ],
+        "ts_p95_rt": [
+          196,
+          231,
+          0
+        ],
+        "ts_p99_rt": [
+          196,
+          231,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_02_R_02_GET_Catalog_Menu": {
+        "ts_avg_rt": [
+          0,
+          205.0,
+          202.0
+        ],
+        "ts_p95_rt": [
+          0,
+          205,
+          202
+        ],
+        "ts_p99_rt": [
+          0,
+          205,
+          202
+        ],
+        "ts_throughput": [
+          0,
+          0.4,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_02_R_02_GET_Reptiles_Products": {
+        "ts_avg_rt": [
+          0,
+          203.2,
+          0
+        ],
+        "ts_p95_rt": [
+          0,
+          203,
+          0
+        ],
+        "ts_p99_rt": [
+          0,
+          203,
+          0
+        ],
+        "ts_throughput": [
+          0,
+          0.5,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_02_R_03_GET_Captcha_Widget": {
+        "ts_avg_rt": [
+          0,
+          209.0,
+          223.0
+        ],
+        "ts_p95_rt": [
+          0,
+          195,
+          213
+        ],
+        "ts_p99_rt": [
+          0,
+          195,
+          213
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_02_R_03_GET_Bulldog_Filters": {
+        "ts_avg_rt": [
+          0,
+          204.0,
+          0
+        ],
+        "ts_p95_rt": [
+          0,
+          190,
+          0
+        ],
+        "ts_p99_rt": [
+          0,
+          190,
+          0
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_02_R_03_GET_Category_Icons": {
+        "ts_avg_rt": [
+          0,
+          208.75,
+          205.0
+        ],
+        "ts_p95_rt": [
+          0,
+          214,
+          205
+        ],
+        "ts_p99_rt": [
+          0,
+          214,
+          205
+        ],
+        "ts_throughput": [
+          0,
+          0.4,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_02_R_03_GET_Reptiles_Pricing": {
+        "ts_avg_rt": [
+          0,
+          201.0,
+          0
+        ],
+        "ts_p95_rt": [
+          0,
+          198,
+          0
+        ],
+        "ts_p99_rt": [
+          0,
+          198,
+          0
+        ],
+        "ts_throughput": [
+          0,
+          0.5,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_02_R_04_GET_SSO_Provider_Links": {
+        "ts_avg_rt": [
+          0,
+          195.0,
+          261.5
+        ],
+        "ts_p95_rt": [
+          0,
+          193,
+          200
+        ],
+        "ts_p99_rt": [
+          0,
+          193,
+          200
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_02_Navigate_To_Signon_Page": {
+        "ts_avg_rt": [
+          774.0,
+          877.33,
+          942.0
+        ],
+        "ts_p95_rt": [
+          774,
+          847,
+          942
+        ],
+        "ts_p99_rt": [
+          774,
+          847,
+          942
+        ],
+        "ts_throughput": [
+          0.1,
+          0.3,
+          0.1
+        ],
+        "ts_errors": [
+          1,
+          3,
+          1
+        ]
+      },
+      "TC03_T_02_R_04_GET_Bulldog_Pagination": {
+        "ts_avg_rt": [
+          0,
+          204.5,
+          0
+        ],
+        "ts_p95_rt": [
+          0,
+          193,
+          0
+        ],
+        "ts_p99_rt": [
+          0,
+          193,
+          0
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_02_Search_Keyword_Bulldog": {
+        "ts_avg_rt": [
+          802.0,
+          829.0,
+          0
+        ],
+        "ts_p95_rt": [
+          802,
+          829,
+          0
+        ],
+        "ts_p99_rt": [
+          802,
+          829,
+          0
+        ],
+        "ts_throughput": [
+          0.1,
+          0.1,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_02_R_04_GET_Featured_Pets": {
+        "ts_avg_rt": [
+          0,
+          207.67,
+          196.5
+        ],
+        "ts_p95_rt": [
+          0,
+          205,
+          190
+        ],
+        "ts_p99_rt": [
+          0,
+          205,
+          190
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_02_Navigate_Catalog": {
+        "ts_avg_rt": [
+          880.5,
+          826.67,
+          0
+        ],
+        "ts_p95_rt": [
+          850,
+          808,
+          0
+        ],
+        "ts_p99_rt": [
+          850,
+          808,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_02_R_04_GET_Reptiles_Media": {
+        "ts_avg_rt": [
+          0,
+          193.75,
+          220.0
+        ],
+        "ts_p95_rt": [
+          0,
+          195,
+          220
+        ],
+        "ts_p99_rt": [
+          0,
+          195,
+          220
+        ],
+        "ts_throughput": [
+          0,
+          0.4,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          4,
+          1
+        ]
+      },
+      "TC02_T_02_Select_Reptiles_Section": {
+        "ts_avg_rt": [
+          805.5,
+          813.33,
+          0
+        ],
+        "ts_p95_rt": [
+          781,
+          781,
+          0
+        ],
+        "ts_p99_rt": [
+          781,
+          781,
+          0
+        ],
+        "ts_throughput": [
+          0.2,
+          0.3,
+          0
+        ],
+        "ts_errors": [
+          2,
+          3,
+          0
+        ]
+      },
+      "TC04_T_03_R_01_POST_Account_Signon": {
+        "ts_avg_rt": [
+          0,
+          199.5,
+          246.67
+        ],
+        "ts_p95_rt": [
+          0,
+          197,
+          207
+        ],
+        "ts_p99_rt": [
+          0,
+          197,
+          207
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          2,
+          3
+        ]
+      },
+      "TC03_T_03_R_01_POST_Filter_By_Price": {
+        "ts_avg_rt": [
+          0,
+          199.0,
+          191.0
+        ],
+        "ts_p95_rt": [
+          0,
+          199,
+          191
+        ],
+        "ts_p99_rt": [
+          0,
+          199,
+          191
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_03_R_01_GET_Category_Fish": {
+        "ts_avg_rt": [
+          0,
+          230.0,
+          258.0
+        ],
+        "ts_p95_rt": [
+          0,
+          217,
+          193
+        ],
+        "ts_p99_rt": [
+          0,
+          217,
+          193
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_03_R_01_GET_Category_Dogs": {
+        "ts_avg_rt": [
+          0,
+          216.67,
+          213.0
+        ],
+        "ts_p95_rt": [
+          0,
+          199,
+          200
+        ],
+        "ts_p99_rt": [
+          0,
+          199,
+          200
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_03_R_02_GET_Account_Dashboard": {
+        "ts_avg_rt": [
+          0,
+          202.0,
+          252.0
+        ],
+        "ts_p95_rt": [
+          0,
+          195,
+          194
+        ],
+        "ts_p99_rt": [
+          0,
+          195,
+          194
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_03_R_02_GET_Filtered_Listings": {
+        "ts_avg_rt": [
+          0,
+          208.0,
+          191.0
+        ],
+        "ts_p95_rt": [
+          0,
+          208,
+          191
+        ],
+        "ts_p99_rt": [
+          0,
+          208,
+          191
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_03_R_02_GET_Dogs_Products": {
+        "ts_avg_rt": [
+          0,
+          194.0,
+          230.33
+        ],
+        "ts_p95_rt": [
+          0,
+          192,
+          201
+        ],
+        "ts_p99_rt": [
+          0,
+          192,
+          201
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_03_R_02_GET_Fish_Listings": {
+        "ts_avg_rt": [
+          0,
+          214.5,
+          229.33
+        ],
+        "ts_p95_rt": [
+          0,
+          209,
+          203
+        ],
+        "ts_p99_rt": [
+          0,
+          209,
+          203
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_03_R_03_GET_Filter_Count": {
+        "ts_avg_rt": [
+          0,
+          202.0,
+          196.0
+        ],
+        "ts_p95_rt": [
+          0,
+          202,
+          196
+        ],
+        "ts_p99_rt": [
+          0,
+          202,
+          196
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_03_R_03_GET_Session_Validation": {
+        "ts_avg_rt": [
+          0,
+          215.0,
+          209.67
+        ],
+        "ts_p95_rt": [
+          0,
+          215,
+          206
+        ],
+        "ts_p99_rt": [
+          0,
+          215,
+          206
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_03_R_03_GET_Dogs_Pricing": {
+        "ts_avg_rt": [
+          0,
+          211.5,
+          204.33
+        ],
+        "ts_p95_rt": [
+          0,
+          194,
+          196
+        ],
+        "ts_p99_rt": [
+          0,
+          194,
+          196
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_03_R_04_GET_Sorted_Order": {
+        "ts_avg_rt": [
+          0,
+          192.0,
+          205.0
+        ],
+        "ts_p95_rt": [
+          0,
+          192,
+          205
+        ],
+        "ts_p99_rt": [
+          0,
+          192,
+          205
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_03_Filter_Bulldog_Results": {
+        "ts_avg_rt": [
+          0,
+          792.0,
+          0
+        ],
+        "ts_p95_rt": [
+          0,
+          783,
+          0
+        ],
+        "ts_p99_rt": [
+          0,
+          783,
+          0
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_03_R_03_GET_Fish_Pagination": {
+        "ts_avg_rt": [
+          0,
+          210.5,
+          239.33
+        ],
+        "ts_p95_rt": [
+          0,
+          207,
+          206
+        ],
+        "ts_p99_rt": [
+          0,
+          207,
+          206
+        ],
+        "ts_throughput": [
+          0,
+          0.2,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_03_R_04_GET_User_Preferences": {
+        "ts_avg_rt": [
+          0,
+          196.0,
+          198.0
+        ],
+        "ts_p95_rt": [
+          0,
+          196,
+          197
+        ],
+        "ts_p99_rt": [
+          0,
+          196,
+          197
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_03_Submit_Valid_Login_Credentials": {
+        "ts_avg_rt": [
+          0,
+          806.67,
+          856.0
+        ],
+        "ts_p95_rt": [
+          0,
+          807,
+          856
+        ],
+        "ts_p99_rt": [
+          0,
+          807,
+          856
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          3,
+          1
+        ]
+      },
+      "TC02_T_03_R_04_GET_Dogs_Media": {
+        "ts_avg_rt": [
+          0,
+          387.0,
+          618.5
+        ],
+        "ts_p95_rt": [
+          0,
+          387,
+          559
+        ],
+        "ts_p99_rt": [
+          0,
+          387,
+          559
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.4
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_03_Select_Dogs_Section": {
+        "ts_avg_rt": [
+          0,
+          1185.0,
+          1312.0
+        ],
+        "ts_p95_rt": [
+          0,
+          1064,
+          1312
+        ],
+        "ts_p99_rt": [
+          0,
+          1064,
+          1312
+        ],
+        "ts_throughput": [
+          0,
+          0.4,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_04_R_01_GET_Search_Fish": {
+        "ts_avg_rt": [
+          0,
+          193.0,
+          190.0
+        ],
+        "ts_p95_rt": [
+          0,
+          193,
+          190
+        ],
+        "ts_p99_rt": [
+          0,
+          193,
+          190
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_03_R_04_GET_Fish_Thumbnails": {
+        "ts_avg_rt": [
+          0,
+          407.0,
+          488.33
+        ],
+        "ts_p95_rt": [
+          0,
+          407,
+          426
+        ],
+        "ts_p99_rt": [
+          0,
+          407,
+          426
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_03_Select_Fish_Category": {
+        "ts_avg_rt": [
+          0,
+          1133.0,
+          967.5
+        ],
+        "ts_p95_rt": [
+          0,
+          1093,
+          817
+        ],
+        "ts_p99_rt": [
+          0,
+          1093,
+          817
+        ],
+        "ts_throughput": [
+          0,
+          0.3,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_04_R_01_GET_EditAccountForm": {
+        "ts_avg_rt": [
+          0,
+          195.0,
+          272.0
+        ],
+        "ts_p95_rt": [
+          0,
+          195,
+          227
+        ],
+        "ts_p99_rt": [
+          0,
+          195,
+          227
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_04_R_01_GET_Bulldog_Product": {
+        "ts_avg_rt": [
+          0,
+          0,
+          220.6
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          227
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          227
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.5
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_04_R_02_GET_Fish_Results": {
+        "ts_avg_rt": [
+          0,
+          0,
+          193.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          190
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          190
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_04_R_01_GET_Category_Dogs": {
+        "ts_avg_rt": [
+          0,
+          0,
+          212.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          215
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          215
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.4
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_04_R_02_GET_Billing_Address": {
+        "ts_avg_rt": [
+          0,
+          0,
+          236.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          240
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          240
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_04_R_02_GET_Bulldog_Specs": {
+        "ts_avg_rt": [
+          0,
+          0,
+          227.75
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          205
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          205
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.4
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_04_R_03_GET_Fish_Categories": {
+        "ts_avg_rt": [
+          0,
+          0,
+          193.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_04_R_02_GET_Dogs_Listings": {
+        "ts_avg_rt": [
+          0,
+          0,
+          254.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          295
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          295
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.4
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_04_R_03_GET_Shipping_Address": {
+        "ts_avg_rt": [
+          0,
+          0,
+          197.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_04_R_04_GET_Fish_Stock_Indicators": {
+        "ts_avg_rt": [
+          0,
+          0,
+          193.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          193
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          193
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_04_Search_Keyword_Fish": {
+        "ts_avg_rt": [
+          0,
+          776.0,
+          572.0
+        ],
+        "ts_p95_rt": [
+          0,
+          776,
+          572
+        ],
+        "ts_p99_rt": [
+          0,
+          776,
+          572
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_04_R_03_GET_Bulldog_Stock": {
+        "ts_avg_rt": [
+          0,
+          0,
+          203.75
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          195
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          195
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.4
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_04_R_04_GET_Contact_Details": {
+        "ts_avg_rt": [
+          0,
+          0,
+          233.5
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          199
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          199
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_04_View_User_Account_Profile": {
+        "ts_avg_rt": [
+          0,
+          851.0,
+          868.0
+        ],
+        "ts_p95_rt": [
+          0,
+          851,
+          868
+        ],
+        "ts_p99_rt": [
+          0,
+          851,
+          868
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_04_R_03_GET_Dogs_Pagination": {
+        "ts_avg_rt": [
+          0,
+          0,
+          239.33
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          214
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          214
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_05_R_01_GET_Product_FI_FW_01": {
+        "ts_avg_rt": [
+          0,
+          0,
+          404.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          404
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          404
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_04_R_04_GET_Bulldog_Reviews": {
+        "ts_avg_rt": [
+          0,
+          0,
+          201.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          198
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          198
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_04_View_Bulldog_Item": {
+        "ts_avg_rt": [
+          0,
+          786.0,
+          806.33
+        ],
+        "ts_p95_rt": [
+          0,
+          786,
+          823
+        ],
+        "ts_p99_rt": [
+          0,
+          786,
+          823
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.3
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_05_R_01_POST_Update_Account": {
+        "ts_avg_rt": [
+          0,
+          0,
+          198.5
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          197
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          197
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          2
+        ]
+      },
+      "TC01_T_04_R_04_GET_Dogs_Thumbnails": {
+        "ts_avg_rt": [
+          0,
+          0,
+          467.5
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          423
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          423
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_04_Select_Dogs_Category": {
+        "ts_avg_rt": [
+          0,
+          1224.0,
+          937.0
+        ],
+        "ts_p95_rt": [
+          0,
+          1224,
+          727
+        ],
+        "ts_p99_rt": [
+          0,
+          1224,
+          727
+        ],
+        "ts_throughput": [
+          0,
+          0.1,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_05_R_02_GET_Product_Specs": {
+        "ts_avg_rt": [
+          0,
+          0,
+          245.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          245
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          245
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_05_R_01_POST_AddToCart_EST_6": {
+        "ts_avg_rt": [
+          0,
+          0,
+          236.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          210
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          210
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_05_R_02_GET_Confirm_Updated_Profile": {
+        "ts_avg_rt": [
+          0,
+          0,
+          198.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          198
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          198
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_05_R_01_GET_Category_Reptiles": {
+        "ts_avg_rt": [
+          0,
+          0,
+          270.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          227
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          227
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_05_R_03_GET_Customer_Ratings": {
+        "ts_avg_rt": [
+          0,
+          0,
+          193.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          193
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          193
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_05_R_02_GET_Cart_View": {
+        "ts_avg_rt": [
+          0,
+          0,
+          205.5
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          194
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          194
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.2
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_05_R_03_GET_Language_Setting": {
+        "ts_avg_rt": [
+          0,
+          0,
+          192.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC01_T_05_R_02_GET_Reptiles_Listings": {
+        "ts_avg_rt": [
+          0,
+          0,
+          207.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          207
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          207
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_05_R_04_GET_Related_Searches": {
+        "ts_avg_rt": [
+          0,
+          0,
+          194.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          194
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          194
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC03_T_05_View_Fish_Search_Result": {
+        "ts_avg_rt": [
+          0,
+          0,
+          1036.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          1036
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          1036
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC02_T_05_R_03_GET_Cart_Subtotal": {
+        "ts_avg_rt": [
+          0,
+          0,
+          192.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          192
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          1
+        ]
+      },
+      "TC02_T_05_Add_Bulldog_To_Cart": {
+        "ts_avg_rt": [
+          0,
+          0,
+          596.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          596
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          596
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          1
+        ]
+      },
+      "TC04_T_05_R_04_GET_Favorite_Category": {
+        "ts_avg_rt": [
+          0,
+          0,
+          197.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          197
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          197
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          0
+        ]
+      },
+      "TC04_T_05_Update_Account_Preferences": {
+        "ts_avg_rt": [
+          0,
+          0,
+          784.0
+        ],
+        "ts_p95_rt": [
+          0,
+          0,
+          784
+        ],
+        "ts_p99_rt": [
+          0,
+          0,
+          784
+        ],
+        "ts_throughput": [
+          0,
+          0,
+          0.1
+        ],
+        "ts_errors": [
+          0,
+          0,
+          1
+        ]
+      }
+    }
+  },
+  "error_details": {
+    "404": {
+      "code": "404",
+      "message": "",
+      "failure_message": "",
+      "count": 17,
+      "occurrences": [
+        {
+          "label": "TC03_T_01_R_02_GET_Search_Bar_Widget",
+          "timestamp": 1788246891433,
+          "elapsed": 195
+        },
+        {
+          "label": "TC01_T_01_R_03_GET_Banner_Logo",
+          "timestamp": 1788246892576,
+          "elapsed": 212
+        },
+        {
+          "label": "TC01_T_01_R_03_GET_Banner_Logo",
+          "timestamp": 1788246895146,
+          "elapsed": 256
+        },
+        {
+          "label": "TC04_T_02_R_02_GET_Login_Assets",
+          "timestamp": 1788246896521,
+          "elapsed": 193
+        },
+        {
+          "label": "TC03_T_01_R_02_GET_Search_Bar_Widget",
+          "timestamp": 1788246898102,
+          "elapsed": 191
+        },
+        {
+          "label": "TC01_T_01_R_03_GET_Banner_Logo",
+          "timestamp": 1788246898118,
+          "elapsed": 201
+        },
+        {
+          "label": "TC02_T_02_R_04_GET_Reptiles_Media",
+          "timestamp": 1788246900608,
+          "elapsed": 192
+        },
+        {
+          "label": "TC04_T_02_R_02_GET_Login_Assets",
+          "timestamp": 1788246900592,
+          "elapsed": 208
+        },
+        {
+          "label": "TC01_T_01_R_03_GET_Banner_Logo",
+          "timestamp": 1788246900751,
+          "elapsed": 193
+        },
+        {
+          "label": "TC02_T_02_R_04_GET_Reptiles_Media",
+          "timestamp": 1788246901707,
+          "elapsed": 199
+        },
+        {
+          "label": "TC01_T_01_R_03_GET_Banner_Logo",
+          "timestamp": 1788246904198,
+          "elapsed": 203
+        },
+        {
+          "label": "TC02_T_02_R_04_GET_Reptiles_Media",
+          "timestamp": 1788246904317,
+          "elapsed": 195
+        },
+        {
+          "label": "TC04_T_02_R_02_GET_Login_Assets",
+          "timestamp": 1788246904349,
+          "elapsed": 192
+        },
+        {
+          "label": "TC02_T_02_R_04_GET_Reptiles_Media",
+          "timestamp": 1788246905484,
+          "elapsed": 189
+        },
+        {
+          "label": "TC02_T_02_R_04_GET_Reptiles_Media",
+          "timestamp": 1788246907963,
+          "elapsed": 220
+        },
+        {
+          "label": "TC04_T_02_R_02_GET_Login_Assets",
+          "timestamp": 1788246908648,
+          "elapsed": 206
+        },
+        {
+          "label": "TC04_T_02_R_02_GET_Login_Assets",
+          "timestamp": 1788246912105,
+          "elapsed": 311
+        }
+      ]
+    },
+    "500": {
+      "code": "500",
+      "message": "",
+      "failure_message": "",
+      "count": 8,
+      "occurrences": [
+        {
+          "label": "TC04_T_03_R_01_POST_Account_Signon",
+          "timestamp": 1788246900847,
+          "elapsed": 197
+        },
+        {
+          "label": "TC04_T_03_R_01_POST_Account_Signon",
+          "timestamp": 1788246904668,
+          "elapsed": 202
+        },
+        {
+          "label": "TC04_T_03_R_01_POST_Account_Signon",
+          "timestamp": 1788246908594,
+          "elapsed": 193
+        },
+        {
+          "label": "TC04_T_05_R_01_POST_Update_Account",
+          "timestamp": 1788246912611,
+          "elapsed": 197
+        },
+        {
+          "label": "TC04_T_03_R_01_POST_Account_Signon",
+          "timestamp": 1788246913326,
+          "elapsed": 340
+        },
+        {
+          "label": "TC04_T_03_R_01_POST_Account_Signon",
+          "timestamp": 1788246916494,
+          "elapsed": 207
+        },
+        {
+          "label": "TC02_T_05_R_03_GET_Cart_Subtotal",
+          "timestamp": 1788246916788,
+          "elapsed": 192
+        },
+        {
+          "label": "TC04_T_05_R_01_POST_Update_Account",
+          "timestamp": 1788246916836,
+          "elapsed": 200
+        }
+      ]
+    }
+  },
+  "raw_rows": 326,
+  "ai_insights": {
+    "executive_summary": "The 30-second load test executed 326 samples at 10.89 req/s with 67.7% SLA compliance (65 of 96 transactions met targets). Critical performance degradation observed: 31 transactions breached response time SLAs, overall error rate reached 35.94%, and server CPU peaked at 91.4% with 168 HTTP 5xx errors. Key user-facing transactions including homepage launch, search portal, and authentication gateway exceeded P90 SLA targets by 463-645% and recorded 100% error rates.",
+    "data_quality_findings": [
+      {
+        "severity": "Critical",
+        "issue": "Azure Monitor not configured - no server-side resource metrics available",
+        "evidence": "Server-Side Infrastructure section states 'Not available (Azure Monitor not configured)'. Correlation analysis references CPU 91.4% and 168 5xx errors but source telemetry is unspecified.",
+        "impact": "Cannot correlate client-side latency with specific server resource contention (CPU, memory, thread pool, GC). Root cause analysis limited to client-side symptoms.",
+        "action": "Enable Azure Monitor metrics for App Service (CPU, memory, requests, exceptions) and configure Log Analytics workspace for correlation in next test cycle."
+      },
+      {
+        "severity": "Warning",
+        "issue": "Test duration only 30 seconds - insufficient for steady-state observation",
+        "evidence": "Duration: 30 seconds with 326 total samples. Short duration may not capture warm-up effects, garbage collection cycles, or connection pool saturation.",
+        "impact": "Reported metrics may reflect transient startup behavior rather than sustained load performance. Capacity estimates unreliable.",
+        "action": "Extend test duration to minimum 15 minutes with ramp-up period for steady-state measurement."
+      },
+      {
+        "severity": "Info",
+        "issue": "Missing concurrency and virtual user count context",
+        "evidence": "Workload profile reports throughput and samples but no concurrent user count, thread group configuration, or pacing details.",
+        "impact": "Cannot calculate user-perceived response times under defined concurrency or validate throughput against business volume targets.",
+        "action": "Document test scenario configuration: virtual users, ramp-up, think time, and iteration pacing for future test reports."
+      }
+    ],
+    "finding_enrichments": {
+      "F-001": {
+        "finding": "Homepage launch transaction (TC01_T_01_Launch_Homepage) critically breaches SLA",
+        "observation": "P90 response time 1864 ms against 250 ms target (+645.6% deviation) with 100% error rate (5/5 failures) across 5 iterations.",
+        "interpretation": "Primary entry point transaction fails completely under load, preventing user access to application. High latency and total failure rate indicate server-side processing failure or resource exhaustion.",
+        "evidence": [
+          {
+            "metric": "P90 Response Time",
+            "value": "1864 ms",
+            "source": "client"
+          },
+          {
+            "metric": "SLA Target",
+            "value": "250 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "Error Rate",
+            "value": "100%",
+            "source": "client"
+          },
+          {
+            "metric": "Iterations",
+            "value": "5",
+            "source": "client"
+          },
+          {
+            "metric": "Server 5xx Errors",
+            "value": "168 total",
+            "source": "server"
+          }
+        ],
+        "likely_cause": "Server CPU saturation (91.4% peak) causing request queuing and timeouts, compounded by application errors generating 5xx responses.",
+        "confidence": "High",
+        "impact": "Complete blockage of user entry to application. Zero successful homepage loads during test.",
+        "recommendation": "Immediately investigate server CPU bottlenecks and application exception logs for homepage rendering path. Implement circuit breaker and static content caching.",
+        "validation": "Re-test with server monitoring enabled; target P90 < 250 ms and error rate < 1% for homepage transaction."
+      },
+      "F-002": {
+        "finding": "Search portal launch (TC03_T_01_Launch_Search_Portal) critically breaches SLA",
+        "observation": "P90 response time 1408 ms against 250 ms target (+463.2% deviation) with 100% error rate (2/2 failures) across 2 iterations.",
+        "interpretation": "Search functionality completely unavailable. High latency and failure rate consistent with systemic server overload rather than isolated transaction issue.",
+        "evidence": [
+          {
+            "metric": "P90 Response Time",
+            "value": "1408 ms",
+            "source": "client"
+          },
+          {
+            "metric": "SLA Target",
+            "value": "250 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "Error Rate",
+            "value": "100%",
+            "source": "client"
+          },
+          {
+            "metric": "Iterations",
+            "value": "2",
+            "source": "client"
+          },
+          {
+            "metric": "Server CPU Peak",
+            "value": "91.4%",
+            "source": "server"
+          }
+        ],
+        "likely_cause": "CPU saturation delaying search index initialization or database connection pool exhaustion.",
+        "confidence": "High",
+        "impact": "Search feature non-functional under load; users cannot find products.",
+        "recommendation": "Profile search portal initialization code path. Optimize database connection pooling and consider asynchronous search index loading.",
+        "validation": "Load test search portal in isolation with CPU monitoring; verify P90 < 250 ms and error rate < 1%."
+      },
+      "F-003": {
+        "finding": "Authentication gateway launch (TC04_T_01_Launch_Authentication_Gateway) critically breaches latency SLA",
+        "observation": "P90 response time 1484 ms against 250 ms target (+493.6% deviation) with 0% error rate across 5 iterations.",
+        "interpretation": "Authentication gateway responds but with severe latency. Successful HTTP responses (0% error) indicate application logic completes but under extreme resource contention.",
+        "evidence": [
+          {
+            "metric": "P90 Response Time",
+            "value": "1484 ms",
+            "source": "client"
+          },
+          {
+            "metric": "SLA Target",
+            "value": "250 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "Error Rate",
+            "value": "0%",
+            "source": "client"
+          },
+          {
+            "metric": "Iterations",
+            "value": "5",
+            "source": "client"
+          },
+          {
+            "metric": "Server CPU Peak",
+            "value": "91.4%",
+            "source": "server"
+          }
+        ],
+        "likely_cause": "CPU saturation delaying authentication gateway initialization or downstream identity provider calls.",
+        "confidence": "Medium",
+        "impact": "Login flow severely delayed; users experience long waits before credential entry.",
+        "recommendation": "Optimize authentication gateway startup and reduce synchronous dependencies. Implement lazy loading for non-critical components.",
+        "validation": "Measure gateway launch latency under controlled CPU load; target P90 < 250 ms."
+      },
+      "F-004": {
+        "finding": "Shopping catalog launch (TC02_T_01_Launch_Shopping_Catalog) critically breaches latency SLA",
+        "observation": "P90 response time 1581 ms against 250 ms target (+532.4% deviation) with 0% error rate across 5 iterations.",
+        "interpretation": "Core shopping catalog page loads successfully but with 6x SLA breach. Indicates catalog rendering logic executes but under severe CPU contention.",
+        "evidence": [
+          {
+            "metric": "P90 Response Time",
+            "value": "1581 ms",
+            "source": "client"
+          },
+          {
+            "metric": "SLA Target",
+            "value": "250 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "Error Rate",
+            "value": "0%",
+            "source": "client"
+          },
+          {
+            "metric": "Iterations",
+            "value": "5",
+            "source": "client"
+          },
+          {
+            "metric": "Server CPU Peak",
+            "value": "91.4%",
+            "source": "server"
+          }
+        ],
+        "likely_cause": "CPU saturation during catalog data retrieval and page rendering. Possible inefficient database queries or missing caching.",
+        "confidence": "Medium",
+        "impact": "Product browsing severely degraded; direct impact on conversion funnel.",
+        "recommendation": "Implement catalog page caching (Redis/CDN). Optimize product query with pagination and indexing. Profile rendering pipeline.",
+        "validation": "Re-test catalog launch with caching enabled; target P90 < 250 ms."
+      },
+      "F-005": {
+        "finding": "Server CPU saturation at 91.4% peak with 168 HTTP 5xx errors",
+        "observation": "Correlation analysis reports CPU peaked at 91.4% and Azure App Service returned 168 5xx errors during 30-second test.",
+        "interpretation": "Server compute capacity exhausted. 5xx errors indicate application crashes, thread pool exhaustion, or unhandled exceptions under load. CPU saturation is primary driver of observed latency spikes and failures.",
+        "evidence": [
+          {
+            "metric": "CPU Peak",
+            "value": "91.4%",
+            "source": "server"
+          },
+          {
+            "metric": "HTTP 5xx Errors",
+            "value": "168",
+            "source": "server"
+          },
+          {
+            "metric": "Test Duration",
+            "value": "30 seconds",
+            "source": "client"
+          },
+          {
+            "metric": "Throughput",
+            "value": "10.89 req/s",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Insufficient compute resources (vCPU count/size) for workload. Possible inefficient code paths (tight loops, excessive GC, synchronous I/O) amplifying CPU demand.",
+        "confidence": "High",
+        "impact": "Systemic performance collapse affecting all transactions. 35.94% overall error rate directly attributable to server-side failures.",
+        "recommendation": "Scale up App Service plan (increase vCPU). Enable auto-scaling rules based on CPU > 70%. Profile application CPU hotspots (JFR/async-profiler).",
+        "validation": "Load test with scaled-up tier; verify CPU peak < 70% and 5xx errors < 1% at target throughput."
+      },
+      "F-006": {
+        "finding": "Overall SLA compliance only 67.7% with 35.94% error rate",
+        "observation": "31 of 96 transactions breached defined SLA targets. Global error rate 35.94% far exceeds 1% target. Multiple transactions show 100% error rates.",
+        "interpretation": "Application fails to meet non-functional requirements under minimal load (10.89 req/s). Error pattern suggests systemic instability rather than isolated transaction defects.",
+        "evidence": [
+          {
+            "metric": "Overall SLA Compliance",
+            "value": "67.7%",
+            "source": "derived"
+          },
+          {
+            "metric": "Total SLA-Breaching Transactions",
+            "value": "31",
+            "source": "derived"
+          },
+          {
+            "metric": "Global Error Rate",
+            "value": "35.94%",
+            "source": "client"
+          },
+          {
+            "metric": "Error Rate Target",
+            "value": "1%",
+            "source": "defined"
+          },
+          {
+            "metric": "Transactions with 100% Error Rate",
+            "value": "12",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Combined effect of CPU saturation causing timeouts and application exceptions generating 5xx errors. Insufficient error handling and retry logic.",
+        "confidence": "High",
+        "impact": "Production deployment at this performance level would result in widespread user-facing failures and transaction loss.",
+        "recommendation": "Immediate performance engineering sprint: 1) Scale compute, 2) Fix top 5 erroring transactions, 3) Implement resilience patterns (retry, timeout, circuit breaker), 4) Re-test with 15-minute steady state.",
+        "validation": "Achieve > 95% SLA compliance and < 1% error rate at target load in next test cycle."
+      }
+    },
+    "capacity_planning": {
+      "observed_concurrency": null,
+      "estimated_max_users": null,
+      "saturation_point": null,
+      "safe_concurrency": null,
+      "capacity_confidence": "Unknown",
+      "analysis": "Test duration (30 seconds) and missing concurrency configuration prevent reliable capacity estimation. Throughput of 10.89 req/s achieved with 91.4% CPU peak indicates current deployment handles ~11 req/s at saturation. Without steady-state data and user concurrency metrics, safe operating capacity cannot be determined. Minimum 15-minute test with defined virtual users required for capacity modeling."
+    },
+    "root_cause_assessment": [
+      {
+        "finding": "Server CPU saturation (91.4% peak) is primary bottleneck driving latency and 5xx errors",
+        "evidence": "CPU peaked at 91.4% (correlation analysis). 168 HTTP 5xx errors recorded. Client-side P90 1014 ms, P99 1864 ms. 31 transactions breach P90 SLA targets by 62-645%.",
+        "likely_cause": "Insufficient vCPU allocation for workload intensity. Application code may contain CPU-intensive operations (e.g., synchronous processing, lack of caching, inefficient algorithms) that amplify under concurrent load.",
+        "confidence": "High",
+        "recommended_investigation": "Enable Azure Monitor CPU metrics per instance. Capture Java Flight Recorder (JFR) or async-profiler output during load test to identify hot methods. Analyze thread dumps at peak CPU for blocked/runnable threads."
+      },
+      {
+        "finding": "Application exceptions causing 100% error rates on 12 critical transactions",
+        "evidence": "12 transactions show 100% error rate (e.g., TC01_T_01_Launch_Homepage, TC03_T_01_Launch_Search_Portal, TC04_T_02_Navigate_To_Signon_Page). 168 total 5xx errors in 30 seconds.",
+        "likely_cause": "Unhandled exceptions in request processing pipeline (NullPointerException, timeout exceptions, database connection failures) triggered by resource exhaustion or code defects.",
+        "confidence": "High",
+        "recommended_investigation": "Retrieve Application Insights / Log Analytics exception traces for 5xx errors. Correlate exception timestamps with CPU peaks. Fix top exception types and add graceful degradation."
+      }
+    ],
+    "bottleneck_analysis": "Time is spent predominantly in server-side request processing under CPU saturation. Client-side metrics show P90 1014 ms (global) with individual transactions ranging 830-1864 ms P90 against 250-500 ms targets. Zero-error transactions (e.g., catalog launch, authentication gateway) still exhibit 5-6x SLA breaches, confirming latency is due to queuing and slow processing, not network. Transactions with 100% error rates (homepage, search, login) indicate request processing fails before completion, likely due to thread pool exhaustion or unhandled exceptions under CPU pressure. Database and external service calls not instrumented; however, 5xx errors suggest failures originate in application layer.",
+    "tail_latency_analysis": "P95 1411 ms and P99 1864 ms indicate severe tail latency. Variability high: homepage min 1367 ms, max 2405 ms (76% spread). Search portal min 1408 ms, max 2329 ms. Tail latency driven by CPU saturation causing request queuing and GC pauses. 100% error rate transactions have no successful samples to measure latency; their 'latency' is effectively infinite (timeout). Recommend analyzing GC logs and thread pool queue lengths to quantify queuing delay contribution.",
+    "infra_analysis": "Server infrastructure shows critical CPU saturation (91.4% peak) with no headroom. Memory utilization not reported (Azure Monitor unconfigured). 168 HTTP 5xx errors in 30 seconds confirm application instability under load. Current App Service plan undersized for workload. No auto-scaling observed. Immediate vertical scaling (increase vCPU) and horizontal scaling (enable auto-scale) required. Memory and GC behavior unknown - must be monitored in next test.",
+    "correlation_insights": "Direct correlation between server CPU saturation (91.4%) and client-side degradation: global P90 1014 ms (2x default 500 ms SLA), 31 SLA breaches, 35.94% error rate. 168 server-side 5xx errors align temporally with client transaction failures (12 transactions at 100% error rate). CPU saturation causes request queuing, increased GC activity, and thread starvation, manifesting as both high latency (successful requests) and 5xx errors (failed requests). No network or client-side bottleneck indicated.",
+    "recommendations": [
+      {
+        "id": "R-001",
+        "priority": "Critical",
+        "category": "Infrastructure",
+        "title": "Scale up App Service compute and enable auto-scaling",
+        "why": "CPU peaked at 91.4% with 168 5xx errors, causing systemic latency and failure. Current compute capacity insufficient for even minimal load (10.89 req/s).",
+        "action": [
+          "Upgrade App Service plan to minimum 4 vCPU (P1v3 or equivalent) to provide CPU headroom.",
+          "Configure auto-scale rules: scale out at CPU > 70% for 5 minutes, scale in at CPU < 30%.",
+          "Enable Azure Monitor metrics (CPU, memory, requests, exceptions) and Log Analytics for next test."
+        ],
+        "expected_impact": "Eliminate CPU saturation, reduce 5xx errors to < 1%, bring P90 latency within SLA targets for non-erroring transactions.",
+        "validation": "Re-run 15-minute load test with monitoring; verify CPU peak < 70%, error rate < 1%, P90 < SLA targets for all transactions.",
+        "confidence": "High"
+      },
+      {
+        "id": "R-002",
+        "priority": "Critical",
+        "category": "Backend",
+        "title": "Fix application exceptions causing 100% error rates on core transactions",
+        "why": "12 transactions fail 100% of the time, including homepage, search, and login - blocking all user flows. 168 5xx errors in 30 seconds indicate unhandled exceptions.",
+        "action": [
+          "Retrieve exception stack traces from Application Insights / server logs for the 5xx errors.",
+          "Prioritize fixes for exceptions in homepage rendering, search initialization, and authentication gateway.",
+          "Implement global exception handling with graceful degradation (fallback responses, circuit breakers).",
+          "Add retry logic with exponential backoff for transient downstream failures."
+        ],
+        "expected_impact": "Reduce global error rate from 35.94% to < 1%. Restore availability of core user journeys.",
+        "validation": "Error rate < 1% in next test; zero transactions with 100% error rate.",
+        "confidence": "High"
+      },
+      {
+        "id": "R-003",
+        "priority": "High",
+        "category": "Backend",
+        "title": "Implement caching for catalog and homepage rendering",
+        "why": "Catalog launch (P90 1581 ms) and homepage (P90 1864 ms) breach SLA by 5-6x despite 0% and 100% error rates respectively. Repeated rendering of static/semi-static content wastes CPU.",
+        "action": [
+          "Add Redis Cache for product catalog data and category listings.",
+          "Implement HTTP caching headers (ETag, Cache-Control) for static assets and fragment caching for page sections.",
+          "Configure CDN for static resources (images, CSS, JS)."
+        ],
+        "expected_impact": "Reduce CPU utilization by 30-50% for read-heavy transactions. Bring catalog and homepage P90 within 250 ms SLA.",
+        "validation": "Measure CPU reduction and P90 latency for catalog/homepage transactions in cached vs uncached test runs.",
+        "confidence": "Medium"
+      },
+      {
+        "id": "R-004",
+        "priority": "High",
+        "category": "Configuration",
+        "title": "Optimize thread pool and connection pool sizing",
+        "why": "CPU saturation with 5xx errors suggests thread pool exhaustion or database connection pool saturation under concurrent requests.",
+        "action": [
+          "Review and tune Tomcat/Undertow thread pool (maxThreads) based on vCPU count.",
+          "Configure HikariCP connection pool: maximumPoolSize = (vCPU * 2) + 1, with appropriate timeout.",
+          "Enable connection leak detection and statement caching."
+        ],
+        "expected_impact": "Prevent thread/connection starvation, reduce 5xx errors, improve throughput stability.",
+        "validation": "Monitor thread pool queue length and connection pool usage during load test; zero connection timeouts.",
+        "confidence": "Medium"
+      },
+      {
+        "id": "R-005",
+        "priority": "Medium",
+        "category": "Database",
+        "title": "Profile and optimize database queries for search and catalog",
+        "why": "Search portal and catalog transactions show high latency. Database query performance not measured but likely contributor given CPU saturation.",
+        "action": [
+          "Enable slow query logging (threshold 100 ms).",
+          "Analyze query execution plans for search and catalog endpoints.",
+          "Add missing indexes, implement pagination, consider read replicas for search queries."
+        ],
+        "expected_impact": "Reduce database CPU load and query latency, contributing to overall CPU headroom.",
+        "validation": "Query latency < 50 ms for 95th percentile; database CPU < 50% during load test.",
+        "confidence": "Medium"
+      }
+    ],
+    "performance_intelligence": {
+      "executive_summary": {
+        "assessment_text": "The JPetStore application fails to meet performance and reliability requirements under minimal load (10.89 req/s). Only 67.7% of transactions meet SLA targets. Server CPU saturation (91.4% peak) and 168 HTTP 5xx errors cause systemic latency (global P90 1014 ms vs 500 ms target) and 35.94% error rate. Core user journeys (homepage, search, login) are completely broken with 100% failure rates. Immediate infrastructure scaling and application error remediation required before further testing.",
+        "assessment_bullets": [
+          "Overall SLA compliance 67.7% (65/96 transactions); 31 transactions breach P90 response time targets by 62-645%.",
+          "Server CPU peaked at 91.4% with 168 HTTP 5xx errors in 30 seconds, indicating compute saturation and application instability.",
+          "Critical user flows (homepage, search, login) exhibit 100% error rates, rendering application unusable under load."
+        ],
+        "conclusions": [
+          "Current deployment cannot support production traffic; requires immediate compute scaling and code-level fixes.",
+          "Error rate 35.94% exceeds 1% target by 35x; 12 transactions fail completely (100% error rate).",
+          "Test duration (30s) and missing Azure Monitor limit root cause depth; 15-minute monitored test needed post-remediation."
+        ],
+        "observations_table": [
+          {
+            "category": "1. Transaction Statistics",
+            "observation": "a. TC01_T_01_Launch_Homepage: Overall 5 iterations executed, 0 passed, 5 failed (100% failure).\nb. TC03_T_01_Launch_Search_Portal: Overall 2 iterations executed, 0 passed, 2 failed (100% failure).\nc. TC04_T_01_Launch_Authentication_Gateway: Overall 5 iterations executed, 5 passed, 0 failed (0% failure) but P90 1484 ms.\nd. TC02_T_01_Launch_Shopping_Catalog: Overall 5 iterations executed, 5 passed, 0 failed (0% failure) but P90 1581 ms.\ne. TC04_T_02_Navigate_To_Signon_Page: Overall 5 iterations executed, 0 passed, 5 failed (100% failure)."
+          },
+          {
+            "category": "2. Response Time Statistics",
+            "observation": "a. 31 out of 96 transactions violated the defined NFR SLA (67.7% compliance).\nb. Global P90 response time 1014 ms vs 500 ms default target (+102.8% deviation).\nc. Homepage launch P90 1864 ms vs 250 ms target (+645.6% deviation).\nd. Search portal launch P90 1408 ms vs 250 ms target (+463.2% deviation).\ne. Authentication gateway P90 1484 ms vs 250 ms target (+493.6% deviation).\nf. Shopping catalog P90 1581 ms vs 250 ms target (+532.4% deviation)."
+          },
+          {
+            "category": "3. Errors",
+            "observation": "a. TC01_T_01_Launch_Homepage: 5 out of 5 failures (100% error rate). Server 5xx errors observed.\nb. TC03_T_01_Launch_Search_Portal: 2 out of 2 failures (100% error rate).\nc. TC04_T_02_Navigate_To_Signon_Page: 5 out of 5 failures (100% error rate).\nd. TC01_T_01_R_03_GET_Banner_Logo: 5 out of 5 failures (100% error rate).\ne. TC03_T_01_R_02_GET_Search_Bar_Widget: 2 out of 2 failures (100% error rate).\nf. Overall error rate 35.94% (117 errors out of 326 samples) vs 1% SLA target."
+          },
+          {
+            "category": "4. Server Monitoring",
+            "observation": "a. Server CPU peaked at 91.4% (critical saturation). Average CPU not reported.\nb. Azure App Service returned 168 HTTP 5xx errors during 30-second test window.\nc. Memory utilization, GC activity, and thread pool metrics unavailable (Azure Monitor not configured).\nd. No auto-scaling triggered or configured."
+          }
+        ],
+        "priority_recommendations": [
+          {
+            "priority": "Critical",
+            "badge": "\ud83d\udd34",
+            "title": "Scale up compute and enable auto-scaling",
+            "detail": "Upgrade App Service to 4+ vCPU (P1v3+). Configure auto-scale at CPU > 70%. Enable Azure Monitor for CPU, memory, exceptions.",
+            "business_impact": "Eliminates CPU saturation causing 91.4% peak and 168 5xx errors. Restores baseline capacity for all transactions."
+          },
+          {
+            "priority": "Critical",
+            "badge": "\ud83d\udd34",
+            "title": "Fix application exceptions causing 100% failure on core flows",
+            "detail": "Analyze 5xx exception traces for homepage, search, login. Implement try-catch with fallback, circuit breakers, and retry logic.",
+            "business_impact": "Reduces 35.94% error rate to < 1%. Restores user access to homepage, search, and authentication."
+          },
+          {
+            "priority": "High",
+            "badge": "\ud83d\udfe0",
+            "title": "Implement Redis caching for catalog and homepage",
+            "detail": "Cache product catalog data and page fragments. Add CDN for static assets. Reduce CPU spent on repeated rendering.",
+            "business_impact": "Cuts catalog/homepage latency from 1500+ ms to < 250 ms SLA. Reduces CPU load by 30-50%."
+          },
+          {
+            "priority": "High",
+            "badge": "\ud83d\udfe0",
+            "title": "Tune thread pools and connection pools",
+            "detail": "Set Tomcat maxThreads and HikariCP pool size based on vCPU. Enable leak detection.",
+            "business_impact": "Prevents thread/connection exhaustion contributing to 5xx errors and latency spikes."
+          }
+        ]
+      },
+      "tab_tx_stats": {
+        "observations": [
+          "326 total samples executed in 30 seconds at 10.89 req/s throughput. 96 unique transactions measured; 31 breach SLA (67.7% compliance).",
+          "12 transactions show 100% error rate (0 successful iterations), including homepage, search portal, login page, and static asset loads. These represent complete functional failure of core user journeys.",
+          "Successful transactions (e.g., catalog launch, authentication gateway) still exhibit P90 latency 5-6x above SLA targets, indicating systemic latency not isolated to failing transactions."
+        ],
+        "recommendations": [
+          "Prioritize fixing 100% error rate transactions before optimizing latency of passing transactions. Errors indicate application defects or resource exhaustion that invalidate latency measurements.",
+          "Define transaction think time and pacing to simulate realistic user concurrency; current 10.89 req/s may not reflect target production load profile."
+        ]
+      },
+      "tab_rt_stats": {
+        "observations": [
+          "Global P90 1014 ms exceeds 500 ms default SLA by 102.8%. P99 1864 ms indicates severe tail latency.",
+          "Top 5 SLA breaches: Homepage launch P90 1864 ms (+645.6%), Search portal P90 1408 ms (+463.2%), Auth gateway P90 1484 ms (+493.6%), Shopping catalog P90 1581 ms (+532.4%), Dogs section P90 1312 ms (+337.3%).",
+          "Transactions with 0% error rate still breach SLA by 300-500%, confirming latency root cause is resource saturation (CPU) not application logic errors."
+        ],
+        "recommendations": [
+          "Target CPU reduction below 70% via scaling and caching to bring P90 within SLA. Latency improvements of 5-6x required for critical transactions.",
+          "Implement response time budgets per transaction tier (e.g., static assets < 100 ms, dynamic pages < 250 ms) and enforce via automated performance gates."
+        ]
+      },
+      "tab_error_stats": {
+        "observations": [
+          "Overall error rate 35.94% (117/326) vs 1% SLA target. 12 transactions at 100% error rate (5 homepage, 2 search, 5 login, 5 banner logo, 2 search widget, etc.).",
+          "168 server-side HTTP 5xx errors recorded in 30 seconds, aligning with client-side 100% failure transactions. Errors concentrated on entry-point and authentication flows.",
+          "Error types not classified (timeout vs exception vs HTTP 500/503). Missing error categorization prevents targeted remediation."
+        ],
+        "recommendations": [
+          "Enable detailed error logging (exception type, stack trace, request context) for all 5xx responses. Categorize errors by root cause (timeout, NPE, DB connection, etc.).",
+          "Implement synthetic monitoring for critical transactions (homepage, login, search) with alerting on error rate > 0.5%."
+        ]
+      },
+      "tab_infra_stats": {
+        "observations": [
+          "Server CPU peaked at 91.4% with zero headroom. Memory, GC, thread pool, and disk I/O metrics unavailable due to missing Azure Monitor configuration.",
+          "168 HTTP 5xx errors in 30 seconds (5.6 errors/sec) confirm application instability under CPU saturation. No auto-scaling observed or configured.",
+          "Current App Service plan undersized for workload. At 10.89 req/s, CPU saturation indicates either insufficient vCPU or inefficient code paths."
+        ],
+        "recommendations": [
+          "Immediately upgrade to P1v3 (4 vCPU) or P2v3 (8 vCPU) App Service plan. Configure auto-scale rules: scale out at CPU > 70% for 5 min, max 5 instances.",
+          "Enable Azure Monitor metrics (CPU, memory, requests, exceptions, GC) and Log Analytics workspace before next test. Capture JFR profile during load to identify CPU hotspots."
+        ]
+      }
+    },
+    "source": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "elapsed_ms": 231340,
+    "performance_score": 70,
+    "performance_grade": "C"
+  },
+  "jmx_name": "JPetStore_MultiUserStories.jmx",
+  "users": 17
+}

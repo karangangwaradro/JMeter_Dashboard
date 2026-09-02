@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-jtl_parser.py — JMeter JTL / CSV Results Parser for JmeterAI.
+jtl_parser.py — JMeter JTL / CSV Results Parser for PerfPilot.
 
 Parses Apache JMeter JTL log files (CSV format) into structured performance metrics,
 transaction breakdowns, error diagnostics, and time-series datasets for reporting and analytics.
@@ -108,26 +108,38 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
             resp_msg = str(get_col(r, "responseMessage", "")).strip()
             failure_msg = str(get_col(r, "failureMessage", "")).strip()
             
-            # Check if this row is a Transaction Controller container rollup
-            # (JMeter sets "Number of samples in transaction : N, number of failing samples : M" for container rollups)
+            # Check if this row is a Transaction Controller container rollup vs an HTTP Request sampler
+            # (JMeter sets "Number of samples in transaction : N, number of failing/failed samples : M" for container rollups)
             f_lower = failure_msg.lower()
             r_lower = resp_msg.lower()
-            is_tc_rollup = (
-                "number of samples in transaction" in f_lower or
-                "number of samples in transaction" in r_lower or
-                "samples in transaction" in f_lower or
-                "samples in transaction" in r_lower or
-                "number of failing samples" in f_lower or
-                "number of failing samples" in r_lower or
-                "failing samples" in f_lower or
-                "failing samples" in r_lower or
-                "transaction failed:" in f_lower or
-                "transaction failed:" in r_lower or
-                (not resp_code and not failure_msg and ("transaction" in r_lower or "controller" in label.lower() or label.upper().startswith("TC") or label.upper().startswith("T-")))
+            lbl_lower = label.lower()
+            u_lbl = label.upper()
+            url_val = str(get_col(r, "URL", "")).strip()
+            data_type = str(get_col(r, "dataType", "")).strip()
+
+            is_http_request = (
+                "_R_" in u_lbl or "_R0" in u_lbl or "_R1" in u_lbl or
+                u_lbl.startswith("HTTP_") or u_lbl.startswith("GET_") or u_lbl.startswith("POST_") or
+                bool(url_val and url_val not in ("", "null", "None"))
             )
 
+            is_tc_rollup = (
+                "samples in transaction" in f_lower or
+                "samples in transaction" in r_lower or
+                "failed samples" in f_lower or
+                "failed samples" in r_lower or
+                "failing samples" in f_lower or
+                "failing samples" in r_lower or
+                "transaction failed" in f_lower or
+                "transaction failed" in r_lower or
+                "transaction controller" in lbl_lower or
+                "overall_iteration" in lbl_lower
+            )
+            if not is_http_request:
+                is_tc_rollup = is_tc_rollup or (u_lbl.startswith("T-") or "CONTROLLER" in u_lbl)
+
             # ONLY track actual HTTP request errors or assertion failures (avoiding duplicate transaction container rollups)
-            if not is_tc_rollup:
+            if not is_tc_rollup or is_http_request:
                 # Build a descriptive error key
                 if failure_msg:
                     err_key = failure_msg[:80]
@@ -250,8 +262,16 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
             except Exception:
                 pass
 
+    def _is_transaction(lbl: str) -> bool:
+        u = (lbl or "").upper()
+        # Requests / Samplers
+        if "_R_" in u or "_R0" in u or "_R1" in u or u.startswith("HTTP_") or u.startswith("GET_") or u.startswith("POST_"):
+            return False
+        # Transactions
+        return bool(u.startswith("TC") or u.startswith("T_") or u.startswith("T-") or "LAUNCH" in u or "SELECT" in u or "SEARCH" in u or "SIGN" in u or "CHECKOUT" in u)
+
     # Build overall buckets from main transaction controllers if available, else all rows
-    has_tc_rows = any(k.upper().startswith("TC") or "LAUNCH" in k.upper() or "SELECT" in k.upper() for k in label_buckets.keys())
+    has_tc_rows = any(_is_transaction(k) for k in label_buckets.keys())
     if start_ts > 0:
         for r in rows:
             try:
@@ -260,7 +280,7 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
                 lbl_val = get_col(r, "label", "Total")
                 s_val = str(get_col(r, "success", "true")).lower() == "true"
                 if t_val > 0:
-                    is_tc = (lbl_val.upper().startswith("TC") or "LAUNCH" in lbl_val.upper() or "SELECT" in lbl_val.upper())
+                    is_tc = _is_transaction(lbl_val)
                     if not has_tc_rows or is_tc:
                         b_idx = max(0, int((t_val - start_ts) // bucket_ms))
                         if b_idx not in buckets:
@@ -358,8 +378,8 @@ def parse_jtl(jtl_path: Path) -> Dict[str, Any]:
         "label_ts_map": label_ts_map
     }
 
-    # Identify main Transaction Controllers (starting with 'TC' or configured hierarchy)
-    tc_main_labels = {k: v for k, v in labels_summary.items() if k.upper().startswith("TC")}
+    # Identify main Transaction Controllers (excluding leaf HTTP request samplers)
+    tc_main_labels = {k: v for k, v in labels_summary.items() if _is_transaction(k)}
     if not tc_main_labels:
         # Fallback to any label if no TC-prefixed transactions exist
         tc_main_labels = labels_summary

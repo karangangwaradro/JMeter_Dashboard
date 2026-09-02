@@ -24,15 +24,15 @@
 2026-08-03 19:50:54,202 INFO o.a.j.JMeter: Default Locale=English (EN)
 2026-08-03 19:50:54,202 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
 2026-08-03 19:50:54,202 INFO o.a.j.JMeter: JMeterHome=D:\apache-jmeter-5.6.3
-2026-08-03 19:50:54,202 INFO o.a.j.JMeter: user.dir  =D:\BlazemeterMCPZIP\JmeterAI
-2026-08-03 19:50:54,202 INFO o.a.j.JMeter: PWD       =D:\BlazemeterMCPZIP\JmeterAI
+2026-08-03 19:50:54,202 INFO o.a.j.JMeter: user.dir  =D:\BlazemeterMCPZIP\PerfPilot
+2026-08-03 19:50:54,202 INFO o.a.j.JMeter: PWD       =D:\BlazemeterMCPZIP\PerfPilot
 2026-08-03 19:50:54,202 INFO o.a.j.JMeter: IP: 192.168.128.232 Name: AICPL-L224 FullName: AICPL-L224
-2026-08-03 19:50:54,245 INFO o.a.j.s.FileServer: Default base='D:\BlazemeterMCPZIP\JmeterAI'
-2026-08-03 19:50:54,252 INFO o.a.j.s.FileServer: Set new base='D:\BlazemeterMCPZIP\JmeterAI\Tests'
+2026-08-03 19:50:54,245 INFO o.a.j.s.FileServer: Default base='D:\BlazemeterMCPZIP\PerfPilot'
+2026-08-03 19:50:54,252 INFO o.a.j.s.FileServer: Set new base='D:\BlazemeterMCPZIP\PerfPilot\Tests'
 2026-08-03 19:50:54,638 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
 2026-08-03 19:50:54,685 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
 2026-08-03 19:50:54,701 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-08-03 19:50:54,706 INFO o.a.j.s.SaveService: Loading file: D:\BlazemeterMCPZIP\JmeterAI\Tests\Jpet_01.jmx
+2026-08-03 19:50:54,706 INFO o.a.j.s.SaveService: Loading file: D:\BlazemeterMCPZIP\PerfPilot\Tests\Jpet_01.jmx
 2026-08-03 19:50:54,761 INFO o.a.j.p.h.c.CookieManager: Settings: Delete null: true Check: true Allow variable: true Save: false Prefix: COOKIE_
 2026-08-03 19:50:54,801 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
 2026-08-03 19:50:54,801 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
