@@ -25,6 +25,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     correlation = parsed.get("correlation", {})
     execution_time = parsed.get("execution_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     run_id = parsed.get("run_id", "unknown")
+    ai_chat_history_json = json.dumps(parsed.get("ai_chat_history", {}))
 
     # Status
     error_rate = summary.get("error_rate", 0)
@@ -1614,8 +1615,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     tab_error_intel = perf_intel.get("tab_error_stats", {})
     tab_infra_intel = perf_intel.get("tab_infra_stats", {})
 
-    # Standardized Tab Insight Panel Helper with Human Validation Checkbox
-    def _build_tab_insight_panel(intel_data: dict, tab_title: str) -> str:
+    # Standardized Tab Insight Panel Helper with Human Validation Checkbox & Contextual AI Chat
+    def _build_tab_insight_panel(intel_data: dict, tab_title: str, section_id: str = "tab_tx_stats") -> str:
         if not intel_data:
             return ""
         obs_list = [_clean_client_text(obs) for obs in intel_data.get("observations", []) if _clean_client_text(obs)]
@@ -1626,9 +1627,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         rec_items = "".join([f'<li style="margin-bottom:0.35rem;">{rec}</li>' for rec in rec_list])
         safe_key = "tab_" + re.sub(r'[^a-zA-Z0-9_]', '_', tab_title.lower()).strip('_')
         return f"""
-        <div class="section glass-panel ai-sub-card" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem;">
+        <div class="section glass-panel ai-sub-card" style="margin-bottom: 1.25rem; padding: 1.2rem 1.5rem 3rem 1.5rem; position: relative;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem;">
-                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 {tab_title} AI Insights &amp; Recommendations</h3>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">🧠 {tab_title} AI Insights &amp; Recommendations</h3>
+                </div>
                 <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
                     <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:12px;">AI Generated</span>
                     {_build_validation_badge(safe_key)}
@@ -1637,24 +1640,63 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">🔍 Key Observations</div>
-                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                    <ul id="content_obs_{section_id}" style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
                         {obs_items if obs_items else '<li style="color:var(--muted);">No AI observations generated</li>'}
                     </ul>
                 </div>
                 <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">💡 Recommendations</div>
-                    <ul style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
+                    <ul id="content_recs_{section_id}" style="margin:0; padding-left:1.2rem; font-size:0.84rem; line-height:1.55; color:var(--text);" contenteditable="true">
                         {rec_items if rec_items else '<li style="color:var(--muted);">No AI recommendations generated</li>'}
                     </ul>
+                </div>
+
+            </div>
+
+            <!-- Contextual Section AI Chat FAB & Drawer -->
+            <button class="ai-chat-fab" onclick="toggleAiChat('{section_id}')" title="Ask AI about {tab_title}">
+                <span>💬 Ask AI</span>
+            </button>
+            <div id="aiChatDrawer_{section_id}" class="ai-chat-drawer" data-section-id="{section_id}">
+                <div class="ai-chat-header">
+                    <div class="ai-chat-title-wrap">
+                        <div class="ai-chat-title-icon">⚡</div>
+                        <div>
+                            <div class="ai-chat-title-text">
+                                <span>{tab_title} AI Agent</span>
+                                <span class="ai-chat-status-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                        <button class="ai-chat-hdr-btn" onclick="clearAiChat('{section_id}')" title="Clear Chat History">🗑️</button>
+                        <button class="ai-chat-hdr-btn" onclick="toggleAiChat('{section_id}')" title="Close">✕</button>
+                    </div>
+                </div>
+                <div id="aiChatMessages_{section_id}" class="ai-chat-messages">
+                    <div class="ai-chat-welcome">
+                        <div class="ai-welcome-avatar">🤖</div>
+                        <div class="ai-welcome-title">{tab_title} AI Agent</div>
+                        <div class="ai-welcome-sub">Ask questions or prompt the agent to rewrite and update this section live.</div>
+                        <div class="ai-quick-prompts">
+                            <button class="ai-quick-chip" onclick="quickAiPrompt('{section_id}', 'Summarize key bottlenecks and outliers in this section')">🔍 Summarize key bottlenecks</button>
+                            <button class="ai-quick-chip" onclick="quickAiPrompt('{section_id}', 'Rewrite observations and recommendations with concise client-facing points')">✍️ Rewrite observations &amp; recommendations</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-chat-input-box">
+                    <input type="text" id="aiChatInput_{section_id}" class="ai-chat-input" placeholder="Ask questions or ask to rewrite..." onkeydown="handleAiChatKey(event, '{section_id}')" />
+                    <button id="aiChatSendBtn_{section_id}" class="ai-chat-send-btn" onclick="sendAiChatMessage('{section_id}')">Send ➤</button>
                 </div>
             </div>
         </div>
         """
 
-    tab_tx_panel_html = _build_tab_insight_panel(tab_tx_intel, "Transaction Performance")
-    tab_rt_panel_html = _build_tab_insight_panel(tab_rt_intel, "Response Time & SLA")
-    tab_error_panel_html = _build_tab_insight_panel(tab_error_intel, "Reliability & Errors")
-    tab_infra_panel_html = _build_tab_insight_panel(tab_infra_intel, "Infrastructure Monitoring")
+    tab_tx_panel_html = _build_tab_insight_panel(tab_tx_intel, "Transaction Performance", "tab_tx_stats")
+    tab_rt_panel_html = _build_tab_insight_panel(tab_rt_intel, "Response Time & SLA", "tab_rt_stats")
+    tab_error_panel_html = _build_tab_insight_panel(tab_error_intel, "Reliability & Errors", "tab_error_stats")
+    tab_infra_panel_html = _build_tab_insight_panel(tab_infra_intel, "Infrastructure Monitoring", "tab_infra_stats")
+
 
     # Executive Summary Sub-sections (Under AI Augmented Analysis)
     exec_assessment_badge = exec_intel.get("assessment_badge", "")
@@ -1663,7 +1705,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     exec_overview_pointers_html = _format_as_pointers(exec_raw_overview)
     
     exec_assessment_html = f"""
-    <div class="ai-sub-card" style="margin-bottom: 1.25rem;">
+    <div class="ai-sub-card" style="margin-bottom: 1.25rem; position: relative; padding-bottom: 3rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem;">
             <div style="display:flex; align-items:center; gap:0.5rem;">
                 <span style="font-size:1.05rem;">🎯</span>
@@ -1674,9 +1716,46 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 {_build_validation_badge('exec_overview')}
             </div>
         </div>
-        <ul style="margin:0; padding-left:1.25rem; font-size:0.86rem; line-height:1.65; color:var(--text);" contenteditable="true">
+        <ul id="content_exec_overview" style="margin:0; padding-left:1.25rem; font-size:0.86rem; line-height:1.65; color:var(--text);" contenteditable="true">
             {exec_overview_pointers_html}
         </ul>
+
+        <!-- Chat FAB & Drawer for Executive Overview -->
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_overview')" title="Ask or refine Executive Overview">
+            <span>💬 Ask AI</span>
+        </button>
+        <div id="aiChatDrawer_exec_overview" class="ai-chat-drawer" data-section-id="exec_overview">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title-wrap">
+                    <div class="ai-chat-title-icon">🎯</div>
+                    <div>
+                        <div class="ai-chat-title-text">
+                            <span>Executive Overview Agent</span>
+                            <span class="ai-chat-status-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_overview')" title="Clear Chat History">🗑️</button>
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_overview')" title="Close">✕</button>
+                </div>
+            </div>
+            <div id="aiChatMessages_exec_overview" class="ai-chat-messages">
+                <div class="ai-chat-welcome">
+                    <div class="ai-welcome-avatar">🎯</div>
+                    <div class="ai-welcome-title">Executive Overview Agent</div>
+                    <div class="ai-welcome-sub">Prompt the agent to rewrite executive summary bullets with specific facts or findings.</div>
+                    <div class="ai-quick-prompts">
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_overview', 'Summarize high-level test stability and primary bottlenecks')">🎯 Summarize test stability</button>
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_overview', 'Rewrite executive overview adding specific details on 5xx errors and SLA breaches')">✍️ Rewrite with SLA &amp; error facts</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-chat-input-box">
+                <input type="text" id="aiChatInput_exec_overview" class="ai-chat-input" placeholder="Ask or prompt to rewrite overview..." onkeydown="handleAiChatKey(event, 'exec_overview')" />
+                <button id="aiChatSendBtn_exec_overview" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_overview')">Send ➤</button>
+            </div>
+        </div>
     </div>
     """ if exec_raw_overview else ""
 
@@ -1706,7 +1785,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     </div>
     """
 
-    # Sub-section 2: Observations Table with Human Validation Badge
+    # Sub-section 2: Observations Table with Human Validation Badge & Chat Drawer
     obs_rows = ""
     for row in exec_intel.get("observations_table", []):
         obs_text = str(row.get('observation', '')).replace('\n', '<br>')
@@ -1717,7 +1796,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </tr>
         """
     exec_obs_table_html = f"""
-    <div class="ai-sub-card" style="margin-bottom: 1.25rem;">
+    <div class="ai-sub-card" style="margin-bottom: 1.25rem; position: relative; padding-bottom: 3rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
             <div style="display:flex; align-items:center; gap:0.5rem;">
                 <span style="font-size:1.05rem;">📋</span>
@@ -1736,32 +1815,106 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                         <th style="padding:0.65rem 0.9rem; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); width:74%; border-bottom:1px solid var(--border);">Key Observation with Embedded Evidence</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="content_exec_observations">
                     {obs_rows}
                 </tbody>
             </table>
         </div>
+
+        <!-- Chat FAB & Drawer for High-Level Observations -->
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_observations')" title="Ask or edit Observations">
+            <span>💬 Ask AI</span>
+        </button>
+        <div id="aiChatDrawer_exec_observations" class="ai-chat-drawer" data-section-id="exec_observations">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title-wrap">
+                    <div class="ai-chat-title-icon">📋</div>
+                    <div>
+                        <div class="ai-chat-title-text">
+                            <span>Observations Agent</span>
+                            <span class="ai-chat-status-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_observations')" title="Clear Chat History">🗑️</button>
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_observations')" title="Close">✕</button>
+                </div>
+            </div>
+            <div id="aiChatMessages_exec_observations" class="ai-chat-messages">
+                <div class="ai-chat-welcome">
+                    <div class="ai-welcome-avatar">📋</div>
+                    <div class="ai-welcome-title">Observations Agent</div>
+                    <div class="ai-welcome-sub">Query category observations or prompt to rewrite table rows with specific evidence.</div>
+                    <div class="ai-quick-prompts">
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_observations', 'Highlight the top 3 transaction degradation observations')">🔍 Highlight top degradations</button>
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_observations', 'Rewrite category observations table focusing on server compute and errors')">✍️ Rewrite observation rows</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-chat-input-box">
+                <input type="text" id="aiChatInput_exec_observations" class="ai-chat-input" placeholder="Ask or prompt to update observations..." onkeydown="handleAiChatKey(event, 'exec_observations')" />
+                <button id="aiChatSendBtn_exec_observations" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_observations')">Send ➤</button>
+            </div>
+        </div>
     </div>
     """ if obs_rows else ""
 
-    # Sub-section 3: Key Conclusions with Human Validation Badge
+    # Sub-section 3: Key Conclusions with Human Validation Badge & Chat Drawer
     concl_items = "".join([f'<li style="margin-bottom:0.4rem; line-height:1.65;">{c}</li>' for c in exec_intel.get("conclusions", [])])
     exec_conclusions_html = f"""
-    <div class="ai-sub-card" style="margin-bottom: 1.25rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+    <div class="ai-sub-card" style="margin-bottom: 1.25rem; position: relative; padding-bottom: 3rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:gap; gap:0.5rem;">
             <div style="display:flex; align-items:center; gap:0.5rem;">
                 <span style="font-size:1.05rem;">📌</span>
                 <strong style="font-size:0.95rem; font-weight:700; color:var(--text);">Key Conclusions</strong>
             </div>
             {_build_validation_badge('exec_conclusions')}
         </div>
-        <ul style="margin:0; padding-left:1.25rem; font-size:0.86rem; line-height:1.65; color:var(--text);" contenteditable="true">
+        <ul id="content_exec_conclusions" style="margin:0; padding-left:1.25rem; font-size:0.86rem; line-height:1.65; color:var(--text);" contenteditable="true">
             {concl_items}
         </ul>
+
+        <!-- Chat FAB & Drawer for Key Conclusions -->
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_conclusions')" title="Ask or rewrite Conclusions">
+            <span>💬 Ask AI</span>
+        </button>
+        <div id="aiChatDrawer_exec_conclusions" class="ai-chat-drawer" data-section-id="exec_conclusions">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title-wrap">
+                    <div class="ai-chat-title-icon">📌</div>
+                    <div>
+                        <div class="ai-chat-title-text">
+                            <span>Key Conclusions Agent</span>
+                            <span class="ai-chat-status-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_conclusions')" title="Clear Chat History">🗑️</button>
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_conclusions')" title="Close">✕</button>
+                </div>
+            </div>
+            <div id="aiChatMessages_exec_conclusions" class="ai-chat-messages">
+                <div class="ai-chat-welcome">
+                    <div class="ai-welcome-avatar">📌</div>
+                    <div class="ai-welcome-title">Key Conclusions Agent</div>
+                    <div class="ai-welcome-sub">Prompt the agent to refine conclusions or add specific production readiness verdicts.</div>
+                    <div class="ai-quick-prompts">
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_conclusions', 'What is the final release readiness verdict based on test data?')">🚦 Release readiness verdict</button>
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_conclusions', 'Rewrite key conclusions citing exact CPU peaks and transaction error counts')">✍️ Rewrite conclusions with facts</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-chat-input-box">
+                <input type="text" id="aiChatInput_exec_conclusions" class="ai-chat-input" placeholder="Ask or prompt to rewrite conclusions..." onkeydown="handleAiChatKey(event, 'exec_conclusions')" />
+                <button id="aiChatSendBtn_exec_conclusions" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_conclusions')">Send ➤</button>
+            </div>
+        </div>
     </div>
     """ if concl_items else ""
 
-    # Sub-section 4: Recommendations (Renamed and combined with Business Impact)
+    # Sub-section 4: Recommendations with Chat Drawer
     p_recs_html = ""
     for r in exec_intel.get("priority_recommendations", []):
         r_badge = r.get("badge", "💡")
@@ -1787,7 +1940,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         """
 
     exec_recs_html = f"""
-    <div class="ai-sub-card" style="margin-bottom: 0;">
+    <div class="ai-sub-card" style="margin-bottom: 0; position: relative; padding-bottom: 3rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
             <div style="display:flex; align-items:center; gap:0.5rem;">
                 <span style="font-size:1.05rem;">💡</span>
@@ -1795,15 +1948,53 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </div>
             {_build_validation_badge('exec_recommendations')}
         </div>
-        <div contenteditable="true">
+        <div id="content_exec_recommendations" contenteditable="true">
             {p_recs_html}
+        </div>
+
+        <!-- Chat FAB & Drawer for Recommendations -->
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_recommendations')" title="Ask or add Recommendations">
+            <span>💬 Ask AI</span>
+        </button>
+        <div id="aiChatDrawer_exec_recommendations" class="ai-chat-drawer" data-section-id="exec_recommendations">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title-wrap">
+                    <div class="ai-chat-title-icon">💡</div>
+                    <div>
+                        <div class="ai-chat-title-text">
+                            <span>Recommendations Agent</span>
+                            <span class="ai-chat-status-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_recommendations')" title="Clear Chat History">🗑️</button>
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_recommendations')" title="Close">✕</button>
+                </div>
+            </div>
+            <div id="aiChatMessages_exec_recommendations" class="ai-chat-messages">
+                <div class="ai-chat-welcome">
+                    <div class="ai-welcome-avatar">💡</div>
+                    <div class="ai-welcome-title">Recommendations Agent</div>
+                    <div class="ai-welcome-sub">Ask for technical remediation strategies or prompt to add tailored recommendations.</div>
+                    <div class="ai-quick-prompts">
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_recommendations', 'Add a high priority recommendation for database indexing and connection pooling')">➕ Add database recommendation</button>
+                        <button class="ai-quick-chip" onclick="quickAiPrompt('exec_recommendations', 'Rewrite priority recommendations linking actions to business revenue impact')">💼 Link actions to business impact</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-chat-input-box">
+                <input type="text" id="aiChatInput_exec_recommendations" class="ai-chat-input" placeholder="Ask or prompt to add recommendations..." onkeydown="handleAiChatKey(event, 'exec_recommendations')" />
+                <button id="aiChatSendBtn_exec_recommendations" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_recommendations')">Send ➤</button>
+            </div>
         </div>
     </div>
     """ if p_recs_html else ""
 
+
     # Major Section: AI Augmented Analysis (Enclosing Overview, Observations, Conclusions, Recommendations)
     exec_ai_augmented_html = f"""
-    <div class="section glass-panel ai-augmented-section">
+    <div class="section glass-panel ai-augmented-section" style="position: relative;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border);">
             <div style="display:flex; align-items:center; gap:0.65rem;">
                 <span style="font-size:1.35rem;">🧠</span>
@@ -1824,6 +2015,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         {exec_recs_html}
     </div>
     """ if (exec_assessment_html or exec_obs_table_html or exec_conclusions_html or exec_recs_html) else ""
+
+
 
     # Build list of critical transactions for initial chart render
     critical_tx_list = [
@@ -2126,8 +2319,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     '''
 
     tx_stats_table_html = f'''
-    <div class="section glass-panel" style="margin-bottom:1.5rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div class="section glass-panel" style="margin-bottom:1.5rem; position:relative;">
+        <button class="chart-info-btn" onclick="openGraphModal('tx-stats-table')" title="How to read Transaction Statistics">ℹ️</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; padding-right:2.5rem;">
             <div>
                 <h2 style="margin:0; font-size:1.15rem; font-weight:800; color:var(--accent);">📋 Transaction Statistics</h2>
                 <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Execution duration, allocated users, pass/fail sample counts and failure percentages</p>
@@ -2990,6 +3184,486 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         .report-footer {{ text-align: center; color: var(--muted); font-size: 0.82rem; padding: 2.5rem 0; font-weight: 500; }}
 
+        /* ── Section-Level AI Chat Styles ── */
+        .ai-chat-fab {{
+            position: absolute;
+            right: 1.25rem;
+            bottom: 0.85rem;
+            background: rgba(14, 165, 233, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 20px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 10px rgba(56, 189, 248, 0.15);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 20;
+        }}
+        .light-mode .ai-chat-fab, html.light-mode .ai-chat-fab {{
+            background: rgba(2, 132, 199, 0.08);
+            color: #0284c7;
+            border-color: rgba(2, 132, 199, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }}
+        .ai-chat-fab:hover {{
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 8px 22px rgba(2, 132, 199, 0.45);
+        }}
+        .ai-chat-fab:active {{
+            transform: translateY(0);
+        }}
+
+        .ai-chat-drawer {{
+            position: absolute;
+            right: 1.25rem;
+            bottom: 0.85rem;
+            width: 460px;
+            max-width: calc(100% - 2.5rem);
+            height: 520px;
+            max-height: calc(100vh - 120px);
+            background: linear-gradient(165deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
+            backdrop-filter: blur(24px) saturate(190%);
+            -webkit-backdrop-filter: blur(24px) saturate(190%);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+            transform: scale(0.95) translateY(14px);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+        }}
+        .light-mode .ai-chat-drawer, html.light-mode .ai-chat-drawer {{
+            background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+        }}
+        .ai-chat-drawer.open {{
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }}
+
+        .ai-chat-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.15rem;
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+        }}
+        .light-mode .ai-chat-header, html.light-mode .ai-chat-header {{
+            background: rgba(241, 245, 249, 0.85);
+        }}
+        .ai-chat-title-wrap {{
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }}
+        .ai-chat-title-icon {{
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-bg);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }}
+        .ai-chat-title-text {{
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }}
+        .ai-chat-status-dot {{
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            display: inline-block;
+        }}
+        .ai-chat-hdr-btn {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }}
+        .ai-chat-hdr-btn:hover {{
+            background: var(--surface2);
+            color: var(--text);
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }}
+
+        .ai-chat-messages {{
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: transparent;
+        }}
+        .ai-chat-messages::-webkit-scrollbar {{
+            width: 5px;
+        }}
+        .ai-chat-messages::-webkit-scrollbar-thumb {{
+            background: rgba(148, 163, 184, 0.25);
+            border-radius: 3px;
+        }}
+
+        .ai-chat-welcome {{
+            text-align: center;
+            padding: 1.5rem 0.75rem;
+            margin: auto 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
+        .ai-welcome-avatar {{
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(99, 102, 241, 0.2));
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 0.65rem;
+            box-shadow: 0 6px 18px rgba(2, 132, 199, 0.2);
+        }}
+        .ai-welcome-title {{
+            font-weight: 800;
+            font-size: 0.98rem;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }}
+        .ai-welcome-sub {{
+            font-size: 0.76rem;
+            color: var(--muted);
+            line-height: 1.45;
+            max-width: 320px;
+            margin-bottom: 1rem;
+        }}
+        .ai-quick-prompts {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            width: 100%;
+            max-width: 330px;
+        }}
+        .ai-quick-chip {{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.42rem 0.7rem;
+            font-size: 0.75rem;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }}
+        .ai-quick-chip:hover {{
+            border-color: var(--accent);
+            background: var(--accent-bg);
+            color: var(--accent);
+            transform: translateX(3px);
+        }}
+
+        .ai-chat-bubble-user {{
+            align-self: flex-end;
+            max-width: 84%;
+            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+            color: #ffffff;
+            padding: 0.65rem 0.95rem;
+            border-radius: 14px 14px 3px 14px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            word-break: break-word;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+        }}
+
+        .ai-chat-bubble-ai {{
+            align-self: flex-start;
+            max-width: 92%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.75rem 1rem;
+            border-radius: 14px 14px 14px 3px;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            word-break: break-word;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }}
+        .ai-chat-bubble-ai strong {{
+            color: var(--accent);
+            font-weight: 700;
+        }}
+        .ai-chat-bubble-ai code {{
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 0.12rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: #f43f5e;
+        }}
+
+        .ai-chat-typing {{
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.6rem 0.85rem;
+        }}
+        .typing-dot {{
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: typingPulse 1.2s infinite ease-in-out;
+        }}
+        .typing-dot:nth-child(2) {{ animation-delay: 0.2s; }}
+        .typing-dot:nth-child(3) {{ animation-delay: 0.4s; }}
+        @keyframes typingPulse {{
+            0%, 80%, 100% {{ transform: scale(0.6); opacity: 0.4; }}
+            40% {{ transform: scale(1.1); opacity: 1; }}
+        }}
+
+        .ai-chat-input-box {{
+            padding: 0.75rem 1rem;
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }}
+        .light-mode .ai-chat-input-box, html.light-mode .ai-chat-input-box {{
+            background: rgba(241, 245, 249, 0.85);
+        }}
+        .ai-chat-input {{
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.55rem 0.95rem;
+            color: var(--text);
+            font-size: 0.82rem;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }}
+        .ai-chat-input:focus {{
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+            background: var(--surface1);
+        }}
+        .ai-chat-send-btn {{
+            background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 0.95rem;
+            cursor: pointer;
+            font-size: 0.78rem;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        .ai-chat-send-btn:hover {{
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.55);
+            filter: brightness(1.1);
+        }}
+        .ai-chat-send-btn:disabled {{
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }}
+
+        /* Agentic Action / Patch Proposal Card & Interactive Preview in Chat */
+        .patch-action-box {{
+            margin-top: 0.75rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-left: 4px solid #10b981;
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }}
+        .patch-action-title {{
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }}
+        .patch-preview-wrap {{
+            background: var(--surface);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.8rem;
+            max-height: 220px;
+            overflow-y: auto;
+        }}
+        .patch-preview-label {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid var(--border);
+        }}
+        .patch-edit-badge {{
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.7rem;
+            background: var(--accent-bg);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }}
+        .patch-preview-bullets {{
+            margin: 0;
+            padding-left: 1.15rem;
+            color: var(--text);
+            line-height: 1.55;
+            outline: none;
+        }}
+        .patch-preview-bullets:focus, .patch-preview-obs-text:focus {{
+            background: rgba(56, 189, 248, 0.05);
+            border-radius: 4px;
+        }}
+        .patch-preview-obs-item {{
+            margin-bottom: 0.45rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 1px dashed var(--border);
+        }}
+        .patch-preview-obs-cat {{
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.75rem;
+            margin-bottom: 0.15rem;
+        }}
+        .patch-preview-obs-text {{
+            color: var(--text);
+            line-height: 1.45;
+            outline: none;
+        }}
+        .patch-preview-rec-card {{
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 0.7rem;
+            margin-bottom: 0.4rem;
+        }}
+        .patch-priority-chip {{
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }}
+        .patch-apply-btn {{
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 0.55rem 0.95rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            box-shadow: 0 3px 12px rgba(16, 185, 129, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+        }}
+        .patch-apply-btn:hover {{
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5);
+        }}
+        .patch-apply-btn.applied {{
+            background: var(--surface2);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: none;
+            cursor: default;
+            transform: none;
+        }}
+
+
+        /* Section Live Highlight Animation */
+        @keyframes sectionGlow {{
+            0% {{ box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }}
+            25% {{ box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3); }}
+            100% {{ box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }}
+        }}
+        .section-just-updated {{
+            animation: sectionGlow 2s ease-out;
+            border-color: rgba(16, 185, 129, 0.6) !important;
+        }}
+
+        /* Hide in published mode */
+        .published-mode .ai-chat-fab,
+        .published-mode .ai-chat-drawer {{
+            display: none !important;
+        }}
+
+
         /* --- Edit Mode Styles --- */
         [contenteditable="true"] {{ outline: none !important; background: transparent !important; border: none !important; transition: all 0.2s; }}
         body.edit-mode-active [contenteditable="true"] {{ outline: 1px dashed var(--accent) !important; background: rgba(56, 189, 248, 0.08) !important; cursor: text; }}
@@ -3101,12 +3775,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             -webkit-backdrop-filter: blur(4px);
             z-index: 10000;
             opacity: 0;
+            align-items: center;
+            justify-content: center;
             transition: opacity 0.2s ease;
         }}
         #graphModalOverlay.open {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
             opacity: 1;
         }}
         #graphInfoModal {{
@@ -3121,8 +3794,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             max-height: 85vh;
             overflow-y: auto;
             padding: 1.5rem;
+            margin: auto;
             transform: scale(0.95);
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
             z-index: 10001;
         }}
         html.dark #graphInfoModal {{
@@ -3131,6 +3806,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
         #graphModalOverlay.open #graphInfoModal {{
             transform: scale(1);
+            opacity: 1;
         }}
         .graph-modal-header {{
             display: flex;
@@ -3450,8 +4126,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <!-- 2. Performance Scorecard & SLA Violation Grid (Grouped 3x3 Layout) -->
-        <div class="section glass-panel" style="margin-top:1.25rem;">
-            <h2>📈 Performance Scorecard &amp; SLA Violation Summary</h2>
+        <div class="section glass-panel" style="margin-top:1.25rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('perf-scorecard')" title="How to read Performance Scorecard">ℹ️</button>
+            <h2 style="margin:0 0 1rem 0; padding-right:2.5rem;">📈 Performance Scorecard &amp; SLA Violation Summary</h2>
             
             <!-- Group 1: APDEX & User Experience Health (3 Cards) -->
             <div style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:0.8rem 0 0.5rem 0;">APDEX &amp; User Experience Health</div>
@@ -3604,7 +4281,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     <!-- TAB 2: Load & Capacity Analysis -->
     <div id="rpt-load" class="tab-pane hidden">
         <!-- 1. Focused Capacity Summary KPI Strip (3 Cards) -->
-        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 1.5rem;">
+        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; position:relative;">
             <div class="kpi-card glass-panel" style="text-align:center; padding:1.25rem 1rem;">
                 <div class="kpi-label" style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;">TARGET VIRTUAL USERS</div>
                 <div class="kpi-value" style="font-size:2.2rem; font-weight:800; color:var(--text); margin:0.35rem 0;">{total_tg_users}</div>
@@ -3624,10 +4301,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         <!-- 2. Hero Visual: Virtual User Ramp-Up & Workload Profile -->
         <div class="chart-box glass-panel" style="position: relative; margin-bottom: 1.5rem; padding: 1.35rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.85rem; flex-wrap:wrap; gap:0.5rem;">
+            <button class="chart-info-btn" onclick="openGraphModal('concurrency')" title="How to read Workload Profile">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.85rem; flex-wrap:wrap; gap:0.5rem; padding-right:2.5rem;">
                 <div>
-                    <h3 style="margin:0; font-size:1.05rem; font-weight:800; display:flex; align-items:center; gap:0.45rem;">
-                        📈 Virtual User Ramp-Up &amp; Workload Profile <span style="cursor:pointer;" title="Workload profile showing ramp-up steps and steady state duration">ℹ️</span>
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:800;">
+                        📈 Virtual User Ramp-Up &amp; Workload Profile
                     </h3>
                     <p style="font-size:0.78rem; color:var(--muted); margin:0.25rem 0 0 0;">
                         Workload profile showing initial 1 VU start at 0s, equal incremental user distribution across ramp-up time ({ramp_up_text}), and sustained steady-state concurrency ({total_tg_users} VUs).
@@ -3651,8 +4329,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
       
 
         <!-- 4. User Journey Concurrency Allocation & Capacity -->
-        <div class="section glass-panel" style="margin-bottom: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.85rem;">
+        <div class="section glass-panel" style="margin-bottom: 1.5rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('user-journey-breakdown')" title="How to read User Journey Breakdown">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.85rem; padding-right:2.5rem;">
                 <div>
                     <h2 style="margin:0; font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
                         👥 User Journey Concurrency Allocation &amp; Capacity
@@ -3758,20 +4437,29 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     <div id="rpt-rt" class="tab-pane hidden">
         {tab_rt_panel_html}
         <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Avg Response Time</div><div class="kpi-value {'pass' if avg_rt <= 500 else 'warn' if avg_rt <= 2000 else 'fail'}">{avg_rt:.0f}<span style="font-size:0.9rem"> ms</span></div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">P95 Response</div><div class="kpi-value">{summary.get('p95', 0)}<span style="font-size:0.9rem"> ms</span></div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">P99 Response</div><div class="kpi-value">{summary.get('p99', 0)}<span style="font-size:0.9rem"> ms</span></div></div>
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label">Avg Response Time</div>
+                <div class="kpi-value {'pass' if avg_rt <= 500 else 'warn' if avg_rt <= 2000 else 'fail'}">{avg_rt:.0f}<span style="font-size:0.9rem"> ms</span></div>
+            </div>
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label">P95 Response</div>
+                <div class="kpi-value">{summary.get('p95', 0)}<span style="font-size:0.9rem"> ms</span></div>
+            </div>
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label">P99 Response</div>
+                <div class="kpi-value">{summary.get('p99', 0)}<span style="font-size:0.9rem"> ms</span></div>
+            </div>
         </div>
 
         <!-- 1. Response Time Over Time Time Series Chart -->
-        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem;">
+        <div class="chart-box glass-panel" style="margin-bottom: 1.5rem; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; gap: 0.5rem; padding-right:2.5rem;">
                 <h3 style="margin:0; white-space: nowrap;">📈 Response Time Over Time</h3>
                 <div style="display:flex; align-items:center; gap:0.6rem; position:relative;">
                     <div id="rtMultiSelectContainer"></div>
-                    <button class="chart-info-btn" onclick="openGraphModal('rt-over-time')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
+            <button class="chart-info-btn" onclick="openGraphModal('rt-over-time')" title="How to read this graph &amp; use filters">ℹ️</button>
             <div style="position: relative; height: 260px; width: 100%;">
                 <canvas id="rtChart"></canvas>
             </div>
@@ -3780,13 +4468,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         <!-- 2. Critical Transaction Response Time Card -->
         <div class="chart-box glass-panel" style="position: relative; min-height: 380px; margin-bottom: 1.5rem; border-left: 4px solid var(--red); padding: 1.25rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <button class="chart-info-btn" onclick="openGraphModal('critical-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem; padding-right:2.5rem;">
                 <div>
                     <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🔥 Critical Transaction Response Time</h3>
                     <p style="margin:0.2rem 0 0 0; font-size:0.78rem; color:var(--muted);">Response time trend for transactions marked as critical</p>
-                </div>
-                <div style="display:flex; align-items:center; gap:0.75rem;">
-                    <button class="chart-info-btn" onclick="openGraphModal('critical-tx')" title="How to read this graph &amp; use filters">ℹ️</button>
                 </div>
             </div>
 
@@ -3809,8 +4495,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <!-- 4. Per-Transaction Breakdown & SLA Targets Table -->
-        <div class="section glass-panel" style="margin-bottom:1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; margin-bottom:0.8rem;">
+        <div class="section glass-panel" style="margin-bottom:1.5rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('rt-percentiles-table')" title="How to read Per-Transaction Breakdown">ℹ️</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; margin-bottom:0.8rem; padding-right:2.5rem;">
                 <h2 style="margin:0;">📋 Per-Transaction Breakdown &amp; SLA Targets</h2>
                 <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
                     <div style="display:flex; align-items:center; gap:0.4rem;">
@@ -3928,9 +4615,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </script>
         </div>
 
-        <div class="section glass-panel" style="margin-top: 1.5rem;">
-            <h2>🚨 Critical Transactions & Deviations</h2>
-            <p style="font-size:0.8rem; color:var(--muted); margin:-0.5rem 0 1rem 0;"><i>Criteria: Transactions with SLA deviations > 30% or Error SLA breaches.</i></p>
+        <div class="section glass-panel" style="margin-top: 1.5rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('critical-tx-table')" title="How to read Critical Transactions Table">ℹ️</button>
+            <div style="padding-right:2.5rem;">
+                <h2 style="margin:0 0 0.5rem 0;">🚨 Critical Transactions &amp; Deviations</h2>
+                <p style="font-size:0.8rem; color:var(--muted); margin:0 0 1rem 0;"><i>Criteria: Transactions with SLA deviations > 30% or Error SLA breaches.</i></p>
+            </div>
             {crit_tx_table_html}
         </div>
     </div>
@@ -3939,8 +4629,16 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
     <div id="rpt-error" class="tab-pane hidden">
         {tab_error_panel_html}
         <div class="kpi-grid">
-            <div class="kpi-card glass-panel"><div class="kpi-label">Error Rate</div><div class="kpi-value {'pass' if error_rate <= 1 else 'warn' if error_rate <= 5 else 'fail'}">{error_rate:.2f}<span style="font-size:0.9rem">%</span></div><div class="kpi-sub">{summary.get('tc_errors', summary.get('errors', 0))} transaction failures</div></div>
-            <div class="kpi-card glass-panel"><div class="kpi-label">SLA Breaches</div><div class="kpi-value" style="color: {'var(--red)' if tx_breached_count > 0 else 'var(--green)'};">{tx_breached_count}</div><div class="kpi-sub">Breached RT or Error SLA</div></div>
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label">Error Rate</div>
+                <div class="kpi-value {'pass' if error_rate <= 1 else 'warn' if error_rate <= 5 else 'fail'}">{error_rate:.2f}<span style="font-size:0.9rem">%</span></div>
+                <div class="kpi-sub">{summary.get('tc_errors', summary.get('errors', 0))} transaction failures</div>
+            </div>
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label">SLA Breaches</div>
+                <div class="kpi-value" style="color: {'var(--red)' if tx_breached_count > 0 else 'var(--green)'};">{tx_breached_count}</div>
+                <div class="kpi-sub">Breached RT or Error SLA</div>
+            </div>
         </div>
 
         <!-- SLA Deviation & Breach Severity Card -->
@@ -4059,8 +4757,9 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </div>
         </div>
 
-        <div class="section glass-panel">
-            <h2>🚨 SLA Breach Analysis &amp; Corresponding HTTP Requests</h2>
+        <div class="section glass-panel" style="position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('sla-targets-table')" title="How to read SLA Breach Analysis">ℹ️</button>
+            <h2 style="margin:0 0 1rem 0; padding-right:2.5rem;">🚨 SLA Breach Analysis &amp; Corresponding HTTP Requests</h2>
             {sla_breaches_html}
         </div>
     </div>
@@ -4070,29 +4769,33 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         {tab_infra_panel_html}
         
         <!-- 1. Top Health KPI Cards -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK CPU UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{peak_cpu_val}%</div>
-                <div style="font-size: 0.7rem; color: {'#ef4444' if peak_cpu_val >= 80 else '#10b981'}; margin-top: 0.2rem;">{'⚠️ High CPU Pressure' if peak_cpu_val >= 80 else 'Healthy'}</div>
-            </div>
+        <div class="section glass-panel" style="margin-bottom:1.5rem; position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('azure-kpi-cards')" title="How to read Azure Telemetry KPIs">ℹ️</button>
+            <h3 style="margin:0 0 1rem 0; font-size:1.05rem; font-weight:700; padding-right:2.5rem;">🖥️ Azure Host Infrastructure Telemetry</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK CPU UTILIZATION</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{peak_cpu_val}%</div>
+                    <div style="font-size: 0.7rem; color: {'#ef4444' if peak_cpu_val >= 80 else '#10b981'}; margin-top: 0.2rem;">{'⚠️ High CPU Pressure' if peak_cpu_val >= 80 else 'Healthy'}</div>
+                </div>
 
-            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK MEMORY UTILIZATION</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{peak_mem_val}%</div>
-                <div style="font-size: 0.7rem; color: {'#ef4444' if peak_mem_val >= 80 else '#10b981'}; margin-top: 0.2rem;">{'⚠️ High Memory Pressure' if peak_mem_val >= 80 else 'Healthy'}</div>
-            </div>
+                <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK MEMORY UTILIZATION</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{peak_mem_val}%</div>
+                    <div style="font-size: 0.7rem; color: {'#ef4444' if peak_mem_val >= 80 else '#10b981'}; margin-top: 0.2rem;">{'⚠️ High Memory Pressure' if peak_mem_val >= 80 else 'Healthy'}</div>
+                </div>
 
-            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK DISK QUEUE DEPTH</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{peak_disk_q_val}</div>
-                <div style="font-size: 0.7rem; color: {'#ef4444' if peak_disk_q_val >= 5.0 else '#10b981'}; margin-top: 0.2rem;">{'⚠️ Storage Contention' if peak_disk_q_val >= 5.0 else 'Optimal I/O'}</div>
-            </div>
+                <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">PEAK DISK QUEUE DEPTH</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{peak_disk_q_val}</div>
+                    <div style="font-size: 0.7rem; color: {'#ef4444' if peak_disk_q_val >= 5.0 else '#10b981'}; margin-top: 0.2rem;">{'⚠️ Storage Contention' if peak_disk_q_val >= 5.0 else 'Optimal I/O'}</div>
+                </div>
 
-            <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #10b981;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">SYSTEM AVAILABILITY</div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{min_avail_val}%</div>
-                <div style="font-size: 0.7rem; color: {'#10b981' if min_avail_val >= 99.5 else '#ef4444'}; margin-top: 0.2rem;">{'Operational SLA' if min_avail_val >= 99.5 else 'Degraded During Peak'}</div>
+                <div class="glass-panel" style="padding: 1.1rem; border-radius: 12px; border-left: 4px solid #10b981;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--muted);">SYSTEM AVAILABILITY</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-top: 0.2rem;">{min_avail_val}%</div>
+                    <div style="font-size: 0.7rem; color: {'#10b981' if min_avail_val >= 99.5 else '#ef4444'}; margin-top: 0.2rem;">{'Operational SLA' if min_avail_val >= 99.5 else 'Degraded During Peak'}</div>
+                </div>
             </div>
         </div>
 
@@ -4184,9 +4887,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         <!-- 5. Correlation Matrix & Event Timeline Grid -->
         <div class="chart-grid" style="margin-bottom: 1.5rem;">
             <!-- Correlation Matrix Table -->
-            <div class="chart-box glass-panel" style="padding: 1.2rem;">
-                <h3 style="margin:0; font-size:1rem; font-weight:700; margin-bottom: 0.3rem;">📊 Infrastructure Correlation Matrix</h3>
-                <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.8rem;">Pearson correlation coefficients (r) dynamically calculated from run telemetry</p>
+            <div class="chart-box glass-panel" style="padding: 1.2rem; position:relative;">
+                <button class="chart-info-btn" onclick="openGraphModal('infra-correlation')" title="How to read Correlation Matrix">ℹ️</button>
+                <div style="padding-right:2.5rem;">
+                    <h3 style="margin:0; font-size:1rem; font-weight:700; margin-bottom: 0.3rem;">📊 Infrastructure Correlation Matrix</h3>
+                    <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.8rem;">Pearson correlation coefficients (r) dynamically calculated from run telemetry</p>
+                </div>
                 
                 <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:center;">
                     <thead>
@@ -4233,9 +4939,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             </div>
 
             <!-- Chronological Event Progression Timeline -->
-            <div class="chart-box glass-panel" style="padding: 1.2rem;">
-                <h3 style="margin:0; font-size:1rem; font-weight:700; margin-bottom: 0.3rem;">⏱️ Performance Incident Timeline</h3>
-                <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.8rem;">Sequential degradation events during test execution</p>
+            <div class="chart-box glass-panel" style="padding: 1.2rem; position:relative;">
+                <button class="chart-info-btn" onclick="openGraphModal('timeline-events')" title="How to read Incident Timeline">ℹ️</button>
+                <div style="padding-right:2.5rem;">
+                    <h3 style="margin:0; font-size:1rem; font-weight:700; margin-bottom: 0.3rem;">⏱️ Performance Incident Timeline</h3>
+                    <p style="font-size:0.75rem; color:var(--muted); margin-bottom: 0.8rem;">Sequential degradation events during test execution</p>
+                </div>
                 
                 <div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.78rem;">
                     {timeline_html}
@@ -4244,11 +4953,12 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <!-- 6. AI Infrastructure Diagnostic Summary Card -->
-        <div class="chart-box glass-panel ai-sub-card" style="padding: 1.25rem; border-left: 4px solid var(--accent); margin-bottom: 1.5rem;">
+        <div class="chart-box glass-panel ai-sub-card" style="padding: 1.25rem; border-left: 4px solid var(--accent); margin-bottom: 1.5rem; position:relative;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-                <h3 style="margin:0; font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:0.5rem;">
-                    🧠 Infrastructure Diagnostic Analysis
-                </h3>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <h3 style="margin:0; font-size:1.05rem; font-weight:700;">🧠 Infrastructure Diagnostic Analysis</h3>
+                    <button class="chart-info-btn" onclick="openGraphModal('infra-findings')" title="How to read Diagnostic Analysis">ℹ️</button>
+                </div>
                 {_build_validation_badge("infra_diagnostic_card")}
             </div>
             
@@ -4269,15 +4979,17 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <!-- Correlation Findings List -->
-        <div class="section glass-panel">
-            <h2>🔗 Client ↔ Server Correlation Findings</h2>
+        <div class="section glass-panel" style="position:relative;">
+            <button class="chart-info-btn" onclick="openGraphModal('corr-findings')" title="How to read Correlation Findings">ℹ️</button>
+            <h2 style="margin:0 0 1rem 0; padding-right:2.5rem;">🔗 Client ↔ Server Correlation Findings</h2>
             {corr_html}
         </div>
     </div>
 
     <!-- Methodology -->
-    <div class="section glass-panel" style="margin-bottom: 2rem;">
-        <h2>📐 Calculation Methodology</h2>
+    <div class="section glass-panel" style="margin-bottom: 2rem; position:relative;">
+        <button class="chart-info-btn" onclick="openGraphModal('calc-methodology')" title="How to read Calculation Methodology">ℹ️</button>
+        <h2 style="margin:0 0 1rem 0; padding-right:2.5rem;">📐 Calculation Methodology &amp; Reliability Framework</h2>
         <div style="font-size: 0.85rem; color: var(--text); display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div>
                 <h4 style="margin-bottom:0.3rem;">SLA Deviation %</h4>
@@ -6353,13 +7065,508 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }});
     }}
 
-    // Disable contenteditable on load, mark elements & init validations
+    // ── Contextual Section-Level AI Chat State & Methods ──
+    const initialAiChatHistory = {ai_chat_history_json};
+    const aiChatHistories = Object.assign({{}}, initialAiChatHistory || {{}});
+    const pendingPatches = {{}};
+
+    function toggleAiChat(sectionId) {{
+        const drawer = document.getElementById('aiChatDrawer_' + sectionId);
+        if (!drawer) return;
+        
+        const isOpening = !drawer.classList.contains('open');
+        if (isOpening) {{
+            // Close any other open drawers
+            document.querySelectorAll('.ai-chat-drawer.open').forEach(d => {{
+                if (d !== drawer) d.classList.remove('open');
+            }});
+            drawer.classList.add('open');
+            renderChatMessages(sectionId);
+            setTimeout(() => {{
+                const input = document.getElementById('aiChatInput_' + sectionId);
+                if (input) input.focus();
+            }}, 150);
+        }} else {{
+            drawer.classList.remove('open');
+        }}
+    }}
+
+    function handleAiChatKey(event, sectionId) {{
+        if (event.key === 'Enter' && !event.shiftKey) {{
+            event.preventDefault();
+            sendAiChatMessage(sectionId);
+        }}
+    }}
+
+    function escapeHtmlText(text) {{
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }}
+
+    function formatAiReply(text) {{
+        if (!text) return '';
+        let s = escapeHtmlText(text);
+        s = s.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');
+        s = s.replace(/\\*(.*?)\\*/g, '<em>$1</em>');
+        s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+        s = s.replace(/\\n\\n/g, '<br/><br/>');
+        s = s.replace(/\\n- /g, '<br/>• ');
+        s = s.replace(/\\n/g, '<br/>');
+        return s;
+    }}
+
+    function parseAiReplyWithPatch(text, sectionId, msgIndex) {{
+        if (!text) return {{ html: '', patch: null }};
+        
+        let rawText = text;
+        let patchData = null;
+        let startIdx = rawText.indexOf('```action:patch_section');
+
+        if (startIdx === -1) startIdx = rawText.indexOf('```json');
+        if (startIdx !== -1) {{
+            const endIdx = rawText.indexOf('```', startIdx + 3);
+            if (endIdx !== -1) {{
+                const block = rawText.substring(startIdx, endIdx + 3);
+                const jsonText = block.replace(/^```[a-zA-Z0-9_:-]*/, '').replace(/```$/, '').trim();
+                if (jsonText.includes('"section_id"') || jsonText.includes('"content"')) {{
+                    try {{
+                        const parsed = JSON.parse(jsonText);
+                        if (parsed && (parsed.section_id || parsed.content)) {{
+                            patchData = parsed;
+                            if (!patchData.section_id) patchData.section_id = sectionId;
+                            rawText = rawText.replace(block, '').trim();
+                        }}
+                    }} catch (e) {{
+                        console.warn('Could not parse action:patch_section JSON:', e);
+                    }}
+                }}
+            }}
+        }}
+
+        
+        let html = formatAiReply(rawText);
+        
+        if (patchData) {{
+            const patchKey = sectionId + '_' + (msgIndex || Date.now());
+            pendingPatches[patchKey] = patchData;
+            const targetSec = patchData.section_id || sectionId;
+            const previewHtml = generatePatchPreviewHtml(patchKey, targetSec, patchData.content);
+            
+            html += `
+                <div class="patch-action-box">
+                    <div class="patch-action-title">
+                        <span>⚡</span>
+                        <span>Proposed In-Place Update</span>
+                    </div>
+                    ${{previewHtml}}
+                    <button class="patch-apply-btn" id="patchBtn_${{patchKey}}" onclick="applySectionPatch('${{patchKey}}', '${{sectionId}}')">
+                        <span>✨ Apply to Report</span>
+                    </button>
+                </div>
+            `;
+        }}
+        
+        return {{ html, patch: patchData }};
+    }}
+
+    function generatePatchPreviewHtml(patchKey, targetSec, content) {{
+        let previewHtml = '';
+        if (Array.isArray(content) && content.length > 0 && typeof content[0] === 'string') {{
+            const items = content.map(b => `<li style="margin-bottom:0.35rem; line-height:1.45;">${{escapeHtmlText(b)}}</li>`).join('');
+            previewHtml = `
+                <div class="patch-preview-wrap">
+                    <div class="patch-preview-label">
+                        <span>📝 Generated Content Preview</span>
+                        <span class="patch-edit-badge">✏️ Click to edit directly</span>
+                    </div>
+                    <ul id="preview_bullets_${{patchKey}}" class="patch-preview-bullets" contenteditable="true">
+                        ${{items}}
+                    </ul>
+                </div>
+            `;
+        }} else if (targetSec === 'exec_observations' && Array.isArray(content)) {{
+            const rows = content.map((row, idx) => `
+                <div class="patch-preview-obs-item">
+                    <div class="patch-preview-obs-cat">${{escapeHtmlText(row.category || '')}}</div>
+                    <div class="patch-preview-obs-text" id="preview_obs_text_${{patchKey}}_${{idx}}" contenteditable="true">${{(row.observation || '').replace(/\\n/g, '<br/>')}}</div>
+                </div>
+            `).join('');
+            previewHtml = `
+                <div class="patch-preview-wrap">
+                    <div class="patch-preview-label">
+                        <span>📝 Generated Observations Preview</span>
+                        <span class="patch-edit-badge">✏️ Click to edit directly</span>
+                    </div>
+                    <div id="preview_obs_${{patchKey}}" class="patch-preview-obs-list">
+                        ${{rows}}
+                    </div>
+                </div>
+            `;
+        }} else if (targetSec === 'exec_recommendations' && Array.isArray(content)) {{
+            const recs = content.map((r, idx) => `
+                <div class="patch-preview-rec-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+                        <span style="font-weight:700; color:var(--text);" id="preview_rec_title_${{patchKey}}_${{idx}}" contenteditable="true">${{r.badge || '💡'}} ${{escapeHtmlText(r.title || '')}}</span>
+                        <span class="patch-priority-chip">${{escapeHtmlText(r.priority || 'Medium')}}</span>
+                    </div>
+                    <div style="font-size:0.75rem; margin-bottom:0.25rem;" id="preview_rec_detail_${{patchKey}}_${{idx}}" contenteditable="true"><strong>Action:</strong> ${{escapeHtmlText(r.detail || '')}}</div>
+                    <div style="font-size:0.73rem; color:var(--accent);" id="preview_rec_impact_${{patchKey}}_${{idx}}" contenteditable="true"><strong>Impact:</strong> ${{escapeHtmlText(r.business_impact || r.impact || '')}}</div>
+                </div>
+            `).join('');
+            previewHtml = `
+                <div class="patch-preview-wrap">
+                    <div class="patch-preview-label">
+                        <span>📝 Generated Recommendations Preview</span>
+                        <span class="patch-edit-badge">✏️ Click to edit directly</span>
+                    </div>
+                    <div id="preview_recs_${{patchKey}}" class="patch-preview-rec-list">
+                        ${{recs}}
+                    </div>
+                </div>
+            `;
+        }} else if (content && typeof content === 'object') {{
+            const obsItems = (content.observations || []).map(o => `<li style="margin-bottom:0.3rem;">${{escapeHtmlText(o)}}</li>`).join('');
+            const recItems = (content.recommendations || []).map(r => `<li style="margin-bottom:0.3rem;">${{escapeHtmlText(r)}}</li>`).join('');
+            previewHtml = `
+                <div class="patch-preview-wrap">
+                    <div class="patch-preview-label">
+                        <span>📝 Generated Insights Preview</span>
+                        <span class="patch-edit-badge">✏️ Click to edit directly</span>
+                    </div>
+                    <div style="margin-bottom:0.4rem;">
+                        <strong style="font-size:0.73rem; color:var(--accent); text-transform:uppercase;">Observations:</strong>
+                        <ul id="preview_tab_obs_${{patchKey}}" class="patch-preview-bullets" contenteditable="true">${{obsItems}}</ul>
+                    </div>
+                    <div>
+                        <strong style="font-size:0.73rem; color:var(--green); text-transform:uppercase;">Recommendations:</strong>
+                        <ul id="preview_tab_recs_${{patchKey}}" class="patch-preview-bullets" contenteditable="true">${{recItems}}</ul>
+                    </div>
+                </div>
+            `;
+        }}
+        return previewHtml;
+    }}
+
+    async function applySectionPatch(patchKey, sectionId) {{
+        const patch = pendingPatches[patchKey];
+        const btn = document.getElementById('patchBtn_' + patchKey);
+        if (!patch) return;
+
+        const targetSec = patch.section_id || sectionId;
+        const initialContent = patch.content;
+        let content = initialContent;
+
+        // Extract any direct user edits from the live preview DOM
+        if (targetSec === 'exec_overview' || targetSec === 'exec_conclusions') {{
+            const previewUl = document.getElementById('preview_bullets_' + patchKey);
+            if (previewUl) {{
+                const listItems = Array.from(previewUl.querySelectorAll('li')).map(li => li.innerText.trim()).filter(Boolean);
+                if (listItems.length > 0) content = listItems;
+            }}
+        }} else if (targetSec === 'exec_observations') {{
+            const previewObs = document.getElementById('preview_obs_' + patchKey);
+            if (previewObs && Array.isArray(initialContent)) {{
+                content = initialContent.map((row, idx) => {{
+                    const el = document.getElementById(`preview_obs_text_${{patchKey}}_${{idx}}`);
+                    return {{
+                        category: row.category,
+                        observation: el ? el.innerText.trim() : row.observation
+                    }};
+                }});
+            }}
+        }} else if (targetSec === 'exec_recommendations') {{
+            const previewRecs = document.getElementById('preview_recs_' + patchKey);
+            if (previewRecs && Array.isArray(initialContent)) {{
+                content = initialContent.map((r, idx) => {{
+                    const titleEl = document.getElementById(`preview_rec_title_${{patchKey}}_${{idx}}`);
+                    const detailEl = document.getElementById(`preview_rec_detail_${{patchKey}}_${{idx}}`);
+                    const impactEl = document.getElementById(`preview_rec_impact_${{patchKey}}_${{idx}}`);
+                    
+                    let titleText = titleEl ? titleEl.innerText.trim() : r.title;
+                    titleText = titleText.replace(/^[^a-zA-Z0-9\\s]+/, '').trim();
+                    
+                    let detailText = detailEl ? detailEl.innerText.replace(/^Action:\\s*/i, '').trim() : r.detail;
+                    let impactText = impactEl ? impactEl.innerText.replace(/^Impact:\\s*/i, '').trim() : r.business_impact;
+
+
+                    return {{
+                        badge: r.badge || '💡',
+                        title: titleText || r.title,
+                        priority: r.priority || 'Medium',
+                        detail: detailText || r.detail,
+                        business_impact: impactText || r.business_impact || r.impact
+                    }};
+                }});
+            }}
+        }} else if (['tab_tx_stats', 'tab_rt_stats', 'tab_error_stats', 'tab_infra_stats'].includes(targetSec)) {{
+            const obsUl = document.getElementById('preview_tab_obs_' + patchKey);
+            const recUl = document.getElementById('preview_tab_recs_' + patchKey);
+            let obsList = initialContent.observations || [];
+            let recList = initialContent.recommendations || [];
+            if (obsUl) obsList = Array.from(obsUl.querySelectorAll('li')).map(li => li.innerText.trim()).filter(Boolean);
+            if (recUl) recList = Array.from(recUl.querySelectorAll('li')).map(li => li.innerText.trim()).filter(Boolean);
+            content = {{ observations: obsList, recommendations: recList }};
+        }}
+
+        try {{
+            if (btn) {{
+                btn.disabled = true;
+                btn.innerHTML = '<span>⏳ Applying...</span>';
+            }}
+
+            // 1. Live DOM Patching
+            let updatedEl = null;
+
+            if (targetSec === 'exec_overview') {{
+                const ul = document.getElementById('content_exec_overview');
+                if (ul && Array.isArray(content)) {{
+                    ul.innerHTML = content.map(b => `<li style="margin-bottom:0.4rem; line-height:1.65;">${{escapeHtmlText(b)}}</li>`).join('');
+                    updatedEl = ul.closest('.ai-sub-card');
+                }}
+            }} else if (targetSec === 'exec_conclusions') {{
+                const ul = document.getElementById('content_exec_conclusions');
+                if (ul && Array.isArray(content)) {{
+                    ul.innerHTML = content.map(b => `<li style="margin-bottom:0.4rem; line-height:1.65;">${{escapeHtmlText(b)}}</li>`).join('');
+                    updatedEl = ul.closest('.ai-sub-card');
+                }}
+            }} else if (targetSec === 'exec_observations') {{
+                const tbody = document.getElementById('content_exec_observations');
+                if (tbody && Array.isArray(content)) {{
+                    tbody.innerHTML = content.map(row => {{
+                        const obsText = (row.observation || '').replace(/\\n/g, '<br/>');
+                        return `
+                            <tr style="border-bottom:1px solid var(--border);">
+                                <td style="font-weight:700; width:26%; vertical-align:top; font-size:0.84rem; color:var(--text); padding:0.75rem 0.9rem;">${{escapeHtmlText(row.category || '')}}</td>
+                                <td style="width:74%; vertical-align:top; font-size:0.84rem; line-height:1.6; color:var(--text); padding:0.75rem 0.9rem;" contenteditable="true">${{obsText}}</td>
+                            </tr>
+                        `;
+                    }}).join('');
+                    updatedEl = tbody.closest('.ai-sub-card');
+                }}
+            }} else if (targetSec === 'exec_recommendations') {{
+                const recContainer = document.getElementById('content_exec_recommendations');
+                if (recContainer && Array.isArray(content)) {{
+                    recContainer.innerHTML = content.map(r => {{
+                        const rBadge = r.badge || '💡';
+                        const rTitle = escapeHtmlText(r.title || '');
+                        const rDetail = escapeHtmlText(r.detail || '');
+                        const rPriority = escapeHtmlText(r.priority || 'Medium');
+                        const rImpact = escapeHtmlText(r.business_impact || r.impact || 'Mitigates transaction latency spikes.');
+                        return `
+                            <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:0.95rem 1.15rem; margin-bottom:0.85rem;">
+                                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+                                    <span style="font-size:1.05rem;">${{rBadge}}</span>
+                                    <strong style="font-size:0.92rem; font-weight:700; color:var(--text);" contenteditable="true">${{rTitle}}</strong>
+                                    <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:4px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); margin-left:auto;">${{rPriority}}</span>
+                                </div>
+                                <p style="margin:0 0 0.55rem 0; font-size:0.86rem; line-height:1.55; color:var(--text);" contenteditable="true"><strong>Technical Action:</strong> ${{rDetail}}</p>
+                                <div style="background:var(--accent-bg); border-left:3px solid var(--accent); padding:0.5rem 0.8rem; border-radius:4px; font-size:0.83rem; line-height:1.5; color:var(--text);">
+                                    <strong style="color:var(--accent);">💼 Business Impact:</strong> <span contenteditable="true">${{rImpact}}</span>
+                                </div>
+                            </div>
+                        `;
+                    }}).join('');
+                    updatedEl = recContainer.closest('.ai-sub-card');
+                }}
+            }} else if (['tab_tx_stats', 'tab_rt_stats', 'tab_error_stats', 'tab_infra_stats'].includes(targetSec)) {{
+                if (content && typeof content === 'object') {{
+                    const obsUl = document.getElementById('content_obs_' + targetSec);
+                    const recUl = document.getElementById('content_recs_' + targetSec);
+                    if (obsUl && Array.isArray(content.observations)) {{
+                        obsUl.innerHTML = content.observations.map(o => `<li style="margin-bottom:0.35rem;">${{escapeHtmlText(o)}}</li>`).join('');
+                    }}
+                    if (recUl && Array.isArray(content.recommendations)) {{
+                        recUl.innerHTML = content.recommendations.map(r => `<li style="margin-bottom:0.35rem;">${{escapeHtmlText(r)}}</li>`).join('');
+                    }}
+                    if (obsUl) updatedEl = obsUl.closest('.ai-sub-card') || obsUl.closest('.glass-panel');
+                }}
+            }}
+
+            // Highlight the updated section in the report
+            if (updatedEl) {{
+                updatedEl.classList.remove('section-just-updated');
+                void updatedEl.offsetWidth; // trigger reflow
+                updatedEl.classList.add('section-just-updated');
+                updatedEl.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
+            }}
+
+
+            // 2. Persist to Backend result.json
+            const res = await fetch('/api/ai-chat/patch-section', {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{
+                    run_id: reportRunId,
+                    section_id: targetSec,
+                    content: content
+                }})
+            }});
+            const data = await res.json();
+
+            if (btn) {{
+                btn.className = 'patch-apply-btn applied';
+                btn.innerHTML = '<span>✅ Applied to Report</span>';
+            }}
+        }} catch (err) {{
+            console.error('Error applying section patch:', err);
+            if (btn) {{
+                btn.disabled = false;
+                btn.innerHTML = '<span>❌ Failed to Apply</span>';
+            }}
+        }}
+    }}
+
+    function renderChatMessages(sectionId) {{
+        const container = document.getElementById('aiChatMessages_' + sectionId);
+        if (!container) return;
+        
+        const history = aiChatHistories[sectionId] || [];
+        if (!history || history.length === 0) return;
+        
+        let html = '';
+        history.forEach((msg, idx) => {{
+            if (msg.role === 'user') {{
+                html += `<div class="ai-chat-bubble-user">${{escapeHtmlText(msg.content)}}</div>`;
+            }} else {{
+                const parsed = parseAiReplyWithPatch(msg.content, sectionId, idx);
+                html += `<div class="ai-chat-bubble-ai">${{parsed.html}}</div>`;
+            }}
+        }});
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
+    }}
+
+    async function sendAiChatMessage(sectionId) {{
+        const input = document.getElementById('aiChatInput_' + sectionId);
+        const sendBtn = document.getElementById('aiChatSendBtn_' + sectionId);
+        const container = document.getElementById('aiChatMessages_' + sectionId);
+        if (!input || !container) return;
+        
+        const text = input.value.trim();
+        if (!text) return;
+        
+        input.value = '';
+        if (sendBtn) sendBtn.disabled = true;
+        
+        if (!aiChatHistories[sectionId]) aiChatHistories[sectionId] = [];
+        
+        // Remove welcome screen if present
+        const welcome = container.querySelector('.ai-chat-welcome');
+        if (welcome) welcome.remove();
+
+        aiChatHistories[sectionId].push({{ role: 'user', content: text }});
+        
+        // Append user bubble
+        const userDiv = document.createElement('div');
+        userDiv.className = 'ai-chat-bubble-user';
+        userDiv.textContent = text;
+        container.appendChild(userDiv);
+        
+        // Append typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'ai-chat-bubble-ai ai-chat-typing';
+        typingDiv.id = 'aiChatTyping_' + sectionId;
+        typingDiv.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+        container.appendChild(typingDiv);
+        container.scrollTop = container.scrollHeight;
+        
+        try {{
+            const priorHistory = aiChatHistories[sectionId].slice(0, -1);
+            const res = await fetch('/api/ai-chat/message', {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{
+                    run_id: reportRunId,
+                    section_id: sectionId,
+                    message: text,
+                    history: priorHistory
+                }})
+            }});
+            
+            const data = await res.json();
+            typingDiv.remove();
+            
+            if (data.success && data.reply) {{
+                aiChatHistories[sectionId].push({{ role: 'assistant', content: data.reply }});
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'ai-chat-bubble-ai';
+                const parsed = parseAiReplyWithPatch(data.reply, sectionId, aiChatHistories[sectionId].length - 1);
+                aiDiv.innerHTML = parsed.html;
+                container.appendChild(aiDiv);
+            }} else {{
+                const errDiv = document.createElement('div');
+                errDiv.className = 'ai-chat-bubble-ai';
+                errDiv.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                errDiv.style.color = '#ef4444';
+                errDiv.textContent = '❌ ' + (data.message || 'Error getting response from AI.');
+                container.appendChild(errDiv);
+            }}
+        }} catch (err) {{
+            typingDiv.remove();
+            const errDiv = document.createElement('div');
+            errDiv.className = 'ai-chat-bubble-ai';
+            errDiv.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            errDiv.style.color = '#ef4444';
+            errDiv.textContent = '❌ Connection failed: ' + err.message;
+            container.appendChild(errDiv);
+        }} finally {{
+            if (sendBtn) sendBtn.disabled = false;
+            container.scrollTop = container.scrollHeight;
+            if (input) input.focus();
+        }}
+    }}
+
+    function quickAiPrompt(sectionId, promptText) {{
+        const input = document.getElementById('aiChatInput_' + sectionId);
+        if (input) {{
+            input.value = promptText;
+            sendAiChatMessage(sectionId);
+        }}
+    }}
+
+    async function clearAiChat(sectionId) {{
+        if (!confirm('Are you sure you want to clear the chat history for this section?')) return;
+        aiChatHistories[sectionId] = [];
+        const container = document.getElementById('aiChatMessages_' + sectionId);
+        if (container) {{
+            container.innerHTML = `
+                <div class="ai-chat-welcome">
+                    <div class="ai-welcome-avatar">🧹</div>
+                    <div class="ai-welcome-title">Chat Cleared</div>
+                    <div class="ai-welcome-sub">Ask any new question or prompt the agent to rewrite and update this section.</div>
+                </div>
+            `;
+        }}
+        try {{
+            await fetch('/api/ai-chat/clear', {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{ run_id: reportRunId, section_id: sectionId }})
+            }});
+        }} catch (e) {{
+            console.warn('Error clearing backend chat history:', e);
+        }}
+    }}
+
+    function initAiChatDrawers() {{
+        ['exec_overview', 'exec_observations', 'exec_conclusions', 'exec_recommendations', 'executive', 'tab_tx_stats', 'tab_rt_stats', 'tab_error_stats', 'tab_infra_stats'].forEach(secId => {{
+            if (aiChatHistories[secId] && aiChatHistories[secId].length > 0) {{
+                renderChatMessages(secId);
+            }}
+        }});
+    }}
+
+
+
+    // Disable contenteditable on load, mark elements, init validations & chat
     document.addEventListener("DOMContentLoaded", () => {{
         document.querySelectorAll('[contenteditable="true"]').forEach(el => {{
             el.setAttribute('data-editable', 'true');
             el.setAttribute('contenteditable', 'false');
         }});
         initHumanValidations();
+        initAiChatDrawers();
     }});
 
     // ── Finding Drawer Logic ──
@@ -6427,10 +7634,10 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         setTimeout(() => document.getElementById('findingDrawerOverlay').style.display = 'none', 300);
     }}
 
-    // ── Graph Guide Modal Logic ──
+    // ── Graph & Section Guide Modal Logic ──
     const graphGuides = {{
         'tx-summary': {{
-            title: '📊 Iteration Statistics',
+            title: '📊 Transaction Summary',
             what: 'Shows total request samples split into Passed (green) and Failed (red) executions for each test script.',
             howToRead: [
                 'Taller green bars indicate high execution volume with successful assertions.',
@@ -6476,13 +7683,13 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             filters: 'Hover along the timeline to inspect synchronized CPU and Memory % at any specific test second.'
         }},
         'concurrency': {{
-            title: '👥 Estimated Concurrent Users Over Time',
-            what: 'Calculated active concurrent user load across the test duration derived from throughput and response time (Little\\'s Law).',
+            title: '👥 Virtual User Ramp-Up &amp; Workload Profile',
+            what: 'Workload concurrency profile displaying ramp-up steps, steady-state duration, and active virtual users across the test timeline.',
             howToRead: [
-                'Displays ramp-up phase, steady-state plateau, and ramp-down.',
-                'Sudden drops or fluctuations highlight client-side or server-side stalls.'
+                'Shows initial VU start, incremental user ramp distribution, and sustained steady-state plateau.',
+                'Sudden drops or stalls indicate test-runner connection aborts or application crashes.'
             ],
-            filters: 'Hover over data points to check estimated active users at each interval.'
+            filters: 'Hover over data points to check active user concurrency at each interval.'
         }},
         'throughput': {{
             title: '📊 Throughput &amp; Errors Over Time',
@@ -6584,6 +7791,198 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 'Highlights network bandwidth usage and identifies potential network saturation.'
             ],
             filters: 'Hover across timestamps to check network MB transferred at each point.'
+        }},
+        'test-config': {{
+            title: '📋 Test Configuration Details',
+            what: 'Execution metadata detailing test environment, objective, start/end timestamps, duration, and target user load.',
+            howToRead: [
+                'Verifies that test execution adhered to the planned test plan configuration.',
+                'Editable cells allow customizing objective, release version, or environment before report distribution.'
+            ],
+            filters: 'Editable fields can be modified directly in the browser and saved.'
+        }},
+        'perf-scorecard': {{
+            title: '📈 Performance Scorecard &amp; SLA Violation Summary',
+            what: 'Executive scorecard quantifying user satisfaction (APDEX) and response time SLA breach counts grouped by breach severity tiers.',
+            howToRead: [
+                'APDEX &ge; 0.85 indicates healthy overall user experience.',
+                'Breach cards highlight transactions violating SLAs by &gt;20%, &gt;50%, and &gt;100% over threshold.'
+            ],
+            filters: 'Click into the Response Time &amp; SLA tabs for per-transaction root-cause analysis.'
+        }},
+        'exec-overview': {{
+            title: '🎯 AI Powered Executive Overview',
+            what: 'Executive level synthesis generated by AI highlighting release readiness, SLA compliance, error posture, and key risk findings.',
+            howToRead: [
+                'Presents bullet points designed for engineering leadership and release sign-off.',
+                'Each bullet is editable and backed by human validation controls.'
+            ],
+            filters: 'Click the "Human Validated" badge to confirm and persist reviewer sign-off.'
+        }},
+        'obs-table': {{
+            title: '📋 High-Level Performance Observations',
+            what: 'Categorized diagnostic observations linking client-side performance, response times, errors, and server infrastructure signals.',
+            howToRead: [
+                'Each row pairs a performance domain with concrete metric evidence.',
+                'Allows rapid scanning across Throughput, Latency, Errors, and Host Health.'
+            ],
+            filters: 'Click into table cells to edit text or notes directly in the browser.'
+        }},
+        'conclusions': {{
+            title: '📌 Key Conclusions',
+            what: 'Definitive test outcome conclusions based on aggregated metric thresholds and SLA benchmarks.',
+            howToRead: [
+                'Summarizes whether the build passed or failed non-functional requirements.',
+                'Identifies specific transactions requiring performance tuning.'
+            ],
+            filters: 'Editable bullet points with human validation approval tracking.'
+        }},
+        'recommendations': {{
+            title: '💡 Prioritized Recommendations',
+            what: 'Ranked technical actions paired with estimated business impact to remediate bottlenecks and prevent production outages.',
+            howToRead: [
+                'Each recommendation provides technical steps (e.g. indexing, thread pool tuning) and business justification.',
+                'Priority tags (High, Medium, Low) guide sprint planning and triage.'
+            ],
+            filters: 'Technical actions and business impacts are editable in place.'
+        }},
+        'ai-augmented': {{
+            title: '🧠 AI Augmented Analysis',
+            what: 'Multi-layer artificial intelligence analysis integrating test observations, statistical deviations, and infrastructure correlations.',
+            howToRead: [
+                'Combines quantitative load statistics with generative root-cause analysis.',
+                'Includes validation workflow badges for QA and performance leads.'
+            ],
+            filters: 'Use "Validate All Augmented Analysis" to approve all AI findings at once.'
+        }},
+        'tab-ai-insights': {{
+            title: '🧠 Tab-Level AI Insights &amp; Recommendations',
+            what: 'Context-specific AI intelligence focused on the current tab\\'s metrics (Load, Latency, Errors, or Infrastructure).',
+            howToRead: [
+                'Left panel highlights key domain observations with metric data points.',
+                'Right panel suggests domain-specific remediation and tuning strategies.'
+            ],
+            filters: 'Edit points directly in browser; use Human Validation badge to mark verified.'
+        }},
+        'user-journey-breakdown': {{
+            title: '👥 User Journey Concurrency Allocation &amp; Capacity',
+            what: 'Breakdown of configured Thread Groups / User Journeys with user allocation, generated throughput, P90 latency, and SLA compliance status.',
+            howToRead: [
+                'Allows verifying whether user concurrency distribution aligned with business workload models.',
+                'Identifies which specific user flow had the highest error rate or lowest SLA compliance.'
+            ],
+            filters: 'Compare journeys side-by-side across Concurrency, Throughput, and Latency columns.'
+        }},
+        'tx-stats-table': {{
+            title: '📋 Transaction Statistics Table',
+            what: 'Tabular matrix of all executed test scripts showing duration, user count, total samples, pass/fail counts, and error percentages.',
+            howToRead: [
+                'Green counts indicate passed samples; red counts indicate assertions or HTTP failures.',
+                'Error Percentage (%) quickly reveals problematic scripts.'
+            ],
+            filters: 'Header badges display overall test sample totals and pass/fail summary.'
+        }},
+        'latency-kpis': {{
+            title: '⏱️ Response Time &amp; Latency Percentiles',
+            what: 'Top-level latency summary metrics showing Average Response Time, 95th Percentile (P95), and 99th Percentile (P99).',
+            howToRead: [
+                'Average RT shows the mean execution latency across all requests.',
+                'P95 and P99 represent tail latency — 95% and 99% of user actions finished within this duration.'
+            ],
+            filters: 'Use the charts below to view time series trends and per-transaction percentiles.'
+        }},
+        'rt-percentiles-table': {{
+            title: '📋 Per-Transaction Breakdown &amp; SLA Targets',
+            what: 'Hierarchical multi-level table containing detailed response times (Avg, P90, Min, Max), error rates, SLA thresholds, and percentage deviations.',
+            howToRead: [
+                'Click ▶ / ▼ expanders on parent transactions to drill into child HTTP requests.',
+                'Deviation % shows how far actual P90 exceeded target SLA (positive red is a breach).',
+                'APDEX column rates user satisfaction for each individual transaction.'
+            ],
+            filters: 'Use <strong>Unit</strong> dropdown to toggle Milliseconds (ms) vs Seconds (s), and <strong>User Journey</strong> filter to isolate specific flows.'
+        }},
+        'critical-tx-table': {{
+            title: '🚨 Critical Transactions &amp; Deviations',
+            what: 'Filtered subset listing only transactions that failed SLA thresholds or exhibited severe deviation (>30%).',
+            howToRead: [
+                'Instantly isolates problematic transactions requiring engineering investigation.',
+                'Shows SLA target vs actual P90 and total breach percentage.'
+            ],
+            filters: 'Click on transaction names to trace related error logs or latency graphs.'
+        }},
+        'sla-error-kpis': {{
+            title: '🔴 Error Rate &amp; SLA Breaches Summary',
+            what: 'High-level reliability cards showing the global test error rate (%) and total number of transactions that breached SLAs.',
+            howToRead: [
+                'Error Rate < 1% is passing (green), 1-5% warning (yellow), >5% failing (red).',
+                'SLA Breaches count shows how many transactions failed either latency or error rate targets.'
+            ],
+            filters: 'Drill down using the Error Distribution donut and SLA compliance tables below.'
+        }},
+        'sla-targets-table': {{
+            title: '🚨 SLA Breach Analysis &amp; Corresponding HTTP Requests',
+            what: 'Comprehensive diagnostic listing every SLA-breached transaction along with its child HTTP request breakdown and failure metrics.',
+            howToRead: [
+                'Identifies the exact backend API call or resource causing the parent transaction SLA violation.',
+                'Shows target threshold, actual measured response time, and breach ratio.'
+            ],
+            filters: 'Review child HTTP requests to pinpoint slow endpoints (GET, POST, etc.).'
+        }},
+        'azure-kpi-cards': {{
+            title: '🖥️ Azure Host Infrastructure Telemetry',
+            what: 'Host-level infrastructure health indicators tracking Peak CPU %, Peak Memory %, Peak Disk Queue Depth, and System Availability %.',
+            howToRead: [
+                'Peak CPU &ge; 80% indicates CPU starvation and thread scheduling delays.',
+                'Disk Queue Depth &ge; 5 indicates storage I/O bottleneck.',
+                'Availability < 99.5% indicates server-side downtime or unresponsiveness.'
+            ],
+            filters: 'Review time-series charts below to correlate host spikes with JMeter throughput.'
+        }},
+        'infra-correlation': {{
+            title: '📊 Infrastructure Correlation Matrix',
+            what: 'Pearson correlation coefficients (r) mathematically calculated between JMeter load metrics (Throughput, Latency) and Host telemetry (CPU, Memory).',
+            howToRead: [
+                'Values near +1.0 indicate strong positive correlation (e.g. CPU increases as throughput increases).',
+                'Green highlights indicate strong statistically significant relationships (|r| &ge; 0.70).'
+            ],
+            filters: 'Helps prove whether response time degradation was caused by server resource exhaustion.'
+        }},
+        'timeline-events': {{
+            title: '⏱️ Performance Incident Timeline',
+            what: 'Chronological event stream logging significant system transitions, ramp-up milestones, resource saturation alerts, and error spikes.',
+            howToRead: [
+                'Follows the sequence of events from test start to ramp-up, peak load, incident occurrences, and test cooldown.',
+                'Helps establish causal timelines (e.g. CPU exceeded 85% at 00:15, followed by 500 errors at 00:18).'
+            ],
+            filters: 'Read events chronologically to reconstruct system behavior under test.'
+        }},
+        'infra-findings': {{
+            title: '🧠 Infrastructure Diagnostic Analysis &amp; Findings',
+            what: 'Automated diagnostic synthesis connecting client-side metrics with server-side telemetry to diagnose root causes.',
+            howToRead: [
+                'Highlights Primary Signal (e.g. CPU spike), Associated Signals (Memory, Queue Depth), and Likely Root Cause.',
+                'Gives performance engineers an immediate root-cause hypothesis backed by data.'
+            ],
+            filters: 'Cross-reference with client-side error breakdown and transaction percentiles.'
+        }},
+        'corr-findings': {{
+            title: '🔗 Client ↔ Server Correlation Findings',
+            what: 'Detailed finding statements evaluating the interaction between application workload demand and backend server capacity.',
+            howToRead: [
+                'Each finding evaluates capacity limits, saturation points, or resource headroom.',
+                'Click "View Finding Details" for full interpretation, impact, and linked recommendations.'
+            ],
+            filters: 'Click finding cards to open the deep-dive slide-out drawer.'
+        }},
+        'calc-methodology': {{
+            title: '📐 Calculation Methodology &amp; Reliability Framework',
+            what: 'Mathematical formulas and industry-standard definitions used across all metrics in this report.',
+            howToRead: [
+                'Explains APDEX formula: (Satisfied + (Tolerating / 2)) / Total.',
+                'Defines SLA Deviation %: ((Actual P90 - Target P90) / Target P90) * 100.',
+                'Details Percentiles (P90, P95, P99) and Little\\'s Law Concurrency calculations.'
+            ],
+            filters: 'Use as a standard reference for metric auditing and methodology alignment.'
         }}
     }};
 
@@ -6602,7 +8001,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
 
         let html = `
             <div class="graph-modal-section">
-                <div class="graph-modal-section-title">📊 What This Graph Shows</div>
+                <div class="graph-modal-section-title">📊 What This Section Shows</div>
                 <p class="graph-modal-text">${{guide.what}}</p>
             </div>
             <div class="graph-modal-section">
@@ -6623,7 +8022,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         document.getElementById('graphModalBody').innerHTML = html;
         const overlay = document.getElementById('graphModalOverlay');
         overlay.style.display = 'flex';
-        setTimeout(() => overlay.classList.add('open'), 10);
+        void overlay.offsetWidth;
+        overlay.classList.add('open');
     }}
 
     function closeGraphModal(event) {{
@@ -6632,7 +8032,11 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         }}
         const overlay = document.getElementById('graphModalOverlay');
         overlay.classList.remove('open');
-        setTimeout(() => {{ overlay.style.display = 'none'; }}, 200);
+        setTimeout(() => {{
+            if (!overlay.classList.contains('open')) {{
+                overlay.style.display = 'none';
+            }}
+        }}, 200);
     }}
 
     document.addEventListener('keydown', (e) => {{

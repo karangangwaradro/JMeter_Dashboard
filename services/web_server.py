@@ -711,6 +711,185 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             self._handle_recompile(target_run=target_run, regen_ai=regen_ai)
             return
 
+        # ── /api/ai-chat/message ──
+        if path == "/api/ai-chat/message":
+            try:
+                run_id = body.get("run_id", "").strip()
+                section_id = body.get("section_id", "executive").strip()
+                user_message = body.get("message", "").strip()
+                client_history = body.get("history", [])
+
+                if not user_message:
+                    self._send_json({"success": False, "message": "message parameter is required"}, 400)
+                    return
+
+                # Clean run_id
+                clean_run = run_id
+                if not clean_run.startswith("run_") and re.match(r'^\d{8}_\d{6}$', clean_run):
+                    clean_run = f"run_{clean_run}"
+
+                # Load result data
+                target_file = None
+                if clean_run:
+                    target_file = _RESULTS_JSON_DIR / f"{clean_run}_result.json"
+                    if not target_file.exists():
+                        target_file = _RESULTS_DIR / f"{clean_run}_result.json"
+
+                data = {}
+                if target_file and target_file.exists():
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                # Load Azure data if available
+                ts_str = clean_run.replace("run_", "")
+                azure_file = _RESULTS_JSON_DIR / f"azure_{ts_str}.json"
+                if not azure_file.exists():
+                    azure_file = _RESULTS_DIR / f"azure_{ts_str}.json"
+                azure_data = {}
+                if azure_file.exists():
+                    try:
+                        with open(azure_file, "r", encoding="utf-8") as af:
+                            azure_data = json.load(af)
+                    except Exception:
+                        pass
+
+                from python_files.context_packager import build_section_digest, build_chat_system_prompt
+                from python_files.ai_insights import execute_chat_completion
+
+                section_digest = build_section_digest(data, azure_data, section_id)
+                system_prompt = build_chat_system_prompt(section_id, section_digest)
+
+                # Format conversation history
+                messages = []
+                for h in client_history:
+                    if isinstance(h, dict) and "role" in h and "content" in h:
+                        messages.append({"role": h["role"], "content": h["content"]})
+
+                # Append current user question if not already in history
+                if not messages or messages[-1].get("content") != user_message:
+                    messages.append({"role": "user", "content": user_message})
+
+                reply_text, provider_used, elapsed_ms = execute_chat_completion(
+                    system_prompt=system_prompt,
+                    messages=messages
+                )
+
+                # Update persisted chat history in result.json
+                if target_file and target_file.exists():
+                    try:
+                        if "ai_chat_history" not in data or not isinstance(data["ai_chat_history"], dict):
+                            data["ai_chat_history"] = {}
+                        if section_id not in data["ai_chat_history"] or not isinstance(data["ai_chat_history"][section_id], list):
+                            data["ai_chat_history"][section_id] = []
+                        
+                        data["ai_chat_history"][section_id].append({"role": "user", "content": user_message})
+                        data["ai_chat_history"][section_id].append({"role": "assistant", "content": reply_text})
+
+                        with open(target_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, indent=2)
+                    except Exception as hist_err:
+                        print(f"[AI Chat] Warning saving chat history to result.json: {hist_err}", flush=True)
+
+                self._send_json({
+                    "success": True,
+                    "reply": reply_text,
+                    "section_id": section_id,
+                    "provider": provider_used,
+                    "elapsed_ms": elapsed_ms,
+                    "history": data.get("ai_chat_history", {}).get(section_id, messages + [{"role": "assistant", "content": reply_text}])
+                })
+            except Exception as chat_err:
+                self._send_json({"success": False, "message": f"AI Chat Failed: {str(chat_err)}"}, 500)
+            return
+
+        # ── /api/ai-chat/patch-section ──
+        if path == "/api/ai-chat/patch-section":
+            try:
+                run_id = body.get("run_id", "").strip()
+                section_id = body.get("section_id", "").strip()
+                content = body.get("content")
+
+                if not section_id or content is None:
+                    self._send_json({"success": False, "message": "section_id and content are required"}, 400)
+                    return
+
+                clean_run = run_id if run_id.startswith("run_") else f"run_{run_id}"
+                target_file = _RESULTS_JSON_DIR / f"{clean_run}_result.json"
+                if not target_file.exists():
+                    target_file = _RESULTS_DIR / f"{clean_run}_result.json"
+
+                if not target_file.exists():
+                    self._send_json({"success": False, "message": f"Run file {clean_run}_result.json not found"}, 404)
+                    return
+
+                with open(target_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                ai_insights = data.setdefault("ai_insights", {})
+                perf_intel = ai_insights.setdefault("performance_intelligence", {})
+                exec_summary = perf_intel.setdefault("executive_summary", {})
+
+                if section_id == "exec_overview":
+                    if isinstance(content, list):
+                        exec_summary["assessment_bullets"] = content
+                        exec_summary["assessment_text"] = "\n".join(content)
+                    elif isinstance(content, str):
+                        exec_summary["assessment_bullets"] = [content]
+                        exec_summary["assessment_text"] = content
+                elif section_id == "exec_observations":
+                    if isinstance(content, list):
+                        exec_summary["observations_table"] = content
+                elif section_id == "exec_conclusions":
+                    if isinstance(content, list):
+                        exec_summary["conclusions"] = content
+                elif section_id == "exec_recommendations":
+                    if isinstance(content, list):
+                        exec_summary["priority_recommendations"] = content
+                elif section_id in ("tab_tx_stats", "tab_rt_stats", "tab_error_stats", "tab_infra_stats"):
+                    if isinstance(content, dict):
+                        perf_intel[section_id] = content
+
+                with open(target_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2)
+
+                self._send_json({
+                    "success": True,
+                    "message": f"Successfully updated section {section_id} in {target_file.name}",
+                    "section_id": section_id
+                })
+            except Exception as patch_err:
+                self._send_json({"success": False, "message": f"Patch failed: {str(patch_err)}"}, 500)
+            return
+
+        # ── /api/ai-chat/clear ──
+        if path == "/api/ai-chat/clear":
+            try:
+                run_id = body.get("run_id", "").strip()
+                section_id = body.get("section_id", "").strip()
+                clean_run = run_id if run_id.startswith("run_") else f"run_{run_id}"
+
+                target_file = _RESULTS_JSON_DIR / f"{clean_run}_result.json"
+                if not target_file.exists():
+                    target_file = _RESULTS_DIR / f"{clean_run}_result.json"
+
+                if target_file.exists():
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    if "ai_chat_history" in data and isinstance(data["ai_chat_history"], dict):
+                        if section_id:
+                            data["ai_chat_history"][section_id] = []
+                        else:
+                            data["ai_chat_history"] = {}
+                        with open(target_file, "w", encoding="utf-8") as f:
+                            json.dump(data, f, indent=2)
+
+                self._send_json({"success": True, "message": f"Chat history cleared for {section_id or 'all sections'}."})
+            except Exception as clr_err:
+                self._send_json({"success": False, "message": str(clr_err)}, 500)
+            return
+
+
+
         # ── /api/ai-studio/generate ──
         if path == "/api/ai-studio/generate":
             try:

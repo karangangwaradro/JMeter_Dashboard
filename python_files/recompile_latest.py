@@ -44,7 +44,7 @@ if sorted_results:
             from python_files.ai_insights import generate_insights
             from python_files.sla_manager import load_sla_targets
             jmx_name = parsed.get("jmx_name", "Scenario")
-            actual_users = parsed.get("users", users)
+            actual_users = parsed.get("users", 1)
             sla_targets, default_rt, default_err = load_sla_targets(jmx_name, actual_users=actual_users)
             infra_summary = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
             if not infra_summary and isinstance(azure_data, dict) and "metrics" in azure_data:
