@@ -23,29 +23,31 @@ from services import web_server
 
 
 def main():
-    print()
-    print("  ╔══════════════════════════════════════════════════════╗")
-    print("  ║   ⚡ PerfPilot — Local Performance Testing Utility    ║")
-    print("  ╚══════════════════════════════════════════════════════╝")
-    print()
+    _load_env = getattr(web_server, "_load_env", None)
+    if _load_env:
+        _load_env()
 
-    url = "http://localhost:8080/"
+    port_str = os.environ.get("PORT", "8080").strip()
+    port = int(port_str) if port_str.isdigit() else 8080
+    url = f"http://127.0.0.1:{port}/"
 
     def open_browser():
         import urllib.request
-        for _ in range(30):
-            time.sleep(0.3)
+        for _ in range(40):
+            time.sleep(0.25)
             try:
                 with urllib.request.urlopen(url, timeout=1) as resp:
                     if resp.status == 200:
                         break
             except Exception:
                 pass
-        webbrowser.open(url)
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
 
     threading.Thread(target=open_browser, daemon=True).start()
-
-    web_server.start_server(port=8080)
+    web_server.start_server(port=port)
 
 
 if __name__ == "__main__":

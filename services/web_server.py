@@ -114,19 +114,43 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _serve_file(self, abs_path: Path):
-        if not abs_path.exists() or not abs_path.is_file():
-            self.send_response(404)
+        try:
+            if not abs_path.exists() or not abs_path.is_file():
+                self.send_response(404)
+                self.end_headers()
+                return
+            ext = abs_path.suffix.lower()
+            mime = {
+                ".html": "text/html; charset=utf-8",
+                ".json": "application/json; charset=utf-8",
+                ".css": "text/css; charset=utf-8",
+                ".js": "application/javascript; charset=utf-8",
+                ".svg": "image/svg+xml",
+                ".png": "image/png",
+                ".jpg": "image/jpeg",
+                ".jpeg": "image/jpeg",
+                ".gif": "image/gif",
+                ".ico": "image/x-icon",
+                ".woff": "font/woff",
+                ".woff2": "font/woff2",
+                ".ttf": "font/ttf",
+                ".csv": "text/csv; charset=utf-8",
+                ".jtl": "text/plain; charset=utf-8"
+            }.get(ext, "application/octet-stream")
+            data = abs_path.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(data)))
+            self._add_cors()
             self.end_headers()
-            return
-        ext = abs_path.suffix.lower()
-        mime = {".html": "text/html", ".json": "application/json",
-                ".css": "text/css",   ".js":   "application/javascript"}.get(ext, "application/octet-stream")
-        data = abs_path.read_bytes()
-        self.send_response(200)
-        self.send_header("Content-Type", mime)
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
+            self.wfile.write(data)
+        except Exception as err:
+            print(f"  [Serve File Error] {abs_path}: {err}", flush=True)
+            try:
+                self.send_response(500)
+                self.end_headers()
+            except Exception:
+                pass
 
     def _handle_recompile(self, target_run: str = "", regen_ai: bool = False):
         """Recompile single or all reports with optional live AI insights regeneration."""
@@ -681,8 +705,28 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({"success": False, "message": str(pe_err)}, 500)
             return
 
-        # Static file fallback
-        super().do_GET()
+        # ── Static File Handling (web/ & root) ──
+        if path in ("", "/"):
+            self._serve_file(_WEB_DIR / "index.html")
+            return
+
+        clean_path = path.lstrip("/")
+        target_static = _WEB_DIR / clean_path
+        if target_static.exists() and target_static.is_file():
+            self._serve_file(target_static)
+            return
+
+        # Check if requested path without extension exists as .html (e.g. /compare -> /compare.html)
+        if (not target_static.suffix) and (_WEB_DIR / f"{clean_path}.html").exists():
+            self._serve_file(_WEB_DIR / f"{clean_path}.html")
+            return
+
+        # 404 fallback
+        self.send_response(404)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(b"404 Not Found")
+
 
     # ─────────────────────────────────────────────────────────────────────────
     # POST Handlers
@@ -1565,12 +1609,40 @@ class ThreadedHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
 
 
-def start_server(port: int = 8080):
+def start_server(port: int = None, host: str = None) -> int:
+    _load_env()
+    env_port = os.environ.get("PORT", "").strip()
+    env_host = os.environ.get("HOST", "").strip()
+    
+    selected_port = port or (int(env_port) if env_port.isdigit() else 8080)
+    selected_host = host or (env_host if env_host else "0.0.0.0")
+
     httpd = None
+    actual_port = selected_port
+
+    # Try requested port, with fallback to subsequent ports if occupied
+    for p in range(selected_port, selected_port + 10):
+        try:
+            httpd = ThreadedHTTPServer((selected_host, p), PlatformRequestHandler)
+            actual_port = p
+            break
+        except OSError as e:
+            if getattr(e, 'winerror', None) == 10048 or getattr(e, 'errno', None) in (48, 98, 10048):
+                print(f"  [!] Port {p} is already in use by another process. Trying port {p+1}...", flush=True)
+                continue
+            raise
+
+    if not httpd:
+        raise RuntimeError(f"Could not bind to any port in range {selected_port}-{selected_port+9}")
+
+    print(f"\n  ╔══════════════════════════════════════════════════════╗")
+    print(f"  ║   ⚡ PerfPilot Web Dashboard Ready!                   ║")
+    print(f"  ║   → Local:   http://localhost:{actual_port}/                ║")
+    print(f"  ║   → Direct:  http://127.0.0.1:{actual_port}/                ║")
+    print(f"  ║   Press Ctrl+C in terminal to stop.                 ║")
+    print(f"  ╚══════════════════════════════════════════════════════╝\n", flush=True)
+
     try:
-        httpd = ThreadedHTTPServer(("", port), PlatformRequestHandler)
-        print(f"\n  ⚡ PerfPilot Web Dashboard → http://localhost:{port}/")
-        print(f"  Press Ctrl+C to stop.\n", flush=True)
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\n  [SERVER] Stopped.", flush=True)
@@ -1584,6 +1656,7 @@ def start_server(port: int = 8080):
                 httpd.server_close()
             except Exception:
                 pass
+    return actual_port
 
 
 if __name__ == "__main__":
