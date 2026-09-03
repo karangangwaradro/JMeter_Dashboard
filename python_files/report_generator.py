@@ -1721,8 +1721,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </ul>
 
         <!-- Chat FAB & Drawer for Executive Overview -->
-        <button class="ai-chat-fab" onclick="toggleAiChat('exec_overview')" title="Ask or refine Executive Overview">
-            <span>💬 Ask AI</span>
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_overview')" title="Open PerfAgent for Executive Overview">
+            <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_overview" class="ai-chat-drawer" data-section-id="exec_overview">
             <div class="ai-chat-header">
@@ -1730,7 +1730,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     <div class="ai-chat-title-icon">🎯</div>
                     <div>
                         <div class="ai-chat-title-text">
-                            <span>Executive Overview Agent</span>
+                            <span>Executive Overview — PerfAgent</span>
                             <span class="ai-chat-status-dot"></span>
                         </div>
                     </div>
@@ -1743,8 +1743,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <div id="aiChatMessages_exec_overview" class="ai-chat-messages">
                 <div class="ai-chat-welcome">
                     <div class="ai-welcome-avatar">🎯</div>
-                    <div class="ai-welcome-title">Executive Overview Agent</div>
-                    <div class="ai-welcome-sub">Prompt the agent to rewrite executive summary bullets with specific facts or findings.</div>
+                    <div class="ai-welcome-title">Executive Overview — PerfAgent</div>
+                    <div class="ai-welcome-sub">Ask questions or prompt PerfAgent to rewrite executive summary bullets with specific facts.</div>
                     <div class="ai-quick-prompts">
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_overview', 'Summarize high-level test stability and primary bottlenecks')">🎯 Summarize test stability</button>
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_overview', 'Rewrite executive overview adding specific details on 5xx errors and SLA breaches')">✍️ Rewrite with SLA &amp; error facts</button>
@@ -1752,7 +1752,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 </div>
             </div>
             <div class="ai-chat-input-box">
-                <input type="text" id="aiChatInput_exec_overview" class="ai-chat-input" placeholder="Ask or prompt to rewrite overview..." onkeydown="handleAiChatKey(event, 'exec_overview')" />
+                <input type="text" id="aiChatInput_exec_overview" class="ai-chat-input" placeholder="Ask PerfAgent or prompt to rewrite overview..." onkeydown="handleAiChatKey(event, 'exec_overview')" />
                 <button id="aiChatSendBtn_exec_overview" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_overview')">Send ➤</button>
             </div>
         </div>
@@ -1822,8 +1822,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <!-- Chat FAB & Drawer for High-Level Observations -->
-        <button class="ai-chat-fab" onclick="toggleAiChat('exec_observations')" title="Ask or edit Observations">
-            <span>💬 Ask AI</span>
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_observations')" title="Open PerfAgent for Observations">
+            <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_observations" class="ai-chat-drawer" data-section-id="exec_observations">
             <div class="ai-chat-header">
@@ -1831,7 +1831,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     <div class="ai-chat-title-icon">📋</div>
                     <div>
                         <div class="ai-chat-title-text">
-                            <span>Observations Agent</span>
+                            <span>Observations — PerfAgent</span>
                             <span class="ai-chat-status-dot"></span>
                         </div>
                     </div>
@@ -1844,8 +1844,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <div id="aiChatMessages_exec_observations" class="ai-chat-messages">
                 <div class="ai-chat-welcome">
                     <div class="ai-welcome-avatar">📋</div>
-                    <div class="ai-welcome-title">Observations Agent</div>
-                    <div class="ai-welcome-sub">Query category observations or prompt to rewrite table rows with specific evidence.</div>
+                    <div class="ai-welcome-title">Observations — PerfAgent</div>
+                    <div class="ai-welcome-sub">Ask questions or prompt PerfAgent to rewrite table rows with specific evidence.</div>
                     <div class="ai-quick-prompts">
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_observations', 'Highlight the top 3 transaction degradation observations')">🔍 Highlight top degradations</button>
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_observations', 'Rewrite category observations table focusing on server compute and errors')">✍️ Rewrite observation rows</button>
@@ -1853,7 +1853,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 </div>
             </div>
             <div class="ai-chat-input-box">
-                <input type="text" id="aiChatInput_exec_observations" class="ai-chat-input" placeholder="Ask or prompt to update observations..." onkeydown="handleAiChatKey(event, 'exec_observations')" />
+                <input type="text" id="aiChatInput_exec_observations" class="ai-chat-input" placeholder="Ask PerfAgent or prompt to update observations..." onkeydown="handleAiChatKey(event, 'exec_observations')" />
                 <button id="aiChatSendBtn_exec_observations" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_observations')">Send ➤</button>
             </div>
         </div>
@@ -1876,8 +1876,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </ul>
 
         <!-- Chat FAB & Drawer for Key Conclusions -->
-        <button class="ai-chat-fab" onclick="toggleAiChat('exec_conclusions')" title="Ask or rewrite Conclusions">
-            <span>💬 Ask AI</span>
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_conclusions')" title="Open PerfAgent for Conclusions">
+            <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_conclusions" class="ai-chat-drawer" data-section-id="exec_conclusions">
             <div class="ai-chat-header">
@@ -1885,7 +1885,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     <div class="ai-chat-title-icon">📌</div>
                     <div>
                         <div class="ai-chat-title-text">
-                            <span>Key Conclusions Agent</span>
+                            <span>Key Conclusions — PerfAgent</span>
                             <span class="ai-chat-status-dot"></span>
                         </div>
                     </div>
@@ -1898,8 +1898,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <div id="aiChatMessages_exec_conclusions" class="ai-chat-messages">
                 <div class="ai-chat-welcome">
                     <div class="ai-welcome-avatar">📌</div>
-                    <div class="ai-welcome-title">Key Conclusions Agent</div>
-                    <div class="ai-welcome-sub">Prompt the agent to refine conclusions or add specific production readiness verdicts.</div>
+                    <div class="ai-welcome-title">Key Conclusions — PerfAgent</div>
+                    <div class="ai-welcome-sub">Ask questions or prompt PerfAgent to refine conclusions or add readiness verdicts.</div>
                     <div class="ai-quick-prompts">
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_conclusions', 'What is the final release readiness verdict based on test data?')">🚦 Release readiness verdict</button>
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_conclusions', 'Rewrite key conclusions citing exact CPU peaks and transaction error counts')">✍️ Rewrite conclusions with facts</button>
@@ -1907,7 +1907,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 </div>
             </div>
             <div class="ai-chat-input-box">
-                <input type="text" id="aiChatInput_exec_conclusions" class="ai-chat-input" placeholder="Ask or prompt to rewrite conclusions..." onkeydown="handleAiChatKey(event, 'exec_conclusions')" />
+                <input type="text" id="aiChatInput_exec_conclusions" class="ai-chat-input" placeholder="Ask PerfAgent or prompt to rewrite conclusions..." onkeydown="handleAiChatKey(event, 'exec_conclusions')" />
                 <button id="aiChatSendBtn_exec_conclusions" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_conclusions')">Send ➤</button>
             </div>
         </div>
@@ -1953,8 +1953,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
         </div>
 
         <!-- Chat FAB & Drawer for Recommendations -->
-        <button class="ai-chat-fab" onclick="toggleAiChat('exec_recommendations')" title="Ask or add Recommendations">
-            <span>💬 Ask AI</span>
+        <button class="ai-chat-fab" onclick="toggleAiChat('exec_recommendations')" title="Open PerfAgent for Recommendations">
+            <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_recommendations" class="ai-chat-drawer" data-section-id="exec_recommendations">
             <div class="ai-chat-header">
@@ -1962,7 +1962,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                     <div class="ai-chat-title-icon">💡</div>
                     <div>
                         <div class="ai-chat-title-text">
-                            <span>Recommendations Agent</span>
+                            <span>Recommendations — PerfAgent</span>
                             <span class="ai-chat-status-dot"></span>
                         </div>
                     </div>
@@ -1975,8 +1975,8 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
             <div id="aiChatMessages_exec_recommendations" class="ai-chat-messages">
                 <div class="ai-chat-welcome">
                     <div class="ai-welcome-avatar">💡</div>
-                    <div class="ai-welcome-title">Recommendations Agent</div>
-                    <div class="ai-welcome-sub">Ask for technical remediation strategies or prompt to add tailored recommendations.</div>
+                    <div class="ai-welcome-title">Recommendations — PerfAgent</div>
+                    <div class="ai-welcome-sub">Ask for technical remediation strategies or prompt PerfAgent to add tailored recommendations.</div>
                     <div class="ai-quick-prompts">
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_recommendations', 'Add a high priority recommendation for database indexing and connection pooling')">➕ Add database recommendation</button>
                         <button class="ai-quick-chip" onclick="quickAiPrompt('exec_recommendations', 'Rewrite priority recommendations linking actions to business revenue impact')">💼 Link actions to business impact</button>
@@ -1984,7 +1984,7 @@ def generate_report(parsed: dict, azure_data: dict, ai_insights: dict,
                 </div>
             </div>
             <div class="ai-chat-input-box">
-                <input type="text" id="aiChatInput_exec_recommendations" class="ai-chat-input" placeholder="Ask or prompt to add recommendations..." onkeydown="handleAiChatKey(event, 'exec_recommendations')" />
+                <input type="text" id="aiChatInput_exec_recommendations" class="ai-chat-input" placeholder="Ask PerfAgent or prompt to add recommendations..." onkeydown="handleAiChatKey(event, 'exec_recommendations')" />
                 <button id="aiChatSendBtn_exec_recommendations" class="ai-chat-send-btn" onclick="sendAiChatMessage('exec_recommendations')">Send ➤</button>
             </div>
         </div>
