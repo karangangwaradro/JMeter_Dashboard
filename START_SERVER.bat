@@ -21,10 +21,25 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: 2. Setup venv if missing
+:: 2. Setup venv if missing or invalid (e.g. copied from another device)
+if exist "venv\Scripts\python.exe" (
+    "venv\Scripts\python.exe" -c "import sys" >nul 2>nul
+    if errorlevel 1 (
+        echo [!] Existing virtual environment is pointing to another device's paths.
+        echo [!] Automatically rebuilding virtual environment for this device...
+        rmdir /s /q venv 2>nul
+    )
+)
+
 if not exist "venv\Scripts\python.exe" (
     echo [1/3] Setting up Python virtual environment...
     python -m venv venv
+    if errorlevel 1 (
+        echo [ERROR] Failed to create virtual environment with local Python!
+        echo Please verify Python is installed and added to PATH.
+        pause
+        exit /b 1
+    )
 )
 
 :: 3. Select Python Executable
