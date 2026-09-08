@@ -492,46 +492,131 @@ def enrich_findings_with_ai(findings_result: dict, ai_insights: dict) -> dict:
                 if "recommendations" in ai_perf[tab_key] and ai_perf[tab_key]["recommendations"]:
                     base_perf[tab_key]["recommendations"] = ai_perf[tab_key]["recommendations"]
 
+    # Ingest AI-discovered findings directly if provided
+    ai_findings = ai_insights.get("findings")
+    if isinstance(ai_findings, list) and ai_findings:
+        valid_findings = []
+        for idx, f in enumerate(ai_findings):
+            if isinstance(f, dict) and (f.get("title") or f.get("observation")):
+                fid = f.get("id") or f"F-{idx+1:03d}"
+                raw_sev = str(f.get("severity", "Medium")).lower()
+                if "crit" in raw_sev:
+                    sev = SEV_CRITICAL
+                elif "high" in raw_sev or "slight" in raw_sev:
+                    sev = SEV_HIGH
+                elif "med" in raw_sev or "accept" in raw_sev:
+                    sev = SEV_MEDIUM
+                else:
+                    sev = SEV_LOW
+
+                evidence_list = []
+                raw_ev = f.get("evidence", [])
+                if isinstance(raw_ev, list):
+                    for ev in raw_ev:
+                        if isinstance(ev, dict):
+                            evidence_list.append({
+                                "metric": ev.get("metric", "Metric"),
+                                "value": str(ev.get("value", "")),
+                                "source": ev.get("source", "Telemetry"),
+                                "baseline": ev.get("baseline", "")
+                            })
+                        elif isinstance(ev, str):
+                            evidence_list.append({
+                                "metric": "Evidence",
+                                "value": ev,
+                                "source": "AI Correlation",
+                                "baseline": ""
+                            })
+
+                valid_findings.append({
+                    "id": fid,
+                    "title": f.get("title", f"Finding {fid}"),
+                    "severity": sev,
+                    "category": f.get("category", "performance_analysis"),
+                    "observation": f.get("observation", ""),
+                    "likely_cause": f.get("likely_cause", ""),
+                    "root_cause_assessment": f.get("likely_cause") or f.get("root_cause_assessment", ""),
+                    "why_it_matters": f.get("why_it_matters", f.get("impact", "")),
+                    "recommendation": f.get("recommendation", ""),
+                    "validation": f.get("validation", ""),
+                    "evidence": evidence_list,
+                    "confidence": f.get("confidence") if isinstance(f.get("confidence"), dict) else {"ai_confidence": str(f.get("confidence", "High"))},
+                    "evidence_class": f.get("evidence_class", "CORRELATED"),
+                    "evidence_sources": [ev.get("source", "Telemetry") for ev in evidence_list] if evidence_list else ["Telemetry Analysis"]
+                })
+
+        if valid_findings:
+            findings_result["findings"] = valid_findings
+            for f in valid_findings:
+                title = f.get("title", "")
+                obs = f.get("observation", "")
+                for tx in findings_result.get("transaction_findings", {}).keys():
+                    if tx in title or tx in obs:
+                        findings_result["transaction_findings"][tx] = f
+            findings_result["overall_assessment"] = _compute_overall_assessment(
+                valid_findings,
+                summary=findings_result.get("summary", {}),
+                error_rate=findings_result.get("performance_intelligence", {}).get("error_rate", 0)
+            )
+
+    # Auto-synthesize finding_enrichments from valid_findings if not explicitly provided
+    if "finding_enrichments" not in ai_insights and isinstance(ai_findings, list) and ai_findings:
+        ai_insights["finding_enrichments"] = {
+            f.get("id", f"F-{i+1:03d}"): {
+                "finding": f.get("title", ""),
+                "observation": f.get("observation", ""),
+                "likely_cause": f.get("likely_cause", ""),
+                "impact": f.get("why_it_matters", ""),
+                "recommendation": f.get("recommendation", ""),
+                "validation": f.get("validation", ""),
+                "evidence": f.get("evidence", []),
+                "confidence": f.get("confidence", "Confirmed")
+            }
+            for i, f in enumerate(ai_findings) if isinstance(f, dict)
+        }
+
     enrichments = ai_insights.get("finding_enrichments", {})
-    for finding in findings_result.get("findings", []):
-        fid = finding["id"]
-        if fid in enrichments:
-            enrich = enrichments[fid]
-            if enrich.get("evidence_class"):
-                finding["evidence_class"] = enrich["evidence_class"]
-            if enrich.get("observation"):
-                finding["observation"] = enrich["observation"]
-            if enrich.get("interpretation"):
-                finding["interpretation"] = enrich["interpretation"]
-            if enrich.get("likely_cause"):
-                finding["likely_cause"] = enrich["likely_cause"]
-                finding["root_cause_assessment"] = enrich["likely_cause"]
-            elif enrich.get("root_cause_assessment"):
-                finding["root_cause_assessment"] = enrich["root_cause_assessment"]
-            if enrich.get("impact"):
-                finding["why_it_matters"] = enrich["impact"]
-            elif enrich.get("why_it_matters"):
-                finding["why_it_matters"] = enrich["why_it_matters"]
-            if enrich.get("recommendation"):
-                finding["recommendation"] = enrich["recommendation"]
-            if enrich.get("validation"):
-                finding["validation"] = enrich["validation"]
-            if enrich.get("limitations"):
-                finding["limitations"] = enrich["limitations"]
-            if enrich.get("confidence"):
-                if "confidence" not in finding or not isinstance(finding["confidence"], dict):
-                    finding["confidence"] = {}
-                finding["confidence"]["ai_confidence"] = enrich["confidence"]
-            if enrich.get("evidence") and isinstance(enrich["evidence"], list):
-                finding["evidence"] = [
-                    {
-                        "metric": ev.get("metric", "Metric"),
-                        "value": str(ev.get("value", "")),
-                        "source": ev.get("source", "Telemetry"),
-                        "baseline": ev.get("baseline", "")
-                    }
-                    for ev in enrich["evidence"] if isinstance(ev, dict)
-                ]
+    if isinstance(enrichments, dict):
+        for finding in findings_result.get("findings", []):
+            fid = finding["id"]
+            if fid in enrichments:
+                enrich = enrichments[fid]
+                if isinstance(enrich, dict):
+                    if enrich.get("evidence_class"):
+                        finding["evidence_class"] = enrich["evidence_class"]
+                    if enrich.get("observation"):
+                        finding["observation"] = enrich["observation"]
+                    if enrich.get("interpretation"):
+                        finding["interpretation"] = enrich["interpretation"]
+                    if enrich.get("likely_cause"):
+                        finding["likely_cause"] = enrich["likely_cause"]
+                        finding["root_cause_assessment"] = enrich["likely_cause"]
+                    elif enrich.get("root_cause_assessment"):
+                        finding["root_cause_assessment"] = enrich["root_cause_assessment"]
+                    if enrich.get("impact"):
+                        finding["why_it_matters"] = enrich["impact"]
+                    elif enrich.get("why_it_matters"):
+                        finding["why_it_matters"] = enrich["why_it_matters"]
+                    if enrich.get("recommendation"):
+                        finding["recommendation"] = enrich["recommendation"]
+                    if enrich.get("validation"):
+                        finding["validation"] = enrich["validation"]
+                    if enrich.get("limitations"):
+                        finding["limitations"] = enrich["limitations"]
+                    if enrich.get("confidence"):
+                        if "confidence" not in finding or not isinstance(finding["confidence"], dict):
+                            finding["confidence"] = {}
+                        finding["confidence"]["ai_confidence"] = enrich["confidence"]
+                    if enrich.get("evidence") and isinstance(enrich["evidence"], list):
+                        finding["evidence"] = [
+                            {
+                                "metric": ev.get("metric", "Metric"),
+                                "value": str(ev.get("value", "")),
+                                "source": ev.get("source", "Telemetry"),
+                                "baseline": ev.get("baseline", "")
+                            }
+                            for ev in enrich["evidence"] if isinstance(ev, dict)
+                        ]
 
     ai_recs = ai_insights.get("recommendations", [])
     if ai_recs:

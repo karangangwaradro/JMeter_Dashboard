@@ -401,16 +401,25 @@ def run_local_jmeter(jmx_name: str = None, users: int = 1, duration: str = "0", 
     ai_insights = None
     try:
         from python_files.ai_insights import generate_insights
+        from python_files.sla_manager import load_sla_targets
         print("[JMeter] Generating AI performance insights...", flush=True)
         summary_m = parsed.get("summary", {})
-        infra_m = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
+        infra_m = azure_data if (isinstance(azure_data, dict) and azure_data) else {}
+        actual_users = parsed.get("users", 1)
+        sla_targets, default_rt, default_err = load_sla_targets(parsed.get("jmx_name", ""), actual_users=actual_users)
         ai_insights = generate_insights(
-            test_name=parsed["jmx_name"],
+            test_name=parsed.get("jmx_name", "Scenario"),
             summary=summary_m,
             labels=parsed.get("labels", {}),
             time_series=parsed.get("time_series", {}),
             infra=infra_m,
-            correlation=parsed.get("correlation", {})
+            correlation=parsed.get("correlation", {}),
+            sla_targets=sla_targets,
+            default_rt=default_rt,
+            default_err=default_err,
+            error_details=parsed.get("error_details", {}),
+            users=actual_users,
+            rampup=parsed.get("rampup", 0)
         )
         if ai_insights:
             print("[JMeter] AI insights generated successfully", flush=True)

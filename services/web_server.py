@@ -79,6 +79,77 @@ except Exception:
 
 
 
+def _normalize_ai_chat_reply(reply_text: str, section_id: str = "") -> str:
+    """
+    Normalizes AI chat responses. If the model emitted raw tool-call tokens:
+    <|tool_call_start|>[action(action='patch_section', template='...')],
+    converts it into clean conversational text + standard ```action:patch_section markdown fence.
+    """
+    if not reply_text:
+        return ""
+
+    if "<|tool_call_start|>" not in reply_text and "[action(" not in reply_text:
+        return reply_text
+
+    pattern = r'(?:<\|tool_call_start\|>)?\s*\[action\s*\(([\s\S]*?)\)\]\s*(?:<\|tool_call_end\|>)?|<\|tool_call_start\|>[\s\S]*?<\|tool_call_end\|>'
+    match = re.search(pattern, reply_text)
+    if not match:
+        return re.sub(r'<\|tool_call_start\|>|<\|tool_call_end\|>', '', reply_text).strip()
+
+    matched_block = match.group(0)
+
+    # Try to extract template JSON
+    json_obj = None
+    m_single = re.search(r"template\s*=\s*'([\s\S]*?)'(?:\s*,\s*|\s*\))", matched_block)
+    m_double = re.search(r'template\s*=\s*"([\s\S]*?)"(?:\s*,\s*|\s*\))', matched_block)
+
+    raw_json = None
+    if m_single:
+        raw_json = m_single.group(1)
+    elif m_double:
+        raw_json = m_double.group(1)
+    else:
+        fb = matched_block.find('{')
+        lb = matched_block.rfind('}')
+        if fb != -1 and lb != -1 and lb > fb:
+            raw_json = matched_block[fb:lb+1]
+
+    if raw_json:
+        try:
+            json_obj = json.loads(raw_json)
+        except Exception:
+            try:
+                unescaped = raw_json.replace('\\"', '"').replace("\\'", "'")
+                json_obj = json.loads(unescaped)
+            except Exception:
+                pass
+
+    conversational_text = reply_text.replace(matched_block, "").strip()
+    conversational_text = re.sub(r'<\|tool_call_start\|>|<\|tool_call_end\|>', '', conversational_text).strip()
+
+    if json_obj and isinstance(json_obj, dict):
+        sec = json_obj.get("section_id") or section_id or "exec_overview"
+        content = json_obj.get("content")
+
+        if isinstance(content, str) and sec in ("exec_overview", "exec_conclusions"):
+            if "\n- " in content or "\n• " in content or "\n* " in content:
+                bullets = [re.sub(r'^[-•*]\s+', '', b).strip() for b in re.split(r'\n[-•*]\s+', content) if b.strip()]
+                json_obj["content"] = bullets
+            elif "\n\n" in content:
+                bullets = [b.strip() for b in content.split("\n\n") if b.strip()]
+                json_obj["content"] = bullets
+            else:
+                json_obj["content"] = [content.strip()]
+
+        if not conversational_text:
+            conversational_text = "I have prepared the updated points for this section based on your request. Review the preview below and click **Apply to Report** to update the report in place."
+
+        clean_json_str = json.dumps(json_obj, indent=2)
+        return f"{conversational_text}\n\n```action:patch_section\n{clean_json_str}\n```"
+
+    return re.sub(r'<\|tool_call_start\|>|<\|tool_call_end\|>', '', reply_text).strip()
+
+
 class PlatformRequestHandler(SimpleHTTPRequestHandler):
     """Serves static frontend files (web/) and dynamic /api/* endpoints."""
 
@@ -222,17 +293,21 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                             from python_files.azure_collector import AzureMetricsCollector
                             infra_summary = AzureMetricsCollector._summarize_metrics(azure_data)
 
+                        infra_to_pass = azure_data if (isinstance(azure_data, dict) and azure_data) else infra_summary
                         print(f"[Recompile] Regenerating live AI insights for {target_file.name}...", flush=True)
                         fresh_ai = generate_insights(
                             test_name=jmx_name,
                             summary=parsed_res.get("summary", {}),
                             labels=parsed_res.get("labels", {}),
                             time_series=parsed_res.get("time_series", {}),
-                            infra=infra_summary,
+                            infra=infra_to_pass,
                             correlation=parsed_res.get("correlation", {}),
                             sla_targets=sla_targets,
                             default_rt=default_rt,
-                            default_err=default_err
+                            default_err=default_err,
+                            error_details=parsed_res.get("error_details", {}),
+                            users=users,
+                            rampup=parsed_res.get("rampup", 0)
                         )
                         if fresh_ai and fresh_ai.get("source") != "none":
                             parsed_res["ai_insights"] = fresh_ai
@@ -304,11 +379,11 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             openrouter_configured = bool(os.environ.get("OPENROUTER_API_KEY", "").strip())
             gemini_configured = bool(os.environ.get("GEMINI_API_KEY", "").strip())
             github_configured = bool(os.environ.get("GITHUB_TOKEN", "").strip())
-            provider = os.environ.get("DEFAULT_AI_PROVIDER", "openrouter" if openrouter_configured else ("gemini" if gemini_configured else "github"))
-            model = os.environ.get("DEFAULT_AI_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
-            if model == "nvidia/llama-3.1-nemotron-70b-instruct":
-                model = "nvidia/nemotron-3-ultra-550b-a55b:free"
-            elif model == "gemini-2.0-flash":
+            provider = os.environ.get("DEFAULT_AI_PROVIDER", "gemini" if gemini_configured else ("openrouter" if openrouter_configured else "github"))
+            model = os.environ.get("DEFAULT_AI_MODEL", "gemini-2.5-flash" if gemini_configured else "openrouter/free")
+            if model in ("nvidia/llama-3.1-nemotron-70b-instruct", "nvidia/nemotron-3-ultra-550b-a55b:free", "minimax/minimax-m3:free"):
+                model = "gemini-2.5-flash" if gemini_configured else "openrouter/free"
+            elif model in ("gemini-2.0-flash", "gemini-2.0-flash-exp"):
                 model = "gemini-2.5-flash"
 
             if provider == "openrouter" and openrouter_configured:
@@ -342,11 +417,11 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
             gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
             github_token = os.environ.get("GITHUB_TOKEN", "").strip()
-            provider = os.environ.get("DEFAULT_AI_PROVIDER", "openrouter" if openrouter_key else ("gemini" if gemini_key else "github"))
-            model = os.environ.get("DEFAULT_AI_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
-            if model == "nvidia/llama-3.1-nemotron-70b-instruct":
-                model = "nvidia/nemotron-3-ultra-550b-a55b:free"
-            elif model == "gemini-2.0-flash":
+            provider = os.environ.get("DEFAULT_AI_PROVIDER", "gemini" if gemini_key else ("openrouter" if openrouter_key else "github"))
+            model = os.environ.get("DEFAULT_AI_MODEL", "gemini-2.5-flash" if gemini_key else "openrouter/free")
+            if model in ("nvidia/llama-3.1-nemotron-70b-instruct", "nvidia/nemotron-3-ultra-550b-a55b:free", "minimax/minimax-m3:free"):
+                model = "gemini-2.5-flash" if gemini_key else "openrouter/free"
+            elif model in ("gemini-2.0-flash", "gemini-2.0-flash-exp"):
                 model = "gemini-2.5-flash"
 
             def mask(k):
@@ -537,37 +612,45 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             self._send_json({"runs": runs})
             return
 
-        # ── /api/comparison/runs (GET) ──
-        if path == "/api/comparison/runs":
+        # ── /api/comparison/runs and /api/runs (GET) ──
+        if path in ("/api/comparison/runs", "/api/compare-runs/list"):
             try:
-                from python_files.comparison_engine import get_available_runs
+                from python_files.compare_service import get_available_runs
                 runs = get_available_runs()
                 self._send_json({"success": True, "runs": runs})
             except Exception as cr_err:
                 self._send_json({"success": False, "message": str(cr_err)}, 500)
             return
 
-        # ── /api/comparison/data (GET) ──
-        if path == "/api/comparison/data":
+        # ── /api/compare-runs and /api/comparison/data (GET) ──
+        if path in ("/api/compare-runs", "/api/comparison/data"):
             try:
                 query = urllib.parse.parse_qs(parsed.query)
-                run_a = query.get("run_a", query.get("baseline_id", [""]))[0]
-                run_b = query.get("run_b", query.get("current_id", [""]))[0]
-                proj = query.get("project", [""])[0]
-                story = query.get("user_story", [""])[0]
-                i_type = query.get("item_type", ["TRANSACTIONS_ONLY"])[0]
+                baseline_id = query.get("baseline_id", query.get("run_a", [""]))[0]
+                current_id = query.get("current_id", query.get("run_b", [""]))[0]
 
-                from python_files.comparison_engine import build_run_comparison
-                data = build_run_comparison(
-                    run_a_id=run_a,
-                    run_b_id=run_b,
-                    project=proj,
-                    user_story=story,
-                    item_type_filter=i_type
-                )
+                import importlib
+                import python_files.compare_service as cs_mod
+                importlib.reload(cs_mod)
+                data = cs_mod.compare_two_runs(baseline_id=baseline_id, current_id=current_id)
                 self._send_json(data)
             except Exception as ce_err:
                 self._send_json({"success": False, "message": str(ce_err)}, 500)
+            return
+
+        # ── /api/comparison/draft and /api/compare-runs/draft (GET) ──
+        if path in ("/api/comparison/draft", "/api/compare-runs/draft"):
+            try:
+                query = urllib.parse.parse_qs(parsed.query)
+                current_id = query.get("current_id", query.get("run_id", [""]))[0]
+                from python_files.compare_service import load_comparison_draft
+                draft = load_comparison_draft(current_id)
+                if draft:
+                    self._send_json({"success": True, "draft": draft})
+                else:
+                    self._send_json({"success": False, "message": "No comparison draft found for this run."}, 404)
+            except Exception as cd_err:
+                self._send_json({"success": False, "message": str(cd_err)}, 500)
             return
 
         # ── /api/trend/hierarchy (GET) ──
@@ -800,7 +883,15 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 from python_files.context_packager import build_section_digest, build_chat_system_prompt
                 from python_files.ai_insights import execute_chat_completion
 
-                section_digest = build_section_digest(data, azure_data, section_id)
+                comparison_data = None
+                if section_id in ("tab_comparison", "compare"):
+                    baseline_id = body.get("baseline_id", "").strip()
+                    if baseline_id:
+                        from python_files.compare_service import compare_two_runs
+                        clean_base = baseline_id if baseline_id.startswith("run_") else f"run_{baseline_id}"
+                        comparison_data = compare_two_runs(baseline_id=clean_base, current_id=clean_run)
+
+                section_digest = build_section_digest(data, azure_data, section_id, comparison_data=comparison_data)
                 system_prompt = build_chat_system_prompt(section_id, section_digest)
 
                 # Format conversation history
@@ -817,6 +908,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                     system_prompt=system_prompt,
                     messages=messages
                 )
+                reply_text = _normalize_ai_chat_reply(reply_text, section_id=section_id)
 
                 # Update persisted chat history in result.json
                 if target_file and target_file.exists():
@@ -889,7 +981,7 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 elif section_id == "exec_recommendations":
                     if isinstance(content, list):
                         exec_summary["priority_recommendations"] = content
-                elif section_id in ("tab_tx_stats", "tab_rt_stats", "tab_error_stats", "tab_infra_stats"):
+                elif section_id in ("tab_tx_stats", "tab_rt_stats", "tab_error_stats", "tab_infra_stats", "tab_comparison", "compare"):
                     if isinstance(content, dict):
                         perf_intel[section_id] = content
 
@@ -939,10 +1031,10 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
             try:
                 run_id = body.get("run_id", "")
                 custom_prompt = body.get("prompt", "")
-                model = body.get("model", "nvidia/nemotron-3-ultra-550b-a55b:free")
-                if model == "nvidia/llama-3.1-nemotron-70b-instruct":
-                    model = "nvidia/nemotron-3-ultra-550b-a55b:free"
-                elif model == "gemini-2.0-flash":
+                model = body.get("model", "gemini-2.5-flash")
+                if model in ("nvidia/llama-3.1-nemotron-70b-instruct", "nvidia/nemotron-3-ultra-550b-a55b:free", "minimax/minimax-m3:free"):
+                    model = "gemini-2.5-flash"
+                elif model in ("gemini-2.0-flash", "gemini-2.0-flash-exp"):
                     model = "gemini-2.5-flash"
                 temperature = float(body.get("temperature", 0.2))
                 
@@ -1355,10 +1447,10 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
         # ── /api/ai-config (POST) ──
         if path == "/api/ai-config":
             provider = body.get("provider", "openrouter").strip().lower()
-            model = body.get("model", "nvidia/nemotron-3-ultra-550b-a55b:free").strip()
-            if model == "nvidia/llama-3.1-nemotron-70b-instruct":
-                model = "nvidia/nemotron-3-ultra-550b-a55b:free"
-            elif model == "gemini-2.0-flash":
+            model = body.get("model", "gemini-2.5-flash").strip()
+            if model in ("nvidia/llama-3.1-nemotron-70b-instruct", "nvidia/nemotron-3-ultra-550b-a55b:free", "minimax/minimax-m3:free"):
+                model = "gemini-2.5-flash"
+            elif model in ("gemini-2.0-flash", "gemini-2.0-flash-exp"):
                 model = "gemini-2.5-flash"
             openrouter_key = body.get("openrouter_key", "").strip()
             gemini_key = body.get("gemini_key", "").strip()
@@ -1411,91 +1503,46 @@ class PlatformRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({"success": False, "message": str(te_err)}, 500)
             return
 
-        # ── /api/trend/compare-report ──
-        if path == "/api/trend/compare-report":
+        # ── /api/compare-runs and /api/comparison/data (POST) ──
+        if path in ("/api/compare-runs", "/api/comparison/data"):
             try:
-                run_ids = body.get("run_ids", [])
-                from python_files.trend_engine import compare_runs, generate_comparison_html
-                cmp_data = compare_runs(run_ids)
-                html_doc = generate_comparison_html(cmp_data)
-                
-                # Save generated comparison report into Results/Published/
-                report_name = f"comparison_report_{int(time.time())}.html"
-                report_path = _PUBLISHED_DIR / report_name
-                report_path.write_text(html_doc, encoding="utf-8")
+                baseline_id = body.get("baseline_id", body.get("run_a", ""))
+                current_id = body.get("current_id", body.get("run_b", ""))
 
-                self._send_json({
-                    "success": True,
-                    "report_file": report_name,
-                    "url": f"/Results/Published/{report_name}"
-                })
-            except Exception as te_err:
-                self._send_json({"success": False, "message": str(te_err)}, 500)
-            return
-
-        # ── /api/comparison/data (POST) ──
-        if path == "/api/comparison/data":
-            try:
-                run_a = body.get("run_a", body.get("baseline_id", ""))
-                run_b = body.get("run_b", body.get("current_id", ""))
-                proj = body.get("project", "")
-                story = body.get("user_story", "")
-                i_type = body.get("item_type", "TRANSACTIONS_ONLY")
-
-                from python_files.comparison_engine import build_run_comparison
-                data = build_run_comparison(
-                    run_a_id=run_a,
-                    run_b_id=run_b,
-                    project=proj,
-                    user_story=story,
-                    item_type_filter=i_type
-                )
+                import importlib
+                import python_files.compare_service as cs_mod
+                importlib.reload(cs_mod)
+                data = cs_mod.compare_two_runs(baseline_id=baseline_id, current_id=current_id)
                 self._send_json(data)
             except Exception as ce_err:
                 self._send_json({"success": False, "message": str(ce_err)}, 500)
             return
 
-        # ── /api/comparison/generate-report ──
-        if path == "/api/comparison/generate-report":
+        # ── /api/comparison/draft and /api/compare-runs/draft (POST) ──
+        if path in ("/api/comparison/draft", "/api/compare-runs/draft"):
             try:
-                run_a = body.get("run_a", body.get("baseline_id", ""))
-                run_b = body.get("run_b", body.get("current_id", ""))
-                proj = body.get("project", "")
-                story = body.get("user_story", "")
-                i_type = body.get("item_type", "TRANSACTIONS_ONLY")
+                current_id = body.get("current_id", body.get("run_id", ""))
+                baseline_id = body.get("baseline_id", body.get("run_a", ""))
+                cmp_data = body.get("data", {})
+                custom_edits = body.get("custom_edits", {})
 
-                from python_files.comparison_engine import build_run_comparison, generate_run_comparison_html
-                comp_data = build_run_comparison(
-                    run_a_id=run_a,
-                    run_b_id=run_b,
-                    project=proj,
-                    user_story=story,
-                    item_type_filter=i_type
-                )
-                html_doc = generate_run_comparison_html(comp_data)
-                
-                # Save report
-                ts_str = time.strftime("%Y%m%d_%H%M%S")
-                proj_slug = "".join(c for c in proj if c.isalnum() or c in "_-") or "Project"
-                report_name = f"comparison_{proj_slug}_{ts_str}.html"
-                
-                _RESULTS_HTML_DIR.mkdir(parents=True, exist_ok=True)
-                _PUBLISHED_DIR.mkdir(parents=True, exist_ok=True)
-                
-                html_out_path = _RESULTS_HTML_DIR / report_name
-                html_out_path.write_text(html_doc, encoding="utf-8")
-                
-                pub_out_path = _PUBLISHED_DIR / report_name
-                pub_out_path.write_text(html_doc, encoding="utf-8")
+                from python_files.compare_service import save_comparison_draft
+                res = save_comparison_draft(current_id=current_id, baseline_id=baseline_id,
+                                            data=cmp_data, custom_edits=custom_edits)
+                self._send_json(res, 200 if res.get("success") else 400)
+            except Exception as sd_err:
+                self._send_json({"success": False, "message": str(sd_err)}, 500)
+            return
 
-                self._send_json({
-                    "success": True,
-                    "report_file": report_name,
-                    "url": f"/Results/html/{report_name}",
-                    "published_url": f"/Results/Published/{report_name}"
-                })
-            except Exception as cg_err:
-                self._send_json({"success": False, "message": str(cg_err)}, 500)
+        # ── /api/comparison/clear-draft and /api/compare-runs/clear-draft (POST) ──
+        if path in ("/api/comparison/clear-draft", "/api/compare-runs/clear-draft"):
+            try:
+                current_id = body.get("current_id", body.get("run_id", ""))
+                from python_files.compare_service import clear_comparison_draft
+                res = clear_comparison_draft(current_id=current_id)
+                self._send_json(res)
+            except Exception as cl_err:
+                self._send_json({"success": False, "message": str(cl_err)}, 500)
             return
 
         # ── /api/trend/generate-report ──

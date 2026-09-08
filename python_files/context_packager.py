@@ -229,7 +229,7 @@ def _build_raw_data_summary(result_data: Dict[str, Any], azure_data: Dict[str, A
     }
 
 
-def build_section_digest(result_data: Dict[str, Any], azure_data: Dict[str, Any], section_id: str) -> Dict[str, Any]:
+def build_section_digest(result_data: Dict[str, Any], azure_data: Dict[str, Any], section_id: str, comparison_data: Dict[str, Any] = None) -> Dict[str, Any]:
     """
     Builds a comprehensive micro-digest tailored specifically for the requested subsection or tab,
     providing BOTH the existing AI observations AND structured raw performance metrics.
@@ -382,6 +382,76 @@ def build_section_digest(result_data: Dict[str, Any], azure_data: Dict[str, Any]
             }
         }
 
+    # ── 9. Run & Benchmark Comparison Tab Digest ──
+    elif section_id in ("tab_comparison", "compare", "comparison"):
+        comp = comparison_data or {}
+        sc = comp.get("scorecard", {})
+        ai_comp = comp.get("ai_insights", {})
+        txs = comp.get("transaction_comparisons", [])
+        transitions = comp.get("sla_transitions", {})
+
+        raw_tx_list = []
+        for t in (txs or []):
+            raw_tx_list.append({
+                "transaction": t.get("label", ""),
+                "sla_target_rt_ms": t.get("target_rt", 0),
+                "sla_target_err_pct": t.get("target_err", 0),
+                "baseline": {
+                    "samples": t.get("count_a", 0),
+                    "avg_rt_ms": t.get("rt_a", 0),
+                    "p90_ms": t.get("p90_a", 0),
+                    "p95_ms": t.get("p95_a", 0),
+                    "errors": t.get("err_count_a", 0),
+                    "error_rate_pct": t.get("err_rate_a", 0)
+                },
+                "current": {
+                    "samples": t.get("count_b", 0),
+                    "avg_rt_ms": t.get("rt_b", 0),
+                    "p90_ms": t.get("p90_b", 0),
+                    "p95_ms": t.get("p95_b", 0),
+                    "errors": t.get("err_count_b", 0),
+                    "error_rate_pct": t.get("err_rate_b", 0)
+                }
+            })
+        if len(raw_tx_list) > 35:
+            raw_tx_list = sorted(raw_tx_list, key=lambda x: (x["current"]["samples"] + x["baseline"]["samples"]), reverse=True)[:35]
+
+        return {
+            "section_id": "tab_comparison",
+            "section_name": "Run & Benchmark Comparison",
+            "current_content": {
+                "risk_level": ai_comp.get("risk_level", "N/A"),
+                "status_badge": ai_comp.get("status_badge", "N/A"),
+                "summary": ai_comp.get("executive_summary", ""),
+                "highlights": ai_comp.get("highlights", []),
+                "recommendations": ai_comp.get("recommendations", []),
+                "findings": ai_comp.get("findings", [])
+            },
+            "raw_performance_data": {
+                "scorecard_summary": {
+                    "baseline_run": comp.get("baseline_run", {}),
+                    "current_run": comp.get("current_run", {}),
+                    "rt_baseline_ms": sc.get("run_a_rt"),
+                    "rt_current_ms": sc.get("run_b_rt"),
+                    "rt_delta_pct": f"{sc.get('rt_change_pct', 0):+.1f}%",
+                    "p90_baseline_ms": sc.get("run_a_p90"),
+                    "p90_current_ms": sc.get("run_b_p90"),
+                    "p90_delta_pct": f"{sc.get('p90_change_pct', 0):+.1f}%",
+                    "throughput_baseline_tps": sc.get("run_a_tps"),
+                    "throughput_current_tps": sc.get("run_b_tps"),
+                    "throughput_delta_pct": f"{sc.get('tps_change_pct', 0):+.1f}%",
+                    "error_rate_baseline_pct": sc.get("run_a_err_rate"),
+                    "error_rate_current_pct": sc.get("run_b_err_rate"),
+                    "error_rate_delta_pp": f"{sc.get('err_change_pp', 0):+.2f}%",
+                    "iterations_baseline": sc.get("run_a_iter"),
+                    "iterations_current": sc.get("run_b_iter"),
+                    "sla_pass_rate_baseline_pct": sc.get("run_a_sla_pass"),
+                    "sla_pass_rate_current_pct": sc.get("run_b_sla_pass")
+                },
+                "transactions_raw_telemetry": raw_tx_list
+            }
+        }
+
     # Default fallback
     return {
         "section_id": section_id,
@@ -407,14 +477,18 @@ STRICT BEHAVIOR & SCOPE RULES:
    - "2. Response Time Statistics": Reference exact avg, p90, p95, p99 response times and SLA breaches/deviations from `category_2_response_time_statistics_raw` / `sla_compliance_raw`.
    - "3. Error Statistics": Reference exact error counts, error rates %, HTTP status codes (e.g. 500, 503, 404), failure messages, and failing endpoints from `category_3_error_statistics_raw`.
    - "4. Server Monitoring": Reference exact CPU/Memory averages, peak values, EXACT peak duration timestamps (e.g. "2026-08-10T00:20:00Z"), IOPS, App Service 5xx errors, and degradation trends from `category_4_server_monitoring_raw` / `server_infrastructure_raw`.
-3. NEVER make up numbers or guess values not present in the data. Cite exact response times, error counts, percentages, and transaction names.
-4. Tone: Professional, objective, direct, factual, client-ready performance engineering. Keep answers concise.
-5. DO NOT use internal code tags like F-001 or R-001.
+3. If assisting on "Run & Benchmark Comparison" (`tab_comparison`):
+   - Reference exact baseline vs current numbers, delta percentages, new SLA breaches, resolved breaches, and throughput/iteration changes from `scorecard_summary` and `sla_transitions`.
+   - Provide concrete technical reasoning for regressions and actionable remediation steps.
+4. NEVER make up numbers or guess values not present in the data. Cite exact response times, error counts, percentages, and transaction names.
+5. Tone: Professional, objective, direct, factual, client-ready performance engineering. Keep answers concise.
+6. DO NOT use internal code tags like F-001 or R-001.
 
 AGENTIC REPORT EDITING / REWRITING INSTRUCTIONS:
-If the user asks you to rewrite, update, refine, replace, or add content to this section (e.g. "in server monitoring add how server degraded over time", "update conclusions with Y", "add a recommendation for Z"):
-1. Provide a brief 1-2 sentence conversational summary explaining the updates made.
-2. ALWAYS append an actionable JSON patch block at the very end of your response using this exact format:
+If the user asks you to rewrite, update, refine, replace, or add content to this section (e.g. "rewrite comparison verdict", "in server monitoring add how server degraded over time", "update conclusions with Y", "add a recommendation for Z", "add 2 some more points"):
+1. ALWAYS start with a 1-2 sentence professional conversational explanation in plain English (e.g., "I have updated the executive overview with additional details on tail latency and CPU saturation.").
+2. CRITICAL SYNTAX CONSTRAINT: NEVER output raw tool-calling or function-calling tokens (e.g., NEVER write `<|tool_call_start|>`, `<|tool_call_end|>`, or `[action(...)]`). Output standard plain markdown.
+3. ALWAYS append an actionable JSON patch block at the very end of your response using this exact code fence format:
 
 ```action:patch_section
 {{
@@ -428,6 +502,7 @@ Format of "content" depends on the current section:
 - For "exec_observations": JSON array of observation objects: [{{"category": "1. Transaction Statistics", "observation": "a. Detail...\nb. Detail..."}}, {{"category": "2. Response Time Statistics", "observation": "..."}}, {{"category": "3. Error Statistics", "observation": "..."}}, {{"category": "4. Server Monitoring", "observation": "a. CPU peaked at 91.4% at timestamp 2026-08-10T00:20:00Z as user concurrency reached peak load...\nb. Memory increased from 52.4% to 89.3%..."}}]
 - For "exec_recommendations": JSON array of recommendation objects: [{{"badge": "🟠", "title": "Short Title", "priority": "High", "detail": "Technical action detail...", "business_impact": "Direct revenue or user impact..."}}]
 - For "tab_tx_stats", "tab_rt_stats", "tab_error_stats", "tab_infra_stats": JSON object: {{"observations": ["Observation 1", "Observation 2"], "recommendations": ["Recommendation 1"]}}
+- For "tab_comparison": JSON object: {{"summary": "2-4 sentence executive comparative assessment...", "highlights": ["Observation 1", "Observation 2"], "recommendations": ["Recommendation 1", "Recommendation 2"]}}
 
 CURRENT SECTION CONTEXT DATA (AI OBSERVATIONS + COMPLETE SUMMARIZED RAW DATA):
 {digest_json}

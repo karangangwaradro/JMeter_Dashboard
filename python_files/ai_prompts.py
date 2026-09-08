@@ -10,11 +10,139 @@ import json
 from typing import Dict, Any, List, Optional
 
 
+def _format_time_series_progression(time_series: dict) -> str:
+    """Format summarized progression table from JMeter time_series data."""
+    if not time_series or not isinstance(time_series, dict):
+        return "  Time-series telemetry not available"
+
+    labels = time_series.get("ts_labels", [])
+    if not labels or not isinstance(labels, list):
+        return "  Time-series telemetry not available"
+
+    avg_rts = time_series.get("ts_avg_rt", [])
+    p95_rts = time_series.get("ts_p95_rt", [])
+    p99_rts = time_series.get("ts_p99_rt", [])
+    tps = time_series.get("ts_throughput", [])
+    errors = time_series.get("ts_errors", [])
+    threads = time_series.get("ts_active_threads", [])
+
+    n = len(labels)
+    if n > 16:
+        step = max(1, n // 14)
+        indices = list(range(0, n, step))
+        if (n - 1) not in indices:
+            indices.append(n - 1)
+    else:
+        indices = list(range(n))
+
+    lines = [
+        "  Interval | Users/Threads | Throughput (req/s) | Avg RT (ms) | P95 RT (ms) | P99 RT (ms) | Errors",
+        "  ---------+---------------+--------------------+-------------+-------------+-------------+-------"
+    ]
+    for i in indices:
+        lbl = str(labels[i]) if i < len(labels) else ""
+        th = f"{threads[i]}" if i < len(threads) else "-"
+        tp = f"{tps[i]:.1f}" if i < len(tps) and isinstance(tps[i], (int, float)) else "-"
+        art = f"{avg_rts[i]:.0f}" if i < len(avg_rts) and isinstance(avg_rts[i], (int, float)) else "-"
+        p95 = f"{p95_rts[i]:.0f}" if i < len(p95_rts) and isinstance(p95_rts[i], (int, float)) else "-"
+        p99 = f"{p99_rts[i]:.0f}" if i < len(p99_rts) and isinstance(p99_rts[i], (int, float)) else "-"
+        err = f"{errors[i]}" if i < len(errors) else "0"
+        lines.append(f"  {lbl:<8} | {th:<13} | {tp:<18} | {art:<11} | {p95:<11} | {p99:<11} | {err}")
+
+    return "\n".join(lines)
+
+
+def _format_azure_infra_telemetry(infra: dict) -> str:
+    """Format comprehensive host infrastructure and Azure telemetry."""
+    if not infra or not isinstance(infra, dict):
+        return "  Server-side infrastructure telemetry not configured / not available."
+
+    lines = []
+    infra_sum = infra.get("infra_summary") if "infra_summary" in infra else infra
+    if isinstance(infra_sum, dict) and infra_sum:
+        cpu_avg = infra_sum.get("avg_cpu", 0)
+        cpu_max = infra_sum.get("max_cpu", 0)
+        mem_avg = infra_sum.get("avg_memory", 0)
+        mem_max = infra_sum.get("max_memory", 0)
+        net_in = infra_sum.get("avg_network_in_mbps", 0)
+        net_out = infra_sum.get("avg_network_out_mbps", 0)
+        disk_r = infra_sum.get("avg_disk_read_iops", 0)
+        disk_w = infra_sum.get("avg_disk_write_iops", 0)
+
+        lines.append("  HOST COMPUTE SUMMARY:")
+        lines.append(f"    - CPU Utilization: Average={cpu_avg:.1f}%, Peak Maximum={cpu_max:.1f}% {'🔴 SATURATED (>80%)' if cpu_max > 80 else '🟢 HEALTHY'}")
+        lines.append(f"    - Memory Utilization: Average={mem_avg:.1f}%, Peak Maximum={mem_max:.1f}% {'🔴 HIGH (>80%)' if mem_max > 80 else '🟢 HEALTHY'}")
+        lines.append(f"    - Network Traffic: Inbound={net_in:.1f} MB/min, Outbound={net_out:.1f} MB/min")
+        if disk_r > 0 or disk_w > 0:
+            lines.append(f"    - Storage IOPS: Read={disk_r:,.0f} IOPS, Write={disk_w:,.0f} IOPS")
+
+    app_svc = infra.get("app_service", {})
+    if isinstance(app_svc, dict) and app_svc:
+        h2 = app_svc.get("http_2xx", 0)
+        h4 = app_svc.get("http_4xx", 0)
+        h5 = app_svc.get("http_5xx", 0)
+        rt = app_svc.get("avg_response_time_ms", 0)
+        lines.append("  AZURE APP SERVICE / APPLICATION GATEWAY STATUS:")
+        lines.append(f"    - HTTP Responses: 2xx Success={h2:,}, 4xx Client Errors={h4:,}, 5xx Server Faults={h5:,} {'🔴 SERVER FAILURES PRESENT' if h5 > 0 else '🟢 OK'}")
+        if rt:
+            lines.append(f"    - Server-Side Average Latency: {rt:.1f} ms")
+
+    az_ts = infra.get("time_series", {})
+    if isinstance(az_ts, dict) and az_ts.get("timestamps"):
+        timestamps = az_ts.get("timestamps", [])
+        cpus = az_ts.get("cpu", [])
+        mems = az_ts.get("memory", [])
+        nin = az_ts.get("network_in", [])
+        nout = az_ts.get("network_out", [])
+        
+        lines.append("  HOST INFRASTRUCTURE PROGRESSION OVER TIME:")
+        lines.append("    Timestamp           | CPU (%) | Memory (%) | Net In (MB/m) | Net Out (MB/m)")
+        lines.append("    --------------------+---------+------------+---------------+---------------")
+        for idx in range(min(12, len(timestamps))):
+            ts_str = str(timestamps[idx])[-8:] if len(str(timestamps[idx])) >= 8 else str(timestamps[idx])
+            c_val = f"{cpus[idx]:.1f}%" if idx < len(cpus) and isinstance(cpus[idx], (int, float)) else "-"
+            m_val = f"{mems[idx]:.1f}%" if idx < len(mems) and isinstance(mems[idx], (int, float)) else "-"
+            ni_val = f"{nin[idx]:.1f}" if idx < len(nin) and isinstance(nin[idx], (int, float)) else "-"
+            no_val = f"{nout[idx]:.1f}" if idx < len(nout) and isinstance(nout[idx], (int, float)) else "-"
+            lines.append(f"    {ts_str:<19} | {c_val:<7} | {m_val:<10} | {ni_val:<13} | {no_val}")
+
+    return "\n".join(lines) if lines else "  Server-side infrastructure telemetry not configured / not available."
+
+
+def _format_error_breakdown(error_details: dict) -> str:
+    """Format error distribution by HTTP code and affected transactions."""
+    if not error_details or not isinstance(error_details, dict):
+        return "  No detailed error records captured."
+
+    lines = []
+    for code, edata in error_details.items():
+        if isinstance(edata, dict):
+            cnt = edata.get("count", 0)
+            msg = edata.get("message", "") or edata.get("failure_message", "")
+            occs = edata.get("occurrences", [])
+            label_counts = {}
+            for occ in occs:
+                if isinstance(occ, dict) and occ.get("label"):
+                    lbl = occ["label"]
+                    label_counts[lbl] = label_counts.get(lbl, 0) + 1
+            
+            top_aff = sorted(label_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+            aff_str = ", ".join([f"{l} ({c} errors)" for l, c in top_aff]) if top_aff else "N/A"
+            
+            lines.append(f"  - HTTP {code} ({cnt:,} occurrences): {msg if msg else 'Server Error'}")
+            lines.append(f"    Most affected transactions: {aff_str}")
+        elif isinstance(edata, list):
+            lines.append(f"  - Error Code {code}: {len(edata)} occurrences")
+
+    return "\n".join(lines) if lines else "  No error breakdown details available."
+
+
 def build_insights_prompt(test_name: str, summary: dict, labels: dict,
-                          time_series: dict, infra: dict, correlation: dict,
+                          time_series: dict, infra: dict, correlation: dict = None,
                           sla_targets: dict = None, default_rt: float = 500.0,
-                          default_err: float = 1.0) -> str:
-    """Construct the standardized, high-discipline AI performance prompt matching executive format with SLA awareness."""
+                          default_err: float = 1.0, error_details: dict = None,
+                          users: int = 1, rampup: int = 0) -> str:
+    """Construct prompt passing raw summarized performance, time-series, and Azure telemetry for independent AI findings discovery."""
     if sla_targets is None:
         try:
             from python_files.sla_manager import load_sla_targets
@@ -26,7 +154,6 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
             sla_targets = {}
     sla_targets = sla_targets or {}
 
-    # Calculate SLA compliance facts
     total_tx = len(labels)
     breached_txs = []
     met_txs = []
@@ -59,14 +186,14 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
     sla_compliance_pct = (len(met_txs) / max(1, total_tx)) * 100 if total_tx > 0 else 100.0
 
     sla_overview_lines = [
-        f"  Overall SLA Compliance: {sla_compliance_pct:.1f}% ({len(met_txs)} of {total_tx} transactions met SLA targets)",
-        f"  Global Default Response Time SLA Target: {default_rt:.0f} ms | Default Error Rate Target: {default_err:.2f}%",
+        f"  Overall SLA Compliance: {sla_compliance_pct:.1f}% ({len(met_txs)} of {total_tx} transactions met defined SLA targets)",
+        f"  Default Response Time SLA Target: {default_rt:.0f} ms | Default Error Rate Target: {default_err:.2f}%",
         f"  Total SLA-Breaching Transactions: {len(breached_txs)}"
     ]
     if breached_txs:
         sla_overview_lines.append("  Key SLA Violations (Actual vs Defined Target):")
         sorted_breaches = sorted(breached_txs, key=lambda x: max(x["rt_dev_pct"], x["err"] * 10), reverse=True)
-        for b in sorted_breaches[:12]:
+        for b in sorted_breaches[:15]:
             parts = []
             if b["rt_breach"]:
                 parts.append(f"P90={b['p90']:.0f}ms vs SLA Target={b['target_rt']:.0f}ms ({b['rt_dev_pct']:+.1f}% deviation)")
@@ -77,7 +204,7 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
         sla_overview_lines.append("  All transactions met their defined SLA thresholds.")
     sla_text = "\n".join(sla_overview_lines)
 
-    top_labels = sorted(labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True)[:15]
+    top_labels = sorted(labels.items(), key=lambda x: (x[1].get("error_rate", 0), x[1].get("avg_rt", 0)), reverse=True)[:18]
     labels_text = "\n".join([
         f"  - {name}: {data.get('count',0)} samples, avg={data.get('avg_rt',0):.1f}ms, "
         f"p90={data.get('p90',0)}ms (SLA target: {sla_targets.get(name,{}).get('rt', default_rt):.0f}ms | {'🔴 BREACHED' if data.get('p90',0) > sla_targets.get(name,{}).get('rt', default_rt) else '🟢 MET'}), "
@@ -86,46 +213,15 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
         for name, data in top_labels
     ]) or "  - No transaction data recorded"
 
-    infra_text = "Not available (Azure Monitor not configured)"
-    if infra:
-        infra_text = (
-            f"  CPU: avg={infra.get('avg_cpu',0):.1f}%, max_peak={infra.get('max_cpu',0):.1f}%\n"
-            f"  Memory: avg={infra.get('avg_memory',0):.1f}%, max_peak={infra.get('max_memory',0):.1f}%\n"
-            f"  Network In: {infra.get('avg_network_in_mbps',0):.1f} MB/min\n"
-            f"  Network Out: {infra.get('avg_network_out_mbps',0):.1f} MB/min\n"
-            f"  Disk Read IOPS: {infra.get('avg_disk_read_iops',0):.0f}\n"
-            f"  Disk Write IOPS: {infra.get('avg_disk_write_iops',0):.0f}"
-        )
+    timeseries_text = _format_time_series_progression(time_series)
+    infra_text = _format_azure_infra_telemetry(infra)
+    error_text = _format_error_breakdown(error_details)
 
-    corr_findings = ""
-    if correlation and correlation.get("findings"):
-        corr_findings = "\n".join([
-            f"  - [{f.get('severity','info').upper()}] {f.get('message','')}"
-            for f in correlation.get("findings", [])
-        ])
-    else:
-        corr_findings = "  No correlation data available"
+    return f"""You are a Principal Performance Engineer and Automated Performance Intelligence Engine.
 
-    try:
-        from python_files.findings_engine import generate_findings
-        findings_result = generate_findings(
-            summary=summary, labels=labels, display_labels=dict(top_labels),
-            time_series={}, infra=infra if infra else {},
-            correlation={}, sla_targets=sla_targets, default_rt=default_rt, default_err=default_err,
-            auto_ai=False
-        )
-        findings_text = "\n".join([
-            f"  - [{f['severity'].upper()}] {f['title']}"
-            for f in findings_result.get("findings", [])
-        ])
-        findings_ids = [f["id"] for f in findings_result.get("findings", [])]
-    except Exception:
-        findings_text = "  (Findings engine not available — generate your own analysis)"
-        findings_ids = []
+You must perform INDEPENDENT, DATA-DRIVEN ANALYSIS of the raw summarized performance telemetry below to DISCOVER, DIAGNOSE, AND FORMULATE all engineering findings and observations.
 
-    return f"""You are a Senior Performance Engineer and Performance Analysis Engine.
-
-Your responsibility is to analyze the performance test results and produce clean, professional engineering observations in the exact requested format.
+DO NOT simply rephrase canned observations. Use the empirical evidence across workload, time-series progression, error distribution, and host telemetry to determine exactly what occurred.
 
 OUTPUT FORMAT & TONE REQUIREMENTS:
 Write observations in a direct, factual, client-facing performance engineering style.
@@ -166,85 +262,93 @@ TAB SPECIFIC INSIGHTS:
 - tab_error_stats: 2-3 bullet observations on error patterns and sample failure rates against error SLA thresholds, and 1-2 actionable recommendations in plain client-facing terms.
 - tab_infra_stats: 2-3 bullet observations on host CPU, memory, and resource headroom, and 1-2 actionable recommendations in plain client-facing terms.
 
-TEST: {test_name}
-═══════════════════════════════════════════
+TEST SCENARIO: {test_name}
+═══════════════════════════════════════════════════════════════════
 
-WORKLOAD PROFILE:
-  Total Samples: {summary.get('total', 0):,}
-  Duration: {summary.get('duration_sec', 0):.0f} seconds
-  Throughput: {summary.get('throughput', 0):.2f} req/s
+1. WORKLOAD & CONCURRENCY PROFILE:
+  Total Samples Executed: {summary.get('total', 0):,}
+  Configured Users / Concurrency: {users} threads | Ramp-up: {rampup}s
+  Execution Duration: {summary.get('duration_sec', 0):.0f} seconds ({summary.get('duration_sec', 0)/60:.1f} mins)
+  Overall Throughput: {summary.get('throughput', 0):.2f} req/s
+  Overall Error Rate: {summary.get('error_rate', 0):.2f}%
 
-DEFINED SLA TARGETS & COMPLIANCE STATUS:
+2. DEFINED SLA TARGETS & COMPLIANCE STATUS:
 {sla_text}
 
-CLIENT-SIDE RESPONSE TIME & ERROR METRICS:
+3. CLIENT-SIDE RESPONSE TIME & ERROR OVERVIEW:
   Average Response Time: {summary.get('avg_rt', 0):.2f} ms
   Min: {summary.get('min_rt', 0)} ms | Max: {summary.get('max_rt', 0)} ms
   P50: {summary.get('p50', 0)} ms | P90: {summary.get('p90', 0)} ms
   P95: {summary.get('p95', 0)} ms | P99: {summary.get('p99', 0)} ms
-  Error Rate: {summary.get('error_rate', 0):.2f}%
 
-PER-TRANSACTION BREAKDOWN (top by response time / count vs Defined SLA):
+4. RAW SUMMARIZED PER-TRANSACTION METRICS (Sorted by failure rate & response time):
 {labels_text}
 
-SERVER-SIDE INFRASTRUCTURE (Azure Monitor):
+5. TIME-SERIES RUN PROGRESSION (Concurrency ramp-up, throughput pacing, latency trends over time):
+{timeseries_text}
+
+6. SERVER-SIDE INFRASTRUCTURE TELEMETRY (Azure Monitor):
 {infra_text}
 
-CORRELATION ANALYSIS FINDINGS:
-{corr_findings}
+7. ERROR BREAKDOWN & IMPACTED ENDPOINTS:
+{error_text}
 
-EXISTING STRUCTURED FINDINGS (enrich these):
-{findings_text}
+═══════════════════════════════════════════════════════════════════
 
-═══════════════════════════════════════════
+YOUR ANALYSIS TASK:
+Discover 3 to 7 primary engineering findings based on the data above.
+Correlate the time-series progression (active users vs throughput vs latency) with host infrastructure utilization (CPU peaks, memory, network, 5xx server errors).
+Identify whether degradation is caused by server saturation, thread queueing, application failure, or specific transaction bottlenecks.
 
-Respond ONLY with a valid JSON object (no markdown, no code fences) with exactly these keys:
+Respond ONLY with a valid JSON object (no markdown, no code fences) matching this structure:
 {{
   "executive_summary": "2-3 sentence concise executive assessment citing key test facts",
-  "data_quality_findings": [
+  "findings": [
     {{
-      "severity": "<Critical/Warning/Info>",
-      "issue": "Description of data gap, missing dimension, or observation limit",
-      "evidence": "What telemetry is absent or conflicting",
-      "impact": "How this affects confidence",
-      "action": "Recommended next step"
+      "id": "F-001",
+      "title": "Concise finding title (e.g. Server CPU Saturation at Peak Concurrency)",
+      "severity": "Critical",
+      "category": "Infrastructure Saturation",
+      "observation": "Factual measured evidence citing exact numbers and intervals",
+      "likely_cause": "Direct technical root cause",
+      "why_it_matters": "Operational and customer-facing impact",
+      "recommendation": "Targeted technical fix or architectural adjustment",
+      "validation": "Concrete verification test steps",
+      "evidence": [
+        {{"metric": "Peak Host CPU", "value": "91.4%", "source": "server"}},
+        {{"metric": "P90 Latency", "value": "1166 ms", "source": "client"}}
+      ],
+      "confidence": "Confirmed"
     }}
   ],
-  "finding_enrichments": {{
-    {', '.join(['"' + fid + '": {"finding": "...", "observation": "...", "interpretation": "...", "evidence": [{"metric": "...", "value": "...", "source": "client/server/derived"}], "likely_cause": "...", "confidence": "Low/Medium/High/Confirmed", "impact": "...", "recommendation": "...", "validation": "..."}' for fid in findings_ids[:6]]) if findings_ids else '"F-001": {"finding": "...", "observation": "...", "interpretation": "...", "evidence": [{"metric": "...", "value": "...", "source": "client"}], "likely_cause": "...", "confidence": "Medium", "impact": "...", "recommendation": "...", "validation": "..."}'}
-  }},
   "capacity_planning": {{
-    "observed_concurrency": null,
+    "observed_concurrency": {users},
     "estimated_max_users": null,
-    "saturation_point": null,
+    "saturation_point": "State observed concurrency or inflection point where latency surged or throughput flattened",
     "safe_concurrency": null,
-    "capacity_confidence": "Unknown",
-    "analysis": "Explanation of capacity status or why it cannot be reliably estimated from aggregate data"
+    "capacity_confidence": "High",
+    "analysis": "Explanation of capacity limits and scaling behavior based on the time-series data"
   }},
   "root_cause_assessment": [
     {{
       "finding": "Primary bottleneck or observed degradation",
       "evidence": "Citing specific measured values and sources",
-      "likely_cause": "Direct technical cause without overclaiming",
-      "confidence": "Low/Medium/High/Confirmed",
+      "likely_cause": "Direct technical cause",
+      "confidence": "Confirmed",
       "recommended_investigation": "Specific telemetry or profiling steps needed"
     }}
   ],
-  "bottleneck_analysis": "Detailed analysis of where time is spent across transactions and infrastructure",
-  "tail_latency_analysis": "Assessment of P95/P99 outliers, variability, and potential causes",
-  "infra_analysis": "Server resource utilization assessment with clear distinction between headroom and saturation",
-  "correlation_insights": "Synthesized relationship between client-side latency and server-side metrics",
   "recommendations": [
     {{
       "id": "R-001",
-      "priority": "<Critical/High/Medium/Low>",
-      "category": "<Backend/Frontend/Infrastructure/Database/Network/Configuration>",
+      "priority": "Critical",
+      "category": "Infrastructure",
       "title": "Short title",
-      "why": "Why this recommendation matters based on evidence",
+      "why": "Why this matters based on evidence",
       "action": ["Step 1", "Step 2"],
       "expected_impact": "Expected qualitative improvement",
       "validation": "How to verify the fix",
-      "confidence": "High/Medium/Low/Confirmed"
+      "confidence": "High"
     }}
   ],
   "performance_intelligence": {{
@@ -342,5 +446,119 @@ Return JSON with exact keys:
   "degradation_observation": "One sentence identifying the most degraded transaction and its largest step",
   "improvement_observation": "One sentence identifying the most improved transaction",
   "risk_observation": "One sentence summarizing high/critical breach evolution"
+}}
+"""
+
+
+def build_2run_comparison_prompt(scorecard: dict, transactions: list, new_breaches: list = None,
+                                 resolved_breaches: list = None, current_info: dict = None, baseline_info: dict = None) -> str:
+    """Constructs prompt for AI comparative intelligence using raw telemetry only (no pre-computed findings)."""
+    
+    # Format concise transaction telemetry, prioritizing regressions, improvements, and SLA shifts
+    formatted_txs = []
+    for t in (transactions or []):
+        rt_a = round(float(t.get("rt_a", 0) or 0), 1)
+        rt_b = round(float(t.get("rt_b", 0) or 0), 1)
+        p95_a = round(float(t.get("p95_a", 0) or 0), 1)
+        p95_b = round(float(t.get("p95_b", 0) or 0), 1)
+        err_a = round(float(t.get("err_rate_a", 0) or 0), 2)
+        err_b = round(float(t.get("err_rate_b", 0) or 0), 2)
+        target_rt = round(float(t.get("target_rt", 0) or 0), 1)
+        target_err = round(float(t.get("target_err", 0) or 0), 2)
+        
+        rt_delta = round(rt_b - rt_a, 1)
+        err_delta = round(err_b - err_a, 2)
+        breach = (rt_b > target_rt > 0) or (err_b > target_err > 0)
+        
+        # Scoring impact to surface top outliers to LLM
+        impact = abs(rt_delta) + (err_delta * 50) + (500 if breach else 0)
+        formatted_txs.append({
+            "transaction": t.get("label", ""),
+            "sla_rt_ms": target_rt,
+            "sla_err_pct": target_err,
+            "baseline": {"avg_rt_ms": rt_a, "p95_ms": p95_a, "err_pct": err_a},
+            "current": {"avg_rt_ms": rt_b, "p95_ms": p95_b, "err_pct": err_b},
+            "delta_rt_ms": rt_delta,
+            "delta_err_pct": err_delta,
+            "sla_breach": breach,
+            "_impact": impact
+        })
+
+    # Sort by impact and keep top 14 most critical items to maintain compact payload under 1,500 tokens
+    formatted_txs.sort(key=lambda x: x["_impact"], reverse=True)
+    raw_tx_list = [{k: v for k, v in item.items() if not k.startswith("_")} for item in formatted_txs[:14]]
+
+    raw_comparison_telemetry = {
+        "baseline_run": baseline_info or {},
+        "current_run": current_info or {},
+        "overall_scorecard_metrics": {
+            "baseline_users": scorecard.get("run_a_users", 1),
+            "current_users": scorecard.get("run_b_users", 1),
+            "baseline_avg_rt_ms": scorecard.get("run_a_rt", 0),
+            "current_avg_rt_ms": scorecard.get("run_b_rt", 0),
+            "baseline_p90_ms": scorecard.get("run_a_p90", 0),
+            "current_p90_ms": scorecard.get("run_b_p90", 0),
+            "baseline_p95_ms": scorecard.get("run_a_p95", 0),
+            "current_p95_ms": scorecard.get("run_b_p95", 0),
+            "baseline_p99_ms": scorecard.get("run_a_p99", 0),
+            "current_p99_ms": scorecard.get("run_b_p99", 0),
+            "baseline_total_requests": scorecard.get("run_a_req", 0),
+            "current_total_requests": scorecard.get("run_b_req", 0),
+            "baseline_throughput_tps": scorecard.get("run_a_tps", 0),
+            "current_throughput_tps": scorecard.get("run_b_tps", 0),
+            "baseline_errors": scorecard.get("run_a_err_count", 0),
+            "current_errors": scorecard.get("run_b_err_count", 0),
+            "baseline_error_rate_pct": scorecard.get("run_a_err_rate", 0),
+            "current_error_rate_pct": scorecard.get("run_b_err_rate", 0),
+            "baseline_sla_pass_rate_pct": scorecard.get("run_a_sla_pass", 0),
+            "current_sla_pass_rate_pct": scorecard.get("run_b_sla_pass", 0)
+        },
+        "transactions_raw_telemetry": raw_tx_list
+    }
+
+    return f"""You are a Principal Performance Engineering Architect and Automated Comparative Intelligence Engine.
+
+Analyze the raw performance metrics below comparing a Baseline Run vs a Current Run.
+You must INDEPENDENTLY evaluate the data to DISCOVER and DIAGNOSE all regressions, improvements, and SLA transitions yourself.
+DO NOT expect pre-baked findings; calculate the differences, identify outliers, and diagnose root causes from the raw telemetry.
+
+INSIGHT-DRIVEN RULES (CRITICAL):
+1. Focus on HIGH-LEVEL ARCHITECTURAL & RELEASE INSIGHTS, NOT low-level raw number repetitions (the user can see raw data in the charts below).
+2. Generate between 2 and 4 high-impact, actionable Insights focusing on the primary regression drivers, SLA transitions, or notable improvements.
+3. Keep every insight card punchy, crisp, and focused on: What happened -> Why it matters -> What to do about it.
+4. Ground all observations in direct facts without verbose filler.
+
+RAW COMPARATIVE TELEMETRY:
+{json.dumps(raw_comparison_telemetry, indent=2)}
+
+OUTPUT FORMAT:
+Return ONLY valid JSON matching this exact schema:
+{{
+  "risk_level": "LOW RISK" | "MODERATE RISK" | "HIGH RISK",
+  "risk_color": "var(--green)" | "var(--amber)" | "var(--red)",
+  "status_badge": "🟢 PERFORMANCE IMPROVED" | "🟢 STABLE PERFORMANCE" | "🟡 MINOR DEGRADATION" | "🔴 REGRESSION DETECTED",
+  "status_text": "Short 3-5 word status (e.g., Release Blocker: Error Rate Spike)",
+  "executive_summary": "EXACTLY 2 to 3 concise, punchy sentences. State the clear release verdict (GO / NO-GO / CONDITIONAL), the overarching latency & reliability delta, and the single primary bottleneck driver.",
+  "highlights": [
+    "Punchy 1-2 sentence observation highlighting the primary latency/throughput/SLA shift...",
+    "Second distinct 1-2 sentence observation on error distribution or tail latency...",
+    "Third 1-2 sentence observation on concurrency scaling or resource efficiency..."
+  ],
+  "recommendations": [
+    "Concise 1-2 sentence technical fix specifying domain (e.g. [Database / Indexing], [Application Gateway / Thread Pool], [Caching])...",
+    "Second prioritized 1-2 sentence technical remediation action...",
+    "Third prioritized 1-2 sentence technical remediation action..."
+  ],
+  "findings": [
+    {{
+      "id": "CI-001",
+      "title": "Concise Insight Title (e.g., Checkout Latency Degradation Exceeds SLA Threshold)",
+      "severity": "Critical" | "High" | "Medium" | "Low",
+      "category": "SLA Breach" | "Latency Drift" | "Reliability Risk" | "Scalability Limit" | "Optimization",
+      "observation": "1-2 crisp sentences explaining the behavioral shift and architectural cause.",
+      "why_it_matters": "1 concise sentence on user experience or release impact.",
+      "recommendation": "1 targeted, actionable engineering takeaway or fix."
+    }}
+  ]
 }}
 """

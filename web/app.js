@@ -80,10 +80,6 @@ function switchTab(tabId) {
     } else if (tabId === "tab-reports") {
         loadRuns();
         loadReports();
-    } else if (tabId === "tab-compare") {
-        if (typeof fetchAndRenderRunComparison === "function") {
-            fetchAndRenderRunComparison();
-        }
     } else if (tabId === "tab-trend") {
         if (typeof fetchAndRenderTrend === "function") {
             fetchAndRenderTrend();
@@ -673,8 +669,8 @@ async function openRecompileModal(runId = null) {
         const data = await res.json();
         const provElem = document.getElementById("recompile-active-provider");
         const modelElem = document.getElementById("recompile-active-model");
-        if (provElem) provElem.textContent = (data.provider || "openrouter").toUpperCase();
-        if (modelElem) modelElem.textContent = data.model || "nvidia/nemotron-3-ultra-550b-a55b:free";
+        if (provElem) provElem.textContent = (data.provider || "gemini").toUpperCase();
+        if (modelElem) modelElem.textContent = data.model || "gemini-2.5-flash";
     } catch (e) {
         console.warn("Could not fetch AI meta for modal:", e);
     }
@@ -801,7 +797,7 @@ async function loadAiConfig() {
         }
 
         // Set model
-        const currentModel = data.model || "nvidia/nemotron-3-ultra-550b-a55b:free";
+        const currentModel = data.model || "gemini-2.5-flash";
         if (modelSelect) {
             let found = false;
             for (let opt of modelSelect.options) {
@@ -879,7 +875,7 @@ function handleAiProviderChange(val) {
     const customInput = document.getElementById("ai-model-custom-input");
     if (!modelSelect) return;
     if (val === "openrouter") {
-        modelSelect.value = "nvidia/nemotron-3-ultra-550b-a55b:free";
+        modelSelect.value = "openrouter/free";
         if (customInput) customInput.classList.add("hidden");
     } else if (val === "gemini") {
         modelSelect.value = "gemini-2.5-flash";
@@ -902,8 +898,8 @@ function handleAiModelPresetChange(val) {
 }
 
 async function handleSaveAiConfig() {
-    const provider = document.getElementById("ai-provider-select")?.value || "openrouter";
-    const modelSelect = document.getElementById("ai-model-select")?.value || "nvidia/nemotron-3-ultra-550b-a55b:free";
+    const provider = document.getElementById("ai-provider-select")?.value || "gemini";
+    const modelSelect = document.getElementById("ai-model-select")?.value || "gemini-2.5-flash";
     const customModel = document.getElementById("ai-model-custom-input")?.value?.trim() || "";
     const activeModel = (modelSelect === "custom" && customModel) ? customModel : modelSelect;
 

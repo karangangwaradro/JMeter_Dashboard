@@ -7182,166 +7182,355 @@
   },
   "raw_rows": 326,
   "ai_insights": {
-    "executive_summary": "The 30-second load test executed 326 samples at 10.89 req/s with 67.7% SLA compliance (65 of 96 transactions met targets). Critical performance degradation observed: 31 transactions breached response time SLAs, overall error rate reached 35.94%, and server CPU peaked at 91.4% with 168 HTTP 5xx errors. Key user-facing transactions including homepage launch, search portal, and authentication gateway exceeded P90 SLA targets by 463-645% and recorded 100% error rates.",
+    "executive_summary": "The performance test for JPetStore_MultiUserStories.jmx revealed significant performance degradation and reliability issues. Overall, only 75.0% of transactions met their defined SLA targets, with a high overall error rate of 35.94%. Several critical transactions experienced P90 response times exceeding their targets by over 300%, and server CPU utilization peaked at 91.4%, indicating potential resource contention.",
     "data_quality_findings": [
       {
-        "severity": "Critical",
-        "issue": "Azure Monitor not configured - no server-side resource metrics available",
-        "evidence": "Server-Side Infrastructure section states 'Not available (Azure Monitor not configured)'. Correlation analysis references CPU 91.4% and 168 5xx errors but source telemetry is unspecified.",
-        "impact": "Cannot correlate client-side latency with specific server resource contention (CPU, memory, thread pool, GC). Root cause analysis limited to client-side symptoms.",
-        "action": "Enable Azure Monitor metrics for App Service (CPU, memory, requests, exceptions) and configure Log Analytics workspace for correlation in next test cycle."
-      },
-      {
         "severity": "Warning",
-        "issue": "Test duration only 30 seconds - insufficient for steady-state observation",
-        "evidence": "Duration: 30 seconds with 326 total samples. Short duration may not capture warm-up effects, garbage collection cycles, or connection pool saturation.",
-        "impact": "Reported metrics may reflect transient startup behavior rather than sustained load performance. Capacity estimates unreliable.",
-        "action": "Extend test duration to minimum 15 minutes with ramp-up period for steady-state measurement."
-      },
-      {
-        "severity": "Info",
-        "issue": "Missing concurrency and virtual user count context",
-        "evidence": "Workload profile reports throughput and samples but no concurrent user count, thread group configuration, or pacing details.",
-        "impact": "Cannot calculate user-perceived response times under defined concurrency or validate throughput against business volume targets.",
-        "action": "Document test scenario configuration: virtual users, ramp-up, think time, and iteration pacing for future test reports."
+        "issue": "Lack of correlation data between client-side and server-side metrics",
+        "evidence": "The 'Correlation Analysis Findings' section explicitly states 'No correlation data available'.",
+        "impact": "Without correlation data, it is challenging to definitively link client-side performance issues (e.g., high response times, errors) to specific server-side resource bottlenecks or application components. This limits the precision of root cause analysis.",
+        "action": "Implement comprehensive end-to-end tracing and correlation mechanisms (e.g., distributed tracing, request IDs) to link client requests with server-side processing and resource consumption."
       }
     ],
     "finding_enrichments": {
       "F-001": {
-        "finding": "Homepage launch transaction (TC01_T_01_Launch_Homepage) critically breaches SLA",
-        "observation": "P90 response time 1864 ms against 250 ms target (+645.6% deviation) with 100% error rate (5/5 failures) across 5 iterations.",
-        "interpretation": "Primary entry point transaction fails completely under load, preventing user access to application. High latency and total failure rate indicate server-side processing failure or resource exhaustion.",
+        "finding": "TC03_T_01_Launch_Search_Portal latency deviation (1408 ms)",
+        "observation": "The 'Launch Search Portal' transaction recorded an average response time of 1868.5 ms and a P90 of 1408 ms. While its P90 met the 1500 ms SLA target, it experienced a 100.00% error rate against a 1.00% SLA target.",
+        "interpretation": "Although the P90 response time for 'Launch Search Portal' was within its specific SLA, the transaction consistently failed, indicating a functional or server-side error rather than a pure latency issue.",
         "evidence": [
           {
-            "metric": "P90 Response Time",
-            "value": "1864 ms",
-            "source": "client"
-          },
-          {
-            "metric": "SLA Target",
-            "value": "250 ms",
-            "source": "defined"
-          },
-          {
-            "metric": "Error Rate",
-            "value": "100%",
-            "source": "client"
-          },
-          {
-            "metric": "Iterations",
-            "value": "5",
-            "source": "client"
-          },
-          {
-            "metric": "Server 5xx Errors",
-            "value": "168 total",
-            "source": "server"
-          }
-        ],
-        "likely_cause": "Server CPU saturation (91.4% peak) causing request queuing and timeouts, compounded by application errors generating 5xx responses.",
-        "confidence": "High",
-        "impact": "Complete blockage of user entry to application. Zero successful homepage loads during test.",
-        "recommendation": "Immediately investigate server CPU bottlenecks and application exception logs for homepage rendering path. Implement circuit breaker and static content caching.",
-        "validation": "Re-test with server monitoring enabled; target P90 < 250 ms and error rate < 1% for homepage transaction."
-      },
-      "F-002": {
-        "finding": "Search portal launch (TC03_T_01_Launch_Search_Portal) critically breaches SLA",
-        "observation": "P90 response time 1408 ms against 250 ms target (+463.2% deviation) with 100% error rate (2/2 failures) across 2 iterations.",
-        "interpretation": "Search functionality completely unavailable. High latency and failure rate consistent with systemic server overload rather than isolated transaction issue.",
-        "evidence": [
-          {
-            "metric": "P90 Response Time",
+            "metric": "TC03_T_01_Launch_Search_Portal P90 Response Time",
             "value": "1408 ms",
             "source": "client"
           },
           {
-            "metric": "SLA Target",
+            "metric": "TC03_T_01_Launch_Search_Portal SLA Target",
+            "value": "1500 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC03_T_01_Launch_Search_Portal Error Rate",
+            "value": "100.00%",
+            "source": "client"
+          },
+          {
+            "metric": "TC03_T_01_Launch_Search_Portal Error SLA Target",
+            "value": "1.00%",
+            "source": "defined"
+          }
+        ],
+        "likely_cause": "Application-level errors or server-side exceptions preventing successful completion, rather than just slow processing.",
+        "confidence": "High",
+        "impact": "Critical business impact as users cannot successfully initiate a search, leading to a complete failure of the search functionality.",
+        "recommendation": "Investigate server-side logs and application error details for 'Launch Search Portal' to identify the root cause of the 100% transaction failure rate.",
+        "validation": "Re-run the test after implementing fixes and verify that the error rate is below the 1.00% SLA target and P90 response time remains within 1500 ms."
+      },
+      "F-002": {
+        "finding": "TC01_T_01_Launch_Homepage SLA deviation (1864 ms)",
+        "observation": "The 'Launch Homepage' transaction recorded an average response time of 1710.2 ms and a P90 of 1864 ms, significantly breaching its 250 ms SLA target. It also exhibited a 100.00% error rate against a 1.00% SLA target.",
+        "interpretation": "This transaction is critically failing both in terms of response time and reliability. The P90 response time is 645.6% higher than the target, and all iterations resulted in errors.",
+        "evidence": [
+          {
+            "metric": "TC01_T_01_Launch_Homepage P90 Response Time",
+            "value": "1864 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC01_T_01_Launch_Homepage SLA Target",
             "value": "250 ms",
             "source": "defined"
           },
           {
-            "metric": "Error Rate",
-            "value": "100%",
+            "metric": "TC01_T_01_Launch_Homepage Error Rate",
+            "value": "100.00%",
             "source": "client"
           },
           {
-            "metric": "Iterations",
-            "value": "2",
-            "source": "client"
-          },
-          {
-            "metric": "Server CPU Peak",
-            "value": "91.4%",
-            "source": "server"
+            "metric": "TC01_T_01_Launch_Homepage Error SLA Target",
+            "value": "1.00%",
+            "source": "defined"
           }
         ],
-        "likely_cause": "CPU saturation delaying search index initialization or database connection pool exhaustion.",
+        "likely_cause": "Severe application or infrastructure issues preventing the homepage from loading correctly and within acceptable timeframes. This could be due to database contention, application server errors, or external service dependencies.",
         "confidence": "High",
-        "impact": "Search feature non-functional under load; users cannot find products.",
-        "recommendation": "Profile search portal initialization code path. Optimize database connection pooling and consider asynchronous search index loading.",
-        "validation": "Load test search portal in isolation with CPU monitoring; verify P90 < 250 ms and error rate < 1%."
+        "impact": "Users are unable to access the application's entry point, rendering the entire application unusable. This is a critical business impact.",
+        "recommendation": "Prioritize immediate investigation into the 'Launch Homepage' transaction's server-side logs, application code, and database queries to identify the root cause of both the high latency and 100% error rate.",
+        "validation": "Re-run the test after implementing fixes and verify that the error rate is below the 1.00% SLA target and P90 response time is within 250 ms."
       },
       "F-003": {
-        "finding": "Authentication gateway launch (TC04_T_01_Launch_Authentication_Gateway) critically breaches latency SLA",
-        "observation": "P90 response time 1484 ms against 250 ms target (+493.6% deviation) with 0% error rate across 5 iterations.",
-        "interpretation": "Authentication gateway responds but with severe latency. Successful HTTP responses (0% error) indicate application logic completes but under extreme resource contention.",
+        "finding": "TC02_T_01_Launch_Shopping_Catalog SLA deviation (1581 ms)",
+        "observation": "The 'Launch Shopping Catalog' transaction recorded an average response time of 1589.4 ms and a P90 of 1581 ms, significantly breaching its 250 ms SLA target by +532.4%. This transaction had a 0.00% error rate.",
+        "interpretation": "While functionally successful, the 'Launch Shopping Catalog' transaction is severely underperforming in terms of response time, making it unusable for end-users. The high latency suggests inefficient data retrieval or processing.",
         "evidence": [
           {
-            "metric": "P90 Response Time",
-            "value": "1484 ms",
-            "source": "client"
-          },
-          {
-            "metric": "SLA Target",
-            "value": "250 ms",
-            "source": "defined"
-          },
-          {
-            "metric": "Error Rate",
-            "value": "0%",
-            "source": "client"
-          },
-          {
-            "metric": "Iterations",
-            "value": "5",
-            "source": "client"
-          },
-          {
-            "metric": "Server CPU Peak",
-            "value": "91.4%",
-            "source": "server"
-          }
-        ],
-        "likely_cause": "CPU saturation delaying authentication gateway initialization or downstream identity provider calls.",
-        "confidence": "Medium",
-        "impact": "Login flow severely delayed; users experience long waits before credential entry.",
-        "recommendation": "Optimize authentication gateway startup and reduce synchronous dependencies. Implement lazy loading for non-critical components.",
-        "validation": "Measure gateway launch latency under controlled CPU load; target P90 < 250 ms."
-      },
-      "F-004": {
-        "finding": "Shopping catalog launch (TC02_T_01_Launch_Shopping_Catalog) critically breaches latency SLA",
-        "observation": "P90 response time 1581 ms against 250 ms target (+532.4% deviation) with 0% error rate across 5 iterations.",
-        "interpretation": "Core shopping catalog page loads successfully but with 6x SLA breach. Indicates catalog rendering logic executes but under severe CPU contention.",
-        "evidence": [
-          {
-            "metric": "P90 Response Time",
+            "metric": "TC02_T_01_Launch_Shopping_Catalog P90 Response Time",
             "value": "1581 ms",
             "source": "client"
           },
           {
-            "metric": "SLA Target",
+            "metric": "TC02_T_01_Launch_Shopping_Catalog SLA Target",
             "value": "250 ms",
             "source": "defined"
           },
           {
-            "metric": "Error Rate",
-            "value": "0%",
+            "metric": "TC02_T_01_Launch_Shopping_Catalog Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient database queries, large data payloads, or slow backend service calls required to render the shopping catalog.",
+        "confidence": "High",
+        "impact": "Users experience significant delays when attempting to browse the product catalog, leading to frustration and potential abandonment.",
+        "recommendation": "Optimize the data retrieval and rendering process for the 'Launch Shopping Catalog' transaction, focusing on database query tuning, caching mechanisms, and reducing data transfer sizes.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 250 ms."
+      },
+      "F-004": {
+        "finding": "TC03_T_01_R_01_GET_Search_Home SLA deviation (838 ms)",
+        "observation": "The 'GET Search Home' transaction recorded an average response time of 1292.0 ms and a P90 of 838 ms, breaching its 500 ms SLA target by +67.6%. This transaction had a 0.00% error rate.",
+        "interpretation": "This transaction is experiencing elevated response times, exceeding its SLA target, which will negatively impact user experience during search initiation. While not failing, it is performing poorly.",
+        "evidence": [
+          {
+            "metric": "TC03_T_01_R_01_GET_Search_Home P90 Response Time",
+            "value": "838 ms",
             "source": "client"
           },
           {
-            "metric": "Iterations",
-            "value": "5",
+            "metric": "TC03_T_01_R_01_GET_Search_Home SLA Target",
+            "value": "500 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC03_T_01_R_01_GET_Search_Home Error Rate",
+            "value": "0.00%",
             "source": "client"
+          }
+        ],
+        "likely_cause": "Sub-optimal backend processing or database calls associated with loading the search home page components.",
+        "confidence": "Medium",
+        "impact": "Users experience noticeable delays when navigating to the search functionality, potentially leading to a degraded user experience.",
+        "recommendation": "Investigate the backend services and database queries involved in 'GET Search Home' to identify and optimize performance bottlenecks.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 500 ms."
+      },
+      "F-005": {
+        "finding": "TC02_T_03_Select_Dogs_Section SLA deviation (1312 ms)",
+        "observation": "The 'Select Dogs Section' transaction recorded an average response time of 1210.4 ms and a P90 of 1312 ms, significantly breaching its 300 ms SLA target by +337.3%. This transaction had a 0.00% error rate.",
+        "interpretation": "This transaction is functionally successful but severely slow, indicating inefficient processing when navigating to a specific product category. This will cause significant user frustration.",
+        "evidence": [
+          {
+            "metric": "TC02_T_03_Select_Dogs_Section P90 Response Time",
+            "value": "1312 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC02_T_03_Select_Dogs_Section SLA Target",
+            "value": "300 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC02_T_03_Select_Dogs_Section Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient data loading or rendering logic for the 'Dogs' product section, potentially involving complex database queries or large image/media assets.",
+        "confidence": "High",
+        "impact": "Users face substantial delays when attempting to filter or navigate to specific product categories, hindering their ability to find products efficiently.",
+        "recommendation": "Optimize the data retrieval and rendering process for 'Select Dogs Section', focusing on database query performance, caching strategies, and efficient asset loading.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 300 ms."
+      },
+      "F-006": {
+        "finding": "TC01_T_01_R_01_GET_Homepage SLA deviation (1070 ms)",
+        "observation": "The 'GET Homepage' transaction recorded an average response time of 1063.8 ms and a P90 of 1070 ms, breaching its 500 ms SLA target by +114.0%. This transaction had a 0.00% error rate.",
+        "interpretation": "This foundational transaction for loading the homepage content is performing significantly slower than expected, contributing to overall poor user experience from the start of the user journey.",
+        "evidence": [
+          {
+            "metric": "TC01_T_01_R_01_GET_Homepage P90 Response Time",
+            "value": "1070 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC01_T_01_R_01_GET_Homepage SLA Target",
+            "value": "500 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC01_T_01_R_01_GET_Homepage Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient rendering of homepage components, slow API calls for dynamic content, or database queries for initial page load.",
+        "confidence": "High",
+        "impact": "Users experience noticeable delays when the homepage initially loads, contributing to a poor first impression and overall dissatisfaction.",
+        "recommendation": "Analyze the 'GET Homepage' transaction's component loading sequence, backend API calls, and database interactions to identify and optimize performance bottlenecks.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 500 ms."
+      },
+      "F-007": {
+        "finding": "TC01_T_04_Select_Dogs_Category SLA deviation (1147 ms)",
+        "observation": "The 'Select Dogs Category' transaction recorded an average response time of 1032.7 ms and a P90 of 1147 ms, significantly breaching its 300 ms SLA target by +282.3%. This transaction had a 0.00% error rate.",
+        "interpretation": "Similar to 'Select Dogs Section', this transaction is functionally sound but unacceptably slow, indicating a systemic issue with category selection and display.",
+        "evidence": [
+          {
+            "metric": "TC01_T_04_Select_Dogs_Category P90 Response Time",
+            "value": "1147 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC01_T_04_Select_Dogs_Category SLA Target",
+            "value": "300 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC01_T_04_Select_Dogs_Category Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient data retrieval or rendering for the 'Dogs' category, potentially involving complex database queries or large media assets.",
+        "confidence": "High",
+        "impact": "Users experience substantial delays when navigating to specific product categories, hindering their ability to browse and find products.",
+        "recommendation": "Optimize the data retrieval and rendering process for 'Select Dogs Category', focusing on database query performance, caching strategies, and efficient asset loading.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 300 ms."
+      },
+      "F-008": {
+        "finding": "TC04_T_01_R_01_GET_Catalog_Gateway SLA deviation (883 ms)",
+        "observation": "The 'GET Catalog Gateway' transaction recorded an average response time of 1007.6 ms and a P90 of 883 ms, breaching its 500 ms SLA target by +76.6%. This transaction had a 0.00% error rate.",
+        "interpretation": "This transaction, likely a foundational call for catalog access, is performing slower than its SLA, indicating a bottleneck in the initial catalog data retrieval.",
+        "evidence": [
+          {
+            "metric": "TC04_T_01_R_01_GET_Catalog_Gateway P90 Response Time",
+            "value": "883 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC04_T_01_R_01_GET_Catalog_Gateway SLA Target",
+            "value": "500 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC04_T_01_R_01_GET_Catalog_Gateway Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient backend service calls or database queries required to initialize the catalog gateway.",
+        "confidence": "Medium",
+        "impact": "Users experience delays when attempting to access the product catalog, impacting the overall shopping experience.",
+        "recommendation": "Investigate the backend services and database queries involved in 'GET Catalog Gateway' to identify and optimize performance bottlenecks.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 500 ms."
+      },
+      "F-009": {
+        "finding": "TC02_T_01_R_01_GET_Catalog SLA deviation (894 ms)",
+        "observation": "The 'GET Catalog' transaction recorded an average response time of 971.0 ms and a P90 of 894 ms, breaching its 500 ms SLA target by +78.8%. This transaction had a 0.00% error rate.",
+        "interpretation": "This core transaction for retrieving catalog data is performing slower than its SLA, contributing to the overall slow 'Launch Shopping Catalog' experience.",
+        "evidence": [
+          {
+            "metric": "TC02_T_01_R_01_GET_Catalog P90 Response Time",
+            "value": "894 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC02_T_01_R_01_GET_Catalog SLA Target",
+            "value": "500 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC02_T_01_R_01_GET_Catalog Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient database queries or backend service calls for retrieving the main catalog data.",
+        "confidence": "Medium",
+        "impact": "Users experience delays when the product catalog loads, impacting their ability to browse products efficiently.",
+        "recommendation": "Optimize the database queries and backend service calls associated with 'GET Catalog' to improve data retrieval efficiency.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 500 ms."
+      },
+      "F-010": {
+        "finding": "TC04_T_02_Navigate_To_Signon_Page error anomaly (100.00%)",
+        "observation": "The 'Navigate To Signon Page' transaction recorded an average response time of 869.6 ms and a P90 of 942 ms, which met its 1500 ms SLA target. However, it exhibited a 100.00% error rate against a 1.00% SLA target.",
+        "interpretation": "Despite meeting its response time SLA, this transaction is critically failing, preventing users from accessing the sign-on page. This indicates a functional or server-side error rather than a performance bottleneck.",
+        "evidence": [
+          {
+            "metric": "TC04_T_02_Navigate_To_Signon_Page P90 Response Time",
+            "value": "942 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC04_T_02_Navigate_To_Signon_Page SLA Target",
+            "value": "1500 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC04_T_02_Navigate_To_Signon_Page Error Rate",
+            "value": "100.00%",
+            "source": "client"
+          },
+          {
+            "metric": "TC04_T_02_Navigate_To_Signon_Page Error SLA Target",
+            "value": "1.00%",
+            "source": "defined"
+          }
+        ],
+        "likely_cause": "Application-level errors, misconfigurations, or server-side exceptions preventing the sign-on page from loading successfully.",
+        "confidence": "High",
+        "impact": "Users are unable to log in or register, completely blocking access to authenticated features and critical business functions.",
+        "recommendation": "Investigate server-side logs and application error details for 'Navigate To Signon Page' to identify the root cause of the 100% transaction failure rate.",
+        "validation": "Re-run the test after implementing fixes and verify that the error rate is below the 1.00% SLA target."
+      },
+      "F-011": {
+        "finding": "TC01_T_02_Navigate_Catalog SLA deviation (896 ms)",
+        "observation": "The 'Navigate Catalog' transaction recorded an average response time of 848.2 ms and a P90 of 896 ms, significantly breaching its 300 ms SLA target by +198.7%. This transaction had a 0.00% error rate.",
+        "interpretation": "This transaction, responsible for general catalog navigation, is performing unacceptably slow, indicating a systemic issue with how catalog pages are loaded and rendered.",
+        "evidence": [
+          {
+            "metric": "TC01_T_02_Navigate_Catalog P90 Response Time",
+            "value": "896 ms",
+            "source": "client"
+          },
+          {
+            "metric": "TC01_T_02_Navigate_Catalog SLA Target",
+            "value": "300 ms",
+            "source": "defined"
+          },
+          {
+            "metric": "TC01_T_02_Navigate_Catalog Error Rate",
+            "value": "0.00%",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Inefficient data retrieval, complex rendering logic, or slow backend service calls for general catalog navigation.",
+        "confidence": "High",
+        "impact": "Users experience significant delays when browsing the product catalog, leading to frustration and potential abandonment.",
+        "recommendation": "Optimize the data retrieval and rendering process for 'Navigate Catalog', focusing on database query performance, caching strategies, and efficient asset loading.",
+        "validation": "Re-run the test after implementing optimizations and verify that the P90 response time is within 300 ms."
+      },
+      "F-012": {
+        "finding": "Elevated tail latency (P99: 1864 ms)",
+        "observation": "The overall P99 response time was 1864 ms, indicating that 1% of transactions took longer than 1.8 seconds to complete.",
+        "interpretation": "A P99 of 1864 ms suggests that a significant portion of the user base (the 'tail' of the distribution) is experiencing very poor performance, even if average response times appear moderate. This indicates inconsistency and potential bottlenecks under load.",
+        "evidence": [
+          {
+            "metric": "Overall P99 Response Time",
+            "value": "1864 ms",
+            "source": "client"
+          }
+        ],
+        "likely_cause": "Resource contention (CPU, memory, I/O), database lock contention, garbage collection pauses, or slow external service dependencies that manifest under load.",
+        "confidence": "High",
+        "impact": "A subset of users consistently experiences very slow interactions, leading to high frustration, abandonment, and negative perception of application reliability.",
+        "recommendation": "Conduct deeper profiling during load tests to identify specific operations or resources contributing to tail latency. Investigate database performance, application server thread pools, and garbage collection tuning.",
+        "validation": "Re-run tests after optimizations and observe a reduction in P99 response time, ideally bringing it closer to P90 values."
+      },
+      "F-013": {
+        "finding": "Server CPU peak at 91%",
+        "observation": "Server CPU utilization averaged 60.7% with a peak of 91.4% during the test.",
+        "interpretation": "A CPU peak of 91.4% indicates that the server was under significant computational stress, nearing saturation. This high utilization likely contributed to the observed response time degradations and potentially some errors.",
+        "evidence": [
+          {
+            "metric": "Server CPU Average",
+            "value": "60.7%",
+            "source": "server"
           },
           {
             "metric": "Server CPU Peak",
@@ -7349,80 +7538,33 @@
             "source": "server"
           }
         ],
-        "likely_cause": "CPU saturation during catalog data retrieval and page rendering. Possible inefficient database queries or missing caching.",
+        "likely_cause": "Inefficient application code, excessive database operations, high request processing overhead, or insufficient CPU resources for the given workload.",
+        "confidence": "High",
+        "impact": "High CPU utilization directly correlates with increased processing queues, leading to elevated response times and potential timeouts or errors as the server struggles to keep up with requests.",
+        "recommendation": "Analyze application code and database queries for CPU-intensive operations. Consider scaling up or out the server resources if code optimizations are insufficient to handle the workload within SLA.",
+        "validation": "Monitor CPU utilization during re-tests to ensure it remains below 70-80% at peak load, and observe corresponding improvements in response times."
+      },
+      "F-014": {
+        "finding": "Server Memory peak at 89%",
+        "observation": "Server memory utilization averaged 69.3% with a peak of 89.3% during the test.",
+        "interpretation": "A memory peak of 89.3% indicates that the server was utilizing a substantial portion of its available memory. While not necessarily saturated, it suggests limited headroom and could lead to increased garbage collection activity or swapping if the load were to increase further.",
+        "evidence": [
+          {
+            "metric": "Server Memory Average",
+            "value": "69.3%",
+            "source": "server"
+          },
+          {
+            "metric": "Server Memory Peak",
+            "value": "89.3%",
+            "source": "server"
+          }
+        ],
+        "likely_cause": "Memory leaks, inefficient data structures, large in-memory caches, or insufficient memory allocated to the application server.",
         "confidence": "Medium",
-        "impact": "Product browsing severely degraded; direct impact on conversion funnel.",
-        "recommendation": "Implement catalog page caching (Redis/CDN). Optimize product query with pagination and indexing. Profile rendering pipeline.",
-        "validation": "Re-test catalog launch with caching enabled; target P90 < 250 ms."
-      },
-      "F-005": {
-        "finding": "Server CPU saturation at 91.4% peak with 168 HTTP 5xx errors",
-        "observation": "Correlation analysis reports CPU peaked at 91.4% and Azure App Service returned 168 5xx errors during 30-second test.",
-        "interpretation": "Server compute capacity exhausted. 5xx errors indicate application crashes, thread pool exhaustion, or unhandled exceptions under load. CPU saturation is primary driver of observed latency spikes and failures.",
-        "evidence": [
-          {
-            "metric": "CPU Peak",
-            "value": "91.4%",
-            "source": "server"
-          },
-          {
-            "metric": "HTTP 5xx Errors",
-            "value": "168",
-            "source": "server"
-          },
-          {
-            "metric": "Test Duration",
-            "value": "30 seconds",
-            "source": "client"
-          },
-          {
-            "metric": "Throughput",
-            "value": "10.89 req/s",
-            "source": "client"
-          }
-        ],
-        "likely_cause": "Insufficient compute resources (vCPU count/size) for workload. Possible inefficient code paths (tight loops, excessive GC, synchronous I/O) amplifying CPU demand.",
-        "confidence": "High",
-        "impact": "Systemic performance collapse affecting all transactions. 35.94% overall error rate directly attributable to server-side failures.",
-        "recommendation": "Scale up App Service plan (increase vCPU). Enable auto-scaling rules based on CPU > 70%. Profile application CPU hotspots (JFR/async-profiler).",
-        "validation": "Load test with scaled-up tier; verify CPU peak < 70% and 5xx errors < 1% at target throughput."
-      },
-      "F-006": {
-        "finding": "Overall SLA compliance only 67.7% with 35.94% error rate",
-        "observation": "31 of 96 transactions breached defined SLA targets. Global error rate 35.94% far exceeds 1% target. Multiple transactions show 100% error rates.",
-        "interpretation": "Application fails to meet non-functional requirements under minimal load (10.89 req/s). Error pattern suggests systemic instability rather than isolated transaction defects.",
-        "evidence": [
-          {
-            "metric": "Overall SLA Compliance",
-            "value": "67.7%",
-            "source": "derived"
-          },
-          {
-            "metric": "Total SLA-Breaching Transactions",
-            "value": "31",
-            "source": "derived"
-          },
-          {
-            "metric": "Global Error Rate",
-            "value": "35.94%",
-            "source": "client"
-          },
-          {
-            "metric": "Error Rate Target",
-            "value": "1%",
-            "source": "defined"
-          },
-          {
-            "metric": "Transactions with 100% Error Rate",
-            "value": "12",
-            "source": "client"
-          }
-        ],
-        "likely_cause": "Combined effect of CPU saturation causing timeouts and application exceptions generating 5xx errors. Insufficient error handling and retry logic.",
-        "confidence": "High",
-        "impact": "Production deployment at this performance level would result in widespread user-facing failures and transaction loss.",
-        "recommendation": "Immediate performance engineering sprint: 1) Scale compute, 2) Fix top 5 erroring transactions, 3) Implement resilience patterns (retry, timeout, circuit breaker), 4) Re-test with 15-minute steady state.",
-        "validation": "Achieve > 95% SLA compliance and < 1% error rate at target load in next test cycle."
+        "impact": "High memory usage can lead to increased garbage collection cycles, which can introduce pauses and contribute to tail latency. If memory becomes fully saturated, it can lead to application crashes or system instability.",
+        "recommendation": "Profile application memory usage to identify potential leaks or areas for optimization. Consider increasing server memory if the current usage is consistently high under expected peak load and optimizations are not feasible.",
+        "validation": "Monitor memory utilization during re-tests to ensure sufficient headroom (e.g., below 80% at peak) and observe stable application performance."
       }
     },
     "capacity_planning": {
@@ -7431,218 +7573,190 @@
       "saturation_point": null,
       "safe_concurrency": null,
       "capacity_confidence": "Unknown",
-      "analysis": "Test duration (30 seconds) and missing concurrency configuration prevent reliable capacity estimation. Throughput of 10.89 req/s achieved with 91.4% CPU peak indicates current deployment handles ~11 req/s at saturation. Without steady-state data and user concurrency metrics, safe operating capacity cannot be determined. Minimum 15-minute test with defined virtual users required for capacity modeling."
+      "analysis": "Reliable capacity planning cannot be performed solely based on aggregate throughput and duration without explicit concurrency metrics (e.g., number of active users/threads). The test duration of 30 seconds is also very short, limiting the ability to observe steady-state behavior and long-term resource trends. Furthermore, the high error rate and SLA breaches indicate that the current system is not stable or performant enough to establish a baseline for capacity estimation."
     },
     "root_cause_assessment": [
       {
-        "finding": "Server CPU saturation (91.4% peak) is primary bottleneck driving latency and 5xx errors",
-        "evidence": "CPU peaked at 91.4% (correlation analysis). 168 HTTP 5xx errors recorded. Client-side P90 1014 ms, P99 1864 ms. 31 transactions breach P90 SLA targets by 62-645%.",
-        "likely_cause": "Insufficient vCPU allocation for workload intensity. Application code may contain CPU-intensive operations (e.g., synchronous processing, lack of caching, inefficient algorithms) that amplify under concurrent load.",
-        "confidence": "High",
-        "recommended_investigation": "Enable Azure Monitor CPU metrics per instance. Capture Java Flight Recorder (JFR) or async-profiler output during load test to identify hot methods. Analyze thread dumps at peak CPU for blocked/runnable threads."
+        "finding": "Widespread transaction failures and high error rates",
+        "evidence": "Overall error rate of 35.94%, with multiple critical transactions like 'Launch Homepage' and 'Navigate To Signon Page' showing 100.00% error rates. Other transactions like 'GET Search Bar Widget' also show 100.00% error rates.",
+        "likely_cause": "Fundamental application-level errors, misconfigurations, or critical backend service failures that prevent successful transaction completion. This is not purely a performance issue but a functional reliability issue under load.",
+        "confidence": "Confirmed",
+        "recommended_investigation": "Review application logs, server logs, and database error messages for the failing transactions. Perform functional debugging of these specific user flows to identify the exact point of failure and error messages returned by the application."
       },
       {
-        "finding": "Application exceptions causing 100% error rates on 12 critical transactions",
-        "evidence": "12 transactions show 100% error rate (e.g., TC01_T_01_Launch_Homepage, TC03_T_01_Launch_Search_Portal, TC04_T_02_Navigate_To_Signon_Page). 168 total 5xx errors in 30 seconds.",
-        "likely_cause": "Unhandled exceptions in request processing pipeline (NullPointerException, timeout exceptions, database connection failures) triggered by resource exhaustion or code defects.",
+        "finding": "Elevated P90 response times for core navigation and catalog transactions",
+        "evidence": "Transactions such as 'Launch Shopping Catalog' (P90=1581ms vs SLA=250ms), 'Select Dogs Section' (P90=1312ms vs SLA=300ms), 'GET Homepage' (P90=1070ms vs SLA=500ms), and 'Navigate Catalog' (P90=896ms vs SLA=300ms) significantly breached their response time SLAs.",
+        "likely_cause": "Inefficient database queries, unoptimized backend service calls, or large data payloads required to render complex pages. High server CPU utilization (peak 91.4%) likely exacerbates these issues under load.",
         "confidence": "High",
-        "recommended_investigation": "Retrieve Application Insights / Log Analytics exception traces for 5xx errors. Correlate exception timestamps with CPU peaks. Fix top exception types and add graceful degradation."
+        "recommended_investigation": "Utilize application performance monitoring (APM) tools to trace these slow transactions, identifying the longest-running database queries, external API calls, or internal application logic. Analyze database query plans and optimize indexes."
+      },
+      {
+        "finding": "High server CPU utilization nearing saturation",
+        "evidence": "Server CPU averaged 60.7% with a peak of 91.4%.",
+        "likely_cause": "The application is computationally intensive, or the server resources are insufficient for the current workload. This high CPU directly contributes to increased processing times and can lead to queuing and elevated response times.",
+        "confidence": "High",
+        "recommended_investigation": "Profile the application during load to identify CPU hotspots in the code. Review server configuration and consider scaling options (vertical or horizontal) if application-level optimizations are insufficient."
       }
     ],
-    "bottleneck_analysis": "Time is spent predominantly in server-side request processing under CPU saturation. Client-side metrics show P90 1014 ms (global) with individual transactions ranging 830-1864 ms P90 against 250-500 ms targets. Zero-error transactions (e.g., catalog launch, authentication gateway) still exhibit 5-6x SLA breaches, confirming latency is due to queuing and slow processing, not network. Transactions with 100% error rates (homepage, search, login) indicate request processing fails before completion, likely due to thread pool exhaustion or unhandled exceptions under CPU pressure. Database and external service calls not instrumented; however, 5xx errors suggest failures originate in application layer.",
-    "tail_latency_analysis": "P95 1411 ms and P99 1864 ms indicate severe tail latency. Variability high: homepage min 1367 ms, max 2405 ms (76% spread). Search portal min 1408 ms, max 2329 ms. Tail latency driven by CPU saturation causing request queuing and GC pauses. 100% error rate transactions have no successful samples to measure latency; their 'latency' is effectively infinite (timeout). Recommend analyzing GC logs and thread pool queue lengths to quantify queuing delay contribution.",
-    "infra_analysis": "Server infrastructure shows critical CPU saturation (91.4% peak) with no headroom. Memory utilization not reported (Azure Monitor unconfigured). 168 HTTP 5xx errors in 30 seconds confirm application instability under load. Current App Service plan undersized for workload. No auto-scaling observed. Immediate vertical scaling (increase vCPU) and horizontal scaling (enable auto-scale) required. Memory and GC behavior unknown - must be monitored in next test.",
-    "correlation_insights": "Direct correlation between server CPU saturation (91.4%) and client-side degradation: global P90 1014 ms (2x default 500 ms SLA), 31 SLA breaches, 35.94% error rate. 168 server-side 5xx errors align temporally with client transaction failures (12 transactions at 100% error rate). CPU saturation causes request queuing, increased GC activity, and thread starvation, manifesting as both high latency (successful requests) and 5xx errors (failed requests). No network or client-side bottleneck indicated.",
+    "bottleneck_analysis": "The primary bottlenecks are two-fold: critical application errors leading to 100% transaction failures for key user journeys (e.g., homepage launch, sign-on, search bar widget), and significant response time degradations for core navigation and catalog browsing transactions. The server-side infrastructure shows high CPU utilization peaking at 91.4%, indicating that the application server is struggling to process requests efficiently under load. This resource contention, combined with potentially inefficient application code or database queries, is directly contributing to the elevated response times and likely exacerbating the error conditions. The high P99 latency of 1864 ms further confirms that a substantial portion of user interactions is severely impacted.",
+    "tail_latency_analysis": "The overall P90 response time of 1014 ms and P99 of 1864 ms indicate significant tail latency. This means that while average response times might seem moderate (441.83 ms), a considerable percentage of users (10% and 1% respectively) are experiencing delays of over 1 second and 1.8 seconds. This variability suggests inconsistent performance, likely due to resource contention, garbage collection pauses, or intermittent slow backend dependencies that become more pronounced under load. The 'Launch Homepage' transaction, for instance, has a P90 of 1864 ms, which is also the overall P99, highlighting it as a major contributor to tail latency.",
+    "infra_analysis": "Server CPU utilization averaged 60.7% and peaked at 91.4%. This peak indicates that the server was operating near its capacity limits, leaving minimal headroom for increased load or unexpected spikes. Sustained CPU utilization above 80% typically leads to performance degradation due to increased queuing and context switching. Memory utilization averaged 69.3% and peaked at 89.3%. While not fully saturated, this high memory usage suggests limited available memory, which could lead to increased garbage collection overhead or potential swapping if the workload were to increase further. The combination of high CPU and high memory usage points to resource contention as a significant factor in the observed performance issues.",
+    "correlation_insights": "No correlation data was available to directly link client-side response times or errors to specific server-side application components, database queries, or infrastructure metrics. This limitation hinders precise root cause identification and requires manual investigation of server logs and application traces.",
     "recommendations": [
       {
         "id": "R-001",
         "priority": "Critical",
-        "category": "Infrastructure",
-        "title": "Scale up App Service compute and enable auto-scaling",
-        "why": "CPU peaked at 91.4% with 168 5xx errors, causing systemic latency and failure. Current compute capacity insufficient for even minimal load (10.89 req/s).",
+        "category": "Backend",
+        "title": "Address Critical Transaction Failures",
+        "why": "Multiple core transactions, including 'Launch Homepage' and 'Navigate To Signon Page', are experiencing 100% error rates, rendering critical application functionality unusable. This is a fundamental reliability issue.",
         "action": [
-          "Upgrade App Service plan to minimum 4 vCPU (P1v3 or equivalent) to provide CPU headroom.",
-          "Configure auto-scale rules: scale out at CPU > 70% for 5 minutes, scale in at CPU < 30%.",
-          "Enable Azure Monitor metrics (CPU, memory, requests, exceptions) and Log Analytics for next test."
+          "Immediately investigate server-side application logs and error messages for 'Launch Homepage', 'Launch Search Portal', 'GET Search Bar Widget', 'GET Banner Logo', 'Launch Search Portal', 'GET Login Assets', 'Navigate To Signon Page', 'GET Reptiles Media', 'Select Reptiles Section', 'POST Account Signon', 'Submit Valid Login Credentials', 'POST Update Account', and 'GET Cart Subtotal'.",
+          "Perform functional debugging of these user flows to identify the exact point of failure and underlying code defects or misconfigurations."
         ],
-        "expected_impact": "Eliminate CPU saturation, reduce 5xx errors to < 1%, bring P90 latency within SLA targets for non-erroring transactions.",
-        "validation": "Re-run 15-minute load test with monitoring; verify CPU peak < 70%, error rate < 1%, P90 < SLA targets for all transactions.",
+        "expected_impact": "Eliminates critical transaction failures, restoring basic application functionality and improving overall system reliability.",
+        "validation": "Re-run the performance test and verify that the error rates for these transactions are below the defined 1.00% SLA target.",
         "confidence": "High"
       },
       {
         "id": "R-002",
-        "priority": "Critical",
+        "priority": "High",
         "category": "Backend",
-        "title": "Fix application exceptions causing 100% error rates on core transactions",
-        "why": "12 transactions fail 100% of the time, including homepage, search, and login - blocking all user flows. 168 5xx errors in 30 seconds indicate unhandled exceptions.",
+        "title": "Optimize High-Latency Catalog and Navigation Transactions",
+        "why": "Several key transactions like 'Launch Shopping Catalog', 'Select Dogs Section', 'GET Homepage', and 'Navigate Catalog' are significantly breaching their P90 response time SLAs, leading to poor user experience despite functional success. This is exacerbated by high server CPU utilization.",
         "action": [
-          "Retrieve exception stack traces from Application Insights / server logs for the 5xx errors.",
-          "Prioritize fixes for exceptions in homepage rendering, search initialization, and authentication gateway.",
-          "Implement global exception handling with graceful degradation (fallback responses, circuit breakers).",
-          "Add retry logic with exponential backoff for transient downstream failures."
+          "Utilize Application Performance Monitoring (APM) tools to trace the execution path of 'Launch Shopping Catalog', 'Select Dogs Section', 'GET Homepage', 'GET Catalog Gateway', 'GET Catalog', 'Select Dogs Category', and 'Navigate Catalog'.",
+          "Identify and optimize inefficient database queries (e.g., add indexes, rewrite queries, reduce N+1 queries).",
+          "Implement caching mechanisms for frequently accessed data or pre-render static content where possible.",
+          "Review and optimize backend service calls and data processing logic to reduce computational overhead."
         ],
-        "expected_impact": "Reduce global error rate from 35.94% to < 1%. Restore availability of core user journeys.",
-        "validation": "Error rate < 1% in next test; zero transactions with 100% error rate.",
+        "expected_impact": "Reduces P90 response times for critical user journeys, improving user satisfaction and adherence to NFR SLAs.",
+        "validation": "Re-run the performance test and verify that the P90 response times for these transactions are within their defined SLA targets.",
         "confidence": "High"
       },
       {
         "id": "R-003",
         "priority": "High",
-        "category": "Backend",
-        "title": "Implement caching for catalog and homepage rendering",
-        "why": "Catalog launch (P90 1581 ms) and homepage (P90 1864 ms) breach SLA by 5-6x despite 0% and 100% error rates respectively. Repeated rendering of static/semi-static content wastes CPU.",
+        "category": "Infrastructure",
+        "title": "Address Server CPU Saturation",
+        "why": "Server CPU utilization peaked at 91.4%, indicating resource contention that directly contributes to elevated response times and potential system instability under load.",
         "action": [
-          "Add Redis Cache for product catalog data and category listings.",
-          "Implement HTTP caching headers (ETag, Cache-Control) for static assets and fragment caching for page sections.",
-          "Configure CDN for static resources (images, CSS, JS)."
+          "Profile the application during load to identify specific CPU-intensive code sections or processes.",
+          "Evaluate the current server sizing and consider scaling up (increasing CPU cores) or scaling out (adding more instances) the application server if application-level optimizations are insufficient to reduce CPU load.",
+          "Review operating system and application server configurations for performance tuning opportunities."
         ],
-        "expected_impact": "Reduce CPU utilization by 30-50% for read-heavy transactions. Bring catalog and homepage P90 within 250 ms SLA.",
-        "validation": "Measure CPU reduction and P90 latency for catalog/homepage transactions in cached vs uncached test runs.",
-        "confidence": "Medium"
-      },
-      {
-        "id": "R-004",
-        "priority": "High",
-        "category": "Configuration",
-        "title": "Optimize thread pool and connection pool sizing",
-        "why": "CPU saturation with 5xx errors suggests thread pool exhaustion or database connection pool saturation under concurrent requests.",
-        "action": [
-          "Review and tune Tomcat/Undertow thread pool (maxThreads) based on vCPU count.",
-          "Configure HikariCP connection pool: maximumPoolSize = (vCPU * 2) + 1, with appropriate timeout.",
-          "Enable connection leak detection and statement caching."
-        ],
-        "expected_impact": "Prevent thread/connection starvation, reduce 5xx errors, improve throughput stability.",
-        "validation": "Monitor thread pool queue length and connection pool usage during load test; zero connection timeouts.",
-        "confidence": "Medium"
-      },
-      {
-        "id": "R-005",
-        "priority": "Medium",
-        "category": "Database",
-        "title": "Profile and optimize database queries for search and catalog",
-        "why": "Search portal and catalog transactions show high latency. Database query performance not measured but likely contributor given CPU saturation.",
-        "action": [
-          "Enable slow query logging (threshold 100 ms).",
-          "Analyze query execution plans for search and catalog endpoints.",
-          "Add missing indexes, implement pagination, consider read replicas for search queries."
-        ],
-        "expected_impact": "Reduce database CPU load and query latency, contributing to overall CPU headroom.",
-        "validation": "Query latency < 50 ms for 95th percentile; database CPU < 50% during load test.",
-        "confidence": "Medium"
+        "expected_impact": "Provides sufficient processing capacity, reduces queuing, and improves overall system responsiveness and stability under load.",
+        "validation": "Monitor server CPU utilization during re-tests to ensure it remains below 70-80% at peak load, and observe corresponding improvements in response times.",
+        "confidence": "High"
       }
     ],
     "performance_intelligence": {
       "executive_summary": {
-        "assessment_text": "The JPetStore application fails to meet performance and reliability requirements under minimal load (10.89 req/s). Only 67.7% of transactions meet SLA targets. Server CPU saturation (91.4% peak) and 168 HTTP 5xx errors cause systemic latency (global P90 1014 ms vs 500 ms target) and 35.94% error rate. Core user journeys (homepage, search, login) are completely broken with 100% failure rates. Immediate infrastructure scaling and application error remediation required before further testing.",
+        "assessment_text": "The JPetStore application demonstrated critical performance and reliability issues during the 30-second multi-user story test. Only 75.0% of transactions met their defined SLA targets, with an alarming overall error rate of 35.94%. Key transactions like 'Launch Homepage' and 'Navigate To Signon Page' failed 100% of the time, while others such as 'Launch Shopping Catalog' experienced P90 response times exceeding their 250 ms SLA target by over 500%. Server CPU utilization peaked at 91.4%, indicating significant resource contention contributing to these degradations.",
         "assessment_bullets": [
-          "Overall SLA compliance 67.7% (65/96 transactions); 31 transactions breach P90 response time targets by 62-645%.",
-          "Server CPU peaked at 91.4% with 168 HTTP 5xx errors in 30 seconds, indicating compute saturation and application instability.",
-          "Critical user flows (homepage, search, login) exhibit 100% error rates, rendering application unusable under load."
+          "Overall SLA compliance was 75.0%, with 24 out of 96 transactions violating defined NFR SLAs, indicating significant reliability and performance issues.",
+          "The average response time was 441.83 ms, but P90 reached 1014 ms and P99 reached 1864 ms, highlighting severe tail latency and inconsistent user experience.",
+          "A high overall error rate of 35.94% was observed, with multiple critical transactions failing 100% of the time, pointing to fundamental application defects or misconfigurations.",
+          "Server CPU utilization peaked at 91.4%, suggesting resource saturation and a direct contributor to elevated response times and transaction failures."
         ],
         "conclusions": [
-          "Current deployment cannot support production traffic; requires immediate compute scaling and code-level fixes.",
-          "Error rate 35.94% exceeds 1% target by 35x; 12 transactions fail completely (100% error rate).",
-          "Test duration (30s) and missing Azure Monitor limit root cause depth; 15-minute monitored test needed post-remediation."
+          "The application is not currently stable or performant enough to support the tested workload, with critical user journeys failing entirely.",
+          "Significant performance bottlenecks exist in core navigation and catalog display functions, leading to unacceptable user experience.",
+          "Server infrastructure, particularly CPU, is nearing saturation, indicating a need for optimization or scaling to handle the current load efficiently."
         ],
         "observations_table": [
           {
             "category": "1. Transaction Statistics",
-            "observation": "a. TC01_T_01_Launch_Homepage: Overall 5 iterations executed, 0 passed, 5 failed (100% failure).\nb. TC03_T_01_Launch_Search_Portal: Overall 2 iterations executed, 0 passed, 2 failed (100% failure).\nc. TC04_T_01_Launch_Authentication_Gateway: Overall 5 iterations executed, 5 passed, 0 failed (0% failure) but P90 1484 ms.\nd. TC02_T_01_Launch_Shopping_Catalog: Overall 5 iterations executed, 5 passed, 0 failed (0% failure) but P90 1581 ms.\ne. TC04_T_02_Navigate_To_Signon_Page: Overall 5 iterations executed, 0 passed, 5 failed (100% failure)."
+            "observation": "a. Overall 326 samples were executed over 30 seconds, achieving a throughput of 10.89 requests per second.\nb. Multiple critical transactions, including 'Launch Homepage' and 'Navigate To Signon Page', experienced 100% failure rates, indicating severe functional issues.\nc. Transactions like 'Launch Shopping Catalog' and 'Select Dogs Section' completed successfully but with significantly elevated response times."
           },
           {
             "category": "2. Response Time Statistics",
-            "observation": "a. 31 out of 96 transactions violated the defined NFR SLA (67.7% compliance).\nb. Global P90 response time 1014 ms vs 500 ms default target (+102.8% deviation).\nc. Homepage launch P90 1864 ms vs 250 ms target (+645.6% deviation).\nd. Search portal launch P90 1408 ms vs 250 ms target (+463.2% deviation).\ne. Authentication gateway P90 1484 ms vs 250 ms target (+493.6% deviation).\nf. Shopping catalog P90 1581 ms vs 250 ms target (+532.4% deviation)."
+            "observation": "a. 24 out of 96 transactions violated the defined NFR SLA (75% compliance).\nb. The average response time across all transactions was 441.83 ms, with P90 at 1014 ms and P99 at 1864 ms, indicating significant tail latency.\nc. 'Launch Homepage' recorded a P90 of 1864 ms, exceeding its 250 ms SLA target by +645.6%.\nd. 'Launch Shopping Catalog' recorded a P90 of 1581 ms, exceeding its 250 ms SLA target by +532.4%.\ne. 'Select Dogs Section' recorded a P90 of 1312 ms, exceeding its 300 ms SLA target by +337.3%."
           },
           {
             "category": "3. Errors",
-            "observation": "a. TC01_T_01_Launch_Homepage: 5 out of 5 failures (100% error rate). Server 5xx errors observed.\nb. TC03_T_01_Launch_Search_Portal: 2 out of 2 failures (100% error rate).\nc. TC04_T_02_Navigate_To_Signon_Page: 5 out of 5 failures (100% error rate).\nd. TC01_T_01_R_03_GET_Banner_Logo: 5 out of 5 failures (100% error rate).\ne. TC03_T_01_R_02_GET_Search_Bar_Widget: 2 out of 2 failures (100% error rate).\nf. Overall error rate 35.94% (117 errors out of 326 samples) vs 1% SLA target."
+            "observation": "a. An overall error rate of 35.94% was observed across all transactions.\nb. 'Launch Homepage': 5 out of 5 failures (100% error rate). These were critical application errors.\nc. 'Navigate To Signon Page': 5 out of 5 failures (100% error rate). These were critical application errors.\nd. 'GET Search Bar Widget': 2 out of 2 failures (100% error rate). These were critical application errors."
           },
           {
             "category": "4. Server Monitoring",
-            "observation": "a. Server CPU peaked at 91.4% (critical saturation). Average CPU not reported.\nb. Azure App Service returned 168 HTTP 5xx errors during 30-second test window.\nc. Memory utilization, GC activity, and thread pool metrics unavailable (Azure Monitor not configured).\nd. No auto-scaling triggered or configured."
+            "observation": "a. Server CPU averaged 60.7% with a peak of 91.4%, indicating high utilization and potential saturation.\nb. Server memory averaged 69.3% with a peak of 89.3%, suggesting limited headroom for increased load.\nc. Disk Read IOPS were 21,908,149 and Disk Write IOPS were 9,019,541, indicating significant disk activity."
           }
         ],
         "priority_recommendations": [
           {
             "priority": "Critical",
             "badge": "\ud83d\udd34",
-            "title": "Scale up compute and enable auto-scaling",
-            "detail": "Upgrade App Service to 4+ vCPU (P1v3+). Configure auto-scale at CPU > 70%. Enable Azure Monitor for CPU, memory, exceptions.",
-            "business_impact": "Eliminates CPU saturation causing 91.4% peak and 168 5xx errors. Restores baseline capacity for all transactions."
-          },
-          {
-            "priority": "Critical",
-            "badge": "\ud83d\udd34",
-            "title": "Fix application exceptions causing 100% failure on core flows",
-            "detail": "Analyze 5xx exception traces for homepage, search, login. Implement try-catch with fallback, circuit breakers, and retry logic.",
-            "business_impact": "Reduces 35.94% error rate to < 1%. Restores user access to homepage, search, and authentication."
+            "title": "Resolve All 100% Transaction Failures",
+            "detail": "Immediately investigate and fix the underlying application errors causing 100% failure rates for critical transactions such as 'Launch Homepage', 'Launch Search Portal', and 'Navigate To Signon Page'. This requires detailed analysis of application logs and functional debugging.",
+            "business_impact": "Restores fundamental application functionality, enabling users to access the homepage, search, and sign-on, which are essential for any business operation."
           },
           {
             "priority": "High",
             "badge": "\ud83d\udfe0",
-            "title": "Implement Redis caching for catalog and homepage",
-            "detail": "Cache product catalog data and page fragments. Add CDN for static assets. Reduce CPU spent on repeated rendering.",
-            "business_impact": "Cuts catalog/homepage latency from 1500+ ms to < 250 ms SLA. Reduces CPU load by 30-50%."
+            "title": "Optimize High-Latency Catalog and Navigation",
+            "detail": "Focus on optimizing database queries, implementing caching, and refining backend service calls for transactions like 'Launch Shopping Catalog', 'Select Dogs Section', and 'Navigate Catalog' to bring their P90 response times within SLA targets.",
+            "business_impact": "Significantly improves user experience during product browsing and navigation, reducing abandonment rates and enhancing customer engagement."
           },
           {
             "priority": "High",
             "badge": "\ud83d\udfe0",
-            "title": "Tune thread pools and connection pools",
-            "detail": "Set Tomcat maxThreads and HikariCP pool size based on vCPU. Enable leak detection.",
-            "business_impact": "Prevents thread/connection exhaustion contributing to 5xx errors and latency spikes."
+            "title": "Scale or Optimize Server CPU Utilization",
+            "detail": "Address the server CPU peaking at 91.4% by profiling the application for CPU hotspots and either optimizing code or scaling up/out the server infrastructure to provide adequate processing capacity.",
+            "business_impact": "Ensures system stability and responsiveness under load, preventing performance degradation, timeouts, and errors that impact user productivity and business continuity."
           }
         ]
       },
       "tab_tx_stats": {
         "observations": [
-          "326 total samples executed in 30 seconds at 10.89 req/s throughput. 96 unique transactions measured; 31 breach SLA (67.7% compliance).",
-          "12 transactions show 100% error rate (0 successful iterations), including homepage, search portal, login page, and static asset loads. These represent complete functional failure of core user journeys.",
-          "Successful transactions (e.g., catalog launch, authentication gateway) still exhibit P90 latency 5-6x above SLA targets, indicating systemic latency not isolated to failing transactions."
+          "Overall, 326 samples were executed during the 30-second test, resulting in a throughput of 10.89 requests per second.",
+          "A significant number of transactions, including 'Launch Homepage' (5 samples), 'Launch Search Portal' (2 samples), and 'Navigate To Signon Page' (5 samples), experienced 100% failure rates, indicating critical functional issues.",
+          "Transactions such as 'Launch Shopping Catalog' (5 samples) and 'Select Dogs Section' (5 samples) completed successfully but contributed to the overall high response times."
         ],
         "recommendations": [
-          "Prioritize fixing 100% error rate transactions before optimizing latency of passing transactions. Errors indicate application defects or resource exhaustion that invalidate latency measurements.",
-          "Define transaction think time and pacing to simulate realistic user concurrency; current 10.89 req/s may not reflect target production load profile."
+          "Prioritize the investigation and resolution of transactions exhibiting 100% failure rates, as these represent critical functional breakdowns.",
+          "Review the workload profile and pacing to ensure it accurately reflects expected user behavior, especially for transactions with high error rates, to avoid masking underlying issues."
         ]
       },
       "tab_rt_stats": {
         "observations": [
-          "Global P90 1014 ms exceeds 500 ms default SLA by 102.8%. P99 1864 ms indicates severe tail latency.",
-          "Top 5 SLA breaches: Homepage launch P90 1864 ms (+645.6%), Search portal P90 1408 ms (+463.2%), Auth gateway P90 1484 ms (+493.6%), Shopping catalog P90 1581 ms (+532.4%), Dogs section P90 1312 ms (+337.3%).",
-          "Transactions with 0% error rate still breach SLA by 300-500%, confirming latency root cause is resource saturation (CPU) not application logic errors."
+          "24 out of 96 transactions violated their defined NFR SLA targets, resulting in an overall SLA compliance of 75.0%.",
+          "The overall P90 response time was 1014 ms, and P99 was 1864 ms, indicating significant tail latency and inconsistent performance for a subset of users.",
+          "The 'Launch Homepage' transaction recorded a P90 of 1864 ms, exceeding its 250 ms SLA target by +645.6%.",
+          "The 'Launch Shopping Catalog' transaction recorded a P90 of 1581 ms, exceeding its 250 ms SLA target by +532.4%.",
+          "The 'Select Dogs Section' transaction recorded a P90 of 1312 ms, exceeding its 300 ms SLA target by +337.3%."
         ],
         "recommendations": [
-          "Target CPU reduction below 70% via scaling and caching to bring P90 within SLA. Latency improvements of 5-6x required for critical transactions.",
-          "Implement response time budgets per transaction tier (e.g., static assets < 100 ms, dynamic pages < 250 ms) and enforce via automated performance gates."
+          "Focus immediate optimization efforts on transactions with the highest SLA deviations, particularly 'Launch Homepage', 'Launch Shopping Catalog', and 'Select Dogs Section', to bring their P90 response times within acceptable limits.",
+          "Implement performance profiling during load tests to pinpoint the exact code paths or database operations contributing to the elevated P90 and P99 tail latencies."
         ]
       },
       "tab_error_stats": {
         "observations": [
-          "Overall error rate 35.94% (117/326) vs 1% SLA target. 12 transactions at 100% error rate (5 homepage, 2 search, 5 login, 5 banner logo, 2 search widget, etc.).",
-          "168 server-side HTTP 5xx errors recorded in 30 seconds, aligning with client-side 100% failure transactions. Errors concentrated on entry-point and authentication flows.",
-          "Error types not classified (timeout vs exception vs HTTP 500/503). Missing error categorization prevents targeted remediation."
+          "The overall error rate was 35.94%, indicating a significant reliability concern for the application under load.",
+          "Multiple critical transactions, including 'Launch Homepage', 'Launch Search Portal', 'GET Search Bar Widget', 'GET Banner Logo', 'GET Login Assets', 'Navigate To Signon Page', 'GET Reptiles Media', 'Select Reptiles Section', 'POST Account Signon', 'Submit Valid Login Credentials', 'POST Update Account', and 'GET Cart Subtotal', experienced a 100% error rate.",
+          "These errors suggest fundamental application or server-side issues rather than transient network problems, as they are consistent across all iterations for these transactions."
         ],
         "recommendations": [
-          "Enable detailed error logging (exception type, stack trace, request context) for all 5xx responses. Categorize errors by root cause (timeout, NPE, DB connection, etc.).",
-          "Implement synthetic monitoring for critical transactions (homepage, login, search) with alerting on error rate > 0.5%."
+          "Conduct a thorough investigation of server-side logs and application error messages for all transactions exhibiting 100% failure rates to identify the root cause of these critical errors.",
+          "Implement robust error handling and logging mechanisms within the application to provide more detailed insights into failure reasons during future tests."
         ]
       },
       "tab_infra_stats": {
         "observations": [
-          "Server CPU peaked at 91.4% with zero headroom. Memory, GC, thread pool, and disk I/O metrics unavailable due to missing Azure Monitor configuration.",
-          "168 HTTP 5xx errors in 30 seconds (5.6 errors/sec) confirm application instability under CPU saturation. No auto-scaling observed or configured.",
-          "Current App Service plan undersized for workload. At 10.89 req/s, CPU saturation indicates either insufficient vCPU or inefficient code paths."
+          "Server CPU utilization averaged 60.7% and peaked at 91.4%, indicating that the server was under significant computational stress and nearing saturation during the test.",
+          "Server memory utilization averaged 69.3% and peaked at 89.3%, suggesting limited memory headroom and potential for increased garbage collection or swapping under higher loads.",
+          "High Disk Read IOPS (21,908,149) and Disk Write IOPS (9,019,541) indicate substantial disk activity, which could be a contributing factor to latency if the disk subsystem is a bottleneck."
         ],
         "recommendations": [
-          "Immediately upgrade to P1v3 (4 vCPU) or P2v3 (8 vCPU) App Service plan. Configure auto-scale rules: scale out at CPU > 70% for 5 min, max 5 instances.",
-          "Enable Azure Monitor metrics (CPU, memory, requests, exceptions, GC) and Log Analytics workspace before next test. Capture JFR profile during load to identify CPU hotspots."
+          "Analyze application code for CPU-intensive operations and optimize them to reduce server load. Consider scaling up or out the server resources if code optimizations are insufficient.",
+          "Investigate the cause of high disk I/O, particularly if it correlates with slow database operations, and consider optimizing database queries or improving storage performance."
         ]
       }
     },
-    "source": "openrouter",
-    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "elapsed_ms": 231340,
-    "performance_score": 70,
-    "performance_grade": "C"
+    "source": "gemini",
+    "model": "gemini-2.5-flash",
+    "elapsed_ms": 58771,
+    "performance_score": 45,
+    "performance_grade": "F"
   },
   "jmx_name": "JPetStore_MultiUserStories.jmx",
   "users": 17

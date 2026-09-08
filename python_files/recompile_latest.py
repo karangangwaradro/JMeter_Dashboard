@@ -51,17 +51,21 @@ if sorted_results:
                 from python_files.azure_collector import AzureMetricsCollector
                 infra_summary = AzureMetricsCollector._summarize_metrics(azure_data)
 
+            infra_to_pass = azure_data if (isinstance(azure_data, dict) and azure_data) else infra_summary
             print("Generating fresh AI insights with new prompt format...", flush=True)
             fresh_ai = generate_insights(
                 test_name=jmx_name,
                 summary=parsed.get("summary", {}),
                 labels=parsed.get("labels", {}),
                 time_series=parsed.get("time_series", {}),
-                infra=infra_summary,
+                infra=infra_to_pass,
                 correlation=parsed.get("correlation", {}),
                 sla_targets=sla_targets,
                 default_rt=default_rt,
-                default_err=default_err
+                default_err=default_err,
+                error_details=parsed.get("error_details", {}),
+                users=actual_users,
+                rampup=parsed.get("rampup", 0)
             )
             if fresh_ai and fresh_ai.get("source") != "none":
                 parsed["ai_insights"] = fresh_ai
