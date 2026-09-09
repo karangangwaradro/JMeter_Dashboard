@@ -1,0 +1,221 @@
+<!-- 3. SLA VALIDATION VIEW -->
+            <section id="tab-sla" class="dashboard-layout tab-content hidden">
+                <!-- STEP 1: Select Test Plan / Scenario -->
+                <div class="glass-container full-width-card sla-step-card" style="margin-bottom: 1.25rem;">
+                    <div class="sla-step-header">
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <span class="sla-step-badge">Step 1</span>
+                            <h2 style="font-size: 1.25rem; margin: 0;">Select JMeter Test Plan / Test Script</h2>
+                        </div>
+                        <p class="card-desc" style="margin-top: 4px;">
+                            Select the test plan script (.jmx) to automatically extract transaction names and configure
+                            custom SLA thresholds and user load scenarios.
+                        </p>
+                    </div>
+
+                    <div class="sla-plan-selector-container"
+                        style="margin-top: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 280px;">
+                            <label for="sla-jmx-filter"
+                                style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); white-space: nowrap;">Active
+                                Test Plan:</label>
+                            <select id="sla-jmx-filter" onchange="handleSlaTestPlanChange(this.value)"
+                                class="sla-plan-select"
+                                style="flex: 1; min-width: 240px; padding: 0.55rem 0.85rem; border: 1.5px solid var(--border-color); border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
+                                <option value="">Loading test plans...</option>
+                            </select>
+                        </div>
+                        <div class="sla-meta-chips" id="sla-meta-chips"
+                            style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                            <span class="sla-chip" id="sla-chip-plan">Plan: <strong id="sla-chip-plan-name"
+                                    style="margin-left:4px;">Global Default</strong></span>
+                            <span class="sla-chip sla-chip-info" id="sla-chip-txs">0 Transactions</span>
+                            <span class="sla-chip sla-chip-success" id="sla-chip-scenarios">0 Load Scenarios</span>
+                            <span class="sla-chip sla-chip-neutral" id="sla-chip-file"
+                                title="Paired SLA Storage">config/sla_targets.csv</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Define Load Scenarios & SLA Thresholds -->
+                <div class="glass-container full-width-card sla-step-card" id="sla-step2-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <span class="sla-step-badge">Step 2</span>
+                                <h2 style="font-size: 1.25rem; margin: 0;">Define SLA Targets &amp; Load Scenarios</h2>
+                            </div>
+                            <p class="card-desc" style="margin-top: 4px;">
+                                Set target Response Times (ms) and Error Rates (%) across user load scenarios (Normal,
+                                Peak, Spike, etc.). During test runs, the engine automatically matches the nearest load
+                                scenario.
+                            </p>
+                        </div>
+
+                        <!-- Action Toolbar -->
+                        <div class="sla-toolbar"
+                            style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+                            <div class="search-bar" style="max-width: 220px; min-width: 180px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="sla-search-input" placeholder="Filter transactions..."
+                                    onkeyup="filterSlaRowsUI(this.value)">
+                            </div>
+                            <button type="button" class="btn secondary-btn" onclick="openAddScenarioModalUI()"
+                                style="display: inline-flex; align-items: center; gap: 6px;">
+                                ➕ Add Load Scenario
+                            </button>
+                            <button type="button" class="btn secondary-btn" onclick="openAddCustomTransactionModalUI()"
+                                style="display: inline-flex; align-items: center; gap: 6px;"
+                                title="Add an extra custom transaction row">
+                                ➕ Add Row
+                            </button>
+                            <button type="button" class="btn primary-btn" id="btn-save-sla"
+                                onclick="saveSlaTargetsFromUI()"
+                                style="display: inline-flex; align-items: center; gap: 6px;">
+                                💾 Save SLA Targets
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container" style="margin-top: 1.25rem; overflow-x: auto;">
+                        <table class="data-table" id="sla-table">
+                            <thead id="sla-thead">
+                                <tr>
+                                    <th>Transaction / Sampler Label</th>
+                                    <th style="text-align: center;">Critical?</th>
+                                    <th>Base Target RT (ms)</th>
+                                    <th>Base Error Rate (%)</th>
+                                    <th>Status / Scope</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sla-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Loading SLA targets...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add Load Scenario Modal -->
+                <div id="add-scenario-modal" class="sla-modal-backdrop hidden"
+                    onclick="if(event.target===this) closeAddScenarioModalUI()">
+                    <div class="sla-modal-card">
+                        <div class="sla-modal-header">
+                            <h3>➕ Add Load Scenario SLA Profile</h3>
+                            <button type="button" class="sla-modal-close" onclick="closeAddScenarioModalUI()"
+                                aria-label="Close">✕</button>
+                        </div>
+                        <div class="sla-modal-body">
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+                                Define a user load scenario. A new column pair (RT &amp; Error Rate) will be added to
+                                the SLA matrix for all transactions.
+                            </p>
+
+                            <!-- Quick Presets -->
+                            <div style="margin-bottom: 1rem;">
+                                <label
+                                    style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted);">Quick
+                                    Presets:</label>
+                                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Normal Load', 50)">Normal (50 U)</button>
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Peak Load', 200)">Peak (200 U)</button>
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Spike Load', 500)">Spike (500 U)</button>
+                                    <button type="button" class="sla-preset-btn"
+                                        onclick="applyScenarioPresetUI('Stress Load', 1000)">Stress (1000 U)</button>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label for="new-scenario-name"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Scenario
+                                    Name</label>
+                                <input type="text" id="new-scenario-name"
+                                    placeholder="e.g. Normal Load, Peak Load, Spike Load"
+                                    style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;"
+                                    list="scenario-name-suggestions">
+                                <datalist id="scenario-name-suggestions">
+                                    <option value="Normal Load"></option>
+                                    <option value="Peak Load"></option>
+                                    <option value="Spike Load"></option>
+                                    <option value="Stress Load"></option>
+                                    <option value="Break-point Load"></option>
+                                </datalist>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label for="new-scenario-users"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Target
+                                    User Load (Concurrent Users)</label>
+                                <input type="number" id="new-scenario-users" placeholder="e.g. 50, 200, 500" min="1"
+                                    style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+                        <div class="sla-modal-footer">
+                            <button type="button" class="btn secondary-btn"
+                                onclick="closeAddScenarioModalUI()">Cancel</button>
+                            <button type="button" class="btn primary-btn" onclick="confirmAddScenarioUI()">Add Scenario
+                                Column</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Custom Transaction Row Modal -->
+                <div id="add-transaction-modal" class="sla-modal-backdrop hidden"
+                    onclick="if(event.target===this) closeAddTransactionModalUI()">
+                    <div class="sla-modal-card">
+                        <div class="sla-modal-header">
+                            <h3>➕ Add Custom Transaction Row</h3>
+                            <button type="button" class="sla-modal-close" onclick="closeAddTransactionModalUI()"
+                                aria-label="Close">✕</button>
+                        </div>
+                        <div class="sla-modal-body">
+                            <div style="margin-bottom: 1rem;">
+                                <label for="new-tx-label"
+                                    style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Transaction
+                                    / Sampler Label</label>
+                                <input type="text" id="new-tx-label" placeholder="e.g. 01_UserLogin, 02_Checkout"
+                                    style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                            </div>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label for="new-tx-rt"
+                                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Base
+                                        Target RT (ms)</label>
+                                    <input type="number" id="new-tx-rt" value="500" min="1"
+                                        style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                                </div>
+                                <div>
+                                    <label for="new-tx-err"
+                                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Base
+                                        Error Rate (%)</label>
+                                    <input type="number" step="0.1" id="new-tx-err" value="1.0" min="0" max="100"
+                                        style="width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="new-tx-critical"
+                                    style="width: 16px; height: 16px; cursor: pointer;">
+                                <label for="new-tx-critical"
+                                    style="font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--text-primary);">Mark
+                                    as Critical Transaction</label>
+                            </div>
+                        </div>
+                        <div class="sla-modal-footer">
+                            <button type="button" class="btn secondary-btn"
+                                onclick="closeAddTransactionModalUI()">Cancel</button>
+                            <button type="button" class="btn primary-btn" onclick="confirmAddTransactionUI()">Add
+                                Transaction</button>
+                        </div>
+                    </div>
+                </div>
+            </section>

@@ -1,0 +1,182 @@
+<!-- AI INSIGHTS STUDIO & REFINEMENT PLAYGROUND -->
+            <section id="tab-ai-studio" class="tab-content hidden ai-studio-layout">
+                <!-- Studio Header & Action Bar -->
+                <div class="ai-studio-header">
+                    <div class="ai-studio-title">
+                        <div class="brand-icon"
+                            style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 0.5rem; display: flex; align-items: center;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa"
+                                stroke-width="2">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2>AI Insights Studio &amp; Refinement Playground</h2>
+                            <p>Iterate, test, and refine performance prompts without regenerating full test reports</p>
+                        </div>
+                    </div>
+
+                    <div class="ai-studio-controls">
+                        <select id="studio-run-select" class="ai-studio-select" style="min-width: 300px;">
+                            <option value="">Loading previous runs...</option>
+                        </select>
+
+                        <select id="studio-model-select" class="ai-studio-select">
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Google - Recommended)</option>
+                            <option value="openrouter/free">openrouter/free (OpenRouter Free Tier)</option>
+                            <option value="gpt-4o-mini">GPT-4o Mini (GitHub AI)</option>
+                        </select>
+
+                        <div
+                            style="display: flex; align-items: center; gap: 0.4rem; background: var(--surface2); border: 1px solid var(--border); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.8rem;">
+                            <span style="color: var(--muted); font-weight: 600;">Temp:</span>
+                            <input type="number" id="studio-temp-input" min="0.0" max="1.0" step="0.1" value="0.2"
+                                style="width: 45px; background: transparent; border: none; color: var(--text); font-weight: 700; outline: none;">
+                        </div>
+
+                        <button id="studio-generate-btn" class="btn btn-primary"
+                            style="display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; font-weight: 700;">
+                            ⚡ Generate &amp; Refine Insights
+                        </button>
+
+                        <button id="studio-save-btn" class="btn btn-secondary"
+                            style="font-weight: 600; padding: 0.6rem 1rem;">
+                            💾 Save Refined Insights to Run
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Strip -->
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); border: 1px solid var(--border); padding: 0.55rem 1rem; border-radius: 8px; font-size: 0.82rem;">
+                    <div id="studio-status-indicator"
+                        style="color: var(--muted); display: flex; align-items: center; gap: 0.4rem;">
+                        <span>Select a test execution to preview the synthesized AI prompt.</span>
+                    </div>
+                    <div id="studio-score-badge" class="score-badge">
+                        Score: <strong>--/100</strong>
+                    </div>
+                </div>
+
+                <!-- Two-Column Workbench Layout -->
+                <div class="ai-studio-grid">
+
+                    <!-- Left: Prompt Inspector & Telemetry -->
+                    <div class="ai-panel-card">
+                        <div class="ai-panel-header">
+                            <h3>📝 Synthesized AI Prompt &amp; Rules</h3>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button id="studio-copy-prompt-btn" class="prompt-chip-btn" title="Copy Prompt">📋
+                                    Copy</button>
+                                <button id="studio-reset-prompt-btn" class="prompt-chip-btn"
+                                    title="Reset to Default Template">🔄 Reset</button>
+                            </div>
+                        </div>
+
+                        <!-- Active Telemetry Snapshot -->
+                        <div class="telemetry-mini-grid">
+                            <div class="telemetry-mini-kpi">
+                                <div class="label">Total Reqs</div>
+                                <div class="val" id="kpi-studio-total">-</div>
+                            </div>
+                            <div class="telemetry-mini-kpi">
+                                <div class="label">Avg Latency</div>
+                                <div class="val" id="kpi-studio-avgrt">-</div>
+                            </div>
+                            <div class="telemetry-mini-kpi">
+                                <div class="label">P95 Tail</div>
+                                <div class="val" id="kpi-studio-p95">-</div>
+                            </div>
+                            <div class="telemetry-mini-kpi">
+                                <div class="label">Error Rate</div>
+                                <div class="val" id="kpi-studio-err">-</div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Inserters -->
+                        <div>
+                            <div
+                                style="font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em;">
+                                ⚡ Quick Rule Injections:</div>
+                            <div class="prompt-toolbar">
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Focus intensely on tail latency outliers (P95/P99) and identify specific slow transactions.')">+
+                                    Tail Latency Focus</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Provide 3 ultra-concise, high-priority actionable recommendations only.')">+
+                                    Max 3 Recommendations</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Check for contradictions between response time spikes and CPU utilization.')">+
+                                    CPU Correlation Rule</button>
+                                <button class="prompt-chip-btn"
+                                    onclick="appendStudioPromptRule('Strictly prohibit generic recommendations like tuning GC without evidence.')">+
+                                    Ban Generic GC Advice</button>
+                            </div>
+                        </div>
+
+                        <!-- Prompt Editor -->
+                        <textarea id="studio-prompt-input" class="prompt-textarea"
+                            placeholder="Prompt will be constructed automatically when a run is selected..."></textarea>
+                    </div>
+
+                    <!-- Right: Live AI Insights Visualization -->
+                    <div class="ai-panel-card">
+                        <div class="ai-panel-header">
+                            <h3>🔍 Live AI Insights Preview</h3>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button id="studio-copy-json-btn" class="prompt-chip-btn">📋 Copy JSON</button>
+                            </div>
+                        </div>
+
+                        <!-- Executive Banner -->
+                        <div
+                            style="background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 8px; padding: 1rem 1.15rem;">
+                            <div
+                                style="font-size: 0.8rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">
+                                Executive Assessment</div>
+                            <p id="studio-exec-summary-text"
+                                style="margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--text);">
+                                Select a test and click 'Generate &amp; Refine Insights' to view live AI outputs.
+                            </p>
+                        </div>
+
+                        <!-- Output Navigation Tabs -->
+                        <div class="ai-output-tabs">
+                            <button class="ai-output-tab-btn active" data-out-tab="findings"
+                                onclick="switchStudioOutputTab('findings')">Findings &amp; Root Causes</button>
+                            <button class="ai-output-tab-btn" data-out-tab="recs"
+                                onclick="switchStudioOutputTab('recs')">Recommendations</button>
+                            <button class="ai-output-tab-btn" data-out-tab="tabs"
+                                onclick="switchStudioOutputTab('tabs')">Tab Intelligence</button>
+                            <button class="ai-output-tab-btn" data-out-tab="json"
+                                onclick="switchStudioOutputTab('json')">Raw JSON</button>
+                        </div>
+
+                        <!-- Sub-tab Panes -->
+                        <div id="studio-output-container">
+                            <div id="studio-view-findings">
+                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No active findings
+                                    generated yet.</p>
+                            </div>
+
+                            <div id="studio-view-recs" style="display: none;">
+                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No active
+                                    recommendations to display.</p>
+                            </div>
+
+                            <div id="studio-view-tabs" style="display: none;">
+                                <p style="color: var(--muted); font-size: 0.85rem; padding: 1rem 0;">No tab intelligence
+                                    data to display.</p>
+                            </div>
+
+                            <div id="studio-view-json" style="display: none;">
+                                <pre id="studio-raw-json"
+                                    class="json-viewer">// Raw JSON will appear here after generation...</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>

@@ -55,8 +55,9 @@ if exist "requirements.txt" (
 )
 
 :: 5. Run Environment Setup (JAVA_HOME & JMETER_HOME validator)
-echo [3/3] Verifying environment settings...
+echo [3/3] Verifying environment settings and web assets...
 "%PY_EXE%" app\cli\setup_env.py
+"%PY_EXE%" app\cli\build_web.py
 
 :: 6. Launch Server
 echo.

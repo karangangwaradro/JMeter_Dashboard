@@ -28,7 +28,7 @@ JmeterAI/
 │   │   ├── server.py                # Server runner with port-hunting fallback
 │   │   ├── middleware/              # Exception handling & logging
 │   │   └── routes/                  # Modular endpoints (status, execution, ingestion, runs, compare, trends, ai_studio, reports)
-│   ├── cli/                         # CLI Utilities (recompile, organize, setup)
+│   ├── cli/                         # CLI Utilities (build_web, recompile, organize, setup)
 │   ├── core/                        # Settings, constants, logging, exception types
 │   ├── domain/                      # Typed Pydantic contracts & abstract interfaces
 │   ├── integrations/                # Tool runners & parsers (jmeter, blazemeter, neoload, mcp, upload)
@@ -43,9 +43,15 @@ JmeterAI/
 ├── schemas/                         # JSON Schema contract definitions
 ├── Tests/                           # Test scripts (.jmx test plans, unit & integration tests)
 ├── test_scripts/                    # Verification test scripts
-├── web/                             # Frontend UI assets (HTML, CSS, JS)
+├── web/                             # Modular Frontend Application
+│   ├── views/                       # Semantic HTML component templates
+│   ├── css/                         # Modular stylesheets (base, navbar, sidebar, components, etc.)
+│   ├── js/                          # Modular ES6 JavaScript (core/ and modules/)
+│   ├── index.html                   # Pre-assembled App Shell (Zero-latency delivery)
+│   ├── app.css                      # Backward-compatible proxy to css/main.css
+│   └── app.js                       # Backward-compatible proxy to js/app.js
 ├── main.py                          # Application entry point
-├── START_SERVER.bat                 # Windows quick launcher script
+├── START_SERVER.bat                 # Windows quick launcher script (auto-builds web & launches)
 └── requirements.txt                 # Project dependencies
 ```
 
@@ -58,12 +64,18 @@ JmeterAI/
    python main.py
    # or double-click START_SERVER.bat
    ```
-2. **Access Interactive Web Interfaces**:
+
+2. **Rebuild Web Assets (Optional)**:
+   ```bash
+   python app/cli/build_web.py
+   ```
+
+3. **Access Interactive Web Interfaces**:
    - Web Dashboard: [http://localhost:8080/](http://localhost:8080/)
    - Swagger Interactive API Docs: [http://localhost:8080/docs](http://localhost:8080/docs)
    - ReDoc API Specification: [http://localhost:8080/redoc](http://localhost:8080/redoc)
 
-3. **Run Automated Tests**:
+4. **Run Automated Tests**:
    ```bash
    python -m unittest discover -s Tests/unit
    python -m unittest discover -s Tests/integration

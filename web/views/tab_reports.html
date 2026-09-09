@@ -1,0 +1,74 @@
+<!-- 4. REPORTS & HISTORY VIEW -->
+            <section id="tab-reports" class="dashboard-layout tab-content hidden">
+                <div class="glass-container full-width-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2>📜 Execution History & Correlated HTML Reports</h2>
+                            <p class="card-desc">Review previous test runs, view full correlated HTML dashboards, and
+                                examine Azure metrics.</p>
+                        </div>
+                        <button class="btn secondary-btn" onclick="recompileLatestReportUI()">⚡ Recompile Latest
+                            Report</button>
+                    </div>
+
+                    <div class="table-container" style="margin-top: 1.5rem;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.75rem;">
+                            <h3 style="margin:0;">✏️ Draft Reports (Editable &amp; Active Runs)</h3>
+                            <div class="search-bar" style="max-width: 320px; min-width: 240px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="report-search-input"
+                                    placeholder="Search reports by Run ID, JMX, status..."
+                                    onkeyup="filterReportsUI(this.value)">
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Run ID</th>
+                                    <th>Test Scenario</th>
+                                    <th>Date &amp; Time</th>
+                                    <th style="text-align: center;">Users</th>
+                                    <th style="text-align: right;">Samples</th>
+                                    <!-- <th style="text-align: right;">Avg RT</th>
+                                <th style="text-align: right;">P95 RT</th>
+                                <th style="text-align: right;">Error Rate</th> -->
+                                    <th style="text-align: center;">Azure</th>
+                                    <th style="text-align: center;">AI Mode</th>
+                                    <th style="text-align: center;">Status</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="runs-tbody">
+                                <tr>
+                                    <td colspan="12" class="text-center text-muted">Loading execution history...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container" style="margin-top: 2rem;">
+                        <h3>🚀 Published Reports (Final Non-Editable Sign-Offs)</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Published Report File</th>
+                                    <th>Published Date</th>
+                                    <th>File Size</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="published-reports-tbody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No published reports yet. Open a
+                                        draft report and click "Publish Report".</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>

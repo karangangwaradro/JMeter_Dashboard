@@ -1,0 +1,235 @@
+<!-- 6. DEDICATED HISTORICAL TREND ANALYSIS WORKSPACE -->
+            <section id="tab-trend" class="tab-content hidden trend-workspace">
+
+                <!-- A. Trend Controls & Context Header -->
+                <div class="trend-header-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2 style="font-size: 1.45rem; font-weight: 800; color: #0284c7; margin: 0;">📈 Historical
+                                Trend Analysis Dashboard</h2>
+                            <p style="color: #64748b; font-size: 0.88rem; margin: 0.25rem 0 0 0;">High-level historical
+                                patterns and directional health across multiple releases (R1 → Rn).</p>
+                        </div>
+                        <button class="btn secondary-btn" onclick="exportTrendDashboardHTML()"
+                            title="Generate Standalone Trend Dashboard Report">
+                            📄 Export Trend Dashboard
+                        </button>
+                    </div>
+
+                    <!-- Toolbar Filters -->
+                    <div class="trend-toolbar">
+                        <div class="trend-ctrl-group">
+                            <label>Project</label>
+                            <select id="trend-project-select" class="trend-select"
+                                onchange="onTrendProjectChange()"></select>
+                        </div>
+                        <div class="trend-ctrl-group">
+                            <label>User Journey Scope</label>
+                            <select id="trend-story-select" class="trend-select" onchange="fetchAndRenderTrend()">
+                                <option value="">All User Journeys</option>
+                            </select>
+                        </div>
+                        <div class="trend-ctrl-group">
+                            <label>Hierarchy Scope</label>
+                            <select id="trend-type-select" class="trend-select" onchange="fetchAndRenderTrend()">
+                                <option value="TRANSACTIONS_ONLY" selected>Transactions Only (Main &amp; Sub TX)
+                                </option>
+                                <option value="">All Levels (Main, Sub &amp; Requests)</option>
+                                <option value="MAIN_TRANSACTION">Main Transactions Only</option>
+                                <option value="SUB_TRANSACTION">Sub-Transactions Only</option>
+                                <option value="HTTP_REQUEST">HTTP Requests Only</option>
+                            </select>
+                        </div>
+                        <div class="trend-ctrl-group" style="max-width: 140px;">
+                            <label>Max Releases</label>
+                            <select id="trend-limit-select" class="trend-select" onchange="fetchAndRenderTrend()">
+                                <option value="5">Last 5 Runs</option>
+                                <option value="10" selected>Last 10 Runs</option>
+                                <option value="20">Last 20 Runs</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Visual Release Node Ribbon -->
+                    <div id="trend-release-ribbon" class="release-flow-ribbon">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- B. Management KPI Cards (4 Cards) -->
+                <div class="trend-kpi-grid">
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Current Response Time</div>
+                        <div class="trend-kpi-value" id="trend-kpi-current-rt">--</div>
+                        <div class="trend-kpi-delta" id="trend-kpi-delta">--</div>
+                    </div>
+
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Current SLA Pass Rate</div>
+                        <div class="trend-kpi-value" id="trend-kpi-sla-pass">--</div>
+                        <div class="trend-kpi-delta delta-neutral" id="trend-kpi-sla-status">Status: Good</div>
+                    </div>
+
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Best Performing Release</div>
+                        <div class="trend-kpi-value" id="trend-kpi-best-rel" style="color:#059669;">--</div>
+                        <div class="trend-kpi-delta delta-improved">Lowest overall latency</div>
+                    </div>
+
+                    <div class="trend-kpi-card">
+                        <div class="trend-kpi-title">Worst Performing Release</div>
+                        <div class="trend-kpi-value" id="trend-kpi-worst-rel" style="color:#dc2626;">--</div>
+                        <div class="trend-kpi-delta delta-degraded">Highest overall latency</div>
+                    </div>
+                </div>
+
+                <!-- C. Executive Trend Observations -->
+                <div class="exec-insights-box">
+                    <h3>💡 Executive Trend Observations</h3>
+                    <ul id="trend-ai-bullets">
+                        <li>Loading historical trend patterns...</li>
+                    </ul>
+                </div>
+
+                <!-- D. 5 Hero Visual Charts -->
+                <div class="trend-visuals-grid">
+
+                    <!-- Graph 1: Multi-Series Historical Performance Trend Explorer (Large Full-Width) -->
+                    <div class="chart-panel-card" style="grid-column: 1 / -1; padding: 1.5rem;">
+                        <div class="chart-panel-header" style="flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+                            <div>
+                                <div class="chart-panel-title" style="font-size: 1.15rem;">📈 Multi-Series Performance
+                                    Trend Explorer</div>
+                                <div class="chart-panel-sub">Compare multi-release progression for overall scenario,
+                                    specific user journeys, or individual transactions across metrics</div>
+                            </div>
+
+                            <!-- Interactive Multi-Select & Metric Controls -->
+                            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+
+                                <!-- Metric Selector -->
+                                <div style="display:flex; align-items:center; gap:0.4rem;">
+                                    <span
+                                        style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Metric:</span>
+                                    <select id="trend-explorer-metric-select" class="trend-select"
+                                        style="padding:0.4rem 0.75rem; font-size:0.82rem; font-weight:600;"
+                                        onchange="onTrendExplorerMetricChange()">
+                                        <option value="avg_rt" selected>Average RT (ms)</option>
+                                        <option value="p95">P95 Latency (ms)</option>
+                                        <option value="p90">P90 Latency (ms)</option>
+                                        <option value="tps">Throughput (TPS)</option>
+                                        <option value="error_rate">Error Rate (%)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Multi-Select Dropdown Button & Floating Panel -->
+                                <div class="trend-multiselect-wrap">
+                                    <button type="button" id="trend-multiselect-btn" class="btn view-mode-btn"
+                                        style="background:#ffffff; border:1px solid #cbd5e1; font-weight:700; color:#0f172a; padding:0.4rem 0.85rem;"
+                                        onclick="toggleTrendMultiSelectDropdown()">
+                                        <span>➕ Select Series</span>
+                                        <span id="trend-selected-count-badge" class="badge"
+                                            style="background:#0284c7; color:#ffffff; font-size:0.7rem; padding:2px 6px;">1</span>
+                                        <span style="font-size:0.7rem; color:#64748b;">▼</span>
+                                    </button>
+
+                                    <!-- Dropdown Floating Menu -->
+                                    <div id="trend-multiselect-dropdown" class="trend-multiselect-dropdown hidden">
+                                        <div class="trend-ms-search-bar">
+                                            <input type="text" id="trend-ms-search-input"
+                                                placeholder="Search user journeys or transactions..."
+                                                oninput="filterTrendMultiSelectOptions(this.value)">
+                                        </div>
+                                        <div class="trend-ms-quick-actions">
+                                            <button type="button" onclick="quickSelectTrendSeries('overall')">Overall
+                                                Only</button>
+                                            <button type="button" onclick="quickSelectTrendSeries('all_stories')">All
+                                                Stories</button>
+                                            <button type="button" onclick="quickSelectTrendSeries('top_tx')">Top 5
+                                                Tx</button>
+                                            <button type="button" onclick="quickSelectTrendSeries('clear')">Clear
+                                                All</button>
+                                        </div>
+                                        <div id="trend-ms-options-list" class="trend-ms-options-list">
+                                            <!-- Dynamically populated options with checkboxes -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Active Series Chips Bar (Legend) -->
+                        <div id="trend-active-chips-container" class="trend-chips-container"
+                            style="margin-bottom: 1rem;">
+                            <!-- Dynamically populated active tags with color dot and remove x -->
+                        </div>
+
+                        <!-- 360px High Dynamic Trend Canvas -->
+                        <div id="trend-chart-rt" class="chart-canvas-area"
+                            style="min-height: 360px; height: 360px; position: relative;"></div>
+                    </div>
+
+                    <!-- Graph 2: SLA Compliance Trend -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">🎯 SLA Compliance Trend</div>
+                                <div class="chart-panel-sub">Percentage of transactions passing SLA thresholds per
+                                    release</div>
+                            </div>
+                            <span class="badge badge-good">↑ Target: 100%</span>
+                        </div>
+                        <div id="trend-chart-sla" class="chart-canvas-area"></div>
+                    </div>
+
+                    <!-- Graph 3: Heatmap Matrix -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">▦ Transaction Performance Heatmap Matrix</div>
+                                <div class="chart-panel-sub">Release matrix with color-coded response times per
+                                    transaction</div>
+                            </div>
+                        </div>
+                        <div id="trend-heatmap-container" style="overflow-x:auto; max-height:280px;"></div>
+                    </div>
+
+                    <!-- Graph 5: Severity Distribution Evolution Stack -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">🛡️ SLA Severity Distribution Evolution</div>
+                                <div class="chart-panel-sub">Pass, Low, Moderate, High, and Critical transaction counts
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:0.4rem; font-size:0.72rem;">
+                                <span style="color:#059669;">■ Pass</span>
+                                <span style="color:#d97706;">■ Low</span>
+                                <span style="color:#ea580c;">■ Mod</span>
+                                <span style="color:#dc2626;">■ High</span>
+                                <span style="color:#991b1b;">■ Crit</span>
+                            </div>
+                        </div>
+                        <div id="trend-chart-sev-stack" style="margin-top:0.5rem;"></div>
+                    </div>
+
+                    <!-- Graph 6: Baseline vs Current Summary -->
+                    <div class="chart-panel-card">
+                        <div class="chart-panel-header">
+                            <div>
+                                <div class="chart-panel-title">📊 Baseline vs Current Summary</div>
+                                <div class="chart-panel-sub">First release vs latest release comparative shift</div>
+                            </div>
+                            <div style="display:flex; gap:0.5rem; font-size:0.75rem;">
+                                <span style="color:#0284c7;">■ Baseline</span>
+                                <span style="color:#dc2626;">■ Current</span>
+                            </div>
+                        </div>
+                        <div id="trend-bar-compare-container" style="max-height:280px; overflow-y:auto;"></div>
+                    </div>
+
+                </div>
+
+            </section>

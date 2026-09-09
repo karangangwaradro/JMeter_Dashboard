@@ -1,6 +1,29 @@
 {
   "runs": [
     {
+      "id": "run_20260909_190029",
+      "tool": "jmeter",
+      "ingestion": "file_upload",
+      "jmx_name": "Orchestrator_Upload_Test",
+      "timestamp": "2026-09-09 13:30:29 UTC",
+      "epoch": 1788960629,
+      "users": 15,
+      "duration": "180.0",
+      "rampup": "0",
+      "total_samples": 2976,
+      "avg_rt": 298.95,
+      "p95_rt": 806.0,
+      "error_rate": 31.58,
+      "throughput": 16.53,
+      "duration_sec": 180.0,
+      "has_azure": false,
+      "has_ai_insights": false,
+      "report_file": "run_20260909_190029_report.html",
+      "result_file": "run_20260909_190029_result.json",
+      "status": "failed",
+      "notes": null
+    },
+    {
       "id": "run_20260909_172954",
       "tool": "jmeter",
       "ingestion": "file_upload",

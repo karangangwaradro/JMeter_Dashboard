@@ -1,0 +1,27 @@
+<!-- 3. ERROR BREAKDOWN VIEW -->
+            <section id="tab-errors" class="dashboard-layout tab-content hidden">
+                <div class="glass-container full-width-card">
+                    <h2>⚠️ Error Breakdown & Failed Requests</h2>
+                    <p class="card-desc">Detailed error logs, status codes, and failure messages from active and recent
+                        performance executions.</p>
+
+                    <div class="table-container" style="margin-top: 1.5rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Failing Request Label</th>
+                                    <th>Status Code</th>
+                                    <th>Failure Count</th>
+                                    <th>Sample Error Message / Exception</th>
+                                </tr>
+                            </thead>
+                            <tbody id="live-failures-tbody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No failing requests recorded. All
+                                        transactions are healthy.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>

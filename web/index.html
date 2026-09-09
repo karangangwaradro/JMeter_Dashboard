@@ -4,18 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PerfPilot — Local Performance Engineering & Azure Observability</title>
+    <title>PerfPilot — Performance Engineering & Observability Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="app.css">
-    <link rel="stylesheet" href="trend.css">
-    <link rel="stylesheet" href="ai_studio.css">
+    
+    <!-- Modular Stylesheet Bundle -->
+    <link rel="stylesheet" href="css/main.css">
 </head>
 
 <body>
+    <!-- Top Fixed Navbar Component -->
     <!-- Top Fixed Navbar -->
     <header class="app-navbar">
         <div class="navbar-left">
@@ -57,9 +58,9 @@
         </div>
     </header>
 
-    <!-- App Shell Container -->
+    <!-- App Shell (Sidebar + Main Content Area) -->
     <div class="app-shell">
-
+        <!-- Sidebar Navigation Component -->
         <!-- Left Sidebar Navigation -->
         <aside class="app-sidebar" id="app-sidebar">
             <div class="sidebar-group">
@@ -103,15 +104,15 @@
                         </svg>
                         SLA Defination
                     </a>
-                    <!-- <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
+                    <a href="#" data-tab="tab-trend" onclick="switchTab('tab-trend')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                             <polyline points="17 6 23 6 23 12"></polyline>
                         </svg>
                         Historical Trend Analysis
-                    </a> -->
-                    <!-- <a href="#" data-tab="tab-ai-studio" onclick="switchTab('tab-ai-studio')">
+                    </a>
+                    <a href="#" data-tab="tab-ai-studio" onclick="switchTab('tab-ai-studio')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path
@@ -119,7 +120,7 @@
                             </path>
                         </svg>
                         ✨ AI Insights Studio
-                    </a> -->
+                    </a>
                     <a href="#" data-tab="tab-reports" onclick="switchTab('tab-reports')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
@@ -134,9 +135,9 @@
             </div>
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- Main Viewport Area -->
         <main class="app-main">
-
+            <!-- 1. Dashboard View -->
             <!-- 1. DASHBOARD VIEW -->
             <section id="tab-dashboard" class="dashboard-layout tab-content">
                 <div class="dashboard-grid">
@@ -371,7 +372,7 @@
                 </div>
             </section>
 
-
+            <!-- 2. Live Monitor View -->
             <!-- 2. LIVE MONITOR VIEW -->
             <section id="tab-live" class="dashboard-layout tab-content hidden">
                 <div class="glass-container full-width-card">
@@ -412,6 +413,7 @@
                 </div>
             </section>
 
+            <!-- 3. Error Breakdown View -->
             <!-- 3. ERROR BREAKDOWN VIEW -->
             <section id="tab-errors" class="dashboard-layout tab-content hidden">
                 <div class="glass-container full-width-card">
@@ -440,7 +442,7 @@
                 </div>
             </section>
 
-
+            <!-- 4. SLA Management View -->
             <!-- 3. SLA VALIDATION VIEW -->
             <section id="tab-sla" class="dashboard-layout tab-content hidden">
                 <!-- STEP 1: Select Test Plan / Scenario -->
@@ -663,6 +665,7 @@
                 </div>
             </section>
 
+            <!-- 5. Reports & History View -->
             <!-- 4. REPORTS & HISTORY VIEW -->
             <section id="tab-reports" class="dashboard-layout tab-content hidden">
                 <div class="glass-container full-width-card">
@@ -738,6 +741,7 @@
                 </div>
             </section>
 
+            <!-- 6. Historical Trend Analysis View -->
             <!-- 6. DEDICATED HISTORICAL TREND ANALYSIS WORKSPACE -->
             <section id="tab-trend" class="tab-content hidden trend-workspace">
 
@@ -974,6 +978,7 @@
 
             </section>
 
+            <!-- 7. AI Insights Studio View -->
             <!-- AI INSIGHTS STUDIO & REFINEMENT PLAYGROUND -->
             <section id="tab-ai-studio" class="tab-content hidden ai-studio-layout">
                 <!-- Studio Header & Action Bar -->
@@ -1156,10 +1161,10 @@
 
                 </div>
             </section>
-
         </main>
     </div>
 
+    <!-- Modals & Overlays Component -->
     <!-- Recompile Report Modal -->
     <div id="recompile-modal" class="modal-overlay hidden" onclick="if(event.target === this) closeRecompileModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
@@ -1230,9 +1235,8 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
-    <script src="trend.js"></script>
-    <script src="ai_studio.js"></script>
+    <!-- Modular ES6 Application Architecture -->
+    <script type="module" src="js/app.js"></script>
 </body>
 
 </html>

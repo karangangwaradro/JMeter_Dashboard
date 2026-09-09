@@ -1,0 +1,415 @@
+/* Form Controls */
+.form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.form-group label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: var(--transition-smooth);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-light);
+    border-color: var(--border-color);
+}
+
+.btn-danger {
+    background: var(--danger-light);
+    border: 1px solid var(--border-color);
+    color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background: var(--danger-color);
+    color: #ffffff;
+}
+
+/* Dropzone Upload UI */
+.drop-zone {
+    border: 1px dashed var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 2rem 1.25rem;
+    text-align: center;
+    background: var(--bg-light);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+.drop-icon {
+    font-size: 2rem;
+    margin-bottom: 0.35rem;
+}
+
+.drop-text {
+    font-weight: 500;
+    font-size: 0.88rem;
+    margin-bottom: 0.15rem;
+    color: var(--text-primary);
+}
+
+.drop-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Info Box */
+.info-box {
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    padding: 0.85rem 1rem;
+    border-radius: var(--border-radius-sm);
+    margin: 0.85rem 0;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.info-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+/* Tables */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.data-table th {
+    background: var(--bg-light);
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.75rem;
+    text-transform: none;
+    letter-spacing: 0;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+.data-table td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.data-table tr:hover td {
+    background: var(--bg-light);
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.clickable-row:hover td {
+    background: rgba(2, 132, 199, 0.05) !important;
+}
+
+.action-btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-content: flex-end;
+}
+
+.icon-action-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.icon-action-btn:hover {
+    background: #ffffff;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+    transform: translateY(-1px);
+}
+
+.icon-action-btn.btn-delete-icon:hover {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    background: var(--danger-light);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);
+}
+
+/* Badges */
+.badge {
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-passed {
+    background: var(--success-light);
+    color: var(--success-color);
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: var(--warning-color);
+}
+
+.badge-failed {
+    background: #fee2e2;
+    color: var(--danger-color);
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--danger-color);
+    display: inline-block;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.timer-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: var(--bg-light);
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
+}
+
+.live-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.live-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+
+/* ── Modal Overlays & Cards ─────────────────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1.25rem;
+    animation: modalFadeIn 0.15s ease-out;
+}
+
+.modal-overlay.hidden {
+    display: none !important;
+}
+
+.modal-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #cfd7e0);
+    border-radius: var(--border-radius-md, 10px);
+    width: 100%;
+    max-width: 540px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #cfd7e0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recompile-ai-option-card {
+    background: var(--bg-subtle, #f8fafc);
+    border: 1.5px solid var(--border-color, #cfd7e0);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: var(--transition-smooth);
+}
+
+.recompile-ai-option-card:hover {
+    border-color: var(--primary-color, #0284c7);
+}
+
+.recompile-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.recompile-checkbox-label input[type="checkbox"] {
+    margin-top: 0.2rem;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color, #0284c7);
+    cursor: pointer;
+}
+
+.spinner-inline {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(2, 132, 199, 0.2);
+    border-top-color: var(--primary-color, #0284c7);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Global Utility ── */
+.hidden {
+    display: none !important;
+}
+

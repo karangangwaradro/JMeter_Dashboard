@@ -1,0 +1,68 @@
+/* Sidebar Navigation */
+.app-sidebar {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid var(--border-color);
+    padding: 1.25rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: margin-left 0.2s cubic-bezier(0.16, 1, 0.3, 1), width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+}
+
+.app-sidebar.collapsed {
+    margin-left: -240px;
+}
+
+.sidebar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.sidebar-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 0.65rem;
+    margin-bottom: 0.25rem;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--border-radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    transition: var(--transition-smooth);
+}
+
+.nav-links a:hover {
+    background: var(--bg-light);
+    color: var(--text-primary);
+}
+
+.nav-links a.active {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.app-main {
+    flex: 1;
+    min-width: 0;
+}
+

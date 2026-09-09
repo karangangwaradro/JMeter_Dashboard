@@ -1,0 +1,39 @@
+<!-- 2. LIVE MONITOR VIEW -->
+            <section id="tab-live" class="dashboard-layout tab-content hidden">
+                <div class="glass-container full-width-card">
+                    <div class="live-header">
+                        <div>
+                            <h2>⚡ Live Execution Monitor</h2>
+                            <p class="card-desc" id="live-test-subtitle">No test currently active.</p>
+                        </div>
+                        <div class="live-controls">
+                            <span id="live-timer" class="timer-badge">00:00</span>
+                            <button id="btn-stop-test" class="btn btn-danger hidden" onclick="handleStopTest()">⛔ Stop
+                                Test</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container" style="margin-top: 1.5rem;">
+                        <h3>📊 Live Business Transactions</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction / Request Label</th>
+                                    <th>Samples</th>
+                                    <th>Avg RT</th>
+                                    <th>Min RT</th>
+                                    <th>Max RT</th>
+                                    <th>Errors</th>
+                                    <th>Error %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="live-metrics-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Awaiting test execution metrics...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
