@@ -4,3 +4,7 @@ openpyxl
 google-genai
 azure-identity
 azure-monitor-query
+fastapi
+uvicorn
+pydantic
+python-multipart

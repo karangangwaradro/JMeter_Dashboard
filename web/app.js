@@ -119,12 +119,38 @@ async function loadStatus() {
             valAzure.textContent = "Not Configured (Optional)";
         }
 
+        // BlazeMeter Card
+        const indBm = document.getElementById("ind-blazemeter");
+        const valBm = document.getElementById("val-blazemeter");
+        if (indBm && valBm) {
+            if (data.blazemeter_configured) {
+                indBm.className = "indicator online";
+                valBm.textContent = "API Configured & Ready";
+            } else {
+                indBm.className = "indicator";
+                valBm.textContent = "Not Configured (Optional)";
+            }
+        }
+
+        // NeoLoad Card
+        const indNl = document.getElementById("ind-neoload");
+        const valNl = document.getElementById("val-neoload");
+        if (indNl && valNl) {
+            if (data.neoload_configured) {
+                indNl.className = "indicator online";
+                valNl.textContent = "API Configured & Ready";
+            } else {
+                indNl.className = "indicator";
+                valNl.textContent = "Not Configured (Optional)";
+            }
+        }
+
         // AI Card
         const indAi = document.getElementById("ind-ai");
         const valAi = document.getElementById("val-ai");
-        if (data.ai_configured) {
+        if (data.gemini_configured || data.openrouter_configured || data.github_configured) {
             indAi.className = "indicator online";
-            valAi.textContent = data.ai_mode || "AI Insights Ready";
+            valAi.textContent = `${data.active_provider.toUpperCase()} (${data.active_model})`;
         } else {
             indAi.className = "indicator";
             valAi.textContent = "Rule-based Fallback Mode";
@@ -151,11 +177,12 @@ async function loadTests() {
 
         if (data.tests && data.tests.length > 0) {
             data.tests.forEach(t => {
-                if (t.endsWith(".jmx")) {
-                    window.availableJmxFiles.push(t);
+                const name = typeof t === "string" ? t : (t.name || "");
+                if (name && name.endsWith(".jmx")) {
+                    window.availableJmxFiles.push(name);
                     const opt = document.createElement("option");
-                    opt.value = t;
-                    opt.textContent = t;
+                    opt.value = name;
+                    opt.textContent = name;
                     jmxSelect.appendChild(opt);
                 }
             });
@@ -344,10 +371,132 @@ async function handleSaveJmxConfig() {
     }
 }
 
+// ── Tool & Ingestion Selection Handlers ────────────────────────────────────────
+function handleToolChange(tool) {
+    const ingestSelect = document.getElementById("ingest-select");
+    const cloudLbl = document.getElementById("lbl-cloud-test-id");
+    if (cloudLbl) {
+        if (tool === "blazemeter") {
+            cloudLbl.textContent = "BlazeMeter Test ID / Master ID";
+        } else if (tool === "neoload") {
+            cloudLbl.textContent = "NeoLoad Test ID / Result ID";
+        } else {
+            cloudLbl.textContent = "Cloud Test ID";
+        }
+    }
+    handleIngestChange(ingestSelect ? ingestSelect.value : "local");
+}
+
+function handleIngestChange(method) {
+    const tool = document.getElementById("tool-select") ? document.getElementById("tool-select").value : "jmeter";
+    const grpJmeter = document.getElementById("group-jmeter-local");
+    const grpCloud = document.getElementById("group-cloud-id");
+    const grpUpload = document.getElementById("group-upload-raw");
+    const btnSaveCfg = document.getElementById("btn-save-config");
+    const btnLaunch = document.getElementById("btn-launch-test");
+
+    if (grpJmeter) grpJmeter.classList.add("hidden");
+    if (grpCloud) grpCloud.classList.add("hidden");
+    if (grpUpload) grpUpload.classList.add("hidden");
+
+    if (method === "file_upload") {
+        if (grpUpload) grpUpload.classList.remove("hidden");
+        if (btnSaveCfg) btnSaveCfg.style.display = "none";
+        if (btnLaunch) btnLaunch.textContent = "Upload & Generate Report";
+    } else if (method === "direct_api" || method === "mcp") {
+        if (grpCloud) grpCloud.classList.remove("hidden");
+        if (btnSaveCfg) btnSaveCfg.style.display = "none";
+        if (btnLaunch) btnLaunch.textContent = `Fetch & Ingest via ${method === "mcp" ? "MCP" : "API"}`;
+    } else {
+        // Local execution
+        if (grpJmeter) grpJmeter.classList.remove("hidden");
+        if (btnSaveCfg) btnSaveCfg.style.display = "block";
+        if (btnLaunch) btnLaunch.textContent = "Execute Performance Test";
+    }
+}
+
 // ── Run Test ──────────────────────────────────────────────────────────────────
 async function handleRunTest(e) {
     e.preventDefault();
 
+    const tool = document.getElementById("tool-select") ? document.getElementById("tool-select").value : "jmeter";
+    const method = document.getElementById("ingest-select") ? document.getElementById("ingest-select").value : "local";
+
+    // Case 1: Upload Raw Results
+    if (method === "file_upload") {
+        const fileInput = document.getElementById("raw-result-file");
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+            alert("Please choose a raw result file to upload (.jtl, .json, .csv, .zip).");
+            return;
+        }
+        const file = fileInput.files[0];
+        const scenarioName = document.getElementById("raw-test-name") ? document.getElementById("raw-test-name").value : "";
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("tool", tool);
+        if (scenarioName) formData.append("test_name", scenarioName);
+
+        try {
+            const btn = document.getElementById("btn-launch-test");
+            if (btn) btn.textContent = "Ingesting & Normalizing...";
+            const res = await fetch("/api/ingest/upload", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`Successfully processed ${file.name}! Report generated: ${data.report_url}`);
+                window.open(data.report_url, "_blank");
+                loadRuns();
+                loadReports();
+            } else {
+                alert("Upload failed: " + (data.message || JSON.stringify(data)));
+            }
+        } catch (err) {
+            alert("Upload ingestion error: " + err);
+        } finally {
+            const btn = document.getElementById("btn-launch-test");
+            if (btn) btn.textContent = "Upload & Generate Report";
+        }
+        return;
+    }
+
+    // Case 2: Direct API or MCP Ingest
+    if (method === "direct_api" || method === "mcp") {
+        const testId = document.getElementById("cloud-test-id") ? document.getElementById("cloud-test-id").value.trim() : "";
+        const users = document.getElementById("cloud-virtual-users") ? parseInt(document.getElementById("cloud-virtual-users").value, 10) : 10;
+        if (!testId) {
+            alert("Please enter a valid Test ID or Master ID.");
+            return;
+        }
+
+        try {
+            const endpoint = method === "mcp" ? "/api/ingest/mcp" : "/api/ingest/api";
+            const res = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    tool: tool,
+                    identifier: testId,
+                    users: users
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(`Successfully ingested ${tool} test ${testId}!`);
+                if (data.report_url) window.open(data.report_url, "_blank");
+                loadRuns();
+                loadReports();
+            } else {
+                alert("Ingestion error: " + (data.message || JSON.stringify(data)));
+            }
+        } catch (err) {
+            alert("Ingestion request failed: " + err);
+        }
+        return;
+    }
+
+    // Case 3: Local JMeter Execution
     const payload = collectThreadGroupConfigs();
     if (!payload || payload.thread_groups.length === 0) return;
 
@@ -1010,8 +1159,9 @@ async function loadSlaScenariosFilter(preferredJmx = "") {
 
         let matched = false;
         if (data.tests && data.tests.length > 0) {
-            data.tests.forEach(testFile => {
-                if (testFile.endsWith(".jmx")) {
+            data.tests.forEach(t => {
+                const testFile = typeof t === "string" ? t : (t.name || "");
+                if (testFile && testFile.endsWith(".jmx")) {
                     const opt = document.createElement("option");
                     opt.value = testFile;
                     opt.textContent = `${testFile} (Paired SLA CSV)`;

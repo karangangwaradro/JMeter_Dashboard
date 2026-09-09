@@ -9,7 +9,7 @@ if str(_ROOT) not in sys.path:
 import json
 
 try:
-    from python_files.organize_results import organize
+    from app.cli.organize_results import organize
     organize()
 except Exception:
     pass
@@ -51,7 +51,7 @@ jmx_name = parsed.get("jmx_name", "Scenario")
 users = parsed.get("users", 1)
 
 try:
-    from python_files.report_generator import generate_report
+    from app.services.reporting.engine.generator import generate_report
     generate_report(parsed, azure_data, ai_insights, report_path, jmx_name, users)
     print(f"SUCCESS: Report compiled -> {report_path.name}")
 except Exception as e:

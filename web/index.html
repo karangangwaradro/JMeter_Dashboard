@@ -161,11 +161,26 @@
                                 </div>
                             </div>
 
+                            <div class="health-item" id="health-blazemeter">
+                                <span class="indicator" id="ind-blazemeter"></span>
+                                <div>
+                                    <h3>BlazeMeter Platform</h3>
+                                    <p class="desc" id="val-blazemeter">Checking credentials...</p>
+                                </div>
+                            </div>
+
+                            <div class="health-item" id="health-neoload">
+                                <span class="indicator" id="ind-neoload"></span>
+                                <div>
+                                    <h3>NeoLoad Web Platform</h3>
+                                    <p class="desc" id="val-neoload">Checking token...</p>
+                                </div>
+                            </div>
+
                             <div class="health-item" id="health-ai">
                                 <span class="indicator" id="ind-ai"></span>
                                 <div>
                                     <h3>AI Insights Engine</h3>
-
                                 </div>
                             </div>
                         </div>
@@ -176,24 +191,70 @@
                         <h2>Launch Performance Run</h2>
                         <form id="run-test-form" onsubmit="handleRunTest(event)" style="margin-top: 1rem;">
 
-                            <div class="form-group">
-                                <label for="jmx-select">Select JMX Test Plan</label>
-                                <select id="jmx-select" required onchange="handleJmxSelection(this.value)">
-                                    <option value="">Select test plan...</option>
-                                </select>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                <div class="form-group">
+                                    <label for="tool-select">Performance Tool</label>
+                                    <select id="tool-select" onchange="handleToolChange(this.value)" style="width: 100%;">
+                                        <option value="jmeter">Apache JMeter</option>
+                                        <option value="blazemeter">BlazeMeter Cloud</option>
+                                        <option value="neoload">NeoLoad Web</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ingest-select">Ingestion Method</label>
+                                    <select id="ingest-select" onchange="handleIngestChange(this.value)" style="width: 100%;">
+                                        <option value="local">Local Execution</option>
+                                        <option value="direct_api">Direct REST API</option>
+                                        <option value="mcp">MCP Server</option>
+                                        <option value="file_upload">Upload Raw Results</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div id="csv-warnings-box" class="hidden" style="margin-top: 0.75rem;"></div>
+                            <!-- JMeter JMX Selection Group -->
+                            <div id="group-jmeter-local">
+                                <div class="form-group">
+                                    <label for="jmx-select">Select JMX Test Plan</label>
+                                    <select id="jmx-select" onchange="handleJmxSelection(this.value)">
+                                        <option value="">Select test plan...</option>
+                                    </select>
+                                </div>
 
-                            <div id="thread-groups-container"
-                                style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
-                                <div class="info-box">Select a JMX file above to view and configure its user journeys.
+                                <div id="csv-warnings-box" class="hidden" style="margin-top: 0.75rem;"></div>
+
+                                <div id="thread-groups-container"
+                                    style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                                    <div class="info-box">Select a JMX file above to view and configure its user journeys.</div>
+                                </div>
+                            </div>
+
+                            <!-- Cloud Test ID Group (BlazeMeter / NeoLoad) -->
+                            <div id="group-cloud-id" class="hidden">
+                                <div class="form-group">
+                                    <label for="cloud-test-id" id="lbl-cloud-test-id">Cloud Test ID / Master ID</label>
+                                    <input type="text" id="cloud-test-id" placeholder="e.g. 12345678 or test_xyz">
+                                </div>
+                                <div class="form-group" style="margin-top: 0.5rem;">
+                                    <label for="cloud-virtual-users">Virtual Users</label>
+                                    <input type="number" id="cloud-virtual-users" value="10" min="1">
+                                </div>
+                            </div>
+
+                            <!-- Direct Raw Result Upload Ingestion Group -->
+                            <div id="group-upload-raw" class="hidden">
+                                <div class="form-group">
+                                    <label for="raw-result-file">Raw Result File (.jtl, .json, .csv, .zip)</label>
+                                    <input type="file" id="raw-result-file" accept=".jtl,.json,.csv,.zip,.xml">
+                                </div>
+                                <div class="form-group" style="margin-top: 0.5rem;">
+                                    <label for="raw-test-name">Scenario / Test Name</label>
+                                    <input type="text" id="raw-test-name" placeholder="Scenario Name">
                                 </div>
                             </div>
 
                             <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem;">
                                 <button type="submit" class="btn btn-primary w-full" id="btn-launch-test"
-                                    style="height: 38px;" disabled>
+                                    style="height: 38px;">
                                     Execute Performance Test
                                 </button>
                                 <button type="button" class="btn btn-secondary w-full" onclick="handleSaveJmxConfig()"

@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "InfraSummary": {
+      "description": "High-level summary averages and peaks for key system resources.",
+      "properties": {
+        "avg_cpu": {
+          "default": 0.0,
+          "description": "Average CPU utilization percentage",
+          "title": "Avg Cpu",
+          "type": "number"
+        },
+        "max_cpu": {
+          "default": 0.0,
+          "description": "Peak CPU utilization percentage",
+          "title": "Max Cpu",
+          "type": "number"
+        },
+        "avg_memory": {
+          "default": 0.0,
+          "description": "Average memory utilization percentage",
+          "title": "Avg Memory",
+          "type": "number"
+        },
+        "max_memory": {
+          "default": 0.0,
+          "description": "Peak memory utilization percentage",
+          "title": "Max Memory",
+          "type": "number"
+        },
+        "avg_network_in_mbps": {
+          "default": 0.0,
+          "description": "Average inbound network bandwidth in Mbps",
+          "title": "Avg Network In Mbps",
+          "type": "number"
+        },
+        "avg_network_out_mbps": {
+          "default": 0.0,
+          "description": "Average outbound network bandwidth in Mbps",
+          "title": "Avg Network Out Mbps",
+          "type": "number"
+        },
+        "avg_disk_read_iops": {
+          "default": 0.0,
+          "description": "Average disk read operations/sec",
+          "title": "Avg Disk Read Iops",
+          "type": "number"
+        },
+        "avg_disk_write_iops": {
+          "default": 0.0,
+          "description": "Average disk write operations/sec",
+          "title": "Avg Disk Write Iops",
+          "type": "number"
+        },
+        "http_5xx_errors": {
+          "default": 0,
+          "description": "Server-side 5xx error count",
+          "title": "Http 5Xx Errors",
+          "type": "integer"
+        },
+        "app_avg_rt_ms": {
+          "default": 0.0,
+          "description": "Application server average response time in ms",
+          "title": "App Avg Rt Ms",
+          "type": "number"
+        }
+      },
+      "title": "InfraSummary",
+      "type": "object"
+    },
+    "ServerMetricPoint": {
+      "description": "Discrete server infrastructure measurement.",
+      "properties": {
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "host": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Host"
+        },
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "unit": {
+          "default": "",
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timestamp",
+        "metric",
+        "value"
+      ],
+      "title": "ServerMetricPoint",
+      "type": "object"
+    }
+  },
+  "description": "Common normalized contract for server-side infrastructure metrics\n(Azure Monitor, Prometheus, Grafana, CloudWatch, CSV, etc.).",
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "description": "Contract schema version",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "provider": {
+      "default": "unknown",
+      "description": "Telemetry provider (e.g. azure_monitor, prometheus, csv)",
+      "title": "Provider",
+      "type": "string"
+    },
+    "configured": {
+      "default": true,
+      "description": "Whether telemetry was successfully configured and collected",
+      "title": "Configured",
+      "type": "boolean"
+    },
+    "infra_summary": {
+      "$ref": "#/$defs/InfraSummary"
+    },
+    "points": {
+      "description": "Raw discrete data points",
+      "items": {
+        "$ref": "#/$defs/ServerMetricPoint"
+      },
+      "title": "Points",
+      "type": "array"
+    },
+    "time_series": {
+      "additionalProperties": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "description": "Metric name -> bucketed metric array aligned with test window (e.g. cpu, memory, network_in)",
+      "title": "Time Series",
+      "type": "object"
+    },
+    "timestamps": {
+      "description": "ISO timestamp labels corresponding to time_series arrays",
+      "items": {
+        "type": "string"
+      },
+      "title": "Timestamps",
+      "type": "array"
+    },
+    "resources_queried": {
+      "description": "List of monitored hosts/resources",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Resources Queried",
+      "type": "array"
+    }
+  },
+  "title": "ServerMetrics",
+  "type": "object"
+}

@@ -15,11 +15,11 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from python_files.compare_service import (
+from app.services.analytics.comparison import (
     get_available_runs,
     compare_two_runs
 )
-from python_files.trend_engine import (
+from app.services.analytics.trends import (
     get_hierarchy_tree,
     build_trend_analysis,
     generate_trend_dashboard_html

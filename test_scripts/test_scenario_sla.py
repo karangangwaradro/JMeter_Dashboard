@@ -11,7 +11,7 @@ from pathlib import Path
 _ROOT_DIR = Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(_ROOT_DIR))
 
-from python_files.sla_manager import (
+from app.services.analytics.sla_manager import (
     load_sla_targets,
     load_sla_scenarios_and_targets,
     save_sla_targets,

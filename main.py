@@ -19,13 +19,11 @@ _ROOT = Path(__file__).parent.resolve()
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from services import web_server
+from app.api.server import start_server, _load_env
 
 
 def main():
-    _load_env = getattr(web_server, "_load_env", None)
-    if _load_env:
-        _load_env()
+    _load_env()
 
     port_str = os.environ.get("PORT", "8080").strip()
     port = int(port_str) if port_str.isdigit() else 8080
@@ -47,7 +45,7 @@ def main():
             pass
 
     threading.Thread(target=open_browser, daemon=True).start()
-    web_server.start_server(port=port)
+    start_server(port=port)
 
 
 if __name__ == "__main__":

@@ -1,53 +1,70 @@
-# PerfPilot Dashboard & Performance Analytics
+# PerfPilot — Multi-Tool Performance Engineering Platform
 
-An automated performance testing, telemetry correlation, AI diagnostics, and interactive reporting platform for Apache JMeter tests.
-
----
-
-## 🌟 Key Features
-
-- **Local JMeter Execution & Live Monitoring:** Run `.jmx` test scripts with real-time response time and throughput tracking.
-- **Dedicated JTL Parser Engine:** Robust parsing of raw JMeter CSV logs for statistical percentiles, error breakdowns, and dynamic time series.
-- **Hierarchical Transaction & Thread Group Support:** Configure per-thread-group user loads, ramp-ups, and durations.
-- **SLA & Apdex Management:** Define custom SLA thresholds per transaction and calculate user satisfaction indices.
-- **Infrastructure Telemetry Correlation:** Correlate client performance against Azure App Service/VM server metrics (CPU, Memory, Disk, Network).
-- **AI Diagnostics & Scoring:** Automated root-cause analysis, bottleneck detection, and remediation recommendations via LLMs and deterministic rule engines.
-- **Historical Trends & Run Comparison:** Multi-run trend tracking and side-by-side performance comparison dashboards.
-- **Interactive Reports:** Standalone HTML reports with rich interactive Chart.js visualizations.
+An enterprise performance testing, telemetry correlation, AI diagnostics, and interactive reporting platform supporting **Apache JMeter**, **BlazeMeter Cloud**, and **NeoLoad Web**.
 
 ---
 
-## 📁 Repository Structure
+## Key Features
+
+- **Multi-Tool Support:** Native support for Apache JMeter, BlazeMeter Cloud, and NeoLoad Web.
+- **Multiple Ingestion Methods:** Local CLI execution, direct REST API polling, Model Context Protocol (MCP), and raw result file uploads.
+- **Strongly Typed Domain Contracts:** Internal communication strictly through Pydantic V2 models (`TimeSeriesResult`, `AggregateResult`, `ServerMetrics`).
+- **Decoupled Architecture:** Complete independence between Execution, Collection, Parsing, Normalization, Analytics, and Reporting.
+- **SLA & Apdex Management:** Nearest-neighbor load scenario matching, hierarchical transaction parsing, and custom SLA targets.
+- **Infrastructure Telemetry Correlation:** Correlate test performance against Azure Monitor, Prometheus, or generic CSV metrics.
+- **AI Diagnostics & Scoring:** Multi-provider LLM cascade (OpenRouter, Gemini, GitHub) for automated root-cause analysis and executive summaries.
+- **Historical Trends & 2-Run Comparison:** Multi-release trend engine with heatmap matrix and 2-run differential scorecard.
+- **Modular Report Generator:** Standalone HTML reports synthesized via decoupled components, stylesheets, and scripts.
+
+---
+
+## Repository Structure
 
 ```
-PerfPilot/
-├── python_files/           # Backend modules & analytics engines (see python_files/README.md)
-│   ├── run_local_jmeter.py # Test runner & process orchestrator
-│   ├── jtl_parser.py       # Dedicated JTL / CSV parser engine
-│   ├── comparison_engine.py# 2-Run deep dive comparison engine (Run A vs Run B)
-│   ├── trend_engine.py     # Multi-release historical trend analysis engine
-│   ├── report_generator.py # HTML report generation
-│   ├── ai_insights.py      # LLM & rule-based diagnostics
-│   ├── findings_engine.py  # Performance findings & rules
-│   ├── correlation_engine.py# Client vs. Server correlator
-│   ├── sla_manager.py      # SLA targets & JMX hierarchy parser
-│   ├── jmx_editor.py       # JMX XML editor
-│   ├── apdex_calculator.py # Apdex score calculation
-│   ├── azure_monitor.py    # Infrastructure telemetry collector
-│   ├── organize_results.py # Artifact organization utility
-│   ├── recompile_latest.py # Single run recompiler
-│   └── recompile_all.py    # Batch run recompiler
-├── services/               # Web backend services & API routes
-│   └── web_server.py       # FastAPI / HTTP web server
-├── web/                    # Frontend UI assets (HTML, CSS, JS)
-├── config/                 # SLA targets and runtime configuration
-├── Tests/                  # JMeter test plans (.jmx scripts)
-├── Results/                # Test outputs (runs, raw JTLs, HTML reports)
-└── START_SERVER.bat        # Quick launcher script
+JmeterAI/
+├── app/                             # Core Application Package
+│   ├── api/                         # FastAPI Web Layer & Route Controllers
+│   │   ├── app.py                   # FastAPI application factory & OpenAPI docs
+│   │   ├── server.py                # Server runner with port-hunting fallback
+│   │   ├── middleware/              # Exception handling & logging
+│   │   └── routes/                  # Modular endpoints (status, execution, ingestion, runs, compare, trends, ai_studio, reports)
+│   ├── cli/                         # CLI Utilities (recompile, organize, setup)
+│   ├── core/                        # Settings, constants, logging, exception types
+│   ├── domain/                      # Typed Pydantic contracts & abstract interfaces
+│   ├── integrations/                # Tool runners & parsers (jmeter, blazemeter, neoload, mcp, upload)
+│   ├── serialization/               # JSON domain serializer & JSON Schema validator
+│   ├── server_metrics/              # Telemetry collectors & parsers (azure, prometheus, csv)
+│   └── services/                    # Domain services (analytics, ai, reporting, execution, orchestrator)
+├── config/                          # SLA targets and runtime configuration
+├── data/                            # Historical runs manifest and data files
+├── docs/                            # Documentation
+├── logs/                            # Application and AI execution logs
+├── Results/                         # Test outputs (html/, json/, jtl/, normalized/, raw/)
+├── schemas/                         # JSON Schema contract definitions
+├── Tests/                           # Test scripts (.jmx test plans, unit & integration tests)
+├── test_scripts/                    # Verification test scripts
+├── web/                             # Frontend UI assets (HTML, CSS, JS)
+├── main.py                          # Application entry point
+├── START_SERVER.bat                 # Windows quick launcher script
+└── requirements.txt                 # Project dependencies
 ```
 
 ---
 
-## 📖 Module Documentation
+## Getting Started
 
-For a detailed functional overview, data flow pipeline, and input/output specifications of every Python engine, see the **[Python Modules & Architecture Guide](file:///d:/BlazemeterMCPZIP/PerfPilot/python_files/README.md)**.
+1. **Launch Server**:
+   ```bash
+   python main.py
+   # or double-click START_SERVER.bat
+   ```
+2. **Access Interactive Web Interfaces**:
+   - Web Dashboard: [http://localhost:8080/](http://localhost:8080/)
+   - Swagger Interactive API Docs: [http://localhost:8080/docs](http://localhost:8080/docs)
+   - ReDoc API Specification: [http://localhost:8080/redoc](http://localhost:8080/redoc)
+
+3. **Run Automated Tests**:
+   ```bash
+   python -m unittest discover -s Tests/unit
+   python -m unittest discover -s Tests/integration
+   ```

@@ -1,0 +1,167 @@
+{
+  "$defs": {
+    "LabelTimeSeries": {
+      "description": "Time-series arrays for an individual transaction label.",
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "avg_rt": {
+          "description": "Average response time in ms per bucket",
+          "items": {
+            "type": "number"
+          },
+          "title": "Avg Rt",
+          "type": "array"
+        },
+        "p95_rt": {
+          "description": "95th percentile response time in ms per bucket",
+          "items": {
+            "type": "number"
+          },
+          "title": "P95 Rt",
+          "type": "array"
+        },
+        "p99_rt": {
+          "description": "99th percentile response time in ms per bucket",
+          "items": {
+            "type": "number"
+          },
+          "title": "P99 Rt",
+          "type": "array"
+        },
+        "throughput": {
+          "description": "Transactions per second per bucket",
+          "items": {
+            "type": "number"
+          },
+          "title": "Throughput",
+          "type": "array"
+        },
+        "errors": {
+          "description": "Error count per bucket",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Errors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "title": "LabelTimeSeries",
+      "type": "object"
+    }
+  },
+  "description": "Common normalized time-series result contract across all performance tools\n(JMeter, BlazeMeter, NeoLoad, Gatling, etc.).",
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "description": "Contract schema version",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "test_id": {
+      "description": "Unique test run identifier",
+      "title": "Test Id",
+      "type": "string"
+    },
+    "tool": {
+      "description": "Performance testing tool name (e.g. jmeter, blazemeter, neoload)",
+      "title": "Tool",
+      "type": "string"
+    },
+    "start_time": {
+      "description": "Test execution start time (UTC)",
+      "format": "date-time",
+      "title": "Start Time",
+      "type": "string"
+    },
+    "end_time": {
+      "description": "Test execution end time (UTC)",
+      "format": "date-time",
+      "title": "End Time",
+      "type": "string"
+    },
+    "interval_seconds": {
+      "default": 10,
+      "description": "Bucket interval granularity in seconds",
+      "title": "Interval Seconds",
+      "type": "integer"
+    },
+    "bucket_labels": {
+      "description": "Human-readable bucket time labels (e.g. 10s, 20s, 1m)",
+      "items": {
+        "type": "string"
+      },
+      "title": "Bucket Labels",
+      "type": "array"
+    },
+    "avg_response_time": {
+      "description": "Overall average response time per bucket",
+      "items": {
+        "type": "number"
+      },
+      "title": "Avg Response Time",
+      "type": "array"
+    },
+    "p95_response_time": {
+      "description": "Overall 95th percentile response time per bucket",
+      "items": {
+        "type": "number"
+      },
+      "title": "P95 Response Time",
+      "type": "array"
+    },
+    "p99_response_time": {
+      "description": "Overall 99th percentile response time per bucket",
+      "items": {
+        "type": "number"
+      },
+      "title": "P99 Response Time",
+      "type": "array"
+    },
+    "throughput": {
+      "description": "Overall transactions per second per bucket",
+      "items": {
+        "type": "number"
+      },
+      "title": "Throughput",
+      "type": "array"
+    },
+    "errors": {
+      "description": "Overall error count per bucket",
+      "items": {
+        "type": "integer"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "active_threads": {
+      "description": "Virtual user concurrency per bucket",
+      "items": {
+        "type": "integer"
+      },
+      "title": "Active Threads",
+      "type": "array"
+    },
+    "label_series": {
+      "additionalProperties": {
+        "$ref": "#/$defs/LabelTimeSeries"
+      },
+      "description": "Time-series arrays keyed by transaction label",
+      "title": "Label Series",
+      "type": "object"
+    }
+  },
+  "required": [
+    "test_id",
+    "tool",
+    "start_time",
+    "end_time"
+  ],
+  "title": "TimeSeriesResult",
+  "type": "object"
+}
