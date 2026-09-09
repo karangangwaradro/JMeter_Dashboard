@@ -106,12 +106,23 @@ class TestEndToEndPipeline(unittest.TestCase):
             identifier=str(jtl_path),
             test_name="Orchestrator_Upload_Test",
             users=15,
+            options={"ai_insights": {"source": "mock", "findings": [], "recommendations": []}},
         )
 
         self.assertTrue(res["success"])
         self.assertIn("report_url", res)
         self.assertTrue(Path(res["report_file"]).exists())
         self.assertEqual(res["summary"]["total"], 2976)
+
+        # Verify HTML report contains compiled hierarchy: User Story -> Transaction -> Requests
+        html_content = Path(res["report_file"]).read_text(encoding="utf-8")
+        import re
+        tg_matches = re.findall(r'<tr[^>]*tg-header-row', html_content)
+        tx_matches = re.findall(r'data-type="transaction"', html_content)
+        req_matches = re.findall(r'data-type="request"', html_content)
+        self.assertEqual(len(tg_matches), 4)
+        self.assertEqual(len(tx_matches), 48)
+        self.assertEqual(len(req_matches), 192)
 
 
 if __name__ == "__main__":

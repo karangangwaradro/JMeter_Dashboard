@@ -1609,6 +1609,25 @@ def get_charts_js(ctx: dict) -> str:
             }}, 150);
         }} else {{
             drawer.classList.remove('open');
+            if (drawer.classList.contains('expanded')) {{
+                drawer.classList.remove('expanded');
+                const maxBtn = document.getElementById('aiChatMaxBtn_' + sectionId);
+                if (maxBtn) {{
+                    maxBtn.innerHTML = '⛶';
+                    maxBtn.title = 'Maximize Chat Window';
+                }}
+            }}
+        }}
+    }}
+
+    function toggleAiChatMaximize(sectionId) {{
+        const drawer = document.getElementById('aiChatDrawer_' + sectionId);
+        if (!drawer) return;
+        const maxBtn = document.getElementById('aiChatMaxBtn_' + sectionId);
+        const isExp = drawer.classList.toggle('expanded');
+        if (maxBtn) {{
+            maxBtn.innerHTML = isExp ? '❐' : '⛶';
+            maxBtn.title = isExp ? 'Restore Window Size' : 'Maximize Chat Window';
         }}
     }}
 
@@ -1667,10 +1686,11 @@ def get_charts_js(ctx: dict) -> str:
         }}
 
         // 2. Check for tool-call format:
+        // 2. Check for tool-call format:
         //    <|tool_call_start|>[action(action='patch_section', template='{...}')]<|tool_call_end|>
-        //    or [action(action='patch_section', template='...')]
+        //    or [patch_section(section_id='...', content=...)]
         if (!patchData) {{
-            const toolRegex = /(?:<\\|tool_call_start\\|>)?\\s*\\[action\\s*\\([\\s\\S]*?\\)\\]\\s*(?:<\\|tool_call_end\\|>)?|<\\|tool_call_start\\|>[\\s\\S]*?<\\|tool_call_end\\|>/i;
+            const toolRegex = /(?:<\\|tool_call_start\\|>)?\\s*\\[(?:action|patch_section)\\s*\\([\\s\\S]*?\\)\\]\\s*(?:<\\|tool_call_end\\|>)?|<\\|tool_call_start\\|>[\\s\\S]*?<\\|tool_call_end\\|>/i;
             const match = rawText.match(toolRegex);
             if (match) {{
                 const toolBlock = match[0];
@@ -1699,6 +1719,23 @@ def get_charts_js(ctx: dict) -> str:
                         }}
                     }} catch (e) {{
                         console.warn('Could not parse tool-call JSON:', e);
+                    }}
+                }}
+
+                // Direct fallback for patch_section(section_id=..., content=...)
+                if (!patchData) {{
+                    const secMatch = toolBlock.match(/section_id\\s*=\\s*['"]([^'"]+)['"]/);
+                    const sec = secMatch ? secMatch[1] : sectionId;
+                    const contentStart = toolBlock.indexOf('content=');
+                    if (contentStart !== -1) {{
+                        let contentRaw = toolBlock.substring(contentStart + 8).trim();
+                        contentRaw = contentRaw.replace(/\\s*(?:<\\|tool_call_end\\|>)?\\s*\\)?\\s*\\]?\\s*$/, '').trim();
+                        try {{
+                            let jsonCandidate = contentRaw.replace(/'/g, '"');
+                            patchData = {{ section_id: sec, content: JSON.parse(jsonCandidate) }};
+                        }} catch (pe) {{
+                            patchData = {{ section_id: sec, content: contentRaw }};
+                        }}
                     }}
                 }}
 
@@ -2165,10 +2202,121 @@ def get_charts_js(ctx: dict) -> str:
     }}
 
     function initAiChatDrawers() {{
-        ['exec_overview', 'exec_observations', 'exec_conclusions', 'exec_recommendations', 'executive', 'tab_tx_stats', 'tab_rt_stats', 'tab_error_stats', 'tab_infra_stats'].forEach(secId => {{
+        ['exec_overview', 'exec_observations', 'exec_conclusions', 'exec_recommendations', 'executive', 'tab_tx_stats', 'tab_rt_stats', 'tab_error_stats', 'tab_infra_stats', 'tab_comparison'].forEach(secId => {{
             if (aiChatHistories[secId] && aiChatHistories[secId].length > 0) {{
                 renderChatMessages(secId);
             }}
+        }});
+        initChatDrawerResizing();
+    }}
+
+    function initChatDrawerResizing() {{
+        const drawers = document.querySelectorAll('.ai-chat-drawer');
+        drawers.forEach(drawer => {{
+            if (drawer.dataset.resizeInit) return;
+            drawer.dataset.resizeInit = 'true';
+
+            const handlesConfig = [
+                {{ cls: 'ai-chat-resize-handle-nw', title: 'Drag corner to resize', dir: 'nw' }},
+                {{ cls: 'ai-chat-resize-edge-n', title: 'Drag edge to resize height', dir: 'n' }},
+                {{ cls: 'ai-chat-resize-edge-w', title: 'Drag edge to resize width', dir: 'w' }},
+                {{ cls: 'ai-chat-resize-handle-se', title: 'Drag corner to resize', dir: 'se' }},
+                {{ cls: 'ai-chat-resize-edge-s', title: 'Drag edge to resize height', dir: 's' }},
+                {{ cls: 'ai-chat-resize-edge-e', title: 'Drag edge to resize width', dir: 'e' }}
+            ];
+
+            handlesConfig.forEach(h => {{
+                let el = drawer.querySelector('.' + h.cls);
+                if (!el) {{
+                    el = document.createElement('div');
+                    el.className = h.cls;
+                    el.title = h.title;
+                    drawer.prepend(el);
+                }}
+                bindResizeHandle(drawer, el, h.dir);
+            }});
+
+            const header = drawer.querySelector('.ai-chat-header');
+            if (header) {{
+                const secId = drawer.getAttribute('data-section-id') || drawer.id.replace('aiChatDrawer_', '');
+                let maxBtn = drawer.querySelector('#aiChatMaxBtn_' + secId);
+                if (!maxBtn) {{
+                    const btnWrap = header.querySelector('div[style*="display:flex"]') || header.lastElementChild;
+                    if (btnWrap) {{
+                        maxBtn = document.createElement('button');
+                        maxBtn.id = 'aiChatMaxBtn_' + secId;
+                        maxBtn.className = 'ai-chat-hdr-btn';
+                        maxBtn.innerHTML = '⛶';
+                        maxBtn.title = 'Maximize Chat Window';
+                        maxBtn.onclick = () => toggleAiChatMaximize(secId);
+                        btnWrap.insertBefore(maxBtn, btnWrap.firstChild);
+                    }}
+                }}
+            }}
+        }});
+    }}
+
+    function bindResizeHandle(drawer, handleEl, dir) {{
+        handleEl.addEventListener('pointerdown', e => {{
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (drawer.classList.contains('expanded')) {{
+                drawer.classList.remove('expanded');
+                const secId = drawer.getAttribute('data-section-id') || drawer.id.replace('aiChatDrawer_', '');
+                const maxBtn = document.getElementById('aiChatMaxBtn_' + secId);
+                if (maxBtn) {{
+                    maxBtn.innerHTML = '⛶';
+                    maxBtn.title = 'Maximize Chat Window';
+                }}
+            }}
+
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startWidth = drawer.offsetWidth;
+            const startHeight = drawer.offsetHeight;
+
+            drawer.classList.add('is-resizing');
+            document.body.style.userSelect = 'none';
+
+            function onPointerMove(moveEvt) {{
+                let newW = startWidth;
+                let newH = startHeight;
+
+                if (dir === 'nw') {{
+                    newW = startWidth + (startX - moveEvt.clientX);
+                    newH = startHeight + (startY - moveEvt.clientY);
+                }} else if (dir === 'n') {{
+                    newH = startHeight + (startY - moveEvt.clientY);
+                }} else if (dir === 'w') {{
+                    newW = startWidth + (startX - moveEvt.clientX);
+                }} else if (dir === 'se') {{
+                    newW = startWidth + (moveEvt.clientX - startX);
+                    newH = startHeight + (moveEvt.clientY - startY);
+                }} else if (dir === 's') {{
+                    newH = startHeight + (moveEvt.clientY - startY);
+                }} else if (dir === 'e') {{
+                    newW = startWidth + (moveEvt.clientX - startX);
+                }}
+
+                const maxW = Math.min(window.innerWidth - 30, 1400);
+                const maxH = Math.min(window.innerHeight - 30, 1200);
+                newW = Math.max(380, Math.min(maxW, newW));
+                newH = Math.max(420, Math.min(maxH, newH));
+
+                drawer.style.width = newW + 'px';
+                drawer.style.height = newH + 'px';
+            }}
+
+            function onPointerUp() {{
+                drawer.classList.remove('is-resizing');
+                document.body.style.userSelect = '';
+                window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerup', onPointerUp);
+            }}
+
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
         }});
     }}
 

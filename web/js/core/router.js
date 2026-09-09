@@ -58,6 +58,10 @@ export function switchTab(tabId, updateHash = true) {
     if (tabId === "tab-dashboard") {
         loadStatus();
         loadTests();
+    } else if (tabId === "tab-live") {
+        if (typeof window.checkAndResumeLivePolling === "function") {
+            window.checkAndResumeLivePolling();
+        }
     } else if (tabId === "tab-sla") {
         const jmxSelect = document.getElementById("jmx-select");
         const preferredJmx = jmxSelect && jmxSelect.value ? jmxSelect.value : "";

@@ -557,6 +557,12 @@ def render_tab_comparison(ctx: dict) -> str:
                     <span>💬 Ask AI</span>
                 </button>
                 <div id="aiChatDrawer_tab_comparison" class="ai-chat-drawer" data-section-id="tab_comparison">
+                    <div class="ai-chat-resize-handle-nw" title="Drag corner to resize"></div>
+                    <div class="ai-chat-resize-edge-n" title="Drag edge to resize height"></div>
+                    <div class="ai-chat-resize-edge-w" title="Drag edge to resize width"></div>
+                    <div class="ai-chat-resize-handle-se" title="Drag corner to resize"></div>
+                    <div class="ai-chat-resize-edge-s" title="Drag edge to resize height"></div>
+                    <div class="ai-chat-resize-edge-e" title="Drag edge to resize width"></div>
                     <div class="ai-chat-header">
                         <div class="ai-chat-title-wrap">
                             <div class="ai-chat-title-icon">⚡</div>
@@ -568,6 +574,7 @@ def render_tab_comparison(ctx: dict) -> str:
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <button class="ai-chat-hdr-btn" onclick="toggleAiChatMaximize('tab_comparison')" title="Maximize / Restore" id="aiChatMaxBtn_tab_comparison">⛶</button>
                             <button class="ai-chat-hdr-btn" onclick="clearAiChat('tab_comparison')" title="Clear Chat History">🗑️</button>
                             <button class="ai-chat-hdr-btn" onclick="toggleAiChat('tab_comparison')" title="Close">✕</button>
                         </div>

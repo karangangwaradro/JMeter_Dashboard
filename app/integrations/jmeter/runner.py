@@ -47,7 +47,7 @@ class JMeterRunner(TestExecutor):
             "failed_requests": {},
             "stdout_lines": [],
         }
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def find_jmeter_bin(self) -> str:
         """Find path to the jmeter executable."""
@@ -171,16 +171,23 @@ class JMeterRunner(TestExecutor):
             )
             self._watcher_thread.start()
 
+            users_count = (
+                sum(tg.users for tg in request.thread_groups if getattr(tg, "enabled", True))
+                if request.thread_groups
+                else (request.users or 1)
+            )
             exec_thread = threading.Thread(
-                target=self._run_subprocess, args=(cmd, run_id), daemon=True
+                target=self._run_subprocess, args=(cmd, run_id, jmx_name, users_count, jtl_path), daemon=True
             )
             exec_thread.start()
 
             logger.info(f"Started JMeter test '{jmx_name}' as {run_id}", extra={"run_id": run_id})
-            return self.get_status(run_id)
+            print(f"\n[JMeter] Launching CLI: {' '.join(cmd)}", flush=True)
 
-    def _run_subprocess(self, cmd: List[str], run_id: str):
-        """Worker thread to execute subprocess and collect lines."""
+        return self.get_status(run_id)
+
+    def _run_subprocess(self, cmd: List[str], run_id: str, jmx_name: str, users: int, jtl_path: Path):
+        """Worker thread to execute subprocess, collect lines, and trigger post-run ingestion."""
         env = os.environ.copy()
         if settings.java_home and os.path.exists(settings.java_home):
             env["JAVA_HOME"] = settings.java_home
@@ -204,6 +211,7 @@ class JMeterRunner(TestExecutor):
                 if line:
                     with self._lock:
                         self._state["stdout_lines"].append(line.strip())
+                    print(line, end="", flush=True)
             self._active_process.stdout.close()
             exit_code = self._active_process.wait()
         except Exception as e:
@@ -211,10 +219,29 @@ class JMeterRunner(TestExecutor):
                 self._state["error"] = str(e)
                 self._state["stdout_lines"].append(f"Process error: {e}")
             logger.error(f"Execution error for {run_id}: {e}")
+            print(f"\n[JMeter] Execution error: {e}", flush=True)
 
         self._stop_watcher_event.set()
         if self._watcher_thread:
             self._watcher_thread.join(timeout=2.0)
+
+        # Trigger automatic post-execution ingestion, schema validation & HTML report synthesis
+        if jtl_path.exists() and jtl_path.stat().st_size > 0:
+            try:
+                from app.services.orchestrator import orchestrator
+                from app.domain.models.test_run import IngestionMethod
+                logger.info(f"Auto-processing results and generating HTML report for {run_id}...")
+                orchestrator.ingest_and_process(
+                    tool=ToolType.JMETER,
+                    ingestion=IngestionMethod.LOCAL,
+                    identifier=run_id,
+                    test_name=jmx_name,
+                    users=users,
+                    options={"run_id": run_id},
+                )
+                logger.info(f"Report generation completed successfully for {run_id}")
+            except Exception as ing_err:
+                logger.error(f"Post-run ingestion error for {run_id}: {ing_err}")
 
         with self._lock:
             self._state["active"] = False
@@ -223,6 +250,7 @@ class JMeterRunner(TestExecutor):
             self._active_process = None
 
         logger.info(f"JMeter test {run_id} finished with exit code {exit_code}")
+        print(f"\n[JMeter] Test {run_id} finished with exit code {exit_code}\n", flush=True)
 
     def _watch_jtl_live(self, jtl_path: Path, stop_event: threading.Event):
         """Background thread streaming sample counts and metrics from the live JTL file."""
@@ -301,6 +329,7 @@ class JMeterRunner(TestExecutor):
                 tool=ToolType.JMETER,
                 status=status_str,
                 active=self._state["active"],
+                running=self._state["active"],
                 done=self._state["done"],
                 elapsed_seconds=round(elapsed, 1),
                 elapsed_str=elapsed_str,

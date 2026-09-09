@@ -523,3 +523,6 @@ Return ONLY valid JSON matching this exact schema:
   ]
 }}
 """
+
+# Alias for backwards compatibility
+build_performance_prompt = build_insights_prompt

@@ -58,7 +58,12 @@ export function renderRunsTable(runs) {
         tr.onclick = (e) => {
             if (e.target.closest("button") || e.target.closest("a")) return;
             if (run.report_file) {
-                window.open(`/Results/${run.report_file}`, "_blank");
+                const targetUrl = run.report_file.startsWith("http")
+                    ? run.report_file
+                    : run.report_file.startsWith("/Results")
+                        ? run.report_file
+                        : `/Results/html/${run.report_file.replace(/^html\//, '')}`;
+                window.open(targetUrl, "_blank");
             }
         };
 

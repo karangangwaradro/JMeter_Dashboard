@@ -63,6 +63,10 @@ def assemble_index_html():
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    
     <!-- Modular Stylesheet Bundle -->
     <link rel="stylesheet" href="css/main.css">
 </head>

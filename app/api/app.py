@@ -3,12 +3,22 @@ app.py — Production-grade FastAPI Application Factory for PerfPilot.
 Provides OpenAPI documentation (/docs), modular routers, and static file mounting.
 """
 
-from fastapi import FastAPI
+from pathlib import Path
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError as PydanticValidationError
 
-from app.core.constants import WEB_DIR, RESULTS_DIR
+from app.core.constants import (
+    WEB_DIR,
+    RESULTS_DIR,
+    RESULTS_HTML_DIR,
+    RESULTS_PUBLISHED_DIR,
+    RESULTS_JSON_DIR,
+    STORAGE_NORMALIZED_DIR,
+    RESULTS_JTL_DIR,
+)
 from app.core.exceptions import PlatformException
 from app.api.middleware.error_handler import (
     platform_exception_handler,
@@ -63,11 +73,51 @@ def create_app() -> FastAPI:
     app.include_router(ai_studio_router)
     app.include_router(reports_router)
 
-    # 4. Mount Static Results Directory (/Results/*)
+    # 4. Smart Static Results Route (/Results/{file_path:path})
+    @app.get("/Results/{file_path:path}")
+    def serve_results_file(file_path: str):
+        # 1. Exact path inside RESULTS_DIR
+        candidate = RESULTS_DIR / file_path
+        if candidate.is_file():
+            return FileResponse(candidate)
+
+        # 2. Check by filename across specialized subdirectories
+        filename = Path(file_path).name
+        for sub_dir in (
+            RESULTS_HTML_DIR,
+            RESULTS_PUBLISHED_DIR,
+            RESULTS_JSON_DIR,
+            STORAGE_NORMALIZED_DIR,
+            RESULTS_JTL_DIR,
+        ):
+            sub_candidate = sub_dir / filename
+            if sub_candidate.is_file():
+                return FileResponse(sub_candidate)
+
+        raise HTTPException(status_code=404, detail=f"File '{file_path}' not found in Results storage")
+
+    # 5. Favicon Endpoints
+    @app.get("/favicon.ico")
+    def get_favicon_ico():
+        ico_file = WEB_DIR / "favicon.ico"
+        if ico_file.exists():
+            return FileResponse(ico_file, media_type="image/x-icon")
+        svg_file = WEB_DIR / "favicon.svg"
+        if svg_file.exists():
+            return FileResponse(svg_file, media_type="image/svg+xml")
+        raise HTTPException(status_code=404, detail="Favicon not found")
+
+    @app.get("/favicon.svg")
+    def get_favicon_svg():
+        svg_file = WEB_DIR / "favicon.svg"
+        if svg_file.exists():
+            return FileResponse(svg_file, media_type="image/svg+xml")
+        raise HTTPException(status_code=404, detail="Favicon not found")
+
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     app.mount("/Results", StaticFiles(directory=str(RESULTS_DIR)), name="results")
 
-    # 5. Mount Static Frontend Single Page App (/)
+    # 6. Mount Static Frontend Single Page App (/)
     WEB_DIR.mkdir(parents=True, exist_ok=True)
     app.mount("/", StaticFiles(directory=str(WEB_DIR), html=True), name="web")
 

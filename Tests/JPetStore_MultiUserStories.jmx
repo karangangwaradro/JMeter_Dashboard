@@ -35,9 +35,9 @@
       </CookieManager>
       <hashTree />
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="TC_01_Browse_Catalog" enabled="true">
-        <intProp name="ThreadGroup.num_threads">5</intProp>
+        <intProp name="ThreadGroup.num_threads">2</intProp>
         <intProp name="ThreadGroup.ramp_time">20</intProp>
-        <longProp name="ThreadGroup.duration">180</longProp>
+        <longProp name="ThreadGroup.duration">60</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -697,9 +697,9 @@
         </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="TC_02_Add_To_Cart" enabled="true">
-        <intProp name="ThreadGroup.num_threads">5</intProp>
+        <intProp name="ThreadGroup.num_threads">2</intProp>
         <intProp name="ThreadGroup.ramp_time">20</intProp>
-        <longProp name="ThreadGroup.duration">180</longProp>
+        <longProp name="ThreadGroup.duration">60</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -1359,9 +1359,9 @@
         </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="TC_03_Search_Products" enabled="true">
-        <intProp name="ThreadGroup.num_threads">5</intProp>
+        <intProp name="ThreadGroup.num_threads">2</intProp>
         <intProp name="ThreadGroup.ramp_time">20</intProp>
-        <longProp name="ThreadGroup.duration">180</longProp>
+        <longProp name="ThreadGroup.duration">60</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -2021,9 +2021,9 @@
         </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="TC_04_User_Sign_In" enabled="true">
-        <intProp name="ThreadGroup.num_threads">5</intProp>
+        <intProp name="ThreadGroup.num_threads">2</intProp>
         <intProp name="ThreadGroup.ramp_time">20</intProp>
-        <longProp name="ThreadGroup.duration">180</longProp>
+        <longProp name="ThreadGroup.duration">60</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>

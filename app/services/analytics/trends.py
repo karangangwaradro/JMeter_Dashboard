@@ -287,15 +287,20 @@ def build_trend_analysis(
     project: str = "",
     user_story: str = "",
     item_type_filter: str = "TRANSACTIONS_ONLY",
-    limit: int = 10
+    limit: int = 10,
+    project_filter: Optional[str] = None,
+    user_story_filter: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Builds the lightweight Historical Trend Dashboard across 3 to 20+ releases.
     Answers: How has performance behaved over time / Where is performance heading?
     """
+    selected_project = project_filter or project or ""
+    selected_story = user_story_filter or user_story or ""
+
     all_runs = load_all_runs_data()
-    if project:
-        all_runs = [r for r in all_runs if r.get("project") == project]
+    if selected_project:
+        all_runs = [r for r in all_runs if r.get("project") == selected_project]
 
     if not all_runs:
         return {"success": False, "message": "No test runs found matching the requested criteria."}

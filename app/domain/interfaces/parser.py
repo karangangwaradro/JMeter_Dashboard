@@ -22,7 +22,7 @@ class AggregateParser(ABC):
     """Parses raw tool results into a normalized AggregateResult domain model."""
 
     @abstractmethod
-    def parse_aggregate(self, raw_data: Any, test_id: str) -> AggregateResult:
+    def parse_aggregate(self, raw_data: Any, test_id: str, options: Optional[Dict[str, Any]] = None) -> AggregateResult:
         """Translates tool-specific summary/aggregate data into a typed AggregateResult."""
         pass
 

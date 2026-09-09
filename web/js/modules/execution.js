@@ -77,30 +77,59 @@ export async function handleRunTest(e) {
     const payload = collectThreadGroupConfigs();
     if (!payload || payload.thread_groups.length === 0) return;
 
+    const btn = document.getElementById("btn-launch-test");
     try {
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Launching Test...";
+        }
+
         const data = await api.post("/api/run-test", payload);
 
         if (data.success) {
             switchTab("tab-live");
             startLivePolling(payload.jmx);
         } else {
-            alert("Error: " + data.message);
+            alert("Error: " + (data.message || JSON.stringify(data)));
         }
     } catch (err) {
         alert("Failed to launch test: " + err);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Execute Performance Test";
+        }
     }
 }
 
-export function startLivePolling(jmxName) {
+export async function startLivePolling(jmxName) {
     const subtitle = document.getElementById("live-test-subtitle");
     const badge = document.getElementById("live-indicator-badge");
     const stopBtn = document.getElementById("btn-stop-test");
+    const statsTbody = document.getElementById("live-metrics-tbody");
+    const failTbody = document.getElementById("live-failures-tbody");
 
-    if (subtitle) subtitle.textContent = `Running scenario: ${jmxName}`;
+    if (subtitle) subtitle.textContent = `Running scenario: ${jmxName || "JMeter Execution"}`;
     if (badge) badge.classList.remove("hidden");
     if (stopBtn) stopBtn.classList.remove("hidden");
+    if (statsTbody) statsTbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Awaiting initial execution metrics from engine...</td></tr>';
+    if (failTbody) failTbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No execution errors detected.</td></tr>';
 
-    if (state.activePollingInterval) clearInterval(state.activePollingInterval);
+    if (state.activePollingInterval) {
+        clearInterval(state.activePollingInterval);
+        state.activePollingInterval = null;
+    }
+
+    // Cache transaction controller mapping once
+    let tcMap = {};
+    if (jmxName) {
+        try {
+            const cfgData = await api.get(`/api/jmx-config?jmx=${encodeURIComponent(jmxName)}`);
+            if (cfgData.success && cfgData.config) {
+                tcMap = cfgData.config.tc_to_samplers || {};
+            }
+        } catch (e) { }
+    }
 
     state.activePollingInterval = setInterval(async () => {
         try {
@@ -109,17 +138,6 @@ export function startLivePolling(jmxName) {
             const timerEl = document.getElementById("live-timer");
             if (timerEl) timerEl.textContent = data.elapsed_str || "00:00";
 
-            let tcMap = {};
-            if (jmxName) {
-                try {
-                    const cfgData = await api.get(`/api/jmx-config?jmx=${encodeURIComponent(jmxName)}`);
-                    if (cfgData.success && cfgData.config) {
-                        tcMap = cfgData.config.tc_to_samplers || {};
-                    }
-                } catch (e) { }
-            }
-
-            const statsTbody = document.getElementById("live-metrics-tbody");
             const liveStats = data.live_stats || {};
             const keys = Object.keys(liveStats);
 
@@ -128,7 +146,7 @@ export function startLivePolling(jmxName) {
                 const tcKeys = Object.keys(tcMap);
 
                 if (tcKeys.length > 0) {
-                    tcKeys.forEach((tcName, idx) => {
+                    tcKeys.forEach((tcName) => {
                         const tcStat = liveStats[tcName] || { total: 0, errors: 0, total_rt: 0, min_rt: 0, max_rt: 0 };
                         const avgRt = tcStat.total > 0 ? (tcStat.total_rt / tcStat.total).toFixed(0) : 0;
                         const errPct = tcStat.total > 0 ? ((tcStat.errors / tcStat.total) * 100).toFixed(2) : "0.00";
@@ -167,7 +185,6 @@ export function startLivePolling(jmxName) {
                 }
             }
 
-            const failTbody = document.getElementById("live-failures-tbody");
             const errBadge = document.getElementById("error-indicator-badge");
             const failedReqs = data.failed_requests || {};
             const failKeys = Object.keys(failedReqs);
@@ -196,17 +213,28 @@ export function startLivePolling(jmxName) {
                 errBadge.classList.add("hidden");
             }
 
-            if (data.done || !data.running) {
+            const isDone = data.done || (!data.active && !data.running && data.status !== "running");
+            if (isDone) {
                 clearInterval(state.activePollingInterval);
+                state.activePollingInterval = null;
                 if (badge) badge.classList.add("hidden");
                 if (stopBtn) stopBtn.classList.add("hidden");
-                if (subtitle) subtitle.textContent = `Test completed for ${jmxName}. View generated HTML report in History.`;
+                if (subtitle) subtitle.textContent = `Test completed for ${jmxName || data.run_id}. View generated HTML report in History.`;
                 loadRuns();
             }
         } catch (err) {
             console.error("Polling error:", err);
         }
     }, 2000);
+}
+
+export async function checkAndResumeLivePolling() {
+    try {
+        const data = await api.get("/api/jmeter-progress");
+        if (data.active || data.running || data.status === "running") {
+            startLivePolling(data.jmx_name || data.run_id || "Running Test");
+        }
+    } catch (e) {}
 }
 
 export async function handleStopTest() {
@@ -222,4 +250,5 @@ export async function handleStopTest() {
 
 window.handleRunTest = handleRunTest;
 window.startLivePolling = startLivePolling;
+window.checkAndResumeLivePolling = checkAndResumeLivePolling;
 window.handleStopTest = handleStopTest;

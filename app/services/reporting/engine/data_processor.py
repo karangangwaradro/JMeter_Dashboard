@@ -73,15 +73,36 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     sla_targets, default_rt, default_err = {}, 500.0, 1.0
     tc_ordered, tc_to_samplers = [], {}
 
+    # Auto-resolve JMX test plan name if generic or missing extension
+    resolved_jmx_name = jmx_name
+    try:
+        from app.core.constants import TESTS_DIR
+        cand_p = TESTS_DIR / jmx_name if jmx_name else None
+        if not cand_p or not cand_p.exists():
+            if jmx_name and (TESTS_DIR / f"{jmx_name}.jmx").exists():
+                resolved_jmx_name = f"{jmx_name}.jmx"
+            else:
+                for cand in TESTS_DIR.glob("*.jmx"):
+                    try:
+                        from app.services.analytics.sla_manager import parse_jmx_hierarchy
+                        cand_tcs, _ = parse_jmx_hierarchy(cand)
+                        if sum(1 for tc in cand_tcs if tc in labels) >= 3:
+                            resolved_jmx_name = cand.name
+                            break
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+
     try:
         from app.services.analytics.sla_manager import load_sla_targets, parse_jmx_hierarchy
-        sla_targets, default_rt, default_err = load_sla_targets(jmx_name, actual_users=users)
+        sla_targets, default_rt, default_err = load_sla_targets(resolved_jmx_name, actual_users=users)
     except Exception as sla_err:
         print(f"[Report] SLA targets load warning: {sla_err}", flush=True)
 
     try:
         from app.services.analytics.sla_manager import parse_jmx_hierarchy
-        tc_ordered, tc_to_samplers = parse_jmx_hierarchy(jmx_name)
+        tc_ordered, tc_to_samplers = parse_jmx_hierarchy(resolved_jmx_name)
     except Exception as hier_err:
         print(f"[Report] Hierarchy parse warning: {hier_err}", flush=True)
 
@@ -90,15 +111,36 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     tg_to_transactions = {}
     try:
         from app.services.analytics.sla_manager import parse_jmx_full_tree
-        jmx_full_tree, tg_to_transactions = parse_jmx_full_tree(jmx_name)
+        jmx_full_tree, tg_to_transactions = parse_jmx_full_tree(resolved_jmx_name)
     except Exception as tree_err:
         print(f"[Report] Full tree parse warning: {tree_err}", flush=True)
 
-    # Filter for main report display: if Transaction Controllers exist, only show TCs in main tables/charts
+    def _is_http_lbl(lbl: str) -> bool:
+        u = (lbl or "").upper()
+        return bool(
+            "_R_" in u or "_R0" in u or "_R1" in u or
+            u.startswith("HTTP_") or u.startswith("GET_") or u.startswith("POST_") or
+            u.startswith("PUT_") or u.startswith("DELETE_")
+        )
+
+    def _is_tx_lbl(lbl: str) -> bool:
+        if _is_http_lbl(lbl):
+            return False
+        u = (lbl or "").upper()
+        return bool(
+            u.startswith("TC") or u.startswith("T_") or u.startswith("T-") or
+            any(w in u for w in ("LAUNCH", "SELECT", "SEARCH", "SIGN", "CHECKOUT", "CATALOG", "ORDER", "PAYMENT", "CART", "NAVIGATE", "LOGIN"))
+        )
+
+    # Filter for main report display: strictly transaction controllers only, NEVER leaf HTTP requests
     tc_set = set(tc_ordered) if tc_ordered else set()
-    display_labels = {k: v for k, v in labels.items() if k in tc_set} if tc_set else {k: v for k, v in labels.items() if k.upper().startswith("TC")}
+    if tc_set:
+        display_labels = {k: v for k, v in labels.items() if (k in tc_set and not _is_http_lbl(k))}
+    else:
+        display_labels = {k: v for k, v in labels.items() if _is_tx_lbl(k)}
+
     if not display_labels:
-        display_labels = labels
+        display_labels = {k: v for k, v in labels.items() if not _is_http_lbl(k)} or labels
 
     # Compute Iterations (max executions of any main transaction, representing complete test loops)
     total_iterations = max((v.get("count", 0) for v in display_labels.values()), default=summary.get("total", 0))
@@ -425,45 +467,79 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                                 parent_classes=[top_cls_id], parent_cls_id=top_cls_id, is_hidden=True
                             )
     else:
-        # FLAT MODE (fallback): No JMX tree available, use original flat rendering
-        tg_filter_options = ''
-        for lname, ldata in sorted(display_labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True):
-            labels_rows += _build_tx_row(lname, ldata, depth=0, node_type="transaction", tg_name="")
+        # FLAT MODE (fallback): No JMX tree available, use structured flat rendering
+        if labels_by_tg:
+            tg_filter_options = '<option value="ALL">All User Journeys</option>'
+            for tg_name in labels_by_tg.keys():
+                tg_filter_options += f'<option value="{tg_name}">{tg_name}</option>'
 
-            # Also build flat child rows for fallback mode (original behavior)
-            c_samplers_table = tc_to_samplers.get(lname, [])
-            matched_table_children = {}
-            for c_spec in c_samplers_table:
-                if c_spec in labels and c_spec != lname:
-                    matched_table_children[c_spec] = labels[c_spec]
+            for tg_name, tg_specific_labels in labels_by_tg.items():
+                labels_rows += f"""
+                <tr class="tg-header-row" data-tg="{tg_name}" style="background: linear-gradient(135deg, var(--accent-bg), var(--surface2)); border-top: 2px solid var(--accent);">
+                    <td colspan="11" style="padding: 0.6rem 1rem; font-weight: 700; font-size: 0.88rem; color: var(--accent);">
+                        <span style="display:inline-flex; align-items:center; gap:0.4rem;">🧭 User Journey: <span style="color:var(--text);">{tg_name}</span></span>
+                    </td>
+                </tr>"""
 
-            if not matched_table_children:
-                clean_name_t = re.sub(r'TC\d+|_|T\d+', ' ', lname)
-                split_words_t = re.findall(r'[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\d|\W|$)|\d+', clean_name_t)
-                keywords_t = [w.lower() for w in split_words_t if len(w) >= 3 and w.lower() not in ("tc01", "tc02", "tc03", "t01", "t02", "t03", "t04")]
-                for l_key, l_val in labels.items():
-                    if l_key != lname and not l_key.upper().startswith("TC0") and not l_key.upper().startswith("TC1"):
-                        if any(kw in l_key.lower() for kw in keywords_t):
-                            matched_table_children[l_key] = l_val
+                for lname, ldata in sorted(display_labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True):
+                    if lname in tg_specific_labels:
+                        c_samplers_table = tc_to_samplers.get(lname, [])
+                        matched_table_children = {}
+                        for c_spec in c_samplers_table:
+                            if c_spec in tg_specific_labels and c_spec != lname:
+                                matched_table_children[c_spec] = tg_specific_labels[c_spec]
+                            elif c_spec in labels and c_spec != lname:
+                                matched_table_children[c_spec] = labels[c_spec]
 
-            c_cls_id = f"child-row-group-{hash(lname) & 0xffffffff}"
-            if matched_table_children:
+                        if not matched_table_children:
+                            tx_prefix = lname.rsplit("_", 1)[0] if "_" in lname else lname
+                            for l_key, l_val in tg_specific_labels.items():
+                                if l_key != lname and _is_http_lbl(l_key):
+                                    if l_key.startswith(tx_prefix) or tx_prefix in l_key:
+                                        matched_table_children[l_key] = l_val
+
+                        c_cls_id = f"tree-children-{hash(lname + tg_name) & 0xffffffff}"
+                        toggle_btn = f'<button onclick="toggleTreeChildren(this, \'{c_cls_id}\')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button>' if matched_table_children else ''
+
+                        labels_rows += _build_tx_row(
+                            lname, ldata, depth=0, node_type="transaction", tg_name=tg_name,
+                            is_hidden=False, toggle_btn_html=toggle_btn
+                        )
+
+                        for cs_k, cs_v in matched_table_children.items():
+                            labels_rows += _build_tx_row(
+                                cs_k, cs_v, depth=1, node_type="request", tg_name=tg_name,
+                                parent_classes=[c_cls_id], parent_cls_id=c_cls_id, is_hidden=True
+                            )
+        else:
+            tg_filter_options = ''
+            for lname, ldata in sorted(display_labels.items(), key=lambda x: x[1].get("avg_rt", 0), reverse=True):
+                c_samplers_table = tc_to_samplers.get(lname, [])
+                matched_table_children = {}
+                for c_spec in c_samplers_table:
+                    if c_spec in labels and c_spec != lname:
+                        matched_table_children[c_spec] = labels[c_spec]
+
+                if not matched_table_children:
+                    tx_prefix = lname.rsplit("_", 1)[0] if "_" in lname else lname
+                    for l_key, l_val in labels.items():
+                        if l_key != lname and _is_http_lbl(l_key):
+                            if l_key.startswith(tx_prefix) or tx_prefix in l_key:
+                                matched_table_children[l_key] = l_val
+
+                c_cls_id = f"tree-children-{hash(lname) & 0xffffffff}"
+                toggle_btn = f'<button onclick="toggleTreeChildren(this, \'{c_cls_id}\')" class="tree-toggle-btn" data-expanded="false" title="Expand / Collapse">▶</button>' if matched_table_children else ''
+
+                labels_rows += _build_tx_row(
+                    lname, ldata, depth=0, node_type="transaction", tg_name="",
+                    is_hidden=False, toggle_btn_html=toggle_btn
+                )
+
                 for cs_k, cs_v in matched_table_children.items():
-                    c_err_cls = "pass" if cs_v.get('error_rate', 0) <= 1 else "fail"
-                    labels_rows += f"""
-                    <tr class="{c_cls_id}" style="display: none; background: var(--surface2); font-size: 0.76rem;">
-                        <td style="padding-left: 2rem;">↳ <code>{cs_k}</code></td>
-                        <td>{cs_v.get('count', 0):,}</td>
-                        <td>-</td>
-                        <td class="tx-rt-cell" data-ms="{cs_v.get('avg_rt', 0):.1f}"><span class="tx-rt-val">{cs_v.get('avg_rt', 0):.0f}</span></td>
-                        <td class="tx-rt-cell" data-ms="{cs_v.get('p90', 0)}"><strong class="tx-rt-val">{cs_v.get('p90', 0)}</strong></td>
-                        <td class="tx-rt-cell" data-ms="{cs_v.get('min_rt', 0)}"><span class="tx-rt-val">{cs_v.get('min_rt', 0)}</span></td>
-                        <td class="tx-rt-cell" data-ms="{cs_v.get('max_rt', 0)}"><span class="tx-rt-val">{cs_v.get('max_rt', 0)}</span></td>
-                        <td class="{c_err_cls}">{cs_v.get('error_rate', 0):.2f}%</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>"""
+                    labels_rows += _build_tx_row(
+                        cs_k, cs_v, depth=1, node_type="request", tg_name="",
+                        parent_classes=[c_cls_id], parent_cls_id=c_cls_id, is_hidden=True
+                    )
 
     # Overall Average Apdex Score for header badge
     overall_apdex = round(sum(all_apdex_scores) / len(all_apdex_scores), 2) if all_apdex_scores else 1.00
@@ -730,7 +806,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             "child_tcs": list(display_labels.keys())
         })
 
-    total_tg_users = sum(tg.get("users", 1) for tg in tg_configs) if tg_configs else users
+    total_tg_users = sum(tg.get("users", 1) for tg in tg_configs if tg.get("enabled", True)) if tg_configs else users
     test_dur_sec = max(1, int(summary.get("duration_sec", 60)))
     
     # ── High-Level Capacity Metrics ──
@@ -1278,7 +1354,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
         summary=summary, labels=labels, display_labels=display_labels,
         time_series=ts, infra=infra, correlation=correlation,
         sla_targets=sla_targets, default_rt=default_rt, default_err=default_err,
-        ai_insights=ai_insights, auto_ai=False
+        ai_insights=ai_insights, auto_ai=True
     )
     # Enrich with AI interpretations if available
     if ai_insights:
@@ -1640,10 +1716,12 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
 
     # Standardized Tab Insight Panel Helper with Human Validation Checkbox & Contextual AI Chat
     def _build_tab_insight_panel(intel_data: dict, tab_title: str, section_id: str = "tab_tx_stats") -> str:
-        if not intel_data:
+        override = ai_insights.get(section_id) if ai_insights else None
+        effective_data = override if (isinstance(override, dict) and (override.get("observations") or override.get("recommendations"))) else intel_data
+        if not effective_data:
             return ""
-        obs_list = [_clean_client_text(obs) for obs in intel_data.get("observations", []) if _clean_client_text(obs)]
-        rec_list = [_clean_client_text(rec) for rec in intel_data.get("recommendations", []) if _clean_client_text(rec)]
+        obs_list = [_clean_client_text(obs) for obs in effective_data.get("observations", []) if _clean_client_text(obs)]
+        rec_list = [_clean_client_text(rec) for rec in effective_data.get("recommendations", []) if _clean_client_text(rec)]
         if not obs_list and not rec_list:
             return ""
         obs_items = "".join([f'<li style="margin-bottom:0.35rem;">{obs}</li>' for obs in obs_list])
@@ -1681,6 +1759,12 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                 <span>💬 Ask AI</span>
             </button>
             <div id="aiChatDrawer_{section_id}" class="ai-chat-drawer" data-section-id="{section_id}">
+                <div class="ai-chat-resize-handle-nw" title="Drag corner to resize"></div>
+                <div class="ai-chat-resize-edge-n" title="Drag edge to resize height"></div>
+                <div class="ai-chat-resize-edge-w" title="Drag edge to resize width"></div>
+                <div class="ai-chat-resize-handle-se" title="Drag corner to resize"></div>
+                <div class="ai-chat-resize-edge-s" title="Drag edge to resize height"></div>
+                <div class="ai-chat-resize-edge-e" title="Drag edge to resize width"></div>
                 <div class="ai-chat-header">
                     <div class="ai-chat-title-wrap">
                         <div class="ai-chat-title-icon">⚡</div>
@@ -1692,6 +1776,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:0.4rem;">
+                        <button class="ai-chat-hdr-btn" onclick="toggleAiChatMaximize('{section_id}')" title="Maximize / Restore" id="aiChatMaxBtn_{section_id}">⛶</button>
                         <button class="ai-chat-hdr-btn" onclick="clearAiChat('{section_id}')" title="Clear Chat History">🗑️</button>
                         <button class="ai-chat-hdr-btn" onclick="toggleAiChat('{section_id}')" title="Close">✕</button>
                     </div>
@@ -1724,7 +1809,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     # Executive Summary Sub-sections (Under AI Augmented Analysis)
     exec_assessment_badge = exec_intel.get("assessment_badge", "")
     exec_assessment_color = exec_intel.get("assessment_color", "var(--accent)")
-    exec_raw_overview = exec_intel.get("assessment_bullets") or exec_intel.get("assessment_text", "")
+    exec_raw_overview = (ai_insights.get("exec_overview") if ai_insights else None) or exec_intel.get("assessment_bullets") or exec_intel.get("assessment_text", "")
     exec_overview_pointers_html = _format_as_pointers(exec_raw_overview)
     
     exec_assessment_html = f"""
@@ -1748,6 +1833,12 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_overview" class="ai-chat-drawer" data-section-id="exec_overview">
+            <div class="ai-chat-resize-handle-nw" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-n" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-w" title="Drag edge to resize width"></div>
+            <div class="ai-chat-resize-handle-se" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-s" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-e" title="Drag edge to resize width"></div>
             <div class="ai-chat-header">
                 <div class="ai-chat-title-wrap">
                     <div class="ai-chat-title-icon">🎯</div>
@@ -1759,6 +1850,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChatMaximize('exec_overview')" title="Maximize / Restore" id="aiChatMaxBtn_exec_overview">⛶</button>
                     <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_overview')" title="Clear Chat History">🗑️</button>
                     <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_overview')" title="Close">✕</button>
                 </div>
@@ -1809,8 +1901,9 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     """
 
     # Sub-section 2: Observations Table with Human Validation Badge & Chat Drawer
+    obs_source = (ai_insights.get("exec_observations") if ai_insights else None) or exec_intel.get("observations_table", [])
     obs_rows = ""
-    for row in exec_intel.get("observations_table", []):
+    for row in obs_source:
         obs_text = str(row.get('observation', '')).replace('\n', '<br>')
         obs_rows += f"""
         <tr style="border-bottom:1px solid var(--border);">
@@ -1849,6 +1942,12 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_observations" class="ai-chat-drawer" data-section-id="exec_observations">
+            <div class="ai-chat-resize-handle-nw" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-n" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-w" title="Drag edge to resize width"></div>
+            <div class="ai-chat-resize-handle-se" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-s" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-e" title="Drag edge to resize width"></div>
             <div class="ai-chat-header">
                 <div class="ai-chat-title-wrap">
                     <div class="ai-chat-title-icon">📋</div>
@@ -1860,6 +1959,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChatMaximize('exec_observations')" title="Maximize / Restore" id="aiChatMaxBtn_exec_observations">⛶</button>
                     <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_observations')" title="Clear Chat History">🗑️</button>
                     <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_observations')" title="Close">✕</button>
                 </div>
@@ -1884,7 +1984,8 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     """ if obs_rows else ""
 
     # Sub-section 3: Key Conclusions with Human Validation Badge & Chat Drawer
-    concl_items = "".join([f'<li style="margin-bottom:0.4rem; line-height:1.65;">{c}</li>' for c in exec_intel.get("conclusions", [])])
+    concl_source = (ai_insights.get("exec_conclusions") if ai_insights else None) or exec_intel.get("conclusions", [])
+    concl_items = "".join([f'<li style="margin-bottom:0.4rem; line-height:1.65;">{c}</li>' for c in concl_source])
     exec_conclusions_html = f"""
     <div class="ai-sub-card" style="margin-bottom: 1.25rem; position: relative; padding-bottom: 3rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:gap; gap:0.5rem;">
@@ -1903,6 +2004,12 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_conclusions" class="ai-chat-drawer" data-section-id="exec_conclusions">
+            <div class="ai-chat-resize-handle-nw" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-n" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-w" title="Drag edge to resize width"></div>
+            <div class="ai-chat-resize-handle-se" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-s" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-e" title="Drag edge to resize width"></div>
             <div class="ai-chat-header">
                 <div class="ai-chat-title-wrap">
                     <div class="ai-chat-title-icon">📌</div>
@@ -1914,6 +2021,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChatMaximize('exec_conclusions')" title="Maximize / Restore" id="aiChatMaxBtn_exec_conclusions">⛶</button>
                     <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_conclusions')" title="Clear Chat History">🗑️</button>
                     <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_conclusions')" title="Close">✕</button>
                 </div>
@@ -1938,8 +2046,9 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     """ if concl_items else ""
 
     # Sub-section 4: Recommendations with Chat Drawer
+    recs_source = (ai_insights.get("exec_recommendations") if ai_insights else None) or exec_intel.get("priority_recommendations", [])
     p_recs_html = ""
-    for r in exec_intel.get("priority_recommendations", []):
+    for r in recs_source:
         r_badge = r.get("badge", "💡")
         r_title = _clean_client_text(r.get("title", ""))
         r_detail = _clean_client_text(r.get("detail", ""))
@@ -1980,6 +2089,12 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             <span>💬 PerfAgent</span>
         </button>
         <div id="aiChatDrawer_exec_recommendations" class="ai-chat-drawer" data-section-id="exec_recommendations">
+            <div class="ai-chat-resize-handle-nw" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-n" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-w" title="Drag edge to resize width"></div>
+            <div class="ai-chat-resize-handle-se" title="Drag corner to resize"></div>
+            <div class="ai-chat-resize-edge-s" title="Drag edge to resize height"></div>
+            <div class="ai-chat-resize-edge-e" title="Drag edge to resize width"></div>
             <div class="ai-chat-header">
                 <div class="ai-chat-title-wrap">
                     <div class="ai-chat-title-icon">💡</div>
@@ -1991,6 +2106,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button class="ai-chat-hdr-btn" onclick="toggleAiChatMaximize('exec_recommendations')" title="Maximize / Restore" id="aiChatMaxBtn_exec_recommendations">⛶</button>
                     <button class="ai-chat-hdr-btn" onclick="clearAiChat('exec_recommendations')" title="Clear Chat History">🗑️</button>
                     <button class="ai-chat-hdr-btn" onclick="toggleAiChat('exec_recommendations')" title="Close">✕</button>
                 </div>
@@ -2561,6 +2677,6 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     # Ensure critical keys are present
     ctx["parsed"] = parsed
     ctx["ai_insights"] = ai_insights
-    ctx["jmx_name"] = jmx_name
-    ctx["users"] = users
+    effective_users = max(users, total_tg_users) if total_tg_users > 0 else (users or 1)
+    ctx["users"] = effective_users
     return ctx

@@ -88,7 +88,7 @@ class DomainReportGenerator(ReportGeneratorInterface):
                         "samples": v.samples,
                         "success_flags": v.success_flags,
                     }
-                    for k, v in aggregate.transactions.items()
+                    for k, v in (aggregate.all_labels if aggregate.all_labels else aggregate.transactions).items()
                 },
                 "labels_by_tg": {
                     tg: {k: v.model_dump() for k, v in lbls.items()}

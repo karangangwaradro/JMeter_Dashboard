@@ -25,7 +25,17 @@ class TestJMeterParsers(unittest.TestCase):
         self.assertEqual(agg.failed_requests, 330)
         self.assertAlmostEqual(agg.throughput, 16.53, places=1)
         self.assertAlmostEqual(agg.avg_response_time, 298.95, places=1)
-        self.assertTrue(len(agg.transactions) > 0)
+        self.assertEqual(len(agg.transactions), 48)
+        self.assertEqual(len(agg.http_requests), 194)
+        self.assertEqual(len(agg.all_labels), 242)
+        self.assertEqual(agg.total_iterations, 15)
+        self.assertEqual(len(agg.hierarchy_tree), 4)
+
+        # Verify item_type classification
+        for tx in agg.transactions.values():
+            self.assertEqual(tx.item_type, "MAIN_TRANSACTION")
+        for req in agg.http_requests.values():
+            self.assertEqual(req.item_type, "HTTP_REQUEST")
 
         # Verify Time Series Result contract
         self.assertEqual(ts.schema_version, "1.0")

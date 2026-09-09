@@ -36,6 +36,7 @@ class TestExecutionService:
                     tool=ToolType.BLAZEMETER,
                     status="running",
                     active=True,
+                    running=True,
                     done=False,
                     stdout_lines=[f"Launched BlazeMeter master ID: {master_id}"],
                 )
@@ -51,6 +52,7 @@ class TestExecutionService:
                     tool=ToolType.NEOLOAD,
                     status="running",
                     active=True,
+                    running=True,
                     done=False,
                     stdout_lines=[f"Launched NeoLoad test result ID: {result_id}"],
                 )

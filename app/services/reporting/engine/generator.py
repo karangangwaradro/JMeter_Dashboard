@@ -74,6 +74,7 @@ def _assemble_document(ctx: dict, css: str, body_html: str, js: str) -> str:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{jmx_name} — Performance Report | PerfPilot</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%230f172a%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%221.5%22%2F%3E%3Cpolyline%20points%3D%2210%2C32%2020%2C32%2026%2C48%2035%2C16%2042%2C40%2048%2C32%2054%2C32%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%224.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%2216%22%20r%3D%223.5%22%20fill%3D%22%2338bdf8%22%2F%3E%3C%2Fsvg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

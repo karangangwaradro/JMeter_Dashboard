@@ -25,7 +25,7 @@ class RunTestPayload(BaseModel):
     test_identifier: Optional[str] = None
     thread_groups: Optional[List[Dict[str, Any]]] = None
     tests: Optional[List[Dict[str, Any]]] = None
-    users: Optional[int] = 1
+    users: Optional[int] = None
     duration: Optional[str] = "0"
     rampup: Optional[str] = "0"
     parameters: Optional[Dict[str, Any]] = None
@@ -58,6 +58,7 @@ def run_test_endpoint(payload: RunTestPayload) -> Dict[str, Any]:
         for tg in payload.thread_groups:
             tg_list.append(ThreadGroupConfig(
                 name=tg.get("name", "__all__"),
+                enabled=bool(tg.get("enabled", True)),
                 users=int(tg.get("users", 1)),
                 duration=str(tg.get("duration", "0")),
                 rampup=str(tg.get("rampup", "0")),
@@ -67,17 +68,24 @@ def run_test_endpoint(payload: RunTestPayload) -> Dict[str, Any]:
         for t in payload.tests:
             tg_list.append(ThreadGroupConfig(
                 name="__all__",
+                enabled=True,
                 users=int(t.get("users", 1)),
                 duration=str(t.get("duration", "0")),
                 rampup=str(t.get("rampup", "0")),
                 iterations=int(t.get("iterations", 1)),
             ))
 
+    total_calculated_users = (
+        sum(tg.users for tg in tg_list if tg.enabled)
+        if tg_list
+        else (payload.users or 1)
+    )
+
     req = TestExecutionRequest(
         tool=tool_enum,
         ingestion=IngestionMethod.LOCAL if tool_enum == ToolType.JMETER else IngestionMethod.DIRECT_API,
         test_identifier=identifier,
-        users=payload.users or (sum(tg.users for tg in tg_list) if tg_list else 1),
+        users=total_calculated_users,
         duration=payload.duration or "0",
         rampup=payload.rampup or "0",
         thread_groups=tg_list,

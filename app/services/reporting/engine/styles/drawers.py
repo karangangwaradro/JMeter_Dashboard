@@ -48,10 +48,12 @@ _CSS = r"""/* ── Section-Level AI Chat Styles ── */
             position: absolute;
             right: 1.25rem;
             bottom: 0.85rem;
-            width: 460px;
-            max-width: calc(100% - 2.5rem);
-            height: 520px;
-            max-height: calc(100vh - 120px);
+            width: 600px;
+            min-width: 380px;
+            max-width: min(96vw, 1250px);
+            height: 680px;
+            min-height: 420px;
+            max-height: calc(100vh - 45px);
             background: linear-gradient(165deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
             backdrop-filter: blur(24px) saturate(190%);
             -webkit-backdrop-filter: blur(24px) saturate(190%);
@@ -61,7 +63,7 @@ _CSS = r"""/* ── Section-Level AI Chat Styles ── */
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            z-index: 100;
+            z-index: 1000;
             transform: scale(0.95) translateY(14px);
             opacity: 0;
             pointer-events: none;
@@ -76,6 +78,135 @@ _CSS = r"""/* ── Section-Level AI Chat Styles ── */
             transform: scale(1) translateY(0);
             opacity: 1;
             pointer-events: auto;
+        }
+
+        /* ── Resizing Handles & Interactive Elements ── */
+        .ai-chat-resize-handle-nw {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 22px;
+            height: 22px;
+            cursor: nwse-resize;
+            z-index: 120;
+            user-select: none;
+            touch-action: none;
+        }
+        .ai-chat-resize-handle-nw::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid rgba(56, 189, 248, 0.7);
+            border-left: 2px solid rgba(56, 189, 248, 0.7);
+            border-top-left-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .ai-chat-resize-handle-nw:hover::after {
+            border-color: #38bdf8;
+            box-shadow: -1px -1px 6px rgba(56, 189, 248, 0.6);
+            transform: scale(1.15);
+        }
+
+        .ai-chat-resize-edge-n {
+            position: absolute;
+            top: 0;
+            left: 22px;
+            right: 22px;
+            height: 8px;
+            cursor: ns-resize;
+            z-index: 115;
+            touch-action: none;
+        }
+        .ai-chat-resize-edge-w {
+            position: absolute;
+            top: 22px;
+            left: 0;
+            bottom: 22px;
+            width: 8px;
+            cursor: ew-resize;
+            z-index: 115;
+            touch-action: none;
+        }
+        .ai-chat-resize-edge-s {
+            position: absolute;
+            bottom: 0;
+            left: 22px;
+            right: 22px;
+            height: 8px;
+            cursor: ns-resize;
+            z-index: 115;
+            touch-action: none;
+        }
+        .ai-chat-resize-edge-e {
+            position: absolute;
+            top: 22px;
+            right: 0;
+            bottom: 22px;
+            width: 8px;
+            cursor: ew-resize;
+            z-index: 115;
+            touch-action: none;
+        }
+
+        .ai-chat-resize-handle-se {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 22px;
+            height: 22px;
+            cursor: nwse-resize;
+            z-index: 120;
+            user-select: none;
+            touch-action: none;
+        }
+        .ai-chat-resize-handle-se::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 10px;
+            height: 10px;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.7);
+            border-right: 2px solid rgba(56, 189, 248, 0.7);
+            border-bottom-right-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .ai-chat-resize-handle-se:hover::after {
+            border-color: #38bdf8;
+            box-shadow: 1px 1px 6px rgba(56, 189, 248, 0.6);
+            transform: scale(1.15);
+        }
+
+        /* ── Fullscreen / Expanded Mode ── */
+        .ai-chat-drawer.expanded {
+            position: fixed !important;
+            right: 1.5rem !important;
+            bottom: 1.5rem !important;
+            width: min(1120px, calc(100vw - 3rem)) !important;
+            height: min(880px, calc(100vh - 3rem)) !important;
+            max-width: calc(100vw - 3rem) !important;
+            max-height: calc(100vh - 3rem) !important;
+            z-index: 9999 !important;
+            box-shadow: 0 32px 80px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(56, 189, 248, 0.4) !important;
+        }
+
+        .ai-chat-drawer.is-resizing {
+            transition: none !important;
+            user-select: none !important;
+        }
+
+        @media (max-width: 640px) {
+            .ai-chat-drawer {
+                width: calc(100vw - 1.5rem) !important;
+                right: 0.75rem !important;
+                bottom: 0.75rem !important;
+                height: calc(100vh - 1.5rem) !important;
+                max-width: 100vw !important;
+                max-height: 100vh !important;
+            }
         }
 
         .ai-chat-header {
@@ -189,25 +320,25 @@ _CSS = r"""/* ── Section-Level AI Chat Styles ── */
             margin-bottom: 0.25rem;
         }
         .ai-welcome-sub {
-            font-size: 0.76rem;
+            font-size: 0.78rem;
             color: var(--muted);
             line-height: 1.45;
-            max-width: 320px;
+            max-width: 440px;
             margin-bottom: 1rem;
         }
         .ai-quick-prompts {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.45rem;
             width: 100%;
-            max-width: 330px;
+            max-width: 480px;
         }
         .ai-quick-chip {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 0.42rem 0.7rem;
-            font-size: 0.75rem;
+            padding: 0.48rem 0.78rem;
+            font-size: 0.78rem;
             color: var(--text);
             text-align: left;
             cursor: pointer;

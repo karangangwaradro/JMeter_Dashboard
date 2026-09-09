@@ -36,20 +36,20 @@ class ResultParsingService:
             return neoload_timeseries_parser.parse_timeseries(raw_data, test_id)
         raise ParserError(f"Unsupported parser tool: {tool}")
 
-    def parse_aggregate(self, tool: ToolType, raw_data: Any, test_id: str) -> AggregateResult:
+    def parse_aggregate(self, tool: ToolType, raw_data: Any, test_id: str, options: Optional[Dict[str, Any]] = None) -> AggregateResult:
         """Translates raw results into the common AggregateResult model."""
         logger.info(f"Parsing aggregate data for {test_id} using tool adapter '{tool}'")
         if tool == ToolType.JMETER:
-            return jmeter_aggregate_parser.parse_aggregate(raw_data, test_id)
+            return jmeter_aggregate_parser.parse_aggregate(raw_data, test_id, options=options)
         elif tool == ToolType.BLAZEMETER:
             return blazemeter_aggregate_parser.parse_aggregate(raw_data, test_id)
         elif tool == ToolType.NEOLOAD:
             return neoload_aggregate_parser.parse_aggregate(raw_data, test_id)
         raise ParserError(f"Unsupported parser tool: {tool}")
 
-    def parse_all(self, tool: ToolType, raw_data: Any, test_id: str) -> Tuple[AggregateResult, TimeSeriesResult]:
+    def parse_all(self, tool: ToolType, raw_data: Any, test_id: str, options: Optional[Dict[str, Any]] = None) -> Tuple[AggregateResult, TimeSeriesResult]:
         """Convenience method returning both normalized domain contracts."""
-        agg = self.parse_aggregate(tool, raw_data, test_id)
+        agg = self.parse_aggregate(tool, raw_data, test_id, options=options)
         ts = self.parse_timeseries(tool, raw_data, test_id)
         return agg, ts
 

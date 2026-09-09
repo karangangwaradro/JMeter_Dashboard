@@ -64,9 +64,12 @@ def _log_ai_prompt(provider: str, model: str, prompt: str, action: str = "insigh
         with open(_DEBUG_LOG_FILE, "a", encoding="utf-8", errors="replace") as f:
             f.write(f"[{ts}] [PROMPT] provider={provider} model={model} action={action} chars={len(prompt)} tokens~{tokens_est}\n")
             
+        prompt_snippet = prompt.strip()[:400].replace("\n", " ")
+        safe_prompt = prompt_snippet.encode(getattr(sys.stdout, "encoding", None) or "utf-8", errors="replace").decode(getattr(sys.stdout, "encoding", None) or "utf-8")
         print(f"\n{'='*80}", flush=True)
         print(f"[AI ENGINE] >>> DISPATCHING PROMPT TO: {provider.upper()} ({model})", flush=True)
         print(f"[AI ENGINE] Action: {action} | Length: {len(prompt):,} chars (~{tokens_est:,} tokens)", flush=True)
+        print(f"[AI ENGINE] Prompt Preview: {safe_prompt}...", flush=True)
         print(f"[AI ENGINE] Full Prompt Saved to: logs/ai_last_prompt.txt", flush=True)
         print(f"{'='*80}\n", flush=True)
     except Exception as e:
@@ -121,9 +124,9 @@ def _log_ai_response(provider: str, model: str, raw_text: str, elapsed_ms: int,
         print(f"[AI ENGINE] Token Consumption: {usage_str}", flush=True)
         print(f"[AI ENGINE] Full Raw Response Saved to: logs/ai_last_response.txt", flush=True)
         if raw_text:
-            snippet = raw_text.strip()[:300].replace("\n", " ")
+            snippet = raw_text.strip()[:400].replace("\n", " ")
             safe_snippet = snippet.encode(getattr(sys.stdout, "encoding", None) or "utf-8", errors="replace").decode(getattr(sys.stdout, "encoding", None) or "utf-8")
-            print(f"[AI ENGINE] Preview: {safe_snippet}...", flush=True)
+            print(f"[AI ENGINE] Response Preview: {safe_snippet}...", flush=True)
         if error:
             safe_err = str(error).encode(getattr(sys.stdout, "encoding", None) or "utf-8", errors="replace").decode(getattr(sys.stdout, "encoding", None) or "utf-8")
             print(f"[AI ENGINE] Error Detail: {safe_err}", flush=True)
@@ -669,11 +672,13 @@ def generate_ai_insights(test_name: str, summary: dict, labels: dict,
                          users: int = 1, rampup: int = 0) -> dict:
     """Generate full AI performance intelligence insights with transparent logging and multi-provider cascade."""
     _load_env()
-    preferred_provider = os.environ.get("DEFAULT_AI_PROVIDER", "").strip().lower()
-    preferred_model = os.environ.get("DEFAULT_AI_MODEL", "").strip()
     openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
     github_token = os.environ.get("GITHUB_TOKEN", "").strip()
+    preferred_provider = os.environ.get("DEFAULT_AI_PROVIDER", "").strip().lower()
+    if not preferred_provider:
+        preferred_provider = "openrouter" if openrouter_key else "gemini" if gemini_key else "github" if github_token else ""
+    preferred_model = os.environ.get("DEFAULT_AI_MODEL", "").strip()
 
     prompt = build_insights_prompt(
         test_name, summary, labels, time_series, infra, correlation,
@@ -886,6 +891,8 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
         
         fallbacks = [
             "openrouter/free",
+            "meta-llama/llama-3.3-70b-instruct:free",
+            "google/gemini-2.0-flash-exp:free",
             "google/gemma-4-31b-it:free",
             "liquid/lfm-2.5-2.6b:free",
             "dots-studio/dots-3-note-preview:free"
@@ -914,7 +921,7 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
                         "Content-Type": "application/json"
                     }
                 )
-                with urllib.request.urlopen(req, timeout=25) as resp:
+                with urllib.request.urlopen(req, timeout=60) as resp:
                     res_data = json.loads(resp.read().decode("utf-8"))
                     choices = res_data.get("choices", [])
                     if choices:
@@ -942,8 +949,10 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
 
     # 2. Gemini Direct Fallback
     if gemini_key:
+        m = _normalize_model_for_provider("gemini", pref_model)
+        chat_prompt_str = f"SYSTEM:\n{system_prompt}\n\nMESSAGES:\n" + "\n".join(f"[{msg.get('role')}]: {msg.get('content')}" for msg in sanitized_messages)
         try:
-            m = _normalize_model_for_provider("gemini", pref_model)
+            _log_ai_prompt("gemini", m, chat_prompt_str, action="chat")
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
             
             contents = []
@@ -967,28 +976,44 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
                 data=json.dumps(gemini_payload).encode("utf-8"),
                 headers={"Content-Type": "application/json"}
             )
-            with urllib.request.urlopen(req, timeout=25) as resp:
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 res_data = json.loads(resp.read().decode("utf-8"))
                 candidates = res_data.get("candidates", [])
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     reply = parts[0].get("text", "") if parts else ""
                     elapsed_ms = int((time.time() - start_time) * 1000)
-                    return reply.strip(), "gemini", elapsed_ms
+                    meta = res_data.get("usageMetadata", {})
+                    usage = {
+                        "prompt_tokens": meta.get("promptTokenCount", 0),
+                        "completion_tokens": meta.get("candidatesTokenCount", 0),
+                        "total_tokens": meta.get("totalTokenCount", 0)
+                    }
+                    _log_ai_response("gemini", m, reply, elapsed_ms=elapsed_ms, status="OK", token_usage=usage)
+                    return reply.strip(), f"gemini ({m})", elapsed_ms
         except urllib.error.HTTPError as err:
             err_body = err.read().decode("utf-8", errors="replace")
-            msg_err = f"Gemini [{err.code}]: {err_body[:120]}"
+            try:
+                err_json = json.loads(err_body)
+                err_detail = err_json.get("error", {}).get("message", err_body)
+            except Exception:
+                err_detail = err_body
+            msg_err = f"Gemini [{err.code}]: {err_detail[:120]}"
             print(f"[AI Chat] {msg_err}", flush=True)
+            _log_ai_response("gemini", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
         except Exception as e:
             msg_err = f"Gemini: {str(e)}"
             print(f"[AI Chat] {msg_err}", flush=True)
+            _log_ai_response("gemini", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
 
     # 3. GitHub Models Fallback
     if github_token:
+        m = _normalize_model_for_provider("github", pref_model)
+        chat_prompt_str = f"SYSTEM:\n{system_prompt}\n\nMESSAGES:\n" + "\n".join(f"[{msg.get('role')}]: {msg.get('content')}" for msg in sanitized_messages)
         try:
-            m = _normalize_model_for_provider("github", pref_model)
+            _log_ai_prompt("github", m, chat_prompt_str, action="chat")
             payload_msgs = [{"role": "system", "content": system_prompt}] + sanitized_messages
             req = urllib.request.Request("https://models.inference.ai.azure.com/chat/completions",
                 data=json.dumps({
@@ -1001,21 +1026,35 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
                     "Content-Type": "application/json"
                 }
             )
-            with urllib.request.urlopen(req, timeout=25) as resp:
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 res_data = json.loads(resp.read().decode("utf-8"))
                 choices = res_data.get("choices", [])
                 if choices:
                     reply = choices[0]["message"]["content"]
                     elapsed_ms = int((time.time() - start_time) * 1000)
-                    return reply.strip(), "github", elapsed_ms
+                    raw_usage = res_data.get("usage", {})
+                    usage = {
+                        "prompt_tokens": raw_usage.get("prompt_tokens", 0),
+                        "completion_tokens": raw_usage.get("completion_tokens", 0),
+                        "total_tokens": raw_usage.get("total_tokens", 0)
+                    }
+                    _log_ai_response("github", m, reply, elapsed_ms=elapsed_ms, status="OK", token_usage=usage)
+                    return reply.strip(), f"github ({m})", elapsed_ms
         except urllib.error.HTTPError as err:
             err_body = err.read().decode("utf-8", errors="replace")
-            msg_err = f"GitHub AI [{err.code}]: {err_body[:120]}"
+            try:
+                err_json = json.loads(err_body)
+                err_detail = err_json.get("error", {}).get("message", err_body)
+            except Exception:
+                err_detail = err_body
+            msg_err = f"GitHub AI [{err.code}]: {err_detail[:120]}"
             print(f"[AI Chat] {msg_err}", flush=True)
+            _log_ai_response("github", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
         except Exception as e:
             msg_err = f"GitHub AI: {str(e)}"
             print(f"[AI Chat] {msg_err}", flush=True)
+            _log_ai_response("github", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
 
     if errors_log:

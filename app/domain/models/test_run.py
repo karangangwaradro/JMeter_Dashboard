@@ -27,6 +27,7 @@ class ThreadGroupConfig(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     name: str = "__all__"
+    enabled: bool = True
     users: int = 1
     duration: str = "0"
     rampup: str = "0"
@@ -55,6 +56,7 @@ class TestExecutionStatus(BaseModel):
     tool: ToolType
     status: str = Field(default="idle", description="'idle', 'running', 'completed', 'failed', 'stopped'")
     active: bool = False
+    running: bool = False
     done: bool = False
     progress_pct: float = 0.0
     elapsed_seconds: float = 0.0

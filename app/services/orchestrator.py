@@ -48,14 +48,27 @@ class TestWorkflowOrchestrator:
         """
         options = options or {}
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        run_id = f"run_{timestamp}"
+        run_id = options.get("run_id") or (identifier if identifier.startswith("run_") and not identifier.endswith(".jtl") else f"run_{timestamp}")
         actual_test_name = test_name or Path(identifier).stem
 
         # Step 1: Collect / Ingest raw artifact
         raw_path = collection_service.collect(tool, ingestion, identifier, options)
 
         # Step 2: Parse into typed domain contracts
-        agg_result, ts_result = parsing_service.parse_all(tool, raw_path, run_id)
+        parse_options = {"test_name": actual_test_name, "jmx_name": actual_test_name, **options}
+        agg_result, ts_result = parsing_service.parse_all(tool, raw_path, run_id, options=parse_options)
+
+        # Resolve total concurrent users from JMX if default was passed
+        if users <= 1 and actual_test_name:
+            try:
+                from app.services.analytics.sla_manager import parse_jmx_thread_groups
+                tgs = parse_jmx_thread_groups(actual_test_name)
+                if tgs:
+                    total_jmx_users = sum(tg.get("users", 1) for tg in tgs if tg.get("enabled", True))
+                    if total_jmx_users > users:
+                        users = total_jmx_users
+            except Exception:
+                pass
 
         # Step 3: Optional Server Metrics
         server_metrics = None
@@ -64,7 +77,35 @@ class TestWorkflowOrchestrator:
             from app.server_metrics.csv.parser import csv_metrics_parser
             server_metrics = csv_metrics_parser.parse_server_metrics(Path(srv_file))
 
+        # Step 3.5: AI Insights Generation (Multi-Provider Cascade)
+        ai_insights = options.get("ai_insights")
+        if not ai_insights:
+            try:
+                from app.services.ai.insights import generate_insights
+                from app.services.analytics.sla_manager import load_sla_targets
+                logger.info(f"Generating AI performance insights for {run_id}...")
+                sla_targets, default_rt, default_err = load_sla_targets(actual_test_name, actual_users=users)
+                all_lbls_dict = agg_result.all_labels if agg_result.all_labels else agg_result.transactions
+                ai_insights = generate_insights(
+                    test_name=actual_test_name,
+                    summary=agg_result.model_dump(),
+                    labels={k: v.model_dump() for k, v in all_lbls_dict.items()},
+                    time_series=ts_result.model_dump(),
+                    infra=server_metrics.model_dump() if server_metrics else {},
+                    correlation={},
+                    sla_targets=sla_targets,
+                    default_rt=default_rt,
+                    default_err=default_err,
+                    users=users,
+                    rampup=int(options.get("rampup", 0)),
+                )
+                if ai_insights:
+                    logger.info(f"AI insights generated successfully for {run_id} (source={ai_insights.get('source')})")
+            except Exception as ai_err:
+                logger.warning(f"AI insights generation skipped: {ai_err}")
+
         # Step 4: Validate and serialize modular artifacts
+        has_ai = bool(ai_insights and ai_insights.get("source") != "none")
         metadata = TestRunMetadata(
             id=run_id,
             tool=tool.value,
@@ -82,7 +123,7 @@ class TestWorkflowOrchestrator:
             throughput=agg_result.throughput,
             duration_sec=agg_result.duration_seconds,
             has_azure=bool(server_metrics and server_metrics.configured),
-            has_ai_insights=False,
+            has_ai_insights=has_ai,
             report_file=f"{run_id}_report.html",
             result_file=f"{run_id}_result.json",
             status="passed" if agg_result.error_rate <= 1.0 else "warning" if agg_result.error_rate <= 5.0 else "failed",
@@ -98,9 +139,15 @@ class TestWorkflowOrchestrator:
 
         # Also write legacy run_{timestamp}_result.json for existing compare & trend features
         legacy_result_path = RESULTS_JSON_DIR / f"{run_id}_result.json"
+        all_lbls_dict = agg_result.all_labels if agg_result.all_labels else agg_result.transactions
         legacy_data = {
             "summary": agg_result.model_dump(),
-            "labels": {k: v.model_dump() for k, v in agg_result.transactions.items()},
+            "labels": {k: v.model_dump() for k, v in all_lbls_dict.items()},
+            "labels_by_tg": {
+                tg: {k: v.model_dump() for k, v in lbls.items()}
+                for tg, lbls in agg_result.transactions_by_thread_group.items()
+            },
+            "hierarchy_tree": agg_result.hierarchy_tree,
             "time_series": {
                 "ts_labels": ts_result.bucket_labels,
                 "ts_avg_rt": ts_result.avg_response_time,
@@ -114,6 +161,7 @@ class TestWorkflowOrchestrator:
             "users": users,
             "run_id": run_id,
             "execution_time": metadata.timestamp,
+            "ai_insights": ai_insights or {},
         }
         legacy_result_path.write_text(json.dumps(legacy_data, indent=2), encoding="utf-8")
 
@@ -123,8 +171,9 @@ class TestWorkflowOrchestrator:
             aggregate=agg_result,
             timeseries=ts_result,
             server_metrics=server_metrics,
+            ai_insights=ai_insights or {},
             output_path=report_path,
-            options={"test_name": actual_test_name, "users": users},
+            options={"test_name": actual_test_name, "jmx_name": actual_test_name, "users": users},
         )
 
         # Step 6: Update historical catalog data/runs.json

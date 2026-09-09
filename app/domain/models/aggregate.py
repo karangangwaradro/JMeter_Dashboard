@@ -23,6 +23,12 @@ class TransactionMetric(BaseModel):
     p99: float = Field(default=0.0, description="99th percentile response time in ms")
     samples: List[int] = Field(default_factory=list, description="Raw response time samples (optional)")
     success_flags: List[bool] = Field(default_factory=list, description="Success boolean for samples (optional)")
+    item_type: str = Field(default="MAIN_TRANSACTION", description="MAIN_TRANSACTION | HTTP_REQUEST")
+    item_type_label: str = Field(default="Main Transaction", description="Display label for item type")
+    parent_tc: Optional[str] = Field(default=None, description="Name of parent Transaction Controller")
+    depth: int = Field(default=0, description="Hierarchy depth: 0=Main, 1=Request")
+    user_story: Optional[str] = Field(default=None, description="Associated Thread Group / User Story")
+    child_requests: List[str] = Field(default_factory=list, description="Child HTTP request names under this transaction")
 
 
 class ErrorOccurrence(BaseModel):
@@ -74,14 +80,28 @@ class AggregateResult(BaseModel):
     start_epoch: int = Field(default=0, description="Unix timestamp of test start")
     end_epoch: int = Field(default=0, description="Unix timestamp of test end")
 
-    # Transaction-level breakdown
+    # Transaction-level breakdown (actual transaction controllers)
     transactions: Dict[str, TransactionMetric] = Field(
         default_factory=dict,
-        description="Keyed by transaction label"
+        description="Keyed by transaction label (only transaction controllers)"
+    )
+    # HTTP requests breakdown
+    http_requests: Dict[str, TransactionMetric] = Field(
+        default_factory=dict,
+        description="Keyed by HTTP request sampler label"
+    )
+    # Complete map of all sample labels
+    all_labels: Dict[str, TransactionMetric] = Field(
+        default_factory=dict,
+        description="Complete map of all sample labels (transactions + requests)"
     )
     transactions_by_thread_group: Dict[str, Dict[str, TransactionMetric]] = Field(
         default_factory=dict,
         description="Thread group -> transaction label -> metrics"
+    )
+    hierarchy_tree: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Full compiled tree: User Story -> Transaction -> Requests"
     )
     errors_breakdown: Dict[str, ErrorDetail] = Field(
         default_factory=dict,
