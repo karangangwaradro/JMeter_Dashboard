@@ -53,6 +53,16 @@ def recompile_latest(regen_ai: bool = True):
             infra_summary = azure_data.get("infra_summary", {}) if isinstance(azure_data, dict) else {}
 
             infra_to_pass = azure_data if (isinstance(azure_data, dict) and azure_data) else infra_summary
+            error_details = (
+                parsed.get("error_details")
+                or parsed.get("summary", {}).get("errors_breakdown")
+                or {}
+            )
+            labels_by_tg = (
+                parsed.get("labels_by_tg")
+                or parsed.get("summary", {}).get("transactions_by_thread_group")
+                or {}
+            )
             print("Generating fresh AI insights...", flush=True)
             fresh_ai = generate_insights(
                 test_name=jmx_name,
@@ -64,9 +74,10 @@ def recompile_latest(regen_ai: bool = True):
                 sla_targets=sla_targets,
                 default_rt=default_rt,
                 default_err=default_err,
-                error_details=parsed.get("error_details", {}),
+                error_details=error_details,
                 users=actual_users,
                 rampup=parsed.get("rampup", 0),
+                labels_by_tg=labels_by_tg,
             )
             if fresh_ai and fresh_ai.get("source") != "none":
                 parsed["ai_insights"] = fresh_ai

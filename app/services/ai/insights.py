@@ -634,9 +634,19 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "go
                     _log_ai_response("openrouter", norm_model, "", elapsed_ms=elapsed_ms, status="ERROR", error=f"HTTP 402: {err_msg}")
                     raise Exception(f"OpenRouter Error (402 Insufficient Credits): {err_msg}")
             else:
-                elapsed_ms = int((time.time() - start_time) * 1000)
-                _log_ai_response("openrouter", norm_model, "", elapsed_ms=elapsed_ms, status="ERROR", error=f"HTTP 402: {err_msg}")
-                raise Exception(f"OpenRouter Error (402 Insufficient Credits): {err_msg}")
+                if norm_model != "openrouter/free":
+                    print(f"[AI ENGINE] [CREDIT LIMIT DETECTED] OpenRouter 402 ({norm_model}): Auto-falling back to openrouter/free...", flush=True)
+                    try:
+                        norm_model = "openrouter/free"
+                        content, usage = _do_call(4000)
+                    except Exception as free_err:
+                        elapsed_ms = int((time.time() - start_time) * 1000)
+                        _log_ai_response("openrouter", norm_model, "", elapsed_ms=elapsed_ms, status="ERROR", error=f"Fallback to free failed: {free_err}")
+                        raise Exception(f"OpenRouter Error (402 Insufficient Credits): {err_msg}")
+                else:
+                    elapsed_ms = int((time.time() - start_time) * 1000)
+                    _log_ai_response("openrouter", norm_model, "", elapsed_ms=elapsed_ms, status="ERROR", error=f"HTTP 402: {err_msg}")
+                    raise Exception(f"OpenRouter Error (402 Insufficient Credits): {err_msg}")
         else:
             elapsed_ms = int((time.time() - start_time) * 1000)
             _log_ai_response("openrouter", norm_model, "", elapsed_ms=elapsed_ms, status="ERROR", error=f"HTTP {err.code}: {err_msg}")
@@ -669,7 +679,8 @@ def generate_ai_insights(test_name: str, summary: dict, labels: dict,
                          time_series: dict, infra: dict, correlation: dict,
                          sla_targets: dict = None, default_rt: float = 500.0,
                          default_err: float = 1.0, error_details: dict = None,
-                         users: int = 1, rampup: int = 0) -> dict:
+                         users: int = 1, rampup: int = 0,
+                         labels_by_tg: dict = None) -> dict:
     """Generate full AI performance intelligence insights with transparent logging and multi-provider cascade."""
     _load_env()
     openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
@@ -680,10 +691,16 @@ def generate_ai_insights(test_name: str, summary: dict, labels: dict,
         preferred_provider = "openrouter" if openrouter_key else "gemini" if gemini_key else "github" if github_token else ""
     preferred_model = os.environ.get("DEFAULT_AI_MODEL", "").strip()
 
+    if not error_details and summary and isinstance(summary, dict):
+        error_details = summary.get("errors_breakdown") or {}
+    if not labels_by_tg and summary and isinstance(summary, dict):
+        labels_by_tg = summary.get("transactions_by_thread_group") or {}
+
     prompt = build_insights_prompt(
         test_name, summary, labels, time_series, infra, correlation,
         sla_targets=sla_targets, default_rt=default_rt, default_err=default_err,
-        error_details=error_details, users=users, rampup=rampup
+        error_details=error_details, users=users, rampup=rampup,
+        labels_by_tg=labels_by_tg
     )
 
     # 1. Attempt preferred provider first

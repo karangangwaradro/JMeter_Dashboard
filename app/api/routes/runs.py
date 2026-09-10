@@ -104,6 +104,16 @@ def recompile_report_endpoint(req: Optional[RecompileRequest] = None) -> Dict[st
 
                     print(f"\n[RECOMPILE] Regenerating AI performance insights for '{run_id}' (JMX={jmx_name}, Users={users})...", flush=True)
                     sla_targets, default_rt, default_err = load_sla_targets(jmx_name, actual_users=users)
+                    error_details = (
+                        parsed.get("error_details")
+                        or parsed.get("summary", {}).get("errors_breakdown")
+                        or {}
+                    )
+                    labels_by_tg = (
+                        parsed.get("labels_by_tg")
+                        or parsed.get("summary", {}).get("transactions_by_thread_group")
+                        or {}
+                    )
                     fresh_ai = generate_insights(
                         test_name=jmx_name,
                         summary=parsed.get("summary", {}),
@@ -114,9 +124,10 @@ def recompile_report_endpoint(req: Optional[RecompileRequest] = None) -> Dict[st
                         sla_targets=sla_targets,
                         default_rt=default_rt,
                         default_err=default_err,
-                        error_details=parsed.get("error_details", {}),
+                        error_details=error_details,
                         users=users,
                         rampup=int(rampup if str(rampup).isdigit() else 0),
+                        labels_by_tg=labels_by_tg,
                     )
 
                     if fresh_ai:

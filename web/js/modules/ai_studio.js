@@ -4,15 +4,12 @@ let currentStudioRunId = null;
 let currentStudioRunData = null;
 let currentStudioInsights = null;
 
-document.addEventListener("DOMContentLoaded", () => {
-    initAiStudio();
-});
-
-function initAiStudio() {
+export function initAiStudio() {
     loadStudioRuns();
 
     const runSelect = document.getElementById("studio-run-select");
-    if (runSelect) {
+    if (runSelect && !runSelect.dataset.listenerBound) {
+        runSelect.dataset.listenerBound = "true";
         runSelect.addEventListener("change", (e) => {
             const selected = e.target.value;
             if (selected) {
@@ -22,21 +19,24 @@ function initAiStudio() {
     }
 
     const generateBtn = document.getElementById("studio-generate-btn");
-    if (generateBtn) {
+    if (generateBtn && !generateBtn.dataset.listenerBound) {
+        generateBtn.dataset.listenerBound = "true";
         generateBtn.addEventListener("click", () => {
             generateStudioInsights();
         });
     }
 
     const saveBtn = document.getElementById("studio-save-btn");
-    if (saveBtn) {
+    if (saveBtn && !saveBtn.dataset.listenerBound) {
+        saveBtn.dataset.listenerBound = "true";
         saveBtn.addEventListener("click", () => {
             saveStudioInsights();
         });
     }
 
     const resetPromptBtn = document.getElementById("studio-reset-prompt-btn");
-    if (resetPromptBtn) {
+    if (resetPromptBtn && !resetPromptBtn.dataset.listenerBound) {
+        resetPromptBtn.dataset.listenerBound = "true";
         resetPromptBtn.addEventListener("click", () => {
             if (currentStudioRunId) {
                 loadRunPromptPreview(currentStudioRunId);
@@ -45,7 +45,8 @@ function initAiStudio() {
     }
 
     const copyPromptBtn = document.getElementById("studio-copy-prompt-btn");
-    if (copyPromptBtn) {
+    if (copyPromptBtn && !copyPromptBtn.dataset.listenerBound) {
+        copyPromptBtn.dataset.listenerBound = "true";
         copyPromptBtn.addEventListener("click", () => {
             const promptText = document.getElementById("studio-prompt-input")?.value || "";
             navigator.clipboard.writeText(promptText);
@@ -54,7 +55,8 @@ function initAiStudio() {
     }
 
     const copyJsonBtn = document.getElementById("studio-copy-json-btn");
-    if (copyJsonBtn) {
+    if (copyJsonBtn && !copyJsonBtn.dataset.listenerBound) {
+        copyJsonBtn.dataset.listenerBound = "true";
         copyJsonBtn.addEventListener("click", () => {
             if (currentStudioInsights) {
                 navigator.clipboard.writeText(JSON.stringify(currentStudioInsights, null, 2));
@@ -65,7 +67,7 @@ function initAiStudio() {
 }
 
 // ── Load available runs into dropdown ──────────────────────────────────────────
-async function loadStudioRuns() {
+export async function loadStudioRuns() {
     const runSelect = document.getElementById("studio-run-select");
     if (!runSelect) return;
 
@@ -78,13 +80,21 @@ async function loadStudioRuns() {
                 const opt = document.createElement("option");
                 opt.value = r.id;
                 const aiBadge = r.has_ai ? `[AI: ${r.ai_grade || 'Ready'}]` : "[No AI]";
-                opt.textContent = `${r.id} · ${r.jmx_name} (${r.summary.total} reqs, ${r.summary.avg_rt.toFixed(0)}ms) ${aiBadge}`;
+                const s = r.summary || {};
+                const total = s.total ?? s.total_requests ?? 0;
+                const avgRt = s.avg_rt ?? s.avg_response_time ?? 0;
+                const formattedAvgRt = typeof avgRt === "number" ? avgRt.toFixed(0) : avgRt;
+                opt.textContent = `${r.id} · ${r.jmx_name || 'Scenario'} (${total} reqs, ${formattedAvgRt}ms) ${aiBadge}`;
                 runSelect.appendChild(opt);
             });
 
-            // Auto-select the most recent run
-            runSelect.selectedIndex = 1;
-            loadRunPromptPreview(data.runs[0].id);
+            // Preserve current selection if present, else auto-select the latest run
+            if (currentStudioRunId && Array.from(runSelect.options).some(o => o.value === currentStudioRunId)) {
+                runSelect.value = currentStudioRunId;
+            } else {
+                runSelect.selectedIndex = 1;
+                loadRunPromptPreview(data.runs[0].id);
+            }
         } else {
             runSelect.innerHTML = '<option value="">No past test runs found</option>';
         }
@@ -95,7 +105,8 @@ async function loadStudioRuns() {
 }
 
 // ── Fetch prompt preview & telemetry for chosen run ───────────────────────────
-async function loadRunPromptPreview(runId) {
+export async function loadRunPromptPreview(runId) {
+    if (!runId) return;
     currentStudioRunId = runId;
     const promptInput = document.getElementById("studio-prompt-input");
     const statusChip = document.getElementById("studio-status-indicator");
@@ -131,7 +142,7 @@ async function loadRunPromptPreview(runId) {
 }
 
 // ── Update KPI & Telemetry Strip ──────────────────────────────────────────────
-function updateStudioTelemetryDisplay(data) {
+export function updateStudioTelemetryDisplay(data) {
     const s = data.summary || {};
     const inf = data.infra || {};
 
@@ -141,15 +152,20 @@ function updateStudioTelemetryDisplay(data) {
     const elErr = document.getElementById("kpi-studio-err");
     const elCpu = document.getElementById("kpi-studio-cpu");
 
-    if (elTotal) elTotal.textContent = (s.total || 0).toLocaleString();
-    if (elAvg) elAvg.textContent = `${(s.avg_rt || 0).toFixed(0)} ms`;
-    if (elP95) elP95.textContent = `${s.p95 || 0} ms`;
-    if (elErr) elErr.textContent = `${(s.error_rate || 0).toFixed(2)}%`;
-    if (elCpu) elCpu.textContent = inf.max_cpu ? `${inf.max_cpu.toFixed(1)}%` : "N/A";
+    const total = s.total ?? s.total_requests ?? 0;
+    const avgRt = s.avg_rt ?? s.avg_response_time ?? 0;
+    const p95 = s.p95 ?? s.p95_response_time ?? 0;
+    const errRate = s.error_rate ?? s.err_pct ?? 0;
+
+    if (elTotal) elTotal.textContent = typeof total === "number" ? total.toLocaleString() : total;
+    if (elAvg) elAvg.textContent = typeof avgRt === "number" ? `${avgRt.toFixed(0)} ms` : `${avgRt} ms`;
+    if (elP95) elP95.textContent = typeof p95 === "number" ? `${p95.toFixed(0)} ms` : `${p95} ms`;
+    if (elErr) elErr.textContent = typeof errRate === "number" ? `${errRate.toFixed(2)}%` : `${errRate}%`;
+    if (elCpu) elCpu.textContent = (inf.max_cpu !== undefined && inf.max_cpu !== null) ? `${Number(inf.max_cpu).toFixed(1)}%` : "N/A";
 }
 
 // ── Quick Prompt Rule Inserters ───────────────────────────────────────────────
-function appendStudioPromptRule(ruleText) {
+export function appendStudioPromptRule(ruleText) {
     const promptInput = document.getElementById("studio-prompt-input");
     if (!promptInput) return;
     promptInput.value = promptInput.value.trim() + "\n\nADDITIONAL USER INSTRUCTION:\n" + ruleText;
@@ -158,7 +174,7 @@ function appendStudioPromptRule(ruleText) {
 }
 
 // ── Execute AI Insights Generation ───────────────────────────────────────────
-async function generateStudioInsights() {
+export async function generateStudioInsights() {
     const promptInput = document.getElementById("studio-prompt-input");
     const modelSelect = document.getElementById("studio-model-select");
     const tempInput = document.getElementById("studio-temp-input");
@@ -223,7 +239,7 @@ async function generateStudioInsights() {
 }
 
 // ── Save Refined Insights to Run JSON ─────────────────────────────────────────
-async function saveStudioInsights() {
+export async function saveStudioInsights() {
     if (!currentStudioRunId || !currentStudioInsights) {
         showStudioToast("No insights to save! Generate or load insights first.", true);
         return;
@@ -261,10 +277,20 @@ async function saveStudioInsights() {
 }
 
 // ── Render Generated Insights into Output Panel ───────────────────────────────
-function renderStudioInsights(insights, elapsedMs, modelName) {
+export function renderStudioInsights(insights, elapsedMs, modelName) {
+    if (typeof insights === "string") {
+        try {
+            insights = JSON.parse(insights);
+        } catch {
+            insights = { executive_summary: insights, performance_score: "--", performance_grade: "--" };
+        }
+    }
+    if (!insights || typeof insights !== "object") {
+        insights = {};
+    }
+
     const scoreBadge = document.getElementById("studio-score-badge");
     const execTextEl = document.getElementById("studio-exec-summary-text");
-    const container = document.getElementById("studio-output-container");
     const jsonEl = document.getElementById("studio-raw-json");
 
     if (scoreBadge) {
@@ -287,14 +313,14 @@ function renderStudioInsights(insights, elapsedMs, modelName) {
     renderStudioTabIntelView(insights);
 }
 
-function renderStudioFindingsView(insights) {
+export function renderStudioFindingsView(insights) {
     const findingsContainer = document.getElementById("studio-view-findings");
     if (!findingsContainer) return;
 
     let html = "";
 
     // Data Quality
-    const dqList = insights.data_quality_findings || [];
+    const dqList = Array.isArray(insights?.data_quality_findings) ? insights.data_quality_findings : [];
     if (dqList.length > 0) {
         html += '<div style="margin-bottom:1rem;"><h4 style="color:#f59e0b; margin:0 0 0.5rem 0; font-size:0.88rem;">⚠️ Data Quality Warnings</h4>';
         dqList.forEach(dq => {
@@ -309,7 +335,7 @@ function renderStudioFindingsView(insights) {
     }
 
     // Root Cause Assessments
-    const rcList = insights.root_cause_assessment || [];
+    const rcList = insights?.root_cause_assessment || [];
     html += '<h4 style="color:#60a5fa; margin:0 0 0.5rem 0; font-size:0.88rem;">🔍 Root-Cause Assessments &amp; Outliers</h4>';
     if (Array.isArray(rcList) && rcList.length > 0) {
         rcList.forEach(rc => {
@@ -326,7 +352,7 @@ function renderStudioFindingsView(insights) {
                 ${rc.recommended_investigation ? `<div style="color:#93c5fd; font-size:0.78rem; margin-top:0.3rem;"><strong>Investigation:</strong> ${rc.recommended_investigation}</div>` : ''}
             </div>`;
         });
-    } else if (typeof rcList === "object" && rcList.assessment) {
+    } else if (typeof rcList === "object" && rcList !== null && rcList.assessment) {
         html += `
         <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.8rem 1rem; font-size:0.82rem;">
             <div style="font-weight:700; color:var(--text);">${rcList.primary_bottleneck || 'Primary Bottleneck'}</div>
@@ -339,11 +365,11 @@ function renderStudioFindingsView(insights) {
     findingsContainer.innerHTML = html;
 }
 
-function renderStudioRecommendationsView(insights) {
+export function renderStudioRecommendationsView(insights) {
     const recsContainer = document.getElementById("studio-view-recs");
     if (!recsContainer) return;
 
-    const recs = insights.recommendations || [];
+    const recs = Array.isArray(insights?.recommendations) ? insights.recommendations : [];
     if (recs.length === 0) {
         recsContainer.innerHTML = '<p style="color:var(--muted); font-size:0.84rem;">No recommendations generated for this run.</p>';
         return;
@@ -352,10 +378,10 @@ function renderStudioRecommendationsView(insights) {
     let html = "";
     recs.forEach(r => {
         const pri = r.priority || "Medium";
-        const priClass = pri.toLowerCase();
+        const priClass = String(pri).toLowerCase();
         const actions = Array.isArray(r.action) ? r.action : (r.action ? [r.action] : []);
         const actionHtml = actions.length > 0
-            ? `<div style="margin-top:0.4rem; font-size:0.8rem;"><strong>Action Plan:</strong><ul style="margin:0.2rem 0 0 1.1rem; padding:0;">${actions.map(a => `<li style="margin-bottom:0.2rem;">${a}</li>`).join('')}</ul></div>`
+            ? `<div style="margin-top:0.4rem; font-size:0.8rem;"><strong>Action Plan:</strong><ul style="margin:0.2rem 0 0 1.1rem; padding:0;">${actions.map(a => `<li style="margin-bottom:0.25rem;">${a}</li>`).join('')}</ul></div>`
             : '';
 
         html += `
@@ -375,11 +401,11 @@ function renderStudioRecommendationsView(insights) {
     recsContainer.innerHTML = html;
 }
 
-function renderStudioTabIntelView(insights) {
+export function renderStudioTabIntelView(insights) {
     const tabContainer = document.getElementById("studio-view-tabs");
     if (!tabContainer) return;
 
-    const pi = insights.performance_intelligence || {};
+    const pi = insights?.performance_intelligence || {};
     const tabs = [
         { key: "tab_tx_stats", name: "Transaction Performance", icon: "⚡" },
         { key: "tab_rt_stats", name: "Response Times & SLA", icon: "⏱️" },
@@ -390,8 +416,8 @@ function renderStudioTabIntelView(insights) {
     let html = "";
     tabs.forEach(t => {
         const item = pi[t.key] || {};
-        const obs = item.observations || [];
-        const recs = item.recommendations || [];
+        const obs = Array.isArray(item.observations) ? item.observations : [];
+        const recs = Array.isArray(item.recommendations) ? item.recommendations : [];
         html += `
         <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.9rem 1.1rem; margin-bottom:0.75rem;">
             <div style="font-size:0.88rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">${t.icon} ${t.name}</div>
@@ -415,7 +441,7 @@ function renderStudioTabIntelView(insights) {
     tabContainer.innerHTML = html;
 }
 
-function renderStudioEmptyPlaceholder(msg) {
+export function renderStudioEmptyPlaceholder(msg) {
     const container = document.getElementById("studio-view-findings");
     if (container) container.innerHTML = `<p style="color:var(--muted); font-size:0.85rem; padding:1rem 0;">${msg}</p>`;
     const recs = document.getElementById("studio-view-recs");
@@ -425,7 +451,7 @@ function renderStudioEmptyPlaceholder(msg) {
 }
 
 // ── Switch Studio Output Sub-tabs ─────────────────────────────────────────────
-function switchStudioOutputTab(tabName) {
+export function switchStudioOutputTab(tabName) {
     document.querySelectorAll(".ai-output-tab-btn").forEach(btn => {
         btn.classList.toggle("active", btn.getAttribute("data-out-tab") === tabName);
     });
@@ -439,7 +465,7 @@ function switchStudioOutputTab(tabName) {
 }
 
 // ── Toast Notification Helper ─────────────────────────────────────────────────
-function showStudioToast(msg, isError = false) {
+export function showStudioToast(msg, isError = false) {
     let toast = document.getElementById("studio-toast");
     if (!toast) {
         toast = document.createElement("div");
@@ -466,4 +492,25 @@ function showStudioToast(msg, isError = false) {
         toast.style.opacity = "0";
         toast.style.transform = "translateY(10px)";
     }, 3500);
+}
+
+// ── Global Window Bindings for Inline Event Handlers & Core Router ───────────
+window.initAiStudio = initAiStudio;
+window.loadStudioRuns = loadStudioRuns;
+window.loadRunPromptPreview = loadRunPromptPreview;
+window.updateStudioTelemetryDisplay = updateStudioTelemetryDisplay;
+window.appendStudioPromptRule = appendStudioPromptRule;
+window.generateStudioInsights = generateStudioInsights;
+window.saveStudioInsights = saveStudioInsights;
+window.renderStudioInsights = renderStudioInsights;
+window.renderStudioFindingsView = renderStudioFindingsView;
+window.renderStudioRecommendationsView = renderStudioRecommendationsView;
+window.renderStudioTabIntelView = renderStudioTabIntelView;
+window.switchStudioOutputTab = switchStudioOutputTab;
+window.showStudioToast = showStudioToast;
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAiStudio);
+} else {
+    initAiStudio();
 }

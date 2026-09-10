@@ -20,6 +20,7 @@ import json
 import re
 from pathlib import Path
 from datetime import datetime
+from app.core.constants import STORAGE_NORMALIZED_DIR, RESULTS_DIR
 
 
 def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
@@ -41,8 +42,50 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
     Returns:
         dict: Context dictionary with all computed values for rendering
     """
-    summary = parsed.get("summary", {})
+    summary = dict(parsed.get("summary", {}) or {})
+    # ── Normalize summary keys across normalized schema & legacy JSON ────────
+    if not summary.get("avg_rt") and summary.get("avg_response_time"):
+        summary["avg_rt"] = summary["avg_response_time"]
+    elif not summary.get("avg_response_time") and summary.get("avg_rt"):
+        summary["avg_response_time"] = summary["avg_rt"]
+
+    if not summary.get("min_rt") and summary.get("min_response_time"):
+        summary["min_rt"] = summary["min_response_time"]
+    elif not summary.get("min_response_time") and summary.get("min_rt"):
+        summary["min_response_time"] = summary["min_rt"]
+
+    if not summary.get("max_rt") and summary.get("max_response_time"):
+        summary["max_rt"] = summary["max_response_time"]
+    elif not summary.get("max_response_time") and summary.get("max_rt"):
+        summary["max_response_time"] = summary["max_rt"]
+
+    if not summary.get("duration_sec") and summary.get("duration_seconds"):
+        summary["duration_sec"] = summary["duration_seconds"]
+    elif not summary.get("duration_seconds") and summary.get("duration_sec"):
+        summary["duration_seconds"] = summary["duration_sec"]
+
+    if not summary.get("total") and summary.get("total_requests"):
+        summary["total"] = summary["total_requests"]
+    elif not summary.get("total_requests") and summary.get("total"):
+        summary["total_requests"] = summary["total"]
+
+    if summary.get("errors") is None and summary.get("failed_requests") is not None:
+        summary["errors"] = summary["failed_requests"]
+    elif summary.get("failed_requests") is None and summary.get("errors") is not None:
+        summary["failed_requests"] = summary["errors"]
+
+    parsed["summary"] = summary
+
     labels = parsed.get("labels", {})
+    for lname, ldata in labels.items():
+        if isinstance(ldata, dict):
+            if not ldata.get("avg_rt") and ldata.get("avg_response_time"):
+                ldata["avg_rt"] = ldata["avg_response_time"]
+            if not ldata.get("min_rt") and ldata.get("min_response_time"):
+                ldata["min_rt"] = ldata["min_response_time"]
+            if not ldata.get("max_rt") and ldata.get("max_response_time"):
+                ldata["max_rt"] = ldata["max_response_time"]
+
     ts = parsed.get("time_series", {})
     correlation = parsed.get("correlation", {})
     execution_time = parsed.get("execution_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -2185,6 +2228,38 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
 
     # Label time series map for per-transaction chart toggling
     label_ts_map = ts.get("label_ts_map", {})
+    if not label_ts_map and "label_series" in ts:
+        raw_ls = ts.get("label_series", {})
+        label_ts_map = {
+            k: {
+                "ts_avg_rt": v.get("avg_rt", []) if isinstance(v, dict) else getattr(v, "avg_rt", []),
+                "ts_p95_rt": v.get("p95_rt", []) if isinstance(v, dict) else getattr(v, "p95_rt", []),
+                "ts_p99_rt": v.get("p99_rt", []) if isinstance(v, dict) else getattr(v, "p99_rt", []),
+                "ts_throughput": v.get("throughput", []) if isinstance(v, dict) else getattr(v, "throughput", []),
+                "ts_errors": v.get("errors", []) if isinstance(v, dict) else getattr(v, "errors", []),
+            }
+            for k, v in raw_ls.items()
+        }
+    if not label_ts_map and run_id and run_id != "unknown":
+        norm_ts_path = STORAGE_NORMALIZED_DIR / f"{run_id}_timeseries.json"
+        if not norm_ts_path.exists():
+            norm_ts_path = RESULTS_DIR / "normalized" / f"{run_id}_timeseries.json"
+        if norm_ts_path.exists():
+            try:
+                norm_ts_data = json.loads(norm_ts_path.read_text(encoding="utf-8"))
+                norm_ls = norm_ts_data.get("label_series", {})
+                label_ts_map = {
+                    k: {
+                        "ts_avg_rt": v.get("avg_rt", []),
+                        "ts_p95_rt": v.get("p95_rt", []),
+                        "ts_p99_rt": v.get("p99_rt", []),
+                        "ts_throughput": v.get("throughput", []),
+                        "ts_errors": v.get("errors", []),
+                    }
+                    for k, v in norm_ls.items()
+                }
+            except Exception:
+                pass
     
     # Filter labels for dropdown: prioritize Transaction Controllers from JMX
     tc_keys = set(tc_to_samplers.keys()) if tc_to_samplers else set()

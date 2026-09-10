@@ -26,6 +26,11 @@ def _load_run_data(run_id: str) -> Dict[str, Any]:
     srv_file = STORAGE_NORMALIZED_DIR / f"{clean_id}_server_metrics.json"
     meta_file = STORAGE_NORMALIZED_DIR / f"{clean_id}_metadata.json"
 
+    legacy_file = RESULTS_JSON_DIR / f"{clean_id}_result.json"
+    if not legacy_file.exists():
+        legacy_file = RESULTS_DIR / f"{clean_id}_result.json"
+    legacy_data = json.loads(legacy_file.read_text(encoding="utf-8")) if legacy_file.exists() else {}
+
     if agg_file.exists():
         try:
             from app.serialization.serializer import load_aggregate, load_timeseries, load_server_metrics
@@ -40,10 +45,12 @@ def _load_run_data(run_id: str) -> Dict[str, Any]:
                 except Exception:
                     pass
 
-            legacy_file = RESULTS_JSON_DIR / f"{clean_id}_result.json"
-            if not legacy_file.exists():
-                legacy_file = RESULTS_DIR / f"{clean_id}_result.json"
-            legacy_data = json.loads(legacy_file.read_text(encoding="utf-8")) if legacy_file.exists() else {}
+            all_lbls = agg.all_labels if agg.all_labels else agg.transactions
+            labels_by_tg = (
+                {tg: {k: v.model_dump() for k, v in lbls.items()} for tg, lbls in agg.transactions_by_thread_group.items()}
+                if agg.transactions_by_thread_group
+                else legacy_data.get("labels_by_tg", {})
+            )
 
             return {
                 "run_id": clean_id,
@@ -57,18 +64,19 @@ def _load_run_data(run_id: str) -> Dict[str, Any]:
                     "avg_rt": agg.avg_response_time,
                     "duration_sec": agg.duration_seconds,
                 },
-                "labels": {k: v.model_dump() for k, v in agg.transactions.items()},
+                "labels": {k: v.model_dump() for k, v in all_lbls.items()},
+                "labels_by_tg": labels_by_tg,
                 "time_series": {
-                    "ts_labels": ts.bucket_labels if ts else [],
-                    "ts_avg_rt": ts.avg_response_time if ts else [],
-                    "ts_p95_rt": ts.p95_response_time if ts else [],
-                    "ts_p99_rt": ts.p99_response_time if ts else [],
-                    "ts_throughput": ts.throughput if ts else [],
-                    "ts_errors": ts.errors if ts else [],
-                    "ts_active_threads": ts.active_threads if ts else [],
+                    "ts_labels": ts.bucket_labels if ts else legacy_data.get("time_series", {}).get("ts_labels", []),
+                    "ts_avg_rt": ts.avg_response_time if ts else legacy_data.get("time_series", {}).get("ts_avg_rt", []),
+                    "ts_p95_rt": ts.p95_response_time if ts else legacy_data.get("time_series", {}).get("ts_p95_rt", []),
+                    "ts_p99_rt": ts.p99_response_time if ts else legacy_data.get("time_series", {}).get("ts_p99_rt", []),
+                    "ts_throughput": ts.throughput if ts else legacy_data.get("time_series", {}).get("ts_throughput", []),
+                    "ts_errors": ts.errors if ts else legacy_data.get("time_series", {}).get("ts_errors", []),
+                    "ts_active_threads": ts.active_threads if ts else legacy_data.get("time_series", {}).get("ts_active_threads", []),
                 },
                 "infra": srv.infra_summary.model_dump() if srv and srv.infra_summary else legacy_data.get("azure", {}),
-                "error_details": {k: v.model_dump() for k, v in agg.errors_breakdown.items()},
+                "error_details": {k: v.model_dump() for k, v in agg.errors_breakdown.items()} if agg.errors_breakdown else legacy_data.get("summary", {}).get("errors_breakdown", {}),
                 "correlation": legacy_data.get("correlation", {}),
                 "ai_insights": legacy_data.get("ai_insights", {}),
                 "schema_backed": True,
@@ -76,23 +84,31 @@ def _load_run_data(run_id: str) -> Dict[str, Any]:
         except Exception as e:
             logger.warning(f"Could not parse normalized schema models for {clean_id}: {e}; falling back to legacy JSON")
 
-    legacy_file = RESULTS_JSON_DIR / f"{clean_id}_result.json"
-    if not legacy_file.exists():
-        legacy_file = RESULTS_DIR / f"{clean_id}_result.json"
     if not legacy_file.exists():
         raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found in normalized or legacy JSON storage")
 
     data = json.loads(legacy_file.read_text(encoding="utf-8"))
     data["schema_backed"] = False
+    s = data.setdefault("summary", {})
+    s.setdefault("total", s.get("total_requests", 0))
+    s.setdefault("avg_rt", s.get("avg_response_time", 0))
+    s.setdefault("duration_sec", s.get("duration_seconds", 0))
+    if "error_details" not in data and "errors_breakdown" in s:
+        data["error_details"] = s["errors_breakdown"]
     return data
 
 
 class GenerateAIRequest(BaseModel):
     run_id: str
+    prompt: Optional[str] = None
     system_prompt: Optional[str] = None
     user_prompt: Optional[str] = None
     provider: Optional[str] = None
     model: Optional[str] = None
+    temperature: Optional[float] = 0.2
+    summary: Optional[Dict[str, Any]] = None
+    labels: Optional[Dict[str, Any]] = None
+    infra: Optional[Dict[str, Any]] = None
 
 
 class SaveAIRequest(BaseModel):
@@ -131,11 +147,35 @@ def get_ai_studio_runs() -> Dict[str, Any]:
                 meta = json.loads(meta_file.read_text(encoding="utf-8"))
             except Exception:
                 pass
+
+        total = meta.get("total_samples", 0)
+        avg_rt = meta.get("avg_rt", 0.0)
+        error_rate = meta.get("error_rate", 0.0)
+        p95 = meta.get("p95_rt", 0.0)
+
+        if not total:
+            try:
+                agg_data = json.loads(p.read_text(encoding="utf-8"))
+                total = agg_data.get("total_requests", 0)
+                avg_rt = agg_data.get("avg_response_time", 0.0)
+                error_rate = agg_data.get("error_rate", 0.0)
+                p95 = agg_data.get("p95", 0.0)
+            except Exception:
+                pass
+
         runs.append({
             "id": rid,
             "jmx_name": meta.get("jmx_name", rid),
             "timestamp": meta.get("timestamp", ""),
-            "has_ai_insights": meta.get("has_ai_insights", False),
+            "has_ai": bool(meta.get("has_ai_insights")),
+            "has_ai_insights": bool(meta.get("has_ai_insights")),
+            "ai_grade": meta.get("status", "Ready"),
+            "summary": {
+                "total": total,
+                "avg_rt": avg_rt,
+                "error_rate": error_rate,
+                "p95": p95,
+            },
             "schema_backed": True,
         })
 
@@ -147,11 +187,27 @@ def get_ai_studio_runs() -> Dict[str, Any]:
         seen.add(rid)
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
+            s = data.get("summary", {})
+            total = s.get("total") or s.get("total_requests", 0)
+            avg_rt = s.get("avg_rt") or s.get("avg_response_time", 0.0)
+            err_rate = s.get("error_rate", 0.0)
+            p95 = s.get("p95", 0.0)
+            ai_insights = data.get("ai_insights", {})
+            has_ai = bool(ai_insights and ai_insights.get("source") != "none")
+
             runs.append({
                 "id": data.get("run_id", rid),
                 "jmx_name": data.get("jmx_name", "Scenario"),
                 "timestamp": data.get("execution_time", ""),
-                "has_ai_insights": bool(data.get("ai_insights")),
+                "has_ai": has_ai,
+                "has_ai_insights": has_ai,
+                "ai_grade": ai_insights.get("performance_grade", "Ready"),
+                "summary": {
+                    "total": total,
+                    "avg_rt": avg_rt,
+                    "error_rate": err_rate,
+                    "p95": p95,
+                },
                 "schema_backed": False,
             })
         except Exception:
@@ -164,21 +220,25 @@ def get_ai_studio_runs() -> Dict[str, Any]:
 def get_prompt_preview(run_id: str = Query(...)) -> Dict[str, Any]:
     """Generates prompt preview for a run prioritizing normalized schema data."""
     try:
-        from app.services.ai.prompts import build_performance_prompt
+        from app.services.ai.prompts import build_insights_prompt
         from app.services.analytics.sla_manager import load_sla_targets
 
         data = _load_run_data(run_id)
         summary = data.get("summary", {})
         labels = data.get("labels", {})
         time_series = data.get("time_series", {})
-        sla_targets, default_rt, default_err = load_sla_targets(data.get("jmx_name", ""), actual_users=data.get("users", 1))
+        users = data.get("users", 1)
+        sla_targets, default_rt, default_err = load_sla_targets(data.get("jmx_name", ""), actual_users=users)
 
         infra = data.get("infra", {})
         if not infra:
             az_file = RESULTS_JSON_DIR / f"azure_{run_id.replace('run_', '')}.json"
             infra = json.loads(az_file.read_text(encoding="utf-8")) if az_file.exists() else {}
 
-        prompt = build_performance_prompt(
+        error_details = data.get("error_details", {})
+        labels_by_tg = data.get("labels_by_tg", {})
+
+        prompt = build_insights_prompt(
             test_name=data.get("jmx_name", "Scenario"),
             summary=summary,
             labels=labels,
@@ -188,11 +248,21 @@ def get_prompt_preview(run_id: str = Query(...)) -> Dict[str, Any]:
             sla_targets=sla_targets,
             default_rt=default_rt,
             default_err=default_err,
-            error_details=data.get("error_details", {}),
-            users=data.get("users", 1),
-            rampup=data.get("rampup", "0"),
+            error_details=error_details,
+            users=users,
+            rampup=int(data.get("rampup", "0") if str(data.get("rampup", "0")).isdigit() else 0),
+            labels_by_tg=labels_by_tg,
         )
-        return {"success": True, "prompt": prompt, "schema_backed": data.get("schema_backed", False)}
+
+        return {
+            "success": True,
+            "prompt": prompt,
+            "summary": summary,
+            "infra": infra,
+            "existing_insights": data.get("ai_insights", {}),
+            "labels": labels,
+            "schema_backed": data.get("schema_backed", False),
+        }
     except HTTPException:
         raise
     except Exception as e:
@@ -204,42 +274,122 @@ def get_prompt_preview(run_id: str = Query(...)) -> Dict[str, Any]:
 def generate_ai_insights_studio(req: GenerateAIRequest) -> Dict[str, Any]:
     """Generates insights via AI provider using custom studio parameters and normalized schema data."""
     try:
-        from app.services.ai.insights import generate_insights
-        from app.services.analytics.sla_manager import load_sla_targets
-
-        data = _load_run_data(req.run_id)
-        sla_targets, default_rt, default_err = load_sla_targets(data.get("jmx_name", ""), actual_users=data.get("users", 1))
-
-        infra = data.get("infra", {})
-        if not infra:
-            az_file = RESULTS_JSON_DIR / f"azure_{req.run_id.replace('run_', '')}.json"
-            infra = json.loads(az_file.read_text(encoding="utf-8")) if az_file.exists() else {}
-
-        insights = generate_insights(
-            test_name=data.get("jmx_name", "Scenario"),
-            summary=data.get("summary", {}),
-            labels=data.get("labels", {}),
-            time_series=data.get("time_series", {}),
-            infra=infra,
-            correlation=data.get("correlation", {}),
-            sla_targets=sla_targets,
-            default_rt=default_rt,
-            default_err=default_err,
-            error_details=data.get("error_details", {}),
-            users=data.get("users", 1),
-            rampup=int(data.get("rampup", "0") if str(data.get("rampup", "0")).isdigit() else 0),
+        import time
+        import os
+        from app.services.ai.insights import (
+            _load_env,
+            execute_openrouter_prompt,
+            execute_gemini_prompt,
+            execute_github_prompt,
+            generate_insights,
+            _normalize_model_for_provider
         )
-        return {"success": True, "insights": insights, "schema_backed": data.get("schema_backed", False)}
+
+        _load_env()
+        data = _load_run_data(req.run_id)
+        summary = req.summary or data.get("summary", {})
+        infra = req.infra or data.get("infra", {})
+
+        chosen_prompt = (req.prompt or req.user_prompt or "").strip()
+        pref_provider = (req.provider or "").strip().lower()
+        pref_model = (req.model or "").strip()
+
+        start_time = time.time()
+        insights = {}
+        used_model = pref_model
+        used_provider = pref_provider
+
+        # If the user supplied a custom/refined prompt from the AI Studio editor
+        if chosen_prompt:
+            openrouter_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+            gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+            github_token = os.environ.get("GITHUB_TOKEN", "").strip()
+
+            if not pref_provider:
+                if "/" in pref_model or "free" in pref_model or "nemotron" in pref_model:
+                    pref_provider = "openrouter"
+                elif "gemini" in pref_model.lower():
+                    pref_provider = "gemini"
+                elif "gpt" in pref_model.lower():
+                    pref_provider = "github"
+                else:
+                    pref_provider = "openrouter" if openrouter_key else "gemini" if gemini_key else "github"
+
+            if pref_provider == "openrouter" and openrouter_key:
+                norm_m = _normalize_model_for_provider("openrouter", pref_model or "openrouter/free")
+                used_model = norm_m
+                used_provider = "openrouter"
+                insights = execute_openrouter_prompt(chosen_prompt, api_key=openrouter_key, model=norm_m, summary=summary, infra=infra, temperature=req.temperature or 0.2)[0]
+            elif pref_provider == "gemini" and gemini_key:
+                norm_m = _normalize_model_for_provider("gemini", pref_model or "gemini-2.5-flash")
+                used_model = norm_m
+                used_provider = "gemini"
+                insights = execute_gemini_prompt(chosen_prompt, api_key=gemini_key, model=norm_m, summary=summary, infra=infra, temperature=req.temperature or 0.2)[0]
+            elif pref_provider == "github" and github_token:
+                norm_m = _normalize_model_for_provider("github", pref_model or "gpt-4o-mini")
+                used_model = norm_m
+                used_provider = "github"
+                insights = execute_github_prompt(chosen_prompt, github_token=github_token, model=norm_m, summary=summary, infra=infra, temperature=req.temperature or 0.2)[0]
+            else:
+                if openrouter_key:
+                    norm_m = _normalize_model_for_provider("openrouter", pref_model or "openrouter/free")
+                    used_model = norm_m
+                    used_provider = "openrouter"
+                    insights = execute_openrouter_prompt(chosen_prompt, api_key=openrouter_key, model=norm_m, summary=summary, infra=infra, temperature=req.temperature or 0.2)[0]
+                elif gemini_key:
+                    used_model = "gemini-2.5-flash"
+                    used_provider = "gemini"
+                    insights = execute_gemini_prompt(chosen_prompt, api_key=gemini_key, model=used_model, summary=summary, infra=infra, temperature=req.temperature or 0.2)[0]
+                elif github_token:
+                    used_model = "gpt-4o-mini"
+                    used_provider = "github"
+                    insights = execute_github_prompt(chosen_prompt, github_token=github_token, model=used_model, summary=summary, infra=infra, temperature=req.temperature or 0.2)[0]
+        else:
+            from app.services.analytics.sla_manager import load_sla_targets
+            users = data.get("users", 1)
+            sla_targets, default_rt, default_err = load_sla_targets(data.get("jmx_name", ""), actual_users=users)
+            insights = generate_insights(
+                test_name=data.get("jmx_name", "Scenario"),
+                summary=summary,
+                labels=data.get("labels", {}),
+                time_series=data.get("time_series", {}),
+                infra=infra,
+                correlation=data.get("correlation", {}),
+                sla_targets=sla_targets,
+                default_rt=default_rt,
+                default_err=default_err,
+                error_details=data.get("error_details", {}),
+                users=users,
+                rampup=int(data.get("rampup", "0") if str(data.get("rampup", "0")).isdigit() else 0),
+                labels_by_tg=data.get("labels_by_tg", {}),
+            )
+            used_model = insights.get("model", "auto")
+            used_provider = insights.get("source", "auto")
+
+        elapsed_ms = int((time.time() - start_time) * 1000)
+        return {
+            "success": bool(insights),
+            "insights": insights,
+            "elapsed_ms": elapsed_ms,
+            "model": used_model,
+            "provider": used_provider,
+            "schema_backed": data.get("schema_backed", False)
+        }
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error generating AI insights: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error generating AI insights in studio: {e}")
+        return {
+            "success": False,
+            "message": str(e),
+            "insights": None,
+            "elapsed_ms": int((time.time() - start_time) * 1000) if 'start_time' in locals() else 0
+        }
 
 
 @router.post("/ai-studio/save")
 def save_ai_insights_studio(req: SaveAIRequest) -> Dict[str, Any]:
-    """Persists edited AI insights back into both normalized metadata and unified result JSON."""
+    """Persists edited AI insights back into both normalized metadata and unified result JSON and recompiles HTML report."""
     clean_id = req.run_id.replace(".json", "")
     res_path = RESULTS_JSON_DIR / f"{clean_id}_result.json"
     if not res_path.exists():
@@ -272,7 +422,25 @@ def save_ai_insights_studio(req: SaveAIRequest) -> Dict[str, Any]:
             except Exception:
                 pass
 
-        return {"success": True, "message": f"Saved AI insights for {clean_id}"}
+        # Automatically recompile the HTML report
+        try:
+            from app.services.reporting.engine.generator import generate_report
+            from app.core.constants import RESULTS_HTML_DIR
+            out_html = RESULTS_HTML_DIR / f"{clean_id}_report.html"
+            az_file = RESULTS_JSON_DIR / f"azure_{clean_id.replace('run_', '')}.json"
+            azure_data = json.loads(az_file.read_text(encoding="utf-8")) if az_file.exists() else {}
+            generate_report(
+                parsed=data,
+                azure_data=azure_data,
+                ai_insights=req.insights,
+                report_path=out_html,
+                jmx_name=data.get("jmx_name", "Scenario"),
+                users=data.get("users", 1),
+            )
+        except Exception as rep_err:
+            logger.warning(f"Could not recompile report after saving studio insights: {rep_err}")
+
+        return {"success": True, "message": f"Saved AI insights and recompiled report for {clean_id}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

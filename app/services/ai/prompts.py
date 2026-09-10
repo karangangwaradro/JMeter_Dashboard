@@ -11,20 +11,20 @@ from typing import Dict, Any, List, Optional
 
 
 def _format_time_series_progression(time_series: dict) -> str:
-    """Format summarized progression table from JMeter time_series data."""
+    """Format summarized progression table from JMeter / multi-tool time_series data."""
     if not time_series or not isinstance(time_series, dict):
         return "  Time-series telemetry not available"
 
-    labels = time_series.get("ts_labels", [])
+    labels = time_series.get("bucket_labels") or time_series.get("ts_labels") or []
     if not labels or not isinstance(labels, list):
         return "  Time-series telemetry not available"
 
-    avg_rts = time_series.get("ts_avg_rt", [])
-    p95_rts = time_series.get("ts_p95_rt", [])
-    p99_rts = time_series.get("ts_p99_rt", [])
-    tps = time_series.get("ts_throughput", [])
-    errors = time_series.get("ts_errors", [])
-    threads = time_series.get("ts_active_threads", [])
+    avg_rts = time_series.get("avg_response_time") or time_series.get("ts_avg_rt") or []
+    p95_rts = time_series.get("p95_response_time") or time_series.get("ts_p95_rt") or []
+    p99_rts = time_series.get("p99_response_time") or time_series.get("ts_p99_rt") or []
+    tps = time_series.get("throughput") or time_series.get("ts_throughput") or []
+    errors = time_series.get("errors") or time_series.get("ts_errors") or []
+    threads = time_series.get("active_threads") or time_series.get("ts_active_threads") or []
 
     n = len(labels)
     if n > 16:
@@ -89,28 +89,139 @@ def _format_error_breakdown(error_details: dict) -> str:
         return "  Zero execution errors recorded."
 
     lines = [
-        "  Response Code / Failure Type | Count | Impacted Sample / Error Message",
+        "  Response Code / Failure Type | Count | Impacted Endpoints & Failure Diagnosis",
         "  ----------------------------+-------+---------------------------------------------------"
     ]
+    has_entries = False
     for key, err in error_details.items():
-        cnt = err.get("count", 0)
-        msg = err.get("failure_message", err.get("message", "Unknown error"))
-        short_msg = (msg[:60] + "...") if len(msg) > 60 else msg
-        lines.append(f"  {key:<28} | {cnt:<5} | {short_msg}")
+        if isinstance(err, dict):
+            cnt = err.get("count", 0)
+            code = str(err.get("code") or key)
+            msg = err.get("failure_message") or err.get("message") or ""
+            occurrences = err.get("occurrences", [])
+            # Extract unique impacted labels
+            impacted = []
+            for occ in occurrences:
+                if isinstance(occ, dict):
+                    lbl = occ.get("label")
+                    if lbl and lbl not in impacted:
+                        impacted.append(lbl)
 
-    return "\n".join(lines)
+            impact_desc = ""
+            if impacted:
+                impact_desc = f"Impacted: {', '.join(impacted[:4])}"
+                if len(impacted) > 4:
+                    impact_desc += f" (+{len(impacted)-4} more)"
+
+            diag_parts = []
+            if msg:
+                diag_parts.append(msg)
+            elif code in ("500", "502", "503", "504"):
+                diag_parts.append(f"HTTP {code} Internal Server Error")
+            elif code in ("400", "401", "403", "404"):
+                diag_parts.append(f"HTTP {code} Client / Resource Not Found Error")
+            else:
+                diag_parts.append(f"Error Code {code}")
+
+            if impact_desc:
+                diag_parts.append(impact_desc)
+
+            diag_str = " | ".join(diag_parts)
+            if len(diag_str) > 85:
+                diag_str = diag_str[:82] + "..."
+            lines.append(f"  {code:<28} | {cnt:<5} | {diag_str}")
+            has_entries = True
+        elif isinstance(err, (int, float)):
+            lines.append(f"  {str(key):<28} | {int(err):<5} | Error occurrences")
+            has_entries = True
+
+    return "\n".join(lines) if has_entries else "  Zero execution errors recorded."
+
+
+def _format_user_stories(labels_by_tg: dict, total_iterations: int = 1) -> str:
+    """Format User Story / Thread Group journey telemetry with transaction and iteration stats."""
+    if not labels_by_tg or not isinstance(labels_by_tg, dict):
+        return "  User Story telemetry not available / single journey scenario."
+
+    lines = []
+    for tg_name, tx_map in labels_by_tg.items():
+        if not isinstance(tx_map, dict):
+            continue
+        total_tx = len(tx_map)
+        err_tx = sum(1 for x in tx_map.values() if isinstance(x, dict) and x.get("errors", 0) > 0)
+        total_execs = sum(x.get("count", 0) for x in tx_map.values() if isinstance(x, dict))
+        failed_execs = sum(x.get("errors", 0) for x in tx_map.values() if isinstance(x, dict))
+        passed_execs = max(0, total_execs - failed_execs)
+
+        weighted_sum = sum(x.get("avg_rt", 0) * x.get("count", 0) for x in tx_map.values() if isinstance(x, dict))
+        avg_rt = (weighted_sum / max(1, total_execs)) if total_execs > 0 else 0.0
+
+        story_iters = max((x.get("count", 0) for x in tx_map.values() if isinstance(x, dict)), default=total_iterations)
+
+        lines.append(
+            f"  - {tg_name}: Overall {story_iters} iterations were executed under load ({total_tx} main transactions, "
+            f"{total_execs} total transaction executions). {passed_execs} transaction executions passed, {failed_execs} failed "
+            f"({err_tx} of {total_tx} transactions experienced errors). Story Avg Response Time: {avg_rt:.1f} ms."
+        )
+
+    return "\n".join(lines) if lines else "  User Story telemetry not available."
 
 
 def build_insights_prompt(test_name: str, summary: dict, labels: dict,
                           time_series: dict, infra: dict, correlation: dict = None,
                           sla_targets: dict = None, default_rt: float = 500.0,
                           default_err: float = 1.0, error_details: dict = None,
-                          users: int = 1, rampup: int = 0) -> str:
+                          users: int = 1, rampup: int = 0,
+                          labels_by_tg: dict = None) -> str:
     """Construct prompt passing raw summarized performance, time-series, and Azure telemetry for independent AI findings discovery."""
+    summary = summary or {}
+    total_samples = (
+        summary.get("total_requests")
+        or summary.get("total")
+        or summary.get("total_samples")
+        or 0
+    )
+    total_iterations = summary.get("total_iterations") or 1
+    duration_sec = (
+        summary.get("duration_seconds")
+        or summary.get("duration_sec")
+        or summary.get("duration")
+        or 0.0
+    )
+    throughput = summary.get("throughput", 0.0)
+    avg_rt = (
+        summary.get("avg_response_time")
+        or summary.get("avg_rt")
+        or 0.0
+    )
+    min_rt = (
+        summary.get("min_response_time")
+        or summary.get("min_rt")
+        or 0.0
+    )
+    max_rt = (
+        summary.get("max_response_time")
+        or summary.get("max_rt")
+        or 0.0
+    )
+    p50 = summary.get("p50", 0.0)
+    p90 = summary.get("p90", 0.0)
+    p95 = summary.get("p95", 0.0)
+    p99 = summary.get("p99", 0.0)
+    error_rate = summary.get("error_rate", 0.0)
+    raw_error_rate = summary.get("raw_error_rate", error_rate)
+    successful_requests = summary.get("successful_requests", max(0, total_samples - summary.get("failed_requests", 0)))
+    failed_requests = summary.get("failed_requests", int(total_samples * (raw_error_rate / 100.0) if total_samples else 0))
+
+    if not error_details:
+        error_details = summary.get("errors_breakdown") or {}
+    if not labels_by_tg:
+        labels_by_tg = summary.get("transactions_by_thread_group") or {}
+
     if sla_targets is None:
         try:
             from app.services.analytics.sla_manager import load_sla_targets
-            loaded_targets, d_rt, d_err = load_sla_targets(test_name)
+            loaded_targets, d_rt, d_err = load_sla_targets(test_name, actual_users=users)
             sla_targets = loaded_targets or {}
             if d_rt: default_rt = d_rt
             if d_err: default_err = d_err
@@ -118,25 +229,45 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
             sla_targets = {}
     sla_targets = sla_targets or {}
 
-    total_tx = len(labels)
+    # ── Separate MAIN_TRANSACTION items from HTTP_REQUEST items ──────────────
+    # Only main transactions count for SLA compliance and per-transaction metrics.
+    # HTTP requests are sub-requests (child samplers) and should NOT be counted as transactions.
+    main_transactions = {}
+    http_requests_labels = {}
+    for name, data in labels.items():
+        item_type = data.get("item_type", "")
+        if item_type == "HTTP_REQUEST":
+            http_requests_labels[name] = data
+        elif item_type == "MAIN_TRANSACTION":
+            main_transactions[name] = data
+        else:
+            # Fallback heuristic for legacy data without item_type
+            upper = (name or "").upper()
+            if any(pat in upper for pat in ("_R_", "_R0", "_R1")) or \
+               upper.startswith(("HTTP_", "GET_", "POST_", "PUT_", "DELETE_")):
+                http_requests_labels[name] = data
+            else:
+                main_transactions[name] = data
+
+    total_tx = len(main_transactions)
     breached_txs = []
     met_txs = []
 
-    for name, data in labels.items():
+    for name, data in main_transactions.items():
         t_conf = sla_targets.get(name, {})
         tgt_rt = t_conf.get("rt", default_rt)
         tgt_err = t_conf.get("err", default_err)
-        p90 = data.get("p90", data.get("avg_rt", 0))
+        p90_lbl = data.get("p90", data.get("avg_rt", 0))
         err = data.get("error_rate", 0)
 
-        rt_breached = p90 > tgt_rt
+        rt_breached = p90_lbl > tgt_rt
         err_breached = err > tgt_err
 
         if rt_breached or err_breached:
-            rt_dev_pct = ((p90 - tgt_rt) / max(1, tgt_rt) * 100) if tgt_rt > 0 else 0
+            rt_dev_pct = ((p90_lbl - tgt_rt) / max(1, tgt_rt) * 100) if tgt_rt > 0 else 0
             breached_txs.append({
                 "name": name,
-                "p90": p90,
+                "p90": p90_lbl,
                 "target_rt": tgt_rt,
                 "rt_dev_pct": rt_dev_pct,
                 "err": err,
@@ -150,9 +281,10 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
     sla_compliance_pct = (len(met_txs) / max(1, total_tx)) * 100 if total_tx > 0 else 100.0
 
     sla_overview_lines = [
-        f"  Overall SLA Compliance: {sla_compliance_pct:.1f}% ({len(met_txs)} of {total_tx} transactions met defined SLA targets)",
+        f"  Overall SLA Compliance: {sla_compliance_pct:.1f}% ({len(met_txs)} of {total_tx} main transactions met defined SLA targets)",
         f"  Default Response Time SLA Target: {default_rt:.0f} ms | Default Error Rate Target: {default_err:.2f}%",
-        f"  Total SLA-Breaching Transactions: {len(breached_txs)}"
+        f"  Total SLA-Breaching Transactions: {len(breached_txs)}",
+        f"  Note: SLA evaluation is based on {total_tx} main transactions only. {len(http_requests_labels)} underlying HTTP requests are excluded from SLA counting."
     ]
     if breached_txs:
         sla_overview_lines.append("  Key SLA Violations (Actual vs Defined Target):")
@@ -165,10 +297,11 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
                 parts.append(f"Error Rate={b['err']:.2f}% vs SLA Target={b['target_err']:.2f}%")
             sla_overview_lines.append(f"    - {b['name']}: {', '.join(parts)}")
     else:
-        sla_overview_lines.append("  All transactions met their defined SLA thresholds.")
+        sla_overview_lines.append("  All main transactions met their defined SLA thresholds.")
     sla_text = "\n".join(sla_overview_lines)
 
-    top_labels = sorted(labels.items(), key=lambda x: (x[1].get("error_rate", 0), x[1].get("avg_rt", 0)), reverse=True)[:18]
+    # Per-transaction metrics: show ONLY main transactions (sorted by failure rate & response time)
+    top_labels = sorted(main_transactions.items(), key=lambda x: (x[1].get("error_rate", 0), x[1].get("avg_rt", 0)), reverse=True)[:25]
     labels_text = "\n".join([
         f"  - {name}: {data.get('count',0)} samples, avg={data.get('avg_rt',0):.1f}ms, "
         f"p90={data.get('p90',0)}ms (SLA target: {sla_targets.get(name,{}).get('rt', default_rt):.0f}ms | {'🔴 BREACHED' if data.get('p90',0) > sla_targets.get(name,{}).get('rt', default_rt) else '🟢 MET'}), "
@@ -180,6 +313,7 @@ def build_insights_prompt(test_name: str, summary: dict, labels: dict,
     timeseries_text = _format_time_series_progression(time_series)
     infra_text = _format_azure_infra_telemetry(infra)
     error_text = _format_error_breakdown(error_details)
+    user_stories_text = _format_user_stories(labels_by_tg, total_iterations=total_iterations)
 
     return f"""You are a Principal Performance Engineer and Automated Performance Intelligence Engine.
 
@@ -201,24 +335,27 @@ SLA & NFR COMPLIANCE EVALUATION RULES:
 - In `tab_rt_stats`, specifically identify transactions that breached their defined P90 SLA targets and quantify their deviation (e.g., "exceeded the 500 ms SLA target by +335%").
 - In `tab_tx_stats` and `recommendations`, focus remediation priorities on transactions failing SLA targets.
 
+CRITICAL RULE FOR "1. Transaction Statistics" in `observations_table`:
+You MUST write one bullet point for each User Story / Thread Group listed in the USER STORIES & USER JOURNEY BREAKDOWN section (e.g., TC_01_Browse_Catalog, TC_02_Add_To_Cart, TC_03_Search_Products, TC_04_User_Sign_In), reporting exact iteration counts, pass/fail status, and average response times.
+Do NOT sum snippet rows or invent a sample count of 56. The real workload is stated in WORKLOAD & CONCURRENCY PROFILE ({total_samples:,} total samples executed across {total_iterations} iterations, {duration_sec:.0f}s duration).
+
 FORMAT EXAMPLE FOR HIGH LEVEL OBSERVATIONS:
 1. Transaction Statistics:
-    a. UC01 New Business: Overall 52 iterations were executed under load out of which 52 passed, 0 failed.
-    b. UC05 Add Vessel: Overall 35 iterations were executed under load out of which 35 passed, 0 failed.
-    c. UC07 Group Renewal: Overall 39 iterations were executed under load out of which 7 passed, 32 failed.
+    a. TC_01_Browse_Catalog: Overall 4 iterations were executed under load out of which 4 passed, 0 failed.
+    b. TC_02_Add_To_Cart: Overall 4 iterations were executed under load out of which 2 passed, 2 failed.
+    c. TC_03_Search_Products: Overall 4 iterations were executed under load out of which 4 passed, 0 failed.
+    d. TC_04_User_Sign_In: Overall 4 iterations were executed under load out of which 1 passed, 3 failed.
 
 2. Response Time Statistics (Average / P90 / SLA adherence):
-    a. {len(breached_txs)} out of {total_tx} transactions violated the defined NFR SLA ({sla_compliance_pct:.0f}% compliance). Refer Response Time stats tab for details.
-    b. The avg response time of Single issue ranges from 59 secs to 67 secs.
-    c. The avg response time of Single bind ranges from 12 secs to 20 secs.
-    d. The avg response time of Group renewal issue quote and bind quote was observed to be 41 secs and 8 secs respectively.
+    a. {len(breached_txs)} out of {total_tx} main transactions violated the defined NFR SLA ({sla_compliance_pct:.0f}% compliance). Refer Response Time stats tab for details.
+    b. The avg response time of TC_01_Browse_Catalog was observed to be {avg_rt:.0f} ms.
+    c. Key transactions such as TC01_T_01_Launch_Homepage averaged {main_transactions.get('TC01_T_01_Launch_Homepage', {}).get('avg_rt', 0):.0f} ms.
 
 3. Errors :
-    a. UC07 T11 ClickOnIssueQuote: 27 out of 34 Failure i.e., error rate is 79%. These were timeout or server errors observed during peak execution.
+    a. High error rates were concentrated in specific transactions and endpoints (refer to Error Breakdown section).
 
 4. Server Monitoring:
-    a. Server CPU averaged X% (peak Y%) and memory averaged Z%.
-    b. (If App Service / Function Apps present): Execution counts, memory usage, and execution durations.
+    a. Server CPU averaged X% (peak Y%) and memory averaged Z% (or: Server-side infrastructure telemetry not configured / not available).
 
 TAB SPECIFIC INSIGHTS:
 - tab_tx_stats: 2-3 bullet observations on transactions, iterations, throughput pacing, SLA compliance, and 1-2 actionable recommendations in plain client-facing terms.
@@ -230,31 +367,35 @@ TEST SCENARIO: {test_name}
 ═══════════════════════════════════════════════════════════════════
 
 1. WORKLOAD & CONCURRENCY PROFILE:
-  Total Samples Executed: {summary.get('total', 0):,}
+  Total Samples Executed: {total_samples:,} ({successful_requests:,} successful, {failed_requests:,} failed)
   Configured Users / Concurrency: {users} threads | Ramp-up: {rampup}s
-  Execution Duration: {summary.get('duration_sec', 0):.0f} seconds ({summary.get('duration_sec', 0)/60:.1f} mins)
-  Overall Throughput: {summary.get('throughput', 0):.2f} req/s
-  Overall Error Rate: {summary.get('error_rate', 0):.2f}%
+  Execution Duration: {duration_sec:.0f} seconds ({duration_sec/60:.1f} mins)
+  Overall Throughput: {throughput:.2f} req/s
+  Overall Transaction Error Rate: {error_rate:.2f}% (Raw HTTP Error Rate: {raw_error_rate:.2f}%)
+  Total Journey Iterations: {total_iterations}
 
-2. DEFINED SLA TARGETS & COMPLIANCE STATUS:
+2. USER STORIES & USER JOURNEY BREAKDOWN:
+{user_stories_text}
+
+3. DEFINED SLA TARGETS & COMPLIANCE STATUS:
 {sla_text}
 
-3. CLIENT-SIDE RESPONSE TIME & ERROR OVERVIEW:
-  Average Response Time: {summary.get('avg_rt', 0):.2f} ms
-  Min: {summary.get('min_rt', 0)} ms | Max: {summary.get('max_rt', 0)} ms
-  P50: {summary.get('p50', 0)} ms | P90: {summary.get('p90', 0)} ms
-  P95: {summary.get('p95', 0)} ms | P99: {summary.get('p99', 0)} ms
+4. CLIENT-SIDE RESPONSE TIME & ERROR OVERVIEW:
+  Average Response Time: {avg_rt:.2f} ms
+  Min: {min_rt:.1f} ms | Max: {max_rt:.1f} ms
+  P50: {p50:.1f} ms | P90: {p90:.1f} ms
+  P95: {p95:.1f} ms | P99: {p99:.1f} ms
 
-4. RAW SUMMARIZED PER-TRANSACTION METRICS (Sorted by failure rate & response time):
+5. RAW SUMMARIZED PER-MAIN-TRANSACTION METRICS ({total_tx} main transactions, excluding {len(http_requests_labels)} HTTP sub-requests):
 {labels_text}
 
-5. TIME-SERIES RUN PROGRESSION (Concurrency ramp-up, throughput pacing, latency trends over time):
+6. TIME-SERIES RUN PROGRESSION (Concurrency ramp-up, throughput pacing, latency trends over time):
 {timeseries_text}
 
-6. SERVER-SIDE INFRASTRUCTURE TELEMETRY (Azure Monitor):
+7. SERVER-SIDE INFRASTRUCTURE TELEMETRY (Azure Monitor):
 {infra_text}
 
-7. ERROR BREAKDOWN & IMPACTED ENDPOINTS:
+8. ERROR BREAKDOWN & IMPACTED ENDPOINTS:
 {error_text}
 
 ═══════════════════════════════════════════════════════════════════

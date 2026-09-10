@@ -1,6 +1,29 @@
 {
   "runs": [
     {
+      "id": "run_20260910_120513",
+      "tool": "jmeter",
+      "ingestion": "local",
+      "jmx_name": "JPetStore_MultiUserStories.jmx",
+      "timestamp": "2026-09-10 06:38:00 UTC",
+      "epoch": 1789022280,
+      "users": 8,
+      "duration": "59.8",
+      "rampup": "0",
+      "total_samples": 361,
+      "avg_rt": 378.55,
+      "p95_rt": 875.0,
+      "error_rate": 31.94,
+      "throughput": 6.04,
+      "duration_sec": 59.8,
+      "has_azure": false,
+      "has_ai_insights": true,
+      "report_file": "run_20260910_120513_report.html",
+      "result_file": "run_20260910_120513_result.json",
+      "status": "failed",
+      "notes": null
+    },
+    {
       "id": "run_20260909_220614",
       "tool": "jmeter",
       "ingestion": "file_upload",

@@ -85,7 +85,11 @@ class TestWorkflowOrchestrator:
                 from app.services.analytics.sla_manager import load_sla_targets
                 logger.info(f"Generating AI performance insights for {run_id}...")
                 sla_targets, default_rt, default_err = load_sla_targets(actual_test_name, actual_users=users)
-                all_lbls_dict = agg_result.all_labels if agg_result.all_labels else agg_result.transactions
+                error_details = {k: v.model_dump() for k, v in agg_result.errors_breakdown.items()} if agg_result.errors_breakdown else {}
+                labels_by_tg = {
+                    tg: {k: v.model_dump() for k, v in lbls.items()}
+                    for tg, lbls in agg_result.transactions_by_thread_group.items()
+                } if agg_result.transactions_by_thread_group else {}
                 ai_insights = generate_insights(
                     test_name=actual_test_name,
                     summary=agg_result.model_dump(),
@@ -96,8 +100,10 @@ class TestWorkflowOrchestrator:
                     sla_targets=sla_targets,
                     default_rt=default_rt,
                     default_err=default_err,
+                    error_details=error_details,
                     users=users,
                     rampup=int(options.get("rampup", 0)),
+                    labels_by_tg=labels_by_tg,
                 )
                 if ai_insights:
                     logger.info(f"AI insights generated successfully for {run_id} (source={ai_insights.get('source')})")
@@ -140,8 +146,17 @@ class TestWorkflowOrchestrator:
         # Also write legacy run_{timestamp}_result.json for existing compare & trend features
         legacy_result_path = RESULTS_JSON_DIR / f"{run_id}_result.json"
         all_lbls_dict = agg_result.all_labels if agg_result.all_labels else agg_result.transactions
+        summary_payload = agg_result.model_dump()
+        summary_payload.update({
+            "total": agg_result.total_requests,
+            "errors": agg_result.failed_requests,
+            "avg_rt": agg_result.avg_response_time,
+            "min_rt": agg_result.min_response_time,
+            "max_rt": agg_result.max_response_time,
+            "duration_sec": agg_result.duration_seconds,
+        })
         legacy_data = {
-            "summary": agg_result.model_dump(),
+            "summary": summary_payload,
             "labels": {k: v.model_dump() for k, v in all_lbls_dict.items()},
             "labels_by_tg": {
                 tg: {k: v.model_dump() for k, v in lbls.items()}
@@ -156,6 +171,16 @@ class TestWorkflowOrchestrator:
                 "ts_throughput": ts_result.throughput,
                 "ts_errors": ts_result.errors,
                 "ts_active_threads": ts_result.active_threads,
+                "label_ts_map": {
+                    k: {
+                        "ts_avg_rt": v.avg_rt,
+                        "ts_p95_rt": v.p95_rt,
+                        "ts_p99_rt": v.p99_rt,
+                        "ts_throughput": v.throughput,
+                        "ts_errors": v.errors,
+                    }
+                    for k, v in ts_result.label_series.items()
+                },
             },
             "jmx_name": actual_test_name,
             "users": users,

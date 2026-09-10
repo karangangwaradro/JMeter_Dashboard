@@ -331,6 +331,8 @@ class JMeterAggregateParser(AggregateParser):
                             p90=float(_pct(s_elapsed, 90)),
                             p95=float(_pct(s_elapsed, 95)),
                             p99=float(_pct(s_elapsed, 99)),
+                            samples=ldata["elapsed"][:500],
+                            success_flags=ldata.get("success_flags", [])[:500],
                             item_type="MAIN_TRANSACTION",
                             item_type_label="Main Transaction",
                             user_story=tg_k,
