@@ -580,7 +580,10 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "go
             ],
             "temperature": float(temperature),
             "max_tokens": tokens_limit,
-            "response_format": {"type": "json_object"}
+            "response_format": {"type": "json_object"},
+            "reasoning": {
+                "effort": "none"
+            }
         }
         payload = json.dumps(req_body).encode("utf-8")
         req = urllib.request.Request(url, data=payload, headers={
@@ -589,12 +592,23 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "go
             "X-Title": "PerfPilot Insights",
             "Content-Type": "application/json"
         })
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=90) as resp:
             res_data = json.loads(resp.read().decode("utf-8"))
             choices = res_data.get("choices", [])
             if not choices:
                 raise Exception(f"OpenRouter returned empty choices: {res_data}")
-            text_content = choices[0].get("message", {}).get("content", "")
+            msg = choices[0].get("message", {})
+            text_content = msg.get("content") or ""
+            # If content is empty or model dumped reasoning into content, strip reasoning
+            if not text_content and msg.get("reasoning"):
+                text_content = msg.get("reasoning")
+            if "<think>" in text_content and "</think>" in text_content:
+                text_content = re.sub(r"<think>.*?</think>", "", text_content, flags=re.DOTALL).strip()
+            first_brace = text_content.find("{")
+            last_brace = text_content.rfind("}")
+            if first_brace >= 0 and last_brace > first_brace:
+                text_content = text_content[first_brace:last_brace + 1]
+
             raw_usage = res_data.get("usage", {})
             u_info = {
                 "prompt_tokens": raw_usage.get("prompt_tokens", 0),
@@ -603,7 +617,7 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "go
             }
             return text_content, u_info
 
-    current_max_tokens = 20000
+    current_max_tokens = 4096
     content = ""
     usage = {}
 

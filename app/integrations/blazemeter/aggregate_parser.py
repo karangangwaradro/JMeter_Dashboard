@@ -1,28 +1,57 @@
 """
 aggregate_parser.py — Converts BlazeMeter aggregate reports into a typed AggregateResult.
-Responsible ONLY for normalizing BlazeMeter summary and KPI statistics into the common contract.
+Responsible ONLY for normalizing BlazeMeter summary, KPI statistics, and error logs into the common contract.
+Handles both BlazeMeter JSON API responses and BlazeMeter raw execution files (kpi.jtl / error.jtl).
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from app.core.exceptions import ParserError
+from app.core.logging import logger
 from app.domain.interfaces.parser import AggregateParser
 from app.domain.models.aggregate import (
     AggregateResult,
     TransactionMetric,
     ErrorDetail,
 )
+from app.integrations.blazemeter.kpi_parser import blazemeter_kpi_parser
+from app.integrations.blazemeter.error_parser import blazemeter_error_parser
 
 
 class BlazeMeterAggregateParser(AggregateParser):
-    """Translates BlazeMeter aggregate report responses into a typed AggregateResult."""
+    """Translates BlazeMeter aggregate report responses and raw logs into a typed AggregateResult."""
 
-    def parse_aggregate(self, raw_data: Union[Path, str, Dict[str, Any]], test_id: str) -> AggregateResult:
+    def parse_aggregate(
+        self,
+        raw_data: Union[Path, str, Dict[str, Any]],
+        test_id: str,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> AggregateResult:
+        options = options or {}
         try:
+            # Check if raw_data is a file or directory path
             if isinstance(raw_data, (str, Path)):
+                p = Path(raw_data)
+                # If directory, find kpi.jtl
+                if p.is_dir():
+                    kpi_cand = p / "kpi.jtl"
+                    if not kpi_cand.exists():
+                        # Try case-insensitive or any .jtl
+                        for f in p.glob("*.jtl"):
+                            kpi_cand = f
+                            break
+                    if kpi_cand.exists():
+                        return blazemeter_kpi_parser.parse_kpi(kpi_cand, test_id, options=options)
+                    raise ParserError(f"No kpi.jtl file found in directory {p}", context={"test_id": test_id})
+
+                # If JTL or CSV file
+                if p.suffix.lower() in (".jtl", ".csv"):
+                    return blazemeter_kpi_parser.parse_kpi(p, test_id, options=options)
+
+                # Otherwise assume JSON payload file
                 import json
-                payload = json.loads(Path(raw_data).read_text(encoding="utf-8"))
+                payload = json.loads(p.read_text(encoding="utf-8"))
             elif isinstance(raw_data, dict):
                 payload = raw_data
             else:
@@ -91,6 +120,15 @@ class BlazeMeterAggregateParser(AggregateParser):
             def _safe_mean(lst: List[float], fallback: float) -> float:
                 return round(sum(lst) / len(lst), 2) if lst else fallback
 
+            # Check for error.jtl in options if available
+            errors_breakdown: Dict[str, ErrorDetail] = {}
+            error_jtl_path = options.get("error_jtl_path")
+            if error_jtl_path and Path(error_jtl_path).exists():
+                try:
+                    errors_breakdown = blazemeter_error_parser.parse_errors(error_jtl_path)
+                except Exception as err:
+                    logger.warning(f"Failed to parse auxiliary error.jtl: {err}")
+
             return AggregateResult(
                 schema_version="1.0",
                 test_id=test_id,
@@ -113,10 +151,15 @@ class BlazeMeterAggregateParser(AggregateParser):
                 start_epoch=0,
                 end_epoch=int(duration_sec),
                 transactions=transactions,
+                http_requests={},
+                all_labels=transactions,
                 transactions_by_thread_group={},
-                errors_breakdown={},
+                hierarchy_tree=[],
+                errors_breakdown=errors_breakdown,
             )
         except Exception as e:
+            if isinstance(e, ParserError):
+                raise
             raise ParserError(f"Failed to parse BlazeMeter aggregate report: {e}", context={"test_id": test_id})
 
 

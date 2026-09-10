@@ -5,6 +5,324 @@ import { switchTab } from '../core/router.js';
 import { loadRuns, loadReports } from './reports.js';
 import { collectThreadGroupConfigs } from './dashboard.js';
 
+let pipelinePollInterval = null;
+let pipelineStartTime = 0;
+let pipelineElapsedTimer = null;
+window.pipelineCanDismiss = false;
+
+export function openPipelineModal(tool, targetName) {
+    window.pipelineCanDismiss = false;
+
+    // Show inline pipeline stepper on dashboard
+    const inlineContainer = document.getElementById("inline-pipeline-container");
+    if (inlineContainer) {
+        inlineContainer.classList.remove("hidden");
+        inlineContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    // Also show modal if available
+    const modal = document.getElementById("pipeline-progress-modal");
+    if (modal) {
+        modal.classList.remove("hidden");
+    }
+
+    // Reset Elements
+    const elementsToReset = [
+        { target: "pipeline-target-name", inline: "inline-pipeline-title", text: targetName || "Performance Execution" },
+        { target: "pipeline-tool-badge", inline: null, text: (tool || "jmeter").toUpperCase() },
+    ];
+
+    elementsToReset.forEach(e => {
+        const el = document.getElementById(e.target);
+        if (el) el.textContent = e.text;
+        if (e.inline) {
+            const inl = document.getElementById(e.inline);
+            if (inl) inl.textContent = e.text;
+        }
+    });
+
+    const statusBadge = document.getElementById("pipeline-status-badge");
+    const inlineStatusBadge = document.getElementById("inline-pipeline-status-badge");
+    [statusBadge, inlineStatusBadge].forEach(badge => {
+        if (badge) {
+            badge.textContent = "RUNNING";
+            badge.style.background = "#dbeafe";
+            badge.style.color = "#1d4ed8";
+        }
+    });
+
+    const progressFill = document.getElementById("pipeline-progress-fill");
+    const inlineProgressFill = document.getElementById("inline-pipeline-progress-fill");
+    [progressFill, inlineProgressFill].forEach(pf => {
+        if (pf) pf.style.width = "5%";
+    });
+
+    const closeBtn = document.getElementById("pipeline-close-btn");
+    const closeXBtn = document.getElementById("pipeline-close-x-btn");
+    const viewReportBtn = document.getElementById("pipeline-view-report-btn");
+    const inlineViewReportBtn = document.getElementById("inline-pipeline-view-report-btn");
+    const inlineSpinner = document.getElementById("inline-pipeline-spinner");
+
+    if (closeBtn) closeBtn.style.display = "none";
+    if (closeXBtn) closeXBtn.style.display = "none";
+    if (viewReportBtn) viewReportBtn.style.display = "none";
+    if (inlineViewReportBtn) inlineViewReportBtn.classList.add("hidden");
+    if (inlineSpinner) inlineSpinner.style.display = "inline-block";
+
+    const footerStatus = document.getElementById("pipeline-footer-status");
+    const inlineFooterStatus = document.getElementById("inline-pipeline-footer-status");
+    [footerStatus, inlineFooterStatus].forEach(fs => {
+        if (fs) fs.textContent = "Initializing pipeline stages...";
+    });
+
+    const terminalBody = document.getElementById("pipeline-terminal-body");
+    const inlineTerminalBody = document.getElementById("inline-pipeline-terminal-body");
+    const initLogHtml = '<div class="pipeline-log-row"><span class="pipeline-log-ts">[00:00.000]</span><span class="pipeline-log-stage">[INIT]</span><span class="pipeline-log-msg">Pipeline initialized.</span></div>';
+    if (terminalBody) terminalBody.innerHTML = initLogHtml;
+    if (inlineTerminalBody) inlineTerminalBody.innerHTML = initLogHtml;
+
+    const logCount = document.getElementById("pipeline-log-count");
+    const inlineLogCount = document.getElementById("inline-pipeline-log-count");
+    [logCount, inlineLogCount].forEach(lc => {
+        if (lc) lc.textContent = "1 event";
+    });
+
+    // Reset stage items in both views
+    const stageIds = ["ingestion", "parsing", "sla", "ai_insights", "storage", "reporting"];
+    stageIds.forEach(id => {
+        ["stage-", "inline-stage-"].forEach(prefix => {
+            const item = document.getElementById(`${prefix}${id}`);
+            const timeBadge = document.getElementById(`${prefix}time-${id}`);
+            const icon = document.getElementById(`${prefix}icon-${id}`);
+
+            if (item) item.className = "pipeline-stage-item stage-pending";
+            if (timeBadge) timeBadge.textContent = "--";
+            if (icon) {
+                const defaults = { ingestion: "📥", parsing: "🔄", sla: "⚖️", ai_insights: "🧠", storage: "💾", reporting: "📊" };
+                icon.textContent = defaults[id] || "⏳";
+            }
+        });
+    });
+
+    // Start timer badge for both views
+    pipelineStartTime = Date.now();
+    if (pipelineElapsedTimer) clearInterval(pipelineElapsedTimer);
+    pipelineElapsedTimer = setInterval(() => {
+        const elapsedSec = Math.floor((Date.now() - pipelineStartTime) / 1000);
+        const mins = String(Math.floor(elapsedSec / 60)).padStart(2, "0");
+        const secs = String(elapsedSec % 60).padStart(2, "0");
+        const timerText = `${mins}:${secs}`;
+        const timerBadge = document.getElementById("pipeline-live-timer");
+        const inlineTimerBadge = document.getElementById("inline-pipeline-timer");
+        if (timerBadge) timerBadge.textContent = timerText;
+        if (inlineTimerBadge) inlineTimerBadge.textContent = timerText;
+    }, 500);
+}
+
+export function closePipelineModal() {
+    const modal = document.getElementById("pipeline-progress-modal");
+    if (modal) modal.classList.add("hidden");
+    if (pipelineElapsedTimer) {
+        clearInterval(pipelineElapsedTimer);
+        pipelineElapsedTimer = null;
+    }
+    if (pipelinePollInterval) {
+        clearInterval(pipelinePollInterval);
+        pipelinePollInterval = null;
+    }
+}
+
+export function togglePipelineLogs(target = "modal") {
+    const isInline = target === "inline";
+    const bodyId = isInline ? "inline-pipeline-terminal-body" : "pipeline-terminal-body";
+    const toggleId = isInline ? "inline-pipeline-log-toggle-icon" : "pipeline-log-toggle-icon";
+    const body = document.getElementById(bodyId);
+    const toggle = document.getElementById(toggleId);
+    if (!body) return;
+    if (body.classList.contains("hidden")) {
+        body.classList.remove("hidden");
+        if (toggle) toggle.textContent = "▼ Collapse";
+    } else {
+        body.classList.add("hidden");
+        if (toggle) toggle.textContent = "▲ Expand";
+    }
+}
+
+export function updatePipelineModal(data) {
+    if (!data) return;
+
+    const stages = data.stages || [];
+    const statusBadge = document.getElementById("pipeline-status-badge");
+    const inlineStatusBadge = document.getElementById("inline-pipeline-status-badge");
+    const progressFill = document.getElementById("pipeline-progress-fill");
+    const inlineProgressFill = document.getElementById("inline-pipeline-progress-fill");
+    const footerStatus = document.getElementById("pipeline-footer-status");
+    const inlineFooterStatus = document.getElementById("inline-pipeline-footer-status");
+    const closeBtn = document.getElementById("pipeline-close-btn");
+    const closeXBtn = document.getElementById("pipeline-close-x-btn");
+    const viewReportBtn = document.getElementById("pipeline-view-report-btn");
+    const inlineViewReportBtn = document.getElementById("inline-pipeline-view-report-btn");
+    const inlineSpinner = document.getElementById("inline-pipeline-spinner");
+    const terminalBody = document.getElementById("pipeline-terminal-body");
+    const inlineTerminalBody = document.getElementById("inline-pipeline-terminal-body");
+    const logCount = document.getElementById("pipeline-log-count");
+    const inlineLogCount = document.getElementById("inline-pipeline-log-count");
+
+    let completedCount = 0;
+    const stageIcons = {
+        ingestion: "📥",
+        parsing: "🔄",
+        sla: "⚖️",
+        ai_insights: "🧠",
+        storage: "💾",
+        reporting: "📊"
+    };
+
+    stages.forEach(st => {
+        ["stage-", "inline-stage-"].forEach(prefix => {
+            const item = document.getElementById(`${prefix}${st.id}`);
+            const timeBadge = document.getElementById(`${prefix}time-${st.id}`);
+            const detail = document.getElementById(`${prefix}detail-${st.id}`);
+            const icon = document.getElementById(`${prefix}icon-${st.id}`);
+
+            if (item) {
+                item.className = `pipeline-stage-item stage-${st.status}`;
+            }
+            if (timeBadge) {
+                if (st.elapsed_ms > 0) {
+                    timeBadge.textContent = st.elapsed_ms >= 1000 ? `${(st.elapsed_ms / 1000).toFixed(1)}s` : `${st.elapsed_ms}ms`;
+                } else if (st.status === "running") {
+                    timeBadge.textContent = "Running...";
+                }
+            }
+            if (detail && st.detail) {
+                detail.textContent = st.detail;
+            }
+            if (icon) {
+                if (st.status === "completed") icon.textContent = "✓";
+                else if (st.status === "running") icon.innerHTML = '<span class="spinner-inline" style="border-top-color:#ffffff; border-color:rgba(255,255,255,0.3); width:14px; height:14px;"></span>';
+                else if (st.status === "failed") icon.textContent = "✕";
+                else icon.textContent = stageIcons[st.id] || "⏳";
+            }
+        });
+
+        if (st.status === "completed") completedCount++;
+    });
+
+    const pct = Math.min(100, Math.round((completedCount / (stages.length || 6)) * 100));
+    const finalWidth = data.overall_status === "completed" ? "100%" : `${Math.max(5, pct)}%`;
+    [progressFill, inlineProgressFill].forEach(pf => {
+        if (pf) pf.style.width = finalWidth;
+    });
+
+    // Render Logs to both terminal streams
+    const logs = data.logs || [];
+    [logCount, inlineLogCount].forEach(lc => {
+        if (lc) lc.textContent = `${logs.length} events`;
+    });
+
+    if (logs.length > 0) {
+        const logHtml = logs.map(l => `
+            <div class="pipeline-log-row">
+                <span class="pipeline-log-ts">[${l.timestamp}]</span>
+                <span class="pipeline-log-stage">[${(l.stage || "INFO").toUpperCase()}]</span>
+                <span class="pipeline-log-msg level-${l.level || 'INFO'}">${l.message}</span>
+            </div>
+        `).join("");
+
+        if (terminalBody) {
+            terminalBody.innerHTML = logHtml;
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+        if (inlineTerminalBody) {
+            inlineTerminalBody.innerHTML = logHtml;
+            inlineTerminalBody.scrollTop = inlineTerminalBody.scrollHeight;
+        }
+    }
+
+    if (data.overall_status === "completed") {
+        window.pipelineCanDismiss = true;
+        [statusBadge, inlineStatusBadge].forEach(sb => {
+            if (sb) {
+                sb.textContent = "COMPLETED";
+                sb.style.background = "#dcfce7";
+                sb.style.color = "#15803d";
+            }
+        });
+        const durationSec = (data.total_elapsed_ms / 1000).toFixed(1);
+        [footerStatus, inlineFooterStatus].forEach(fs => {
+            if (fs) fs.textContent = `Completed in ${durationSec}s`;
+        });
+        if (inlineSpinner) inlineSpinner.style.display = "none";
+        if (closeBtn) closeBtn.style.display = "inline-flex";
+        if (closeXBtn) closeXBtn.style.display = "inline-flex";
+
+        if (data.report_url) {
+            if (viewReportBtn) {
+                viewReportBtn.href = data.report_url;
+                viewReportBtn.style.display = "inline-flex";
+            }
+            if (inlineViewReportBtn) {
+                inlineViewReportBtn.href = data.report_url;
+                inlineViewReportBtn.classList.remove("hidden");
+            }
+        }
+    } else if (data.overall_status === "failed") {
+        window.pipelineCanDismiss = true;
+        [statusBadge, inlineStatusBadge].forEach(sb => {
+            if (sb) {
+                sb.textContent = "FAILED";
+                sb.style.background = "#fee2e2";
+                sb.style.color = "#b91c1c";
+            }
+        });
+        const errMsg = `Error: ${data.error_message || "Pipeline failed"}`;
+        [footerStatus, inlineFooterStatus].forEach(fs => {
+            if (fs) fs.textContent = errMsg;
+        });
+        if (inlineSpinner) inlineSpinner.style.display = "none";
+        if (closeBtn) closeBtn.style.display = "inline-flex";
+        if (closeXBtn) closeXBtn.style.display = "inline-flex";
+    } else {
+        if (data.current_stage_id) {
+            const stageText = `Executing stage: ${data.current_stage_id.replace('_', ' ').toUpperCase()}...`;
+            [footerStatus, inlineFooterStatus].forEach(fs => {
+                if (fs) fs.textContent = stageText;
+            });
+        }
+    }
+}
+
+export function startPipelineTracking(runId, tool, targetName) {
+    openPipelineModal(tool, targetName);
+
+    if (pipelinePollInterval) clearInterval(pipelinePollInterval);
+
+    pipelinePollInterval = setInterval(async () => {
+        try {
+            const url = runId ? `/api/pipeline/status?run_id=${encodeURIComponent(runId)}` : "/api/pipeline/status";
+            const data = await api.get(url);
+
+            if (data && data.stages && data.stages.length > 0) {
+                updatePipelineModal(data);
+
+                if (data.overall_status === "completed" || data.overall_status === "failed") {
+                    clearInterval(pipelinePollInterval);
+                    pipelinePollInterval = null;
+                    if (pipelineElapsedTimer) {
+                        clearInterval(pipelineElapsedTimer);
+                        pipelineElapsedTimer = null;
+                    }
+                    loadRuns();
+                    loadReports();
+                }
+            }
+        } catch (err) {
+            console.warn("Pipeline polling ping:", err);
+        }
+    }, 450);
+}
+
 export async function handleRunTest(e) {
     if (e) e.preventDefault();
 
@@ -19,27 +337,35 @@ export async function handleRunTest(e) {
         }
         const file = fileInput.files[0];
         const scenarioName = document.getElementById("raw-test-name") ? document.getElementById("raw-test-name").value : "";
+        const slaSelect = document.getElementById("raw-sla-select");
+        const slaFile = slaSelect ? slaSelect.value : "";
         const formData = new FormData();
         formData.append("file", file);
         formData.append("tool", tool);
         if (scenarioName) formData.append("test_name", scenarioName);
+        if (slaFile) formData.append("sla_file", slaFile);
 
+        // Open live pipeline progress stepper modal immediately
+        startPipelineTracking(null, tool, scenarioName || file.name);
+
+        const btn = document.getElementById("btn-launch-test");
         try {
-            const btn = document.getElementById("btn-launch-test");
-            if (btn) btn.textContent = "Ingesting & Normalizing...";
+            if (btn) btn.textContent = "Processing Pipeline...";
             const data = await api.upload("/api/ingest/upload", formData);
             if (data.success) {
-                alert(`Successfully processed ${file.name}! Report generated: ${data.report_url}`);
-                window.open(data.report_url, "_blank");
+                // Ensure tracker captures completion with exact report_url
+                if (data.run_id) {
+                    const statusRes = await api.get(`/api/pipeline/status?run_id=${encodeURIComponent(data.run_id)}`);
+                    if (statusRes) updatePipelineModal(statusRes);
+                }
                 loadRuns();
                 loadReports();
             } else {
                 alert("Upload failed: " + (data.message || JSON.stringify(data)));
             }
         } catch (err) {
-            alert("Upload ingestion error: " + err);
+            console.error("Upload ingestion error: ", err);
         } finally {
-            const btn = document.getElementById("btn-launch-test");
             if (btn) btn.textContent = "Upload & Generate Report";
         }
         return;
@@ -53,6 +379,8 @@ export async function handleRunTest(e) {
             return;
         }
 
+        startPipelineTracking(null, tool, `${tool.toUpperCase()} ID: ${testId}`);
+
         try {
             const endpoint = method === "mcp" ? "/api/ingest/mcp" : "/api/ingest/api";
             const data = await api.post(endpoint, {
@@ -61,15 +389,17 @@ export async function handleRunTest(e) {
                 users: users
             });
             if (data.success) {
-                alert(`Successfully ingested ${tool} test ${testId}!`);
-                if (data.report_url) window.open(data.report_url, "_blank");
+                if (data.run_id) {
+                    const statusRes = await api.get(`/api/pipeline/status?run_id=${encodeURIComponent(data.run_id)}`);
+                    if (statusRes) updatePipelineModal(statusRes);
+                }
                 loadRuns();
                 loadReports();
             } else {
                 alert("Ingestion error: " + (data.message || JSON.stringify(data)));
             }
         } catch (err) {
-            alert("Ingestion request failed: " + err);
+            console.error("Ingestion request failed: ", err);
         }
         return;
     }
@@ -248,7 +578,39 @@ export async function handleStopTest() {
     }
 }
 
+export async function loadSlaOptions() {
+    try {
+        const slaSelect = document.getElementById("raw-sla-select");
+        if (!slaSelect) return;
+        const res = await api.get("/api/ingest/sla-options");
+        if (res && res.sla_files) {
+            slaSelect.innerHTML = '<option value="">Auto-detect (Paired scenario SLA or config/sla_targets.csv)</option>';
+            res.sla_files.forEach(f => {
+                const opt = document.createElement("option");
+                opt.value = f.path;
+                opt.textContent = f.name;
+                slaSelect.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.warn("Could not load SLA options:", e);
+    }
+}
+
 window.handleRunTest = handleRunTest;
 window.startLivePolling = startLivePolling;
 window.checkAndResumeLivePolling = checkAndResumeLivePolling;
 window.handleStopTest = handleStopTest;
+window.loadSlaOptions = loadSlaOptions;
+window.openPipelineModal = openPipelineModal;
+window.closePipelineModal = closePipelineModal;
+window.togglePipelineLogs = togglePipelineLogs;
+window.updatePipelineModal = updatePipelineModal;
+window.startPipelineTracking = startPipelineTracking;
+
+// Load SLA options on startup
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadSlaOptions);
+} else {
+    loadSlaOptions();
+}

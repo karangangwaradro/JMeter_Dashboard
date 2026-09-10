@@ -3,7 +3,7 @@ parser.py — Abstract interfaces for parsing native test and infrastructure res
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict, Optional
 from app.domain.models.timeseries import TimeSeriesResult
 from app.domain.models.aggregate import AggregateResult
 from app.domain.models.server_metrics import ServerMetrics
@@ -13,7 +13,7 @@ class TimeSeriesParser(ABC):
     """Parses raw tool results into a normalized TimeSeriesResult domain model."""
 
     @abstractmethod
-    def parse_timeseries(self, raw_data: Any, test_id: str) -> TimeSeriesResult:
+    def parse_timeseries(self, raw_data: Any, test_id: str, options: Optional[Dict[str, Any]] = None) -> TimeSeriesResult:
         """Translates tool-specific time series data into a typed TimeSeriesResult."""
         pass
 

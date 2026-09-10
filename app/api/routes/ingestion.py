@@ -30,12 +30,20 @@ class MCPIngestRequest(BaseModel):
     users: int = 1
 
 
+@router.get("/sla-options")
+def get_sla_options() -> Dict[str, Any]:
+    """Returns available SLA target profile files from config/ and Tests/."""
+    from app.services.analytics.sla_manager import list_available_sla_files
+    return {"sla_files": list_available_sla_files()}
+
+
 @router.post("/upload")
 async def upload_result_file(
     file: UploadFile = File(...),
     tool: str = Form("jmeter"),
     test_name: Optional[str] = Form(None),
     users: int = Form(1),
+    sla_file: Optional[str] = Form(None),
 ) -> Dict[str, Any]:
     """
     Ingests an uploaded raw performance result file (JTL, BlazeMeter JSON, NeoLoad CSV/XML),
@@ -48,12 +56,17 @@ async def upload_result_file(
         target_path.write_bytes(content)
 
         tool_enum = ToolType(tool.lower())
+        opts = {}
+        if sla_file:
+            opts["sla_file"] = sla_file
+
         res = orchestrator.ingest_and_process(
             tool=tool_enum,
             ingestion=IngestionMethod.FILE_UPLOAD,
             identifier=str(target_path),
             test_name=test_name or filename,
             users=users,
+            options=opts,
         )
         return res
     except Exception as e:

@@ -36,6 +36,7 @@ from app.api.routes.compare import router as compare_router
 from app.api.routes.trends import router as trends_router
 from app.api.routes.ai_studio import router as ai_studio_router
 from app.api.routes.reports import router as reports_router
+from app.api.routes.pipeline import router as pipeline_router
 
 
 def create_app() -> FastAPI:
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     app.include_router(trends_router)
     app.include_router(ai_studio_router)
     app.include_router(reports_router)
+    app.include_router(pipeline_router)
 
     # 4. Smart Static Results Route (/Results/{file_path:path})
     @app.get("/Results/{file_path:path}")

@@ -326,8 +326,8 @@ Write observations in a direct, factual, client-facing performance engineering s
 Do not use speculative words like "hypothesis". State direct measured facts, exact iteration counts, response time ranges (in seconds or ms), and error counts.
 
 STRICT CLIENT-FACING LANGUAGE RULES:
-- NEVER use or mention internal code tags or IDs such as "F-001", "F-012", "F-014", "R-001", or any "F-xxx" / "R-xxx" tokens anywhere in observations, recommendations, conclusions, or summaries.
-- Explain everything in simple, clear, professional client-facing terms (e.g. say "server CPU saturation" instead of "(F-012)", say "application errors and transaction failures" instead of "(F-014)", say "elevated response times").
+- Write all observations, recommendations, conclusions, and summaries in clear, professional client-facing terms without referring to internal IDs or rule codes (e.g. say "server CPU saturation" instead of "(F-012)", say "application errors and transaction failures" instead of "(F-014)").
+- For finding IDs in the JSON output, use simple numbers ("1", "2", "3", etc.).
 
 SLA & NFR COMPLIANCE EVALUATION RULES:
 - Explicitly take the DEFINED SLA TARGETS into consideration in all observations and recommendations.
@@ -410,7 +410,7 @@ Respond ONLY with a valid JSON object (no markdown, no code fences) matching thi
   "executive_summary": "2-3 sentence concise executive assessment citing key test facts",
   "findings": [
     {{
-      "id": "F-001",
+      "id": "1",
       "title": "Concise finding title (e.g. Server CPU Saturation at Peak Concurrency)",
       "severity": "Critical",
       "category": "Infrastructure Saturation",

@@ -1,25 +1,51 @@
 """
 timeseries_parser.py — Converts BlazeMeter timeline metrics into a typed TimeSeriesResult.
 Responsible ONLY for normalizing BlazeMeter timeline data into the common domain contract.
+Handles both BlazeMeter JSON API timeline responses and BlazeMeter raw execution files (kpi.jtl).
 """
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from app.core.exceptions import ParserError
 from app.domain.interfaces.parser import TimeSeriesParser
 from app.domain.models.timeseries import TimeSeriesResult, LabelTimeSeries
+from app.integrations.blazemeter.kpi_parser import blazemeter_kpi_parser
 
 
 class BlazeMeterTimeSeriesParser(TimeSeriesParser):
-    """Translates BlazeMeter timeline responses into a typed TimeSeriesResult."""
+    """Translates BlazeMeter timeline responses and raw KPI logs into a typed TimeSeriesResult."""
 
-    def parse_timeseries(self, raw_data: Union[Path, str, Dict[str, Any]], test_id: str) -> TimeSeriesResult:
+    def parse_timeseries(
+        self,
+        raw_data: Union[Path, str, Dict[str, Any]],
+        test_id: str,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> TimeSeriesResult:
+        options = options or {}
         try:
+            # Check if raw_data is a file or directory path
             if isinstance(raw_data, (str, Path)):
+                p = Path(raw_data)
+                # If directory, find kpi.jtl
+                if p.is_dir():
+                    kpi_cand = p / "kpi.jtl"
+                    if not kpi_cand.exists():
+                        for f in p.glob("*.jtl"):
+                            kpi_cand = f
+                            break
+                    if kpi_cand.exists():
+                        return blazemeter_kpi_parser.parse_timeseries(kpi_cand, test_id, options=options)
+                    raise ParserError(f"No kpi.jtl found in directory {p}", context={"test_id": test_id})
+
+                # If JTL or CSV file
+                if p.suffix.lower() in (".jtl", ".csv"):
+                    return blazemeter_kpi_parser.parse_timeseries(p, test_id, options=options)
+
+                # Otherwise assume JSON payload file
                 import json
-                payload = json.loads(Path(raw_data).read_text(encoding="utf-8"))
+                payload = json.loads(p.read_text(encoding="utf-8"))
             elif isinstance(raw_data, dict):
                 payload = raw_data
             else:
@@ -113,6 +139,8 @@ class BlazeMeterTimeSeriesParser(TimeSeriesParser):
                 label_series=label_series,
             )
         except Exception as e:
+            if isinstance(e, ParserError):
+                raise
             raise ParserError(f"Failed to parse BlazeMeter time-series: {e}", context={"test_id": test_id})
 
 

@@ -255,6 +255,12 @@
                                     <label for="raw-test-name">Scenario / Test Name</label>
                                     <input type="text" id="raw-test-name" placeholder="Scenario Name">
                                 </div>
+                                <div class="form-group" style="margin-top: 0.5rem;">
+                                    <label for="raw-sla-select">SLA Target Profile</label>
+                                    <select id="raw-sla-select">
+                                        <option value="">Auto-detect (Paired scenario SLA or config/sla_targets.csv)</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem;">
@@ -266,6 +272,123 @@
                                     style="height: 38px;" disabled id="btn-save-config">
                                     Save Configuration
                                 </button>
+                            </div>
+
+                            <!-- Live Inline Pipeline Stepper View -->
+                            <div id="inline-pipeline-container" class="inline-pipeline-card hidden">
+                                <div class="inline-pipeline-header">
+                                    <h3>
+                                        <span class="spinner-inline" id="inline-pipeline-spinner" style="border-top-color:#38bdf8; border-color:rgba(255,255,255,0.2);"></span>
+                                        <span id="inline-pipeline-title">Execution Pipeline</span>
+                                    </h3>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <span class="stage-time-badge" id="inline-pipeline-timer" style="background: rgba(255,255,255,0.15); color: #e2e8f0; font-size: 0.76rem;">00:00</span>
+                                        <span class="badge" id="inline-pipeline-status-badge" style="background: #dbeafe; color: #1d4ed8; font-size: 0.72rem; padding: 0.2rem 0.55rem; font-weight: 700;">RUNNING</span>
+                                    </div>
+                                </div>
+                                <div class="pipeline-progress-track">
+                                    <div id="inline-pipeline-progress-fill" class="pipeline-progress-bar" style="width: 5%;"></div>
+                                </div>
+
+                                <div class="pipeline-stepper-container" style="padding: 1rem 1.15rem; gap: 0.65rem;">
+                                    <!-- Stage 1: Ingestion -->
+                                    <div class="pipeline-stage-item stage-pending" id="inline-stage-ingestion">
+                                        <div class="stage-icon-box" id="inline-stage-icon-ingestion">📥</div>
+                                        <div class="stage-content">
+                                            <div class="stage-header-line">
+                                                <span class="stage-title">1. File Discovery &amp; Ingestion</span>
+                                                <span class="stage-time-badge" id="inline-stage-time-ingestion">--</span>
+                                            </div>
+                                            <p class="stage-detail-msg" id="inline-stage-detail-ingestion">Extracting uploaded archive and discovering test logs</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 2: Parsing -->
+                                    <div class="pipeline-stage-item stage-pending" id="inline-stage-parsing">
+                                        <div class="stage-icon-box" id="inline-stage-icon-parsing">🔄</div>
+                                        <div class="stage-content">
+                                            <div class="stage-header-line">
+                                                <span class="stage-title">2. Metric Parsing &amp; Normalization</span>
+                                                <span class="stage-time-badge" id="inline-stage-time-parsing">--</span>
+                                            </div>
+                                            <p class="stage-detail-msg" id="inline-stage-detail-parsing">Translating raw tool metrics into typed domain contracts</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 3: SLA -->
+                                    <div class="pipeline-stage-item stage-pending" id="inline-stage-sla">
+                                        <div class="stage-icon-box" id="inline-stage-icon-sla">⚖️</div>
+                                        <div class="stage-content">
+                                            <div class="stage-header-line">
+                                                <span class="stage-title">3. Workload &amp; SLA Scenario Resolution</span>
+                                                <span class="stage-time-badge" id="inline-stage-time-sla">--</span>
+                                            </div>
+                                            <p class="stage-detail-msg" id="inline-stage-detail-sla">Calculating concurrency and resolving SLA threshold profiles</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 4: AI Insights -->
+                                    <div class="pipeline-stage-item stage-pending" id="inline-stage-ai_insights">
+                                        <div class="stage-icon-box" id="inline-stage-icon-ai_insights">🧠</div>
+                                        <div class="stage-content">
+                                            <div class="stage-header-line">
+                                                <span class="stage-title">4. AI Insights Synthesis</span>
+                                                <span class="stage-time-badge" id="inline-stage-time-ai_insights">--</span>
+                                            </div>
+                                            <p class="stage-detail-msg" id="inline-stage-detail-ai_insights">Multi-provider LLM analysis for findings and recommendations</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 5: Storage -->
+                                    <div class="pipeline-stage-item stage-pending" id="inline-stage-storage">
+                                        <div class="stage-icon-box" id="inline-stage-icon-storage">💾</div>
+                                        <div class="stage-content">
+                                            <div class="stage-header-line">
+                                                <span class="stage-title">5. Artifact Serialization</span>
+                                                <span class="stage-time-badge" id="inline-stage-time-storage">--</span>
+                                            </div>
+                                            <p class="stage-detail-msg" id="inline-stage-detail-storage">Persisting normalized models and backward-compatible JSON</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 6: Reporting -->
+                                    <div class="pipeline-stage-item stage-pending" id="inline-stage-reporting">
+                                        <div class="stage-icon-box" id="inline-stage-icon-reporting">📊</div>
+                                        <div class="stage-content">
+                                            <div class="stage-header-line">
+                                                <span class="stage-title">6. HTML Report Compilation</span>
+                                                <span class="stage-time-badge" id="inline-stage-time-reporting">--</span>
+                                            </div>
+                                            <p class="stage-detail-msg" id="inline-stage-detail-reporting">Building standalone interactive performance report</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Collapsible Terminal Logs -->
+                                <div class="pipeline-terminal-drawer">
+                                    <div class="pipeline-terminal-header" onclick="togglePipelineLogs('inline')">
+                                        <span>Terminal Stream &amp; Diagnostics (<span id="inline-pipeline-log-count">0 events</span>)</span>
+                                        <span id="inline-pipeline-log-toggle-icon">▲ Expand</span>
+                                    </div>
+                                    <div id="inline-pipeline-terminal-body" class="pipeline-terminal-body hidden">
+                                        <div class="pipeline-log-row">
+                                            <span class="pipeline-log-ts">[00:00.000]</span>
+                                            <span class="pipeline-log-stage">[INIT]</span>
+                                            <span class="pipeline-log-msg">Pipeline initialized.</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="inline-pipeline-footer">
+                                    <div id="inline-pipeline-footer-status" style="font-size: 0.8rem; color: #64748b; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        Initializing pipeline stages...
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0;">
+                                        <a id="inline-pipeline-view-report-btn" href="#" target="_blank" class="btn btn-primary hidden" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; text-decoration: none; font-weight: 700;">
+                                            📊 Open Generated Report ↗
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </section>

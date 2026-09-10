@@ -27,20 +27,48 @@ _SCENARIO_COL_REGEX = re.compile(
 
 
 def get_sla_file_path(jmx_name: str = "") -> Path:
-    """Get paired CSV path for a JMX file, or fallback to default config/sla_targets.csv."""
+    """Get paired CSV path for a JMX file, direct SLA file path, or fallback to default config/sla_targets.csv."""
     _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
     if jmx_name:
-        clean_name = Path(jmx_name).stem
+        p = Path(jmx_name)
+        if p.exists() and p.is_file():
+            return p
+        if (_TESTS_DIR / p.name).exists():
+            return _TESTS_DIR / p.name
+        if (_CONFIG_DIR / p.name).exists():
+            return _CONFIG_DIR / p.name
+
+        clean_name = p.stem
         paired_csv = _TESTS_DIR / f"{clean_name}_sla.csv"
         if paired_csv.exists():
             return paired_csv
-    
+
     # Check default config SLA files
     default_csv = _CONFIG_DIR / "sla_targets.csv"
     if default_csv.exists():
         return default_csv
-        
+
     return _CONFIG_DIR / "sla_targets.xlsx"
+
+
+def list_available_sla_files() -> List[Dict[str, str]]:
+    """Returns all available SLA files from config/ and Tests/."""
+    results: List[Dict[str, str]] = []
+    default_csv = _CONFIG_DIR / "sla_targets.csv"
+    if default_csv.exists():
+        results.append({
+            "name": "Global Default (config/sla_targets.csv)",
+            "path": str(default_csv),
+            "filename": "sla_targets.csv",
+        })
+    if _TESTS_DIR.exists():
+        for p in sorted(_TESTS_DIR.glob("*sla*.csv")):
+            results.append({
+                "name": f"Scenario SLA: {p.stem}",
+                "path": str(p),
+                "filename": p.name,
+            })
+    return results
 
 
 def match_nearest_scenario(scenarios: List[dict], actual_users: Optional[float] = None) -> Tuple[Optional[dict], float]:
