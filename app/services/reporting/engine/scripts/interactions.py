@@ -979,7 +979,18 @@ def get_interactions_js(ctx: dict) -> str:
                 {{ label: 'P99 RT (Overall)', data: overallTs.p99_rt, borderColor: '#ef4444', borderWidth: 1.5, borderDash: [5,3], fill: false, tension: 0.3, pointRadius: 1.5 }}
             ]
         }},
-        options: {{ responsive: true, scales: {{ y: {{ grid: {{ color: gridColor }}, title: {{ 'display': true, text: 'ms' }} }}, x: {{ grid: {{ 'display': false }} }} }} }}
+        options: {{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {{
+                legend: {{ position: 'top', labels: {{ color: textColor, font: {{ weight: '600' }} }} }},
+                tooltip: {{ mode: 'index', intersect: false }}
+            }},
+            scales: {{
+                x: {{ grid: {{ display: false }}, ticks: {{ color: textColor, font: {{ weight: '600' }} }} }},
+                y: {{ grid: {{ color: gridColor }}, ticks: {{ color: textColor }}, title: {{ display: true, text: 'ms', color: textColor }} }}
+            }}
+        }}
     }});
 
     function updateRtChart(selectedKeys) {{

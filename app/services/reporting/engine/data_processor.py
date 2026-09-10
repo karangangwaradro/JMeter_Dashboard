@@ -312,8 +312,19 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             sla_status_html = f'<span style="color: {severity_color}; font-weight:700;">{severity_label}</span>'
 
         # Build the row HTML
-        err_cls = "pass" if not err_breached else "fail"
-        rt_cls = "pass" if not p90_breached else "fail"
+        if node_type == "request":
+            # Requests do not have SLA targets: display metrics in neutral colors without pass/fail coloring
+            err_cls = "fail" if ldata.get("errors", 0) > 0 else ""
+            rt_cls = ""
+            p90_val_html = f'<span class="tx-rt-val">{ldata["p90"]}</span>'
+        elif is_display_tx:
+            err_cls = "pass" if not err_breached else "fail"
+            rt_cls = "pass" if not p90_breached else "fail"
+            p90_val_html = f'<strong class="tx-rt-val">{ldata["p90"]}</strong>'
+        else:
+            err_cls = ""
+            rt_cls = ""
+            p90_val_html = f'<span class="tx-rt-val">{ldata["p90"]}</span>'
 
         # Indentation & styling based on depth and type
         indent_px = depth * 20
@@ -324,8 +335,8 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
 
         if node_type == "request":
             # Leaf HTTP request row
-            name_html = f'<span style="padding-left:{indent_px}px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--muted);">{lname}</code></span>'
-            row_style = 'background: var(--surface2); font-size: 0.78rem; color: var(--muted);'
+            name_html = f'<span style="padding-left:{indent_px}px; display:inline-flex; align-items:center; gap:0.4rem;"><span style="color:var(--muted); font-size:0.8rem;">↳</span> <code style="font-size:0.78rem; color:var(--text);">{lname}</code></span>'
+            row_style = 'background: var(--surface2); font-size: 0.78rem; color: var(--text);'
             apdex_cell = '-'
             sla_rt_cell = '-'
             dev_cell = '-'
@@ -359,7 +370,7 @@ def prepare_report_data(parsed: dict, azure_data: dict, ai_insights: dict,
             <td>{ldata['count']:,}</td>
             <td>{apdex_cell}</td>
             <td class="{rt_cls} tx-rt-cell" data-ms="{ldata['avg_rt']:.1f}"><span class="tx-rt-val">{ldata['avg_rt']:.0f}</span></td>
-            <td class="{rt_cls} tx-rt-cell" data-ms="{ldata['p90']}"><strong class="tx-rt-val">{ldata['p90']}</strong></td>
+            <td class="{rt_cls} tx-rt-cell" data-ms="{ldata['p90']}">{p90_val_html}</td>
             <td class="tx-rt-cell" data-ms="{ldata['min_rt']}"><span class="tx-rt-val">{ldata['min_rt']}</span></td>
             <td class="tx-rt-cell" data-ms="{ldata['max_rt']}"><span class="tx-rt-val">{ldata['max_rt']}</span></td>
             <td class="{err_cls}">{ldata['error_rate']:.2f}%</td>

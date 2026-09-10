@@ -553,8 +553,8 @@ def render_tab_executive(ctx: dict) -> str:
                   
                 </div>
                 <div>
-                    <button type="button" onclick="addTxRtChartView()" style="background:var(--accent); color:#ffffff; border:none; padding:0.45rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:0.4rem; box-shadow: 0 2px 6px rgba(99,102,241,0.3);">
-                        <span>➕</span> Add / Duplicate Comparison Chart
+                    <button type="button" onclick="duplicateActiveOrAddTxRtView()" style="background:var(--accent); color:#ffffff; border:none; padding:0.45rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:0.4rem; box-shadow: 0 2px 6px rgba(99,102,241,0.3);" title="Capture current filtered view as a frozen snapshot comparison">
+                        <span>📸</span> Snapshot Current View
                     </button>
                 </div>
             </div>

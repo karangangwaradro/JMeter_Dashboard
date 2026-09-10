@@ -540,7 +540,7 @@ def get_charts_js(ctx: dict) -> str:
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem;">
-                    <button type="button" onclick="duplicateTxRtView(${{panelId}})" title="Duplicate this exact view" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); font-size:0.72rem; font-weight:600; padding:0.25rem 0.55rem; border-radius:4px; cursor:pointer;">⧉ Duplicate</button>
+                    <button type="button" onclick="duplicateTxRtView(${{panelId}})" title="Capture current filtered view as a frozen snapshot comparison" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); font-size:0.72rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:0.25rem;">📸 Snapshot</button>
                     ${{canRemove ? `<button type="button" onclick="removeTxRtChartView(${{panelId}})" title="Close this chart view" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:0.75rem; font-weight:700; padding:0.25rem 0.55rem; border-radius:4px; cursor:pointer;">✕</button>` : ''}}
                 </div>
             </div>
@@ -711,23 +711,156 @@ def get_charts_js(ctx: dict) -> str:
         updatePanelChart(panelId);
     }}
 
+    function duplicateActiveOrAddTxRtView() {{
+        const activePanel = txRtChartPanels.find(p => !p.isSnapshot) || txRtChartPanels[0];
+        if (activePanel) {{
+            duplicateTxRtView(activePanel.id);
+        }} else {{
+            addTxRtChartView('avg_rt');
+        }}
+    }}
+
     function duplicateTxRtView(sourcePanelId) {{
         const src = txRtChartPanels.find(p => p.id === sourcePanelId);
-        if (!src) return;
-        addTxRtChartView(src.metric);
-        const newPanel = txRtChartPanels[txRtChartPanels.length - 1];
-        if (newPanel) {{
-            newPanel.us = src.us;
-            newPanel.txs = [...(src.txs || ['ALL'])];
-            newPanel.metric = src.metric;
-            const usSel = document.getElementById(`txRtUsSelect-${{newPanel.id}}`);
-            if (usSel) usSel.value = src.us;
-            populatePanelTxDropdown(newPanel.id);
-            if (newPanel.msInstance) newPanel.msInstance.setSelected(newPanel.txs);
-            const mSel = document.getElementById(`txRtMetricSelect-${{newPanel.id}}`);
-            if (mSel) mSel.value = src.metric;
-            updatePanelChart(newPanel.id);
+        if (!src || !src.chartObj) return;
+
+        const container = document.getElementById('txRtChartsContainer');
+        if (!container) return;
+
+        const panelId = nextTxRtPanelId++;
+        const mInfo = txRtMetricColorMap[src.metric] || txRtMetricColorMap['avg_rt'];
+
+        let srcUsLabel = src.us === 'ALL' ? 'All User Journeys' : src.us;
+        let srcTxLabel = 'All Transactions';
+        const selectedTxs = src.txs || ['ALL'];
+        if (!selectedTxs.includes('ALL') && selectedTxs.length > 0) {{
+            if (selectedTxs.length === 1) {{
+                srcTxLabel = selectedTxs[0];
+            }} else {{
+                srcTxLabel = `${{selectedTxs.length}} Transactions Selected`;
+            }}
         }}
+
+        const srcBreadcrumb = document.getElementById(`txRtBreadcrumb-${{sourcePanelId}}`);
+        const breadcrumbHtml = srcBreadcrumb ? srcBreadcrumb.innerHTML : '';
+
+        const cardEl = document.createElement('div');
+        cardEl.id = `tx-rt-panel-${{panelId}}`;
+        cardEl.className = 'glass-panel tx-rt-snapshot-panel';
+        cardEl.style.cssText = 'background:var(--surface1); border:1px solid rgba(99,102,241,0.35); border-left:4px solid var(--accent); border-radius:10px; padding:1.25rem; position:relative; width:100%; box-sizing:border-box; box-shadow:0 4px 16px rgba(0,0,0,0.06);';
+
+        cardEl.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem; border-bottom:1px solid var(--border); padding-bottom:0.6rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <span style="font-size:0.75rem; font-weight:800; color:var(--accent); background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.3); padding:0.25rem 0.65rem; border-radius:6px; display:inline-flex; align-items:center; gap:0.35rem;">
+                        📸 Snapshot
+                    </span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--text); background:var(--surface2); border:1px solid var(--border); padding:0.25rem 0.55rem; border-radius:6px;">
+                        ${{mInfo.label}}
+                    </span>
+                    <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.25rem 0.55rem; border-radius:6px;">
+                        📁 ${{srcUsLabel}}
+                    </span>
+                    <span style="font-size:0.75rem; font-weight:600; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0.25rem 0.55rem; border-radius:6px;">
+                        📊 ${{srcTxLabel}}
+                    </span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <button type="button" onclick="removeTxRtChartView(${{panelId}})" title="Close this snapshot comparison" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:0.75rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:0.25rem;">✕ Close Snapshot</button>
+                </div>
+            </div>
+            <div id="txRtBreadcrumb-${{panelId}}" style="font-size:0.75rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.3rem;">
+                ${{breadcrumbHtml}}
+            </div>
+            <div style="position:relative; height:320px; width:100%;">
+                <canvas id="chart-tx-rt-canvas-${{panelId}}"></canvas>
+            </div>
+        `;
+
+        const srcCard = document.getElementById(`tx-rt-panel-${{sourcePanelId}}`);
+        if (srcCard && srcCard.nextSibling) {{
+            container.insertBefore(cardEl, srcCard.nextSibling);
+        }} else {{
+            container.appendChild(cardEl);
+        }}
+
+        const srcLabels = [...(src.chartObj.data.labels || [])];
+        const srcDatasets = src.chartObj.data.datasets.map(ds => ({{
+            label: ds.label,
+            data: [...(ds.data || [])],
+            borderColor: ds.borderColor,
+            backgroundColor: ds.backgroundColor,
+            fill: ds.fill !== undefined ? ds.fill : true,
+            tension: ds.tension !== undefined ? ds.tension : 0.35,
+            borderWidth: ds.borderWidth || 2.5,
+            pointRadius: ds.pointRadius || 5,
+            pointHoverRadius: ds.pointHoverRadius || 7,
+            pointBackgroundColor: ds.pointBackgroundColor || ds.borderColor,
+            pointBorderColor: ds.pointBorderColor || '#ffffff',
+            pointBorderWidth: ds.pointBorderWidth || 1.5
+        }}));
+
+        const canvas = document.getElementById(`chart-tx-rt-canvas-${{panelId}}`);
+        const isDark = document.documentElement.classList.contains('dark');
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+        const textColor = isDark ? '#94a3b8' : '#64748b';
+
+        const chartObj = new Chart(canvas, {{
+            type: 'line',
+            data: {{
+                labels: srcLabels,
+                datasets: srcDatasets
+            }},
+            plugins: [txRtLineLabelsPlugin],
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    legend: {{
+                        position: 'top',
+                        labels: {{
+                            color: textColor,
+                            font: {{ weight: '600', size: 11 }}
+                        }}
+                    }},
+                    tooltip: {{
+                        mode: 'index',
+                        intersect: false
+                    }}
+                }},
+                scales: {{
+                    x: {{
+                        grid: {{ display: false }},
+                        ticks: {{
+                            color: textColor,
+                            font: {{ weight: '600' }}
+                        }}
+                    }},
+                    y: {{
+                        grid: {{ color: gridColor }},
+                        ticks: {{ color: textColor }},
+                        title: {{
+                            display: true,
+                            text: mInfo.label,
+                            color: textColor
+                        }}
+                    }}
+                }}
+            }}
+        }});
+        chartObj.config._metricKey = src.metric;
+
+        const panelObj = {{
+            id: panelId,
+            isSnapshot: true,
+            sourceId: sourcePanelId,
+            us: src.us,
+            txs: [...src.txs],
+            metric: src.metric,
+            chartObj: chartObj,
+            msInstance: null
+        }};
+        txRtChartPanels.push(panelObj);
     }}
 
     function removeTxRtChartView(panelId) {{
@@ -744,7 +877,7 @@ def get_charts_js(ctx: dict) -> str:
 
     function updatePanelChart(panelId) {{
         const panel = txRtChartPanels.find(p => p.id === panelId);
-        if (!panel || !panel.chartObj) return;
+        if (!panel || !panel.chartObj || panel.isSnapshot) return;
 
         const breadcrumbEl = document.getElementById(`txRtBreadcrumb-${{panelId}}`);
         let items = [];

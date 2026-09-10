@@ -473,7 +473,7 @@ def render_tab_response_time(ctx: dict) -> str:
                 </div>
             </div>
             <button class="chart-info-btn" onclick="openGraphModal('rt-over-time')" title="How to read this graph &amp; use filters">ℹ️</button>
-            <div style="position: relative; height: 260px; width: 100%;">
+            <div style="position: relative; height: 280px; width: 100%;">
                 <canvas id="rtChart"></canvas>
             </div>
             {rt_observation_html}
