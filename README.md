@@ -8,13 +8,39 @@ An enterprise performance testing, telemetry correlation, AI diagnostics, and in
 
 - **Multi-Tool Support:** Native support for Apache JMeter, BlazeMeter Cloud, and NeoLoad Web.
 - **Multiple Ingestion Methods:** Local CLI execution, direct REST API polling, Model Context Protocol (MCP), and raw result file uploads.
-- **Strongly Typed Domain Contracts:** Internal communication strictly through Pydantic V2 models (`TimeSeriesResult`, `AggregateResult`, `ServerMetrics`).
+- **Strongly Typed Domain Contracts:** Internal communication strictly through Pydantic V2 models (`TimeSeriesResult`, `AggregateResult`, `ServerMetrics`) with two-way legacy schema key normalization.
 - **Decoupled Architecture:** Complete independence between Execution, Collection, Parsing, Normalization, Analytics, and Reporting.
-- **SLA & Apdex Management:** Nearest-neighbor load scenario matching, hierarchical transaction parsing, and custom SLA targets.
+- **SLA & Apdex Management:** Strict transaction vs. request hierarchy (`MAIN_TRANSACTION` depth=0 vs `HTTP_REQUEST` depth=1), evaluating SLAs and compliance strictly at transaction level while keeping leaf request metrics neutrally styled.
 - **Infrastructure Telemetry Correlation:** Correlate test performance against Azure Monitor, Prometheus, or generic CSV metrics.
-- **AI Diagnostics & Scoring:** Multi-provider LLM cascade (OpenRouter, Gemini, GitHub) for automated root-cause analysis and executive summaries.
+- **AI Diagnostics & Studio:** Multi-provider LLM cascade (OpenRouter with automatic free-tier fallback on 402, Gemini, GitHub) with token budgeting, live prompt preview, and real-time report telemetry injection.
+- **Executive Summary Multi-Chart Snapshots:** Dynamic time-series chart duplication allowing users to freeze comparison snapshots across user journeys and metrics without cluttered controls.
 - **Historical Trends & 2-Run Comparison:** Multi-release trend engine with heatmap matrix and 2-run differential scorecard.
-- **Modular Report Generator:** Standalone HTML reports synthesized via decoupled components, stylesheets, and scripts.
+- **Modular Report Generator:** Standalone HTML reports synthesized via decoupled components, stylesheets, and scripts with full-width responsive time-series charts (`maintainAspectRatio: false`).
+
+---
+
+## Recent Platform Enhancements
+
+1. **AI Insights Studio Auto-Fallback & Token Optimization**:
+   - Integrated automatic fallback to OpenRouter free-tier models (`google/gemini-2.0-flash-lite-preview-02-05:free`, `meta-llama/llama-3.3-70b-instruct:free`, `deepseek/deepseek-r1:free`) when account credit exhaustion (HTTP 402) occurs.
+   - Built a live prompt preview endpoint with token budgeting, injecting real run telemetry and deterministic findings.
+   - Enhanced the frontend studio with an ES6-to-global bridge for frictionless prompt analysis and direct report generation.
+
+2. **Transaction vs. Request Hierarchy & Accurate SLA Compliance**:
+   - Clarified the distinction between business transactions (`depth=0`) and child HTTP requests (`depth=1`).
+   - SLA targets and overall compliance rates are now evaluated strictly over parent transactions, preventing dilution from leaf requests.
+   - Request-level rows in the report transaction breakdown table now render in neutral styling (`var(--text)`) without misleading pass/fail coloring, reflecting that SLAs apply exclusively at transaction level.
+
+3. **Two-Way Schema Normalization**:
+   - Implemented bidirectional key normalization across `AggregateResult` and reporting dictionaries (`avg_response_time` $\leftrightarrow$ `avg_rt`, `duration_seconds` $\leftrightarrow$ `duration_sec`, `total_requests` $\leftrightarrow$ `total`, `failed_requests` $\leftrightarrow$ `errors`).
+   - Fixed zero-value KPI reporting across Executive Summary metric cards and synthetic summaries.
+
+4. **Multi-Chart Snapshot Comparison**:
+   - Added `duplicateTxRtView()` functionality to the Executive Summary response time chart.
+   - When a user duplicates a filtered view, the new snapshot is rendered without interactive filter dropdowns, pinned with a snapshot timestamp badge and close button for side-by-side comparison.
+
+5. **Full-Width Responsive Time-Series Visualizations**:
+   - Configured `maintainAspectRatio: false` with responsive container heights (280px) on time-series charts, allowing them to expand across full viewport widths cleanly.
 
 ---
 

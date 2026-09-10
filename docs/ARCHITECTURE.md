@@ -227,8 +227,12 @@ Represents the total performance summary of a test run across all transactions.
       ]
     }
   }
-}
 ```
+
+> [!NOTE]
+> **Two-Way Key Normalization & Transaction Hierarchy**:
+> - **Field Aliasing**: The platform maintains seamless compatibility between Pydantic V2 models (`avg_response_time`, `duration_seconds`, `total_requests`, `failed_requests`) and historical/legacy JSON keys (`avg_rt`, `duration_sec`, `total`, `errors`).
+> - **Hierarchy**: In `transactions`, entries represent either top-level business user transactions (`depth: 0`, e.g. `TC01_Launch`) or child HTTP requests (`depth: 1`). SLA evaluation and compliance rates are strictly computed against parent business transactions (`depth == 0`), ensuring request-level child calls do not distort SLA scores.
 
 ### Contract 2: `TimeSeriesResult` (`schemas/timeseries.schema.json`)
 Represents time-bucketed performance telemetry across test execution.
@@ -360,17 +364,18 @@ Stores the catalog of all completed runs:
 - [`trends.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/analytics/trends.py): Multi-release historical trend analysis engine. Builds project $\to$ user story $\to$ release hierarchies, latency heatmaps, and renders standalone trend dashboard HTML files.
 
 #### AI Studio & LLM Cascade (`app/services/ai/`):
-- [`insights.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/insights.py): Multi-provider LLM cascade: attempts OpenRouter (primary), Google Gemini (secondary), and GitHub Models (tertiary), falling back gracefully to deterministic rule-based analysis if offline.
-- [`prompts.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/prompts.py): System prompts and few-shot templates enforcing strict JSON output structures with risk levels, root-cause diagnostics, and actionable recommendations.
+- [`insights.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/insights.py): Multi-provider LLM cascade: attempts OpenRouter (primary), Google Gemini (secondary), and GitHub Models (tertiary), falling back gracefully to deterministic rule-based analysis if offline. Includes automatic free-tier fallback (`google/gemini-2.0-flash-lite-preview-02-05:free`, `meta-llama/llama-3.3-70b-instruct:free`, `deepseek/deepseek-r1:free`) when encountering OpenRouter HTTP 402 (Insufficient Credits).
+- [`prompts.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/prompts.py): System prompts and few-shot templates enforcing strict JSON output structures with risk levels, root-cause diagnostics, and actionable recommendations. Enforces strict transaction vs. request filtering (`depth == 0` for main business transactions) so SLA targets and compliance rates are calculated only over parent transactions.
 - [`findings.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/findings.py): Deterministic rules engine scanning for SLA breaches, throughput drops, latency anomalies, and high CPU correlation.
-- [`context_packager.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/context_packager.py): Truncates and summarizes large time-series telemetry to construct token-optimized prompts for LLM consumption.
+- [`context_packager.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/ai/context_packager.py): Truncates and summarizes large time-series telemetry to construct token-optimized prompts within LLM token budgets.
+- [`ai_studio.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/api/routes/ai_studio.py): Exposes preview endpoints (`/api/ai-studio/prompt-preview`) that budget tokens and inject actual run telemetry and deterministic findings into user-inspectable prompt buffers.
 
 #### Report Synthesis Engine (`app/services/reporting/engine/`):
 - [`generator.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/reporting/engine/generator.py): Master assembler combining processed data, stylesheets, HTML components, and client-side JavaScript into a single, standalone HTML document.
-- [`data_processor.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/reporting/engine/data_processor.py): Prepares all report data structures: aligns client and server timelines, computes percentiles, formats duration strings, and prepares Chart.js datasets.
-- `components/`: Modular HTML section templates (`header.py`, `navigation.py`, `tab_executive.py`, `tab_load.py`, `tab_iterations.py`, `tab_response_time.py`, `tab_errors.py`, `tab_infrastructure.py`, `tab_comparison.py`, `modals.py`).
+- [`data_processor.py`](file:///d:/BlazemeterMCPZIP/JmeterAI/app/services/reporting/engine/data_processor.py): Prepares all report data structures: aligns client and server timelines, computes percentiles, formats duration strings, and prepares Chart.js datasets. Performs bidirectional key normalization (`avg_response_time` $\leftrightarrow$ `avg_rt`, `duration_seconds` $\leftrightarrow$ `duration_sec`, `total_requests` $\leftrightarrow$ `total`, `failed_requests` $\leftrightarrow$ `errors`) and neutral request row styling (`var(--text)`) without SLA pass/fail badges.
+- `components/`: Modular HTML section templates (`header.py`, `navigation.py`, `tab_executive.py` featuring the multi-chart snapshot control button, `tab_load.py`, `tab_iterations.py`, `tab_response_time.py`, `tab_errors.py`, `tab_infrastructure.py`, `tab_comparison.py`, `modals.py`).
 - `styles/`: Modular CSS stylesheets (`base.py`, `layout.py`, `tables.py`, `charts.py`, `comparison.py`, `drawers.py`, `print_media.py`).
-- `scripts/`: Modular JavaScript browser scripts (`core.py`, `charts.py`, `comparison.py`, `interactions.py`, `drawers.py`).
+- `scripts/`: Modular JavaScript browser scripts (`core.py`, `charts.py` containing `duplicateTxRtView()` snapshot generation, `comparison.py`, `interactions.py` with `maintainAspectRatio: false` responsive full-width charting, `drawers.py`).
 
 ---
 
