@@ -487,9 +487,16 @@ select:focus {
     color: #64748b;
 }
 
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
 .stage-running .stage-icon-box {
     background: #3b82f6;
     color: #ffffff;
+    animation: pulseGlow 1.8s infinite;
 }
 
 .stage-completed .stage-icon-box {

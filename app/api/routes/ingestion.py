@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
 from app.core.constants import STORAGE_RAW_DIR
 from app.core.logging import logger
@@ -20,6 +21,7 @@ class ApiIngestRequest(BaseModel):
     identifier: str  # Master ID or Test Result ID
     test_name: Optional[str] = None
     users: int = 1
+    run_id: Optional[str] = None
 
 
 class MCPIngestRequest(BaseModel):
@@ -28,6 +30,7 @@ class MCPIngestRequest(BaseModel):
     options: Optional[Dict[str, Any]] = None
     test_name: Optional[str] = None
     users: int = 1
+    run_id: Optional[str] = None
 
 
 @router.get("/sla-options")
@@ -44,10 +47,12 @@ async def upload_result_file(
     test_name: Optional[str] = Form(None),
     users: int = Form(1),
     sla_file: Optional[str] = Form(None),
+    run_id: Optional[str] = Form(None),
 ) -> Dict[str, Any]:
     """
     Ingests an uploaded raw performance result file (JTL, BlazeMeter JSON, NeoLoad CSV/XML),
     translates into strongly typed domain models, and compiles a standalone HTML report.
+    Executes in a background threadpool so real-time pipeline status polling is never starved.
     """
     try:
         filename = Path(file.filename).name
@@ -59,8 +64,11 @@ async def upload_result_file(
         opts = {}
         if sla_file:
             opts["sla_file"] = sla_file
+        if run_id:
+            opts["run_id"] = run_id
 
-        res = orchestrator.ingest_and_process(
+        res = await run_in_threadpool(
+            orchestrator.ingest_and_process,
             tool=tool_enum,
             ingestion=IngestionMethod.FILE_UPLOAD,
             identifier=str(target_path),
@@ -79,13 +87,17 @@ def ingest_via_api(req: ApiIngestRequest) -> Dict[str, Any]:
     """Retrieves results directly from BlazeMeter or NeoLoad REST APIs and normalizes them."""
     try:
         tool_enum = ToolType(req.tool.lower())
+        opts = {"master_id": req.identifier, "result_id": req.identifier}
+        if req.run_id:
+            opts["run_id"] = req.run_id
+
         res = orchestrator.ingest_and_process(
             tool=tool_enum,
             ingestion=IngestionMethod.DIRECT_API,
             identifier=req.identifier,
             test_name=req.test_name or f"{req.tool.upper()}_{req.identifier}",
             users=req.users,
-            options={"master_id": req.identifier, "result_id": req.identifier},
+            options=opts,
         )
         return res
     except Exception as e:
@@ -98,13 +110,17 @@ def ingest_via_mcp(req: MCPIngestRequest) -> Dict[str, Any]:
     """Retrieves results via Model Context Protocol (MCP) tool integration and normalizes them."""
     try:
         tool_enum = ToolType(req.tool.lower())
+        opts = dict(req.options or {})
+        if req.run_id:
+            opts["run_id"] = req.run_id
+
         res = orchestrator.ingest_and_process(
             tool=tool_enum,
             ingestion=IngestionMethod.MCP,
             identifier=req.identifier,
             test_name=req.test_name or f"MCP_{req.identifier}",
             users=req.users,
-            options=req.options or {},
+            options=opts,
         )
         return res
     except Exception as e:

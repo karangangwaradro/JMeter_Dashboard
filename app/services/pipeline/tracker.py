@@ -54,20 +54,42 @@ class PipelineTracker:
         self._runs: Dict[str, Dict[str, Any]] = {}
         self._latest_run_id: Optional[str] = None
 
-    def start_pipeline(self, run_id: str, tool: str, test_name: str) -> None:
+    def start_pipeline(
+        self,
+        run_id: str,
+        tool: str,
+        test_name: str,
+        initial_stage: str = "ingestion",
+        initial_detail: str = "",
+    ) -> None:
         """Initializes a new pipeline run with standard stages."""
         with self._lock:
+            # If already running with this run_id, keep existing stages
+            if run_id in self._runs:
+                existing = self._runs[run_id]
+                if existing.get("overall_status") == "running":
+                    return
+
             stages = [
                 PipelineStage(id=sid, name=name, description=desc)
                 for sid, name, desc in DEFAULT_STAGES
             ]
             now = time.time()
+
+            # Set the initial stage to running
+            for st in stages:
+                if st.id == initial_stage:
+                    st.status = "running"
+                    st.started_at = now
+                    st.detail = initial_detail or st.description
+                    break
+
             self._runs[run_id] = {
                 "run_id": run_id,
                 "tool": tool,
                 "test_name": test_name,
                 "overall_status": "running",
-                "current_stage_id": "ingestion",
+                "current_stage_id": initial_stage,
                 "started_at": now,
                 "ended_at": None,
                 "total_elapsed_ms": 0,
@@ -84,6 +106,13 @@ class PipelineTracker:
                 ],
                 "summary": {},
             }
+            if initial_detail:
+                self._runs[run_id]["logs"].append({
+                    "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S.%f")[:-3],
+                    "stage": initial_stage,
+                    "message": initial_detail,
+                    "level": "INFO",
+                })
             self._latest_run_id = run_id
 
     def start_stage(self, run_id: str, stage_id: str, detail: str = "") -> None:

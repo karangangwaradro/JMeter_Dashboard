@@ -6,10 +6,30 @@ and completion status in real-time.
 
 from typing import Any, Dict, Optional
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from app.services.pipeline.tracker import pipeline_tracker
 
 router = APIRouter(prefix="/api/pipeline", tags=["Pipeline Monitoring"])
+
+
+class InitPipelineRequest(BaseModel):
+    run_id: str
+    tool: str = "jmeter"
+    test_name: str = "Performance Execution"
+
+
+@router.post("/init")
+def init_pipeline(req: InitPipelineRequest) -> Dict[str, Any]:
+    """Pre-initializes the live pipeline stepper before or during file upload."""
+    pipeline_tracker.start_pipeline(
+        run_id=req.run_id,
+        tool=req.tool,
+        test_name=req.test_name,
+        initial_stage="ingestion",
+        initial_detail=f"Receiving {req.tool} test artifact and preparing ingestion pipeline...",
+    )
+    return {"success": True, "run_id": req.run_id}
 
 
 @router.get("/status")

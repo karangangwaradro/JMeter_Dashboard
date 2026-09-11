@@ -78,6 +78,9 @@ class TestWorkflowOrchestrator:
 
         # Step 3: Workload & SLA Resolution
         pipeline_tracker.start_stage(run_id, "sla", "Resolving concurrency and evaluating SLA compliance...")
+        sla_targets = {}
+        default_rt = float(options.get("default_rt", 500.0))
+        default_err = float(options.get("default_err", 1.0))
         try:
             # Resolve total concurrent users from time-series or JMX if default was passed
             if users <= 1 and ts_result.active_threads:
@@ -143,7 +146,9 @@ class TestWorkflowOrchestrator:
                 else:
                     pipeline_tracker.skip_stage(run_id, "ai_insights", "AI insights skipped (no response)")
             except Exception as ai_err:
-                logger.warning(f"AI insights generation skipped: {ai_err}")
+                import traceback
+                traceback.print_exc()
+                logger.warning(f"AI insights generation skipped: {ai_err}", exc_info=True)
                 pipeline_tracker.complete_stage(run_id, "ai_insights", f"AI insights skipped: {ai_err}")
         else:
             pipeline_tracker.complete_stage(run_id, "ai_insights", "Using pre-supplied AI insights")

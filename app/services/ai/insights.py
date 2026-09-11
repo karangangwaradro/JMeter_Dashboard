@@ -40,7 +40,24 @@ _DEBUG_LOG_FILE = _LOGS_DIR / "ai_debug.log"
 
 
 def _ensure_logs_dir():
-    _LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        _LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
+
+
+def safe_print(*args, **kwargs) -> None:
+    """Print to stdout safely on Windows, suppressing Errno 22 / invalid handle errors."""
+    try:
+        kwargs.setdefault("flush", True)
+        print(*args, **kwargs)
+    except OSError as e:
+        if getattr(e, "errno", None) in (22, 9):  # EINVAL, EBADF
+            pass
+        else:
+            raise
+    except Exception:
+        pass
 
 
 def _log_ai_prompt(provider: str, model: str, prompt: str, action: str = "insights") -> None:
@@ -59,21 +76,27 @@ def _log_ai_prompt(provider: str, model: str, prompt: str, action: str = "insigh
             f"PROMPT LENGTH: {len(prompt):,} characters (~{tokens_est:,} estimated tokens)\n"
             f"{'='*80}\n\n"
         )
-        _PROMPT_LOG_FILE.write_text(header + prompt, encoding="utf-8", errors="replace")
+        try:
+            _PROMPT_LOG_FILE.write_text(header + prompt, encoding="utf-8", errors="replace")
+        except Exception:
+            pass
         
-        with open(_DEBUG_LOG_FILE, "a", encoding="utf-8", errors="replace") as f:
-            f.write(f"[{ts}] [PROMPT] provider={provider} model={model} action={action} chars={len(prompt)} tokens~{tokens_est}\n")
+        try:
+            with open(_DEBUG_LOG_FILE, "a", encoding="utf-8", errors="replace") as f:
+                f.write(f"[{ts}] [PROMPT] provider={provider} model={model} action={action} chars={len(prompt)} tokens~{tokens_est}\n")
+        except Exception:
+            pass
             
         prompt_snippet = prompt.strip()[:400].replace("\n", " ")
         safe_prompt = prompt_snippet.encode(getattr(sys.stdout, "encoding", None) or "utf-8", errors="replace").decode(getattr(sys.stdout, "encoding", None) or "utf-8")
-        print(f"\n{'='*80}", flush=True)
-        print(f"[AI ENGINE] >>> DISPATCHING PROMPT TO: {provider.upper()} ({model})", flush=True)
-        print(f"[AI ENGINE] Action: {action} | Length: {len(prompt):,} chars (~{tokens_est:,} tokens)", flush=True)
-        print(f"[AI ENGINE] Prompt Preview: {safe_prompt}...", flush=True)
-        print(f"[AI ENGINE] Full Prompt Saved to: logs/ai_last_prompt.txt", flush=True)
-        print(f"{'='*80}\n", flush=True)
+        safe_print(f"\n{'='*80}")
+        safe_print(f"[AI ENGINE] >>> DISPATCHING PROMPT TO: {provider.upper()} ({model})")
+        safe_print(f"[AI ENGINE] Action: {action} | Length: {len(prompt):,} chars (~{tokens_est:,} tokens)")
+        safe_print(f"[AI ENGINE] Prompt Preview: {safe_prompt}...")
+        safe_print(f"[AI ENGINE] Full Prompt Saved to: logs/ai_last_prompt.txt")
+        safe_print(f"{'='*80}\n")
     except Exception as e:
-        print(f"[AI ENGINE] Warning: Failed to write prompt log: {e}", flush=True)
+        safe_print(f"[AI ENGINE] Warning: Failed to write prompt log: {e}")
 
 
 def _log_ai_response(provider: str, model: str, raw_text: str, elapsed_ms: int,
@@ -112,27 +135,33 @@ def _log_ai_response(provider: str, model: str, raw_text: str, elapsed_ms: int,
         if error:
             header += f"ERROR:           {error}\n"
         header += f"{'='*80}\n\n"
-        _RESPONSE_LOG_FILE.write_text(header + (raw_text or ""), encoding="utf-8", errors="replace")
+        try:
+            _RESPONSE_LOG_FILE.write_text(header + (raw_text or ""), encoding="utf-8", errors="replace")
+        except Exception:
+            pass
         
-        with open(_DEBUG_LOG_FILE, "a", encoding="utf-8", errors="replace") as f:
-            err_str = f" error=\"{error}\"" if error else ""
-            f.write(f"[{ts}] [RESPONSE] provider={provider} model={model} status={status} elapsed={elapsed_ms}ms chars={raw_len} {usage_debug}{err_str}\n")
+        try:
+            with open(_DEBUG_LOG_FILE, "a", encoding="utf-8", errors="replace") as f:
+                err_str = f" error=\"{error}\"" if error else ""
+                f.write(f"[{ts}] [RESPONSE] provider={provider} model={model} status={status} elapsed={elapsed_ms}ms chars={raw_len} {usage_debug}{err_str}\n")
+        except Exception:
+            pass
             
-        print(f"\n{'='*80}", flush=True)
-        print(f"[AI ENGINE] <<< RAW RESPONSE RECEIVED FROM {provider.upper()} ({elapsed_ms:,} ms)", flush=True)
-        print(f"[AI ENGINE] Status: {status} | Length: {raw_len:,} chars", flush=True)
-        print(f"[AI ENGINE] Token Consumption: {usage_str}", flush=True)
-        print(f"[AI ENGINE] Full Raw Response Saved to: logs/ai_last_response.txt", flush=True)
+        safe_print(f"\n{'='*80}")
+        safe_print(f"[AI ENGINE] <<< RAW RESPONSE RECEIVED FROM {provider.upper()} ({elapsed_ms:,} ms)")
+        safe_print(f"[AI ENGINE] Status: {status} | Length: {raw_len:,} chars")
+        safe_print(f"[AI ENGINE] Token Consumption: {usage_str}")
+        safe_print(f"[AI ENGINE] Full Raw Response Saved to: logs/ai_last_response.txt")
         if raw_text:
             snippet = raw_text.strip()[:400].replace("\n", " ")
             safe_snippet = snippet.encode(getattr(sys.stdout, "encoding", None) or "utf-8", errors="replace").decode(getattr(sys.stdout, "encoding", None) or "utf-8")
-            print(f"[AI ENGINE] Response Preview: {safe_snippet}...", flush=True)
+            safe_print(f"[AI ENGINE] Response Preview: {safe_snippet}...")
         if error:
             safe_err = str(error).encode(getattr(sys.stdout, "encoding", None) or "utf-8", errors="replace").decode(getattr(sys.stdout, "encoding", None) or "utf-8")
-            print(f"[AI ENGINE] Error Detail: {safe_err}", flush=True)
-        print(f"{'='*80}\n", flush=True)
+            safe_print(f"[AI ENGINE] Error Detail: {safe_err}")
+        safe_print(f"{'='*80}\n")
     except Exception as e:
-        print(f"[AI ENGINE] Warning: Failed to write response log: {e}", flush=True)
+        safe_print(f"[AI ENGINE] Warning: Failed to write response log: {e}")
 
 
 def _normalize_model_for_provider(provider: str, model_str: str) -> str:
@@ -262,7 +291,7 @@ def _safe_json_loads(text: str, provider_name: str = "AI") -> dict:
     if not t:
         raise ValueError(f"Empty response received from {provider_name}.")
 
-    print(f"[AI ENGINE] Parsing JSON response ({len(t):,} chars)...", flush=True)
+    safe_print(f"[AI ENGINE] Parsing JSON response ({len(t):,} chars)...")
 
     if t.startswith("```"):
         t = t.split("\n", 1)[1] if "\n" in t else t[3:]
@@ -275,15 +304,15 @@ def _safe_json_loads(text: str, provider_name: str = "AI") -> dict:
     try:
         parsed = json.loads(t, strict=False)
         if isinstance(parsed, dict):
-            print(f"[AI ENGINE] [JSON OK] Standard parser succeeded. Keys: {list(parsed.keys())[:6]}", flush=True)
+            safe_print(f"[AI ENGINE] [JSON OK] Standard parser succeeded. Keys: {list(parsed.keys())[:6]}")
             return parsed
     except Exception as e1:
-        print(f"[AI ENGINE] [JSON NOTICE] Standard parser failed ({e1}). Attempting automated repair...", flush=True)
+        safe_print(f"[AI ENGINE] [JSON NOTICE] Standard parser failed ({e1}). Attempting automated repair...")
 
     try:
         repaired = _pure_python_repair_json(t)
         if isinstance(repaired, dict) and repaired:
-            print(f"[AI ENGINE] [JSON REPAIRED] Pure-Python repair succeeded. Keys: {list(repaired.keys())[:6]}", flush=True)
+            safe_print(f"[AI ENGINE] [JSON REPAIRED] Pure-Python repair succeeded. Keys: {list(repaired.keys())[:6]}")
             return repaired
     except Exception:
         pass
@@ -297,7 +326,7 @@ def _safe_json_loads(text: str, provider_name: str = "AI") -> dict:
             except Exception:
                 pass
         if isinstance(repaired, dict) and repaired:
-            print(f"[AI ENGINE] [JSON REPAIRED] json_repair package succeeded. Keys: {list(repaired.keys())[:6]}", flush=True)
+            safe_print(f"[AI ENGINE] [JSON REPAIRED] json_repair package succeeded. Keys: {list(repaired.keys())[:6]}")
             return repaired
     except Exception:
         pass
@@ -309,7 +338,7 @@ def _safe_json_loads(text: str, provider_name: str = "AI") -> dict:
         try:
             parsed = json.loads(sub, strict=False)
             if isinstance(parsed, dict):
-                print(f"[AI ENGINE] [JSON REPAIRED] Outer braces extraction parsed successfully.", flush=True)
+                safe_print(f"[AI ENGINE] [JSON REPAIRED] Outer braces extraction parsed successfully.")
                 return parsed
         except Exception:
             pass
@@ -317,15 +346,15 @@ def _safe_json_loads(text: str, provider_name: str = "AI") -> dict:
         try:
             repaired = _pure_python_repair_json(sub)
             if isinstance(repaired, dict) and repaired:
-                print(f"[AI ENGINE] [JSON REPAIRED] Pure-Python substring repair succeeded. Keys: {list(repaired.keys())[:6]}", flush=True)
+                safe_print(f"[AI ENGINE] [JSON REPAIRED] Pure-Python substring repair succeeded. Keys: {list(repaired.keys())[:6]}")
                 return repaired
         except Exception:
             pass
 
     err_preview = t[:300].replace("\n", " ")
-    print(f"[AI ENGINE] [JSON FAILED] All JSON parse and repair attempts failed for {provider_name} response!", flush=True)
-    print(f"[AI ENGINE] [JSON FAILED] Response preview: {err_preview}...", flush=True)
-    print(f"[AI ENGINE] [JSON FAILED] Complete raw response saved to: logs/ai_last_response.txt", flush=True)
+    safe_print(f"[AI ENGINE] [JSON FAILED] All JSON parse and repair attempts failed for {provider_name} response!")
+    safe_print(f"[AI ENGINE] [JSON FAILED] Response preview: {err_preview}...")
+    safe_print(f"[AI ENGINE] [JSON FAILED] Complete raw response saved to: logs/ai_last_response.txt")
     raise ValueError(f"Failed to parse JSON response from {provider_name}. Full response logged to logs/ai_last_response.txt. Preview: {err_preview}")
 
 
@@ -636,7 +665,7 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "go
             if m:
                 affordable = int(m.group(1)) - 50
                 if affordable >= 800:
-                    print(f"[AI ENGINE] [CREDIT LIMIT DETECTED] OpenRouter 402: Auto-retrying with max_tokens={affordable}...", flush=True)
+                    safe_print(f"[AI ENGINE] [CREDIT LIMIT DETECTED] OpenRouter 402: Auto-retrying with max_tokens={affordable}...")
                     try:
                         content, usage = _do_call(affordable)
                     except Exception as retry_err:
@@ -649,7 +678,7 @@ def execute_openrouter_prompt(prompt: str, api_key: str = None, model: str = "go
                     raise Exception(f"OpenRouter Error (402 Insufficient Credits): {err_msg}")
             else:
                 if norm_model != "openrouter/free":
-                    print(f"[AI ENGINE] [CREDIT LIMIT DETECTED] OpenRouter 402 ({norm_model}): Auto-falling back to openrouter/free...", flush=True)
+                    safe_print(f"[AI ENGINE] [CREDIT LIMIT DETECTED] OpenRouter 402 ({norm_model}): Auto-falling back to openrouter/free...")
                     try:
                         norm_model = "openrouter/free"
                         content, usage = _do_call(4000)
@@ -710,53 +739,57 @@ def generate_ai_insights(test_name: str, summary: dict, labels: dict,
     if not labels_by_tg and summary and isinstance(summary, dict):
         labels_by_tg = summary.get("transactions_by_thread_group") or {}
 
-    prompt = build_insights_prompt(
-        test_name, summary, labels, time_series, infra, correlation,
-        sla_targets=sla_targets, default_rt=default_rt, default_err=default_err,
-        error_details=error_details, users=users, rampup=rampup,
-        labels_by_tg=labels_by_tg
-    )
+    try:
+        prompt = build_insights_prompt(
+            test_name, summary, labels, time_series, infra, correlation,
+            sla_targets=sla_targets, default_rt=default_rt, default_err=default_err,
+            error_details=error_details, users=users, rampup=rampup,
+            labels_by_tg=labels_by_tg
+        )
+    except Exception as prompt_err:
+        safe_print(f"[AI ENGINE] Error constructing insights prompt: {prompt_err}")
+        return {}
 
     # 1. Attempt preferred provider first
     if preferred_provider == "openrouter" and openrouter_key:
         try:
             model = _normalize_model_for_provider("openrouter", preferred_model)
-            print(f"[AI ENGINE] [PRIMARY] Attempting preferred provider: OpenRouter ({model})", flush=True)
+            safe_print(f"[AI ENGINE] [PRIMARY] Attempting preferred provider: OpenRouter ({model})")
             return execute_openrouter_prompt(prompt, api_key=openrouter_key, model=model, summary=summary, infra=infra)[0]
         except Exception as e:
-            print(f"[AI ENGINE] [NOTICE] OpenRouter error: {e}. Initiating fallback cascade...", flush=True)
+            safe_print(f"[AI ENGINE] [NOTICE] OpenRouter error: {e}. Initiating fallback cascade...")
 
     elif preferred_provider == "gemini" and gemini_key:
         try:
             model = _normalize_model_for_provider("gemini", preferred_model)
-            print(f"[AI ENGINE] [PRIMARY] Attempting preferred provider: Gemini ({model})", flush=True)
+            safe_print(f"[AI ENGINE] [PRIMARY] Attempting preferred provider: Gemini ({model})")
             return execute_gemini_prompt(prompt, api_key=gemini_key, model=model, summary=summary, infra=infra)[0]
         except Exception as e:
-            print(f"[AI ENGINE] [NOTICE] Gemini error: {e}. Initiating fallback cascade...", flush=True)
+            safe_print(f"[AI ENGINE] [NOTICE] Gemini error: {e}. Initiating fallback cascade...")
 
     elif preferred_provider == "github" and github_token:
         try:
             model = _normalize_model_for_provider("github", preferred_model)
-            print(f"[AI ENGINE] [PRIMARY] Attempting preferred provider: GitHub AI ({model})", flush=True)
+            safe_print(f"[AI ENGINE] [PRIMARY] Attempting preferred provider: GitHub AI ({model})")
             return execute_github_prompt(prompt, github_token=github_token, model=model, summary=summary, infra=infra)[0]
         except Exception as e:
-            print(f"[AI ENGINE] [NOTICE] GitHub AI error: {e}. Initiating fallback cascade...", flush=True)
+            safe_print(f"[AI ENGINE] [NOTICE] GitHub AI error: {e}. Initiating fallback cascade...")
 
     # 2. Fallback Cascade: Gemini Direct
     if gemini_key and preferred_provider != "gemini":
         try:
-            print("[AI ENGINE] [FALLBACK] Attempting fallback: Gemini (gemini-2.5-flash)...", flush=True)
+            safe_print("[AI ENGINE] [FALLBACK] Attempting fallback: Gemini (gemini-2.5-flash)...")
             return execute_gemini_prompt(prompt, api_key=gemini_key, model="gemini-2.5-flash", summary=summary, infra=infra)[0]
         except Exception as e:
-            print(f"[AI ENGINE] [FALLBACK FAILED] Gemini error: {e}", flush=True)
+            safe_print(f"[AI ENGINE] [FALLBACK FAILED] Gemini error: {e}")
 
     # 3. Fallback Cascade: GitHub Models
     if github_token and preferred_provider != "github":
         try:
-            print("[AI ENGINE] [FALLBACK] Attempting fallback: GitHub Models (gpt-4o-mini)...", flush=True)
+            safe_print("[AI ENGINE] [FALLBACK] Attempting fallback: GitHub Models (gpt-4o-mini)...")
             return execute_github_prompt(prompt, github_token=github_token, model="gpt-4o-mini", summary=summary, infra=infra)[0]
         except Exception as e:
-            print(f"[AI ENGINE] [FALLBACK FAILED] GitHub Models error: {e}", flush=True)
+            safe_print(f"[AI ENGINE] [FALLBACK FAILED] GitHub Models error: {e}")
 
     # 4. Fallback Cascade: OpenRouter Free Models
     if openrouter_key:
@@ -768,13 +801,13 @@ def generate_ai_insights(test_name: str, summary: dict, labels: dict,
         ]
         for fm in free_models:
             try:
-                print(f"[AI ENGINE] [FALLBACK] Attempting OpenRouter free tier model: {fm}...", flush=True)
+                safe_print(f"[AI ENGINE] [FALLBACK] Attempting OpenRouter free tier model: {fm}...")
                 return execute_openrouter_prompt(prompt, api_key=openrouter_key, model=fm, summary=summary, infra=infra)[0]
             except Exception as e:
-                print(f"[AI ENGINE] [FALLBACK FAILED] OpenRouter ({fm}) error: {e}", flush=True)
+                safe_print(f"[AI ENGINE] [FALLBACK FAILED] OpenRouter ({fm}) error: {e}")
 
-    print("[AI ENGINE] [WARNING] All AI providers in fallback cascade failed or are unconfigured.", flush=True)
-    print("[AI ENGINE] [WARNING] Full prompt and raw response error details saved in logs/ directory.", flush=True)
+    safe_print("[AI ENGINE] [WARNING] All AI providers in fallback cascade failed or are unconfigured.")
+    safe_print("[AI ENGINE] [WARNING] Full prompt and raw response error details saved in logs/ directory.")
     return {}
 
 
@@ -831,37 +864,37 @@ def generate_2run_comparison_ai_insights(scorecard: dict, transactions: list, ne
     if preferred_provider == "openrouter" and openrouter_key:
         try:
             model = _normalize_model_for_provider("openrouter", preferred_model)
-            print(f"[Comparison AI] Attempting OpenRouter ({model})...", flush=True)
+            safe_print(f"[Comparison AI] Attempting OpenRouter ({model})...")
             res = execute_openrouter_prompt(prompt, api_key=openrouter_key, model=model)[0]
             if res and res.get("executive_summary"):
                 return res
         except Exception as e:
-            print(f"[Comparison AI] OpenRouter error: {e}", flush=True)
+            safe_print(f"[Comparison AI] OpenRouter error: {e}")
 
     elif preferred_provider == "gemini" and gemini_key:
         try:
             model = _normalize_model_for_provider("gemini", preferred_model)
-            print(f"[Comparison AI] Attempting Gemini ({model})...", flush=True)
+            safe_print(f"[Comparison AI] Attempting Gemini ({model})...")
             res = execute_gemini_prompt(prompt, api_key=gemini_key, model=model)[0]
             if res and res.get("executive_summary"):
                 return res
         except Exception as e:
-            print(f"[Comparison AI] Gemini error: {e}", flush=True)
+            safe_print(f"[Comparison AI] Gemini error: {e}")
 
     elif preferred_provider == "github" and github_token:
         try:
             model = _normalize_model_for_provider("github", preferred_model)
-            print(f"[Comparison AI] Attempting GitHub ({model})...", flush=True)
+            safe_print(f"[Comparison AI] Attempting GitHub ({model})...")
             res = execute_github_prompt(prompt, github_token=github_token, model=model)[0]
             if res and res.get("executive_summary"):
                 return res
         except Exception as e:
-            print(f"[Comparison AI] GitHub error: {e}", flush=True)
+            safe_print(f"[Comparison AI] GitHub error: {e}")
 
     # 2. Try fallbacks
     if gemini_key:
         try:
-            print("[Comparison AI] Fallback to Gemini (gemini-2.5-flash)...", flush=True)
+            safe_print("[Comparison AI] Fallback to Gemini (gemini-2.5-flash)...")
             res = execute_gemini_prompt(prompt, api_key=gemini_key, model="gemini-2.5-flash")[0]
             if res and res.get("executive_summary"):
                 return res
@@ -870,7 +903,7 @@ def generate_2run_comparison_ai_insights(scorecard: dict, transactions: list, ne
 
     if github_token:
         try:
-            print("[Comparison AI] Fallback to GitHub (gpt-4o-mini)...", flush=True)
+            safe_print("[Comparison AI] Fallback to GitHub (gpt-4o-mini)...")
             res = execute_github_prompt(prompt, github_token=github_token, model="gpt-4o-mini")[0]
             if res and res.get("executive_summary"):
                 return res
@@ -880,7 +913,7 @@ def generate_2run_comparison_ai_insights(scorecard: dict, transactions: list, ne
     if openrouter_key:
         for fm in ["openrouter/free", "google/gemma-4-31b-it:free", "liquid/lfm-2.5-2.6b:free", "dots-studio/dots-3-note-preview:free"]:
             try:
-                print(f"[Comparison AI] Fallback to OpenRouter free model ({fm})...", flush=True)
+                safe_print(f"[Comparison AI] Fallback to OpenRouter free model ({fm})...")
                 res = execute_openrouter_prompt(prompt, api_key=openrouter_key, model=fm)[0]
                 if res and res.get("executive_summary"):
                     return res
@@ -969,12 +1002,12 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
                 except Exception:
                     err_detail = err_body
                 msg_err = f"OpenRouter ({m}) [{err.code}]: {err_detail[:120]}"
-                print(f"[AI Chat] {msg_err}", flush=True)
+                safe_print(f"[AI Chat] {msg_err}")
                 _log_ai_response("openrouter", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
                 errors_log.append(msg_err)
             except Exception as e:
                 msg_err = f"OpenRouter ({m}): {str(e)}"
-                print(f"[AI Chat] {msg_err}", flush=True)
+                safe_print(f"[AI Chat] {msg_err}")
                 _log_ai_response("openrouter", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
                 errors_log.append(msg_err)
 
@@ -1030,12 +1063,12 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
             except Exception:
                 err_detail = err_body
             msg_err = f"Gemini [{err.code}]: {err_detail[:120]}"
-            print(f"[AI Chat] {msg_err}", flush=True)
+            safe_print(f"[AI Chat] {msg_err}")
             _log_ai_response("gemini", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
         except Exception as e:
             msg_err = f"Gemini: {str(e)}"
-            print(f"[AI Chat] {msg_err}", flush=True)
+            safe_print(f"[AI Chat] {msg_err}")
             _log_ai_response("gemini", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
 
@@ -1079,12 +1112,12 @@ def execute_chat_completion(system_prompt: str, messages: list, temperature: flo
             except Exception:
                 err_detail = err_body
             msg_err = f"GitHub AI [{err.code}]: {err_detail[:120]}"
-            print(f"[AI Chat] {msg_err}", flush=True)
+            safe_print(f"[AI Chat] {msg_err}")
             _log_ai_response("github", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
         except Exception as e:
             msg_err = f"GitHub AI: {str(e)}"
-            print(f"[AI Chat] {msg_err}", flush=True)
+            safe_print(f"[AI Chat] {msg_err}")
             _log_ai_response("github", m, "", elapsed_ms=int((time.time() - start_time) * 1000), status="ERROR", error=msg_err)
             errors_log.append(msg_err)
 

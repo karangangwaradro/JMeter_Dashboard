@@ -189,10 +189,13 @@ export function updatePipelineModal(data) {
                 item.className = `pipeline-stage-item stage-${st.status}`;
             }
             if (timeBadge) {
-                if (st.elapsed_ms > 0) {
+                if (st.status === "running") {
+                    const curSec = st.elapsed_ms >= 1000 ? `${(st.elapsed_ms / 1000).toFixed(1)}s` : `${st.elapsed_ms || 0}ms`;
+                    timeBadge.textContent = curSec;
+                } else if (st.status === "completed") {
                     timeBadge.textContent = st.elapsed_ms >= 1000 ? `${(st.elapsed_ms / 1000).toFixed(1)}s` : `${st.elapsed_ms}ms`;
-                } else if (st.status === "running") {
-                    timeBadge.textContent = "Running...";
+                } else if (st.status === "skipped") {
+                    timeBadge.textContent = "Skipped";
                 }
             }
             if (detail && st.detail) {
@@ -200,7 +203,7 @@ export function updatePipelineModal(data) {
             }
             if (icon) {
                 if (st.status === "completed") icon.textContent = "✓";
-                else if (st.status === "running") icon.innerHTML = '<span class="spinner-inline" style="border-top-color:#ffffff; border-color:rgba(255,255,255,0.3); width:14px; height:14px;"></span>';
+                else if (st.status === "running") icon.innerHTML = '<span class="spinner-inline" style="border-top-color:#ffffff; border-color:rgba(255,255,255,0.3); width:14px; height:14px; display:inline-block;"></span>';
                 else if (st.status === "failed") icon.textContent = "✕";
                 else icon.textContent = stageIcons[st.id] || "⏳";
             }
@@ -320,7 +323,7 @@ export function startPipelineTracking(runId, tool, targetName) {
         } catch (err) {
             console.warn("Pipeline polling ping:", err);
         }
-    }, 450);
+    }, 400);
 }
 
 export async function handleRunTest(e) {
@@ -336,35 +339,59 @@ export async function handleRunTest(e) {
             return;
         }
         const file = fileInput.files[0];
-        const scenarioName = document.getElementById("raw-test-name") ? document.getElementById("raw-test-name").value : "";
+        const scenarioName = document.getElementById("raw-test-name") ? document.getElementById("raw-test-name").value.trim() : "";
         const slaSelect = document.getElementById("raw-sla-select");
         const slaFile = slaSelect ? slaSelect.value : "";
+
+        // Generate unique run_id pinned to this upload
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const tsStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        const runId = `run_${tsStr}`;
+        const displayName = scenarioName || file.name;
+
+        // Immediately notify tracker so UI reflects active ingestion right away
+        api.post("/api/pipeline/init", {
+            run_id: runId,
+            tool: tool,
+            test_name: displayName,
+        }).catch(() => {});
+
+        // Open live pipeline progress stepper modal pinned to this runId
+        startPipelineTracking(runId, tool, displayName);
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("tool", tool);
+        formData.append("run_id", runId);
         if (scenarioName) formData.append("test_name", scenarioName);
         if (slaFile) formData.append("sla_file", slaFile);
-
-        // Open live pipeline progress stepper modal immediately
-        startPipelineTracking(null, tool, scenarioName || file.name);
 
         const btn = document.getElementById("btn-launch-test");
         try {
             if (btn) btn.textContent = "Processing Pipeline...";
             const data = await api.upload("/api/ingest/upload", formData);
             if (data.success) {
-                // Ensure tracker captures completion with exact report_url
-                if (data.run_id) {
-                    const statusRes = await api.get(`/api/pipeline/status?run_id=${encodeURIComponent(data.run_id)}`);
-                    if (statusRes) updatePipelineModal(statusRes);
-                }
+                const finalRunId = data.run_id || runId;
+                const statusRes = await api.get(`/api/pipeline/status?run_id=${encodeURIComponent(finalRunId)}`);
+                if (statusRes) updatePipelineModal(statusRes);
                 loadRuns();
                 loadReports();
             } else {
+                updatePipelineModal({
+                    overall_status: "failed",
+                    error_message: data.message || "Upload processing failed",
+                    stages: []
+                });
                 alert("Upload failed: " + (data.message || JSON.stringify(data)));
             }
         } catch (err) {
             console.error("Upload ingestion error: ", err);
+            updatePipelineModal({
+                overall_status: "failed",
+                error_message: err.message || String(err),
+                stages: []
+            });
         } finally {
             if (btn) btn.textContent = "Upload & Generate Report";
         }
@@ -379,27 +406,49 @@ export async function handleRunTest(e) {
             return;
         }
 
-        startPipelineTracking(null, tool, `${tool.toUpperCase()} ID: ${testId}`);
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const tsStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        const runId = `run_${tsStr}`;
+        const displayName = `${tool.toUpperCase()} ID: ${testId}`;
+
+        api.post("/api/pipeline/init", {
+            run_id: runId,
+            tool: tool,
+            test_name: displayName,
+        }).catch(() => {});
+
+        startPipelineTracking(runId, tool, displayName);
 
         try {
             const endpoint = method === "mcp" ? "/api/ingest/mcp" : "/api/ingest/api";
             const data = await api.post(endpoint, {
                 tool: tool,
                 identifier: testId,
-                users: users
+                users: users,
+                run_id: runId,
             });
             if (data.success) {
-                if (data.run_id) {
-                    const statusRes = await api.get(`/api/pipeline/status?run_id=${encodeURIComponent(data.run_id)}`);
-                    if (statusRes) updatePipelineModal(statusRes);
-                }
+                const finalRunId = data.run_id || runId;
+                const statusRes = await api.get(`/api/pipeline/status?run_id=${encodeURIComponent(finalRunId)}`);
+                if (statusRes) updatePipelineModal(statusRes);
                 loadRuns();
                 loadReports();
             } else {
+                updatePipelineModal({
+                    overall_status: "failed",
+                    error_message: data.message || "Ingestion processing failed",
+                    stages: []
+                });
                 alert("Ingestion error: " + (data.message || JSON.stringify(data)));
             }
         } catch (err) {
             console.error("Ingestion request failed: ", err);
+            updatePipelineModal({
+                overall_status: "failed",
+                error_message: err.message || String(err),
+                stages: []
+            });
         }
         return;
     }
